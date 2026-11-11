@@ -485,7 +485,8 @@
                   "object": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 4096
+                    "maxLength": 4096,
+                    "description": "原题所求的函数或对象名称。"
                   },
                   "range": {
                     "type": "string",
@@ -496,7 +497,8 @@
                   "symbol": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 4096
+                    "maxLength": 4096,
+                    "description": "原题所求的变量或参数符号，不填写答案。"
                   }
                 },
                 "additionalProperties": false,
@@ -1480,7 +1482,8 @@
       ],
       "properties": {
         "kind": {
-          "const": "find_value"
+          "const": "find_value",
+          "description": "求函数值"
         },
         "function": {
           "type": "string",
@@ -1564,7 +1567,8 @@
       ],
       "properties": {
         "kind": {
-          "const": "find_range"
+          "const": "find_range",
+          "description": "求取值范围"
         },
         "function": {
           "type": "string",
@@ -1709,21 +1713,26 @@
       ],
       "properties": {
         "kind": {
-          "const": "find_equation"
+          "const": "find_equation",
+          "description": "求函数解析式"
         },
         "object": {
-          "type": "string"
+          "type": "string",
+          "description": "原题所求的函数或对象名称。"
         },
         "pricing": {
-          "$ref": "#/$defs/PiecewisePricing"
+          "$ref": "#/$defs/PiecewisePricing",
+          "description": "题面给出的分段计费规则。"
         },
         "source_text": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "对应本目标的题面原文，不含解答。"
         },
         "bill": {
           "type": "string",
-          "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+          "pattern": "^\\d{1,6}(\\.\\d{1,4})?$",
+          "description": "题面给出的账单金额，保留原数值。"
         }
       }
     },
@@ -1740,21 +1749,26 @@
       ],
       "properties": {
         "kind": {
-          "const": "find_range"
+          "const": "find_range",
+          "description": "求取值范围"
         },
         "symbol": {
-          "type": "string"
+          "type": "string",
+          "description": "原题所求的变量或参数符号，不填写答案。"
         },
         "pricing": {
-          "$ref": "#/$defs/PiecewisePricing"
+          "$ref": "#/$defs/PiecewisePricing",
+          "description": "题面给出的分段计费规则。"
         },
         "source_text": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "对应本目标的题面原文，不含解答。"
         },
         "bill": {
           "type": "string",
-          "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+          "pattern": "^\\d{1,6}(\\.\\d{1,4})?$",
+          "description": "题面给出的账单金额，保留原数值。"
         }
       }
     }

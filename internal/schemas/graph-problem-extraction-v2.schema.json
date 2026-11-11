@@ -666,6 +666,9 @@
               },
               {
                 "$ref": "#/$defs/AbstractMonotonicityGoal"
+              },
+              {
+                "$ref": "#/$defs/FunctionParityGoal"
               }
             ]
           },
@@ -2407,6 +2410,49 @@
           ]
         }
       }
+    },
+    "FunctionParityGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "function",
+        "variable",
+        "expression"
+      ],
+      "properties": {
+        "kind": {
+          "const": "determine_function_parity",
+          "description": "判断具体函数的奇偶性"
+        },
+        "function": {
+          "type": "string",
+          "pattern": "^[a-z](?:_[0-9]+)?$"
+        },
+        "variable": {
+          "type": "string",
+          "pattern": "^[a-z]$"
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "题给函数的原式，不约分、不化简。"
+        },
+        "input_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "仅题面明确给出定义域或输入范围时填写；不填自然定义域。"
+        },
+        "domain_role": {
+          "enum": [
+            "declared",
+            "restriction"
+          ]
+        }
+      },
+      "description": "判断题给具体函数是奇函数、偶函数、既奇又偶还是非奇非偶；不预填结论。"
     },
     "AbstractMonotonicityGoal": {
       "type": "object",

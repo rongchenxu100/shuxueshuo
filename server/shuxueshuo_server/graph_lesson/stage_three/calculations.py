@@ -113,6 +113,12 @@ def dispatch(payload):
     if operation == 'finish_abstract_monotonicity':
         from .abstract_monotonicity_runtime import finish
         return finish(payload['state'], payload['context'], payload['previous'])
+    if operation == 'verify_function_parity':
+        from .parity_runtime import verify_frozen
+        return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'], payload['parity_result_exact'])
+    if operation == 'finish_function_parity':
+        from .parity_runtime import finish
+        return finish(payload['state'], payload['context'], payload['previous'])
     if operation == 'verify_function_monotonicity':
         from .monotonicity_runtime import verify_frozen
         return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'], payload['monotonicity_result_exact'])

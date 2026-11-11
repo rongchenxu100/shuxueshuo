@@ -1074,6 +1074,11 @@ class NotationValidator:
 
                     goals.append(compile_comparison(goal, f'{path}.goals[{index}]'))
                     continue
+                if goal['kind'] == 'determine_function_parity':
+                    from .notation_function_parity import compile_parity
+
+                    goals.append(compile_parity(goal, f'{path}.goals[{index}]'))
+                    continue
                 if goal['kind'] in ('find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
                     from .notation_abstract_domain import compile_abstract_domain
 

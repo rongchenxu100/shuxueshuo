@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-parity-a01-2-v2",
+  "bundleVersion": "[\"stream\",\"730a03b5864b7b0b9fbb819ada13e67b6a57c9430ca16b6aa571d9966d1e606c\",\"fb300c88df7cfb61d976590391a2a00264816972d5d5bf573c8d7cdab8e0759d\",\"1ed01fffccae4fa39337e3b4d983dffa\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "parity-definition"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-parity"
+    },
+    {
+      "decision": "D3",
+      "answer": "read"
+    },
+    {
+      "decision": "28cf23b4eaf7ebb8f0a9cb8f#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "700f63e78b2ade35b6f098a3#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "c9644617704fbdf464e5d609#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "c9644617704fbdf464e5d609#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "f886262a2f0e366358daaf89#1",
+      "answer": "o1"
+    }
+  ]
+}

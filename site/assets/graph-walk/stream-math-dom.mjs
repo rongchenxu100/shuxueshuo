@@ -233,6 +233,10 @@ export function routeAnswerSummary(answer = {}, {routeId} = {}) {
   if (['determine_monotonicity_on_interval', 'prove_monotonicity_on_interval'].includes(answer.kind) && answer.status === 'complete' && typeof answer.latex === 'string') {
     return {label: '单调性：', formula: answer.latex};
   }
+  if (answer.kind === 'determine_function_parity' && answer.status === 'complete' && typeof answer.latex === 'string' &&
+      ['odd_only', 'even_only', 'both', 'neither'].includes(answer.classification)) {
+    return {label: '奇偶性：', formula: answer.latex};
+  }
   if (['draw_function_graph', 'solve_graph_inequality'].includes(answer.kind) && answer.status === 'complete' && typeof answer.latex === 'string') {
     return {label: answer.kind === 'draw_function_graph' ? '作图依据：' : '不等式的解集：', formula: answer.latex};
   }

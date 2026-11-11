@@ -53,6 +53,13 @@
 - [FM-T4：真实照片 OCR 与课程集成验收](function-monotonicity-t4-acceptance.md)
 - [FM-T5 证明抽象函数的单调性：题型开发设计](function-monotonicity-abstract-proof-problem-type-design.md)
 - [FP-T1 判断函数的奇偶性：设计与实现方案](function-parity-problem-type-design.md)
+- [FP-T1 常见变式支持与修复记录](function-parity-t1-generalization-acceptance.md)
+- [FP-T1：真实 OCR、模型复核与课程 API 验收](function-parity-t1-photo-acceptance.md)
+- [FP-T2 根据奇偶性求参：设计与实现方案](function-parity-parameter-problem-type-design.md)
+- [FP-T3 根据奇偶性求解析式及对称求值：设计与实现方案](function-parity-formula-problem-type-design.md)
+- [FP-T4 利用奇偶性解不等式：设计与实现方案](function-parity-inequality-problem-type-design.md)
+- [FP-T5 非奇偶的对称性：设计与实现方案](function-symmetry-problem-type-design.md)
+- [FP-T6 奇函数＋常数结论的应用：设计与实现方案](function-shifted-odd-problem-type-design.md)
 
 ## 拍题与交互课程
 

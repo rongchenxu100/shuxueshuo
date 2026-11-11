@@ -237,7 +237,13 @@ def _abstract_monotonicity(context):
     return admitted(context)
 
 
+def _function_parity(context):
+    from .parity_runtime import admitted
+    return admitted(context)
+
+
 CHECKS = {
+    'function_parity': _function_parity,
     'piecewise_modeling': _piecewise_modeling_admitted,
     'piecewise_range_parameter': _piecewise_range_parameter_admitted,
     'piecewise_inequality': _piecewise_inequality_admitted,

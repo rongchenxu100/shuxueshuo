@@ -78,6 +78,10 @@ def _diagnostic(diagnostics, generator, text=None):
             and (text is None or text in row["label"])]
 
 
+def _boundary_goal_rule(registry):
+    return next(rule for rule in registry["merges"] if rule["id"] == "boundary-goal")
+
+
 # --- Rules --------------------------------------------------------------------------
 
 def test_registry_validates_and_rejects_unknown_or_ambiguous_rules(registry):
@@ -110,11 +114,11 @@ def test_overrides_and_merge_rows_are_checked_as_complete_rules(registry):
     with pytest.raises(ValidationError):
         interaction.validate_registry(broken)
     broken = deepcopy(registry)
-    broken["merges"][0]["parts"][0]["rows"][1]["seed"] = 2
+    _boundary_goal_rule(broken)["parts"][0]["rows"][1]["seed"] = 2
     with pytest.raises(ValueError, match="seed_index_out_of_range"):
         interaction.validate_registry(broken)
     broken = deepcopy(registry)
-    broken["templates"]["boundary_only"] = {"repeat": "always", "parts": deepcopy(registry["merges"][0]["parts"])}
+    broken["templates"]["boundary_only"] = {"repeat": "always", "parts": deepcopy(_boundary_goal_rule(registry)["parts"])}
     with pytest.raises(ValueError, match="seed_index_out_of_range"):
         interaction.validate_registry(broken)
 
@@ -126,7 +130,7 @@ def test_registry_rejects_conflicting_option_limits(registry, location, limits):
     if location == "template":
         part = broken["templates"]["variable_reorder"]["parts"][0]
     elif location == "merge":
-        part = broken["merges"][0]["parts"][0]
+        part = _boundary_goal_rule(broken)["parts"][0]
     else:
         broken["overrides"]["method-test#step"] = {"variable_reorder": {"parts": [{}]}}
         part = broken["overrides"]["method-test#step"]["variable_reorder"]["parts"][0]
@@ -419,7 +423,7 @@ def test_graph_rules_are_checked_against_their_answers(registry):
     with pytest.raises(ValueError, match="graph_not_allowed:stem"):
         interaction.validate_registry(broken)
     broken = deepcopy(registry)
-    broken["merges"][0]["parts"][0]["graphs"] = {"completion": "made_up"}
+    _boundary_goal_rule(broken)["parts"][0]["graphs"] = {"completion": "made_up"}
     with pytest.raises(ValueError, match="graph_not_allowed:completion"):
         interaction.validate_registry(broken)
     broken = deepcopy(registry)

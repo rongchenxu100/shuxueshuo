@@ -1,0 +1,7 @@
+{
+  "purpose": "unchanged live failure diagnostics before final fixes",
+  "files": {
+    "initial-stage-two.json": "83450e82399f68925d5dfcb73be3801a2089b1ba307ab39e56787d989f986966",
+    "method-admission-stage-three.json": "1780422e194cddbfc57ade8b4fde50252e3fa9e522f4735e17bd2945478e8787"
+  }
+}

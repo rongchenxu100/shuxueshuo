@@ -283,6 +283,18 @@
               ]
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "determine_function_parity"
+            }
+          }
         }
       ]
     },
@@ -3553,6 +3565,65 @@
             "<",
             ">"
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "function_parity": {
+      "type": "object",
+      "required": [
+        "kind",
+        "target",
+        "target_ref",
+        "function",
+        "structure_supported",
+        "reason",
+        "structure_version"
+      ],
+      "properties": {
+        "kind": {
+          "const": "determine_function_parity"
+        },
+        "target": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "const": "parity_task"
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ],
+          "items": false,
+          "minItems": 2
+        },
+        "target_ref": {
+          "type": "string",
+          "pattern": "^/root(?:/children/[0-9]+)*/goals/[0-9]+$"
+        },
+        "function": {
+          "type": "object",
+          "required": [
+            "function_ref",
+            "function_name",
+            "variable",
+            "source_ref",
+            "expression",
+            "expression_ast",
+            "input_domain_ast",
+            "explicit_domain",
+            "domain_role"
+          ]
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "structure_version": {
+          "const": "function-parity-definition/v2"
         }
       },
       "additionalProperties": false

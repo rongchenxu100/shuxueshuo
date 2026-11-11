@@ -13,6 +13,7 @@ from shuxueshuo_server.graph_lesson.stage_two.recognition import (
     evaluate_types,
 )
 from shuxueshuo_server.graph_lesson.stage_two.verification import verify_amgm
+from tests.solver.test_graph_stage_one_features import FUNCTION_GOAL_FEATURES
 
 QUADRATIC = "type-quantified-quadratic"
 AMGM = "type-amgm-quantified"
@@ -36,13 +37,14 @@ def test_parameter_extrema_keep_kind_and_quadratic_branch(kind, quantifier, fact
     before = deepcopy(value)
     extracted = extract_features(value)
     assert extracted["ok"]
-    assert all(f["status"] == ("unknown" if f["feature_id"] in {"function_domain", "function_comparison"} else "known")
+    assert all(f["status"] == ("unknown" if f["feature_id"] in FUNCTION_GOAL_FEATURES else "known")
                for f in extracted["features"])
     goal = next(f for f in extracted["features"] if f["feature_id"] == "goal")
     assert goal["value"] == {"kind": kind, "symbol": symbol}
     schema = json.loads(FEATURE_VALUES_PATH.read_text())
     Draft202012Validator({**schema, "$ref": "#/$defs/goal"}).validate(goal["value"])
     reports = evaluate_types(extracted["features"])
+    assert [r["type_id"] for r in reports if r["status"] == "supported"] == [QUADRATIC]
     quadratic = next(r for r in reports if r["type_id"] == QUADRATIC)
     assert quadratic["status"] == "supported"
     assert [b["branch_id"] for b in quadratic["branches"] if b["status"] == "supported"] == [branch]

@@ -1,0 +1,2619 @@
+{
+  "contract": "graph-stage-two-result/v1",
+  "run_id": "stage-two-1",
+  "created_at": "2026-11-11T00:45:56.439648+00:00",
+  "stage_one": {
+    "reference": "input.json",
+    "sha256": "cbf2480eea89432dbd67721cf742e62562b7d417c97c39b9cb38087e98bc0622",
+    "run_id": "c8fb6080766f"
+  },
+  "input_validation": {
+    "ok": true,
+    "diagnostics": []
+  },
+  "input_diagnostics": [],
+  "status": "completed",
+  "goals": [
+    {
+      "target_ref": "/root/children/0/goals/0",
+      "scope": "/root/children/0",
+      "label": "（1）",
+      "goal": {
+        "kind": "determine_function_parity",
+        "function": "f",
+        "variable": "x",
+        "expression": "x/(x^2+1)"
+      },
+      "status": "unsupported",
+      "diagnostics": [],
+      "knowledge": {
+        "items": [],
+        "links": [],
+        "diagnostics": []
+      },
+      "types": [
+        {
+          "type_id": "type-abstract-function-domain",
+          "label": "抽象函数的定义域问题",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "invertible-affine-known-plain-or-concrete-denominator-target",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-abstract-function-domain/invertible-affine-known-plain-or-concrete-denominator-target/abstract-domain-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_abstract_domain",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-abstract-function-domain",
+                    "index": 0,
+                    "text": "未给出完整解析式；已知的是 f 的输入范围，或某个复合写法关于外层自变量的定义域。"
+                  }
+                },
+                {
+                  "check_id": "type-abstract-function-domain/invertible-affine-known-plain-or-concrete-denominator-target/complete-supported-abstract-domain",
+                  "status": "unknown",
+                  "feature_id": "abstract_function_domain",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-abstract-function-domain",
+                    "index": 1,
+                    "text": "定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "finite-input-range-multiple-call-parameter-exists",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-abstract-function-domain/finite-input-range-multiple-call-parameter-exists/abstract-domain-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_abstract_domain_parameter",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-abstract-function-domain",
+                    "index": 4,
+                    "text": "已知 f 在固定有限区间的输入范围；多个调用的输入是外层变量和参数的有理线性式，通过共同有意义求存在合法外层变量的参数范围。题干仅说在区间上有定义时，只使用题设保证的输入范围，不推断区间外无定义。"
+                  }
+                },
+                {
+                  "check_id": "type-abstract-function-domain/finite-input-range-multiple-call-parameter-exists/complete-supported-abstract-domain",
+                  "status": "unknown",
+                  "feature_id": "abstract_function_domain",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-abstract-function-domain",
+                    "index": 4,
+                    "text": "已知 f 在固定有限区间的输入范围；多个调用的输入是外层变量和参数的有理线性式，通过共同有意义求存在合法外层变量的参数范围。题干仅说在区间上有定义时，只使用题设保证的输入范围，不推断区间外无定义。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-amgm-quantified",
+          "label": "应用基本不等式的恒成立与存在成立问题",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "verified-bound",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-amgm-quantified/verified-bound/quantifier",
+                  "status": "unknown",
+                  "feature_id": "quantifier",
+                  "actual": null,
+                  "expected": [
+                    "∀",
+                    "∃"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-amgm-quantified",
+                    "index": 0,
+                    "text": "有「恒成立」「对所有……都成立」或「存在……使得成立」这样的话，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-amgm-quantified/verified-bound/range-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": [
+                    "find_range",
+                    "find_minimum",
+                    "find_maximum"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-amgm-quantified",
+                    "index": 0,
+                    "text": "有「恒成立」「对所有……都成立」或「存在……使得成立」这样的话，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-amgm-quantified/verified-bound/verified-sum-product",
+                  "status": "unknown",
+                  "feature_id": "verification.amgm",
+                  "actual": "unknown",
+                  "expected": "supported",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-amgm-quantified",
+                    "index": 2,
+                    "text": "这个最值能用基本不等式求：能凑出两个正数，它们的积或和是定值。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-domain",
+          "label": "具体函数的定义域问题",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "fixed-affine-expression-domain",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-domain/fixed-affine-expression-domain/domain-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_domain",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-domain",
+                    "index": 0,
+                    "text": "已知具体函数表达式，要求全部合法输入；题设可以另外限定范围。"
+                  }
+                },
+                {
+                  "check_id": "type-function-domain/fixed-affine-expression-domain/complete-supported-expression",
+                  "status": "unknown",
+                  "feature_id": "function_domain",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-domain",
+                    "index": 0,
+                    "text": "已知具体函数表达式，要求全部合法输入；题设可以另外限定范围。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "domain-parameter-supported-expression",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-domain/domain-parameter-supported-expression/match-domain-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "match_domain",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-domain",
+                    "index": 1,
+                    "text": "已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+                  }
+                },
+                {
+                  "check_id": "type-function-domain/domain-parameter-supported-expression/complete-supported-parameter-expression",
+                  "status": "unknown",
+                  "feature_id": "function_domain",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-domain",
+                    "index": 1,
+                    "text": "已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-equality",
+          "label": "判断是否为相同函数",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "supported-real-function-comparison",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-equality/supported-real-function-comparison/comparison-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "compare_functions",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-equality",
+                    "index": 0,
+                    "text": "题目给出一对或多组函数，目标是判断它们是否表示同一函数。"
+                  }
+                },
+                {
+                  "check_id": "type-function-equality/supported-real-function-comparison/complete-supported-comparison",
+                  "status": "unknown",
+                  "feature_id": "function_comparison",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-equality",
+                    "index": 1,
+                    "text": "先比较定义域，再比较整个定义域上的对应关系。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-evaluation",
+          "label": "求函数值",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "explicit-function-forward-evaluation",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-evaluation/explicit-function-forward-evaluation/supported-evaluation-structure",
+                  "status": "unknown",
+                  "feature_id": "function_evaluation",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-evaluation",
+                    "index": 0,
+                    "text": "给定函数的对应关系，要求数值输入、表达式输入或嵌套复合输入对应的输出。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "unknown-function-relation-value",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-evaluation/unknown-function-relation-value/relation-value-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_value",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-evaluation",
+                    "index": 0,
+                    "text": "给定函数的对应关系，要求数值输入、表达式输入或嵌套复合输入对应的输出。"
+                  }
+                },
+                {
+                  "check_id": "type-function-evaluation/unknown-function-relation-value/supported-original-relation",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-evaluation",
+                    "index": 0,
+                    "text": "给定函数的对应关系，要求数值输入、表达式输入或嵌套复合输入对应的输出。"
+                  }
+                },
+                {
+                  "check_id": "type-function-evaluation/unknown-function-relation-value/no-stated-type",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": null,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-evaluation",
+                    "index": 1,
+                    "text": "函数值的组合与求和属于本型；已知函数值反求全部合法输入是逆向子情形。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-formula",
+          "label": "求函数的解析式",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "invertible-affine-input",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-formula/invertible-affine-input/unknown-rule-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_function_formula",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 1,
+                    "text": "给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/invertible-affine-input/supported-substitution-relation",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 1,
+                    "text": "给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/invertible-affine-input/single-input-version",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": "function-formula-substitution/v3",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 1,
+                    "text": "给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "stated-linear",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-formula/stated-linear/stated-type",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": "linear",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 0,
+                    "text": "已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/stated-linear/supported-identity",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 0,
+                    "text": "已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "stated-quadratic",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-formula/stated-quadratic/stated-type",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": "quadratic",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 0,
+                    "text": "已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/stated-quadratic/supported-identity",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 0,
+                    "text": "已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "paired-function-values",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-formula/paired-function-values/supported-pair",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 2,
+                    "text": "同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/paired-function-values/involution-version",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": "function-formula-system/v1",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 2,
+                    "text": "同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "two-variable-identity",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-formula/two-variable-identity/supported-assignment",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 2,
+                    "text": "同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/two-variable-identity/assignment-version",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": "function-formula-assignment/v1",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 2,
+                    "text": "同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-graph",
+          "label": "函数图像及其应用",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "affine-absolute-options",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-graph/affine-absolute-options/graph-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "select_function_graph",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 0,
+                    "text": "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+                  }
+                },
+                {
+                  "check_id": "type-function-graph/affine-absolute-options/supported-source",
+                  "status": "unknown",
+                  "feature_id": "function_graph",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 0,
+                    "text": "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "draw_function_graph",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-graph/draw_function_graph/graph-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "draw_function_graph",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 0,
+                    "text": "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+                  }
+                },
+                {
+                  "check_id": "type-function-graph/draw_function_graph/supported-source",
+                  "status": "unknown",
+                  "feature_id": "function_graph",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 0,
+                    "text": "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "solve_graph_inequality",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-graph/solve_graph_inequality/graph-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "solve_graph_inequality",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 2,
+                    "text": "借助图像分析方程或不等式时，先确定临界点，再核对严格性及端点取舍。"
+                  }
+                },
+                {
+                  "check_id": "type-function-graph/solve_graph_inequality/supported-source",
+                  "status": "unknown",
+                  "feature_id": "function_graph",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 2,
+                    "text": "借助图像分析方程或不等式时，先确定临界点，再核对严格性及端点取舍。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-monotonicity",
+          "label": "判断函数的单调性",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "find_monotonic_intervals",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-monotonicity/find_monotonic_intervals/goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_monotonic_intervals",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-monotonicity",
+                    "index": 0,
+                    "text": "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+                  }
+                },
+                {
+                  "check_id": "type-function-monotonicity/find_monotonic_intervals/supported-source",
+                  "status": "unknown",
+                  "feature_id": "function_monotonicity",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-monotonicity",
+                    "index": 0,
+                    "text": "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "prove_monotonicity_on_interval",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-monotonicity/prove_monotonicity_on_interval/goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "prove_monotonicity_on_interval",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-monotonicity",
+                    "index": 0,
+                    "text": "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+                  }
+                },
+                {
+                  "check_id": "type-function-monotonicity/prove_monotonicity_on_interval/supported-source",
+                  "status": "unknown",
+                  "feature_id": "function_monotonicity",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-monotonicity",
+                    "index": 0,
+                    "text": "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-parity",
+          "label": "判断函数的奇偶性",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "supported-explicit-function-parity",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-parity/supported-explicit-function-parity/parity-goal",
+                  "status": "supported",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "determine_function_parity",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-parity",
+                    "index": 0,
+                    "text": "题目给出具体函数的解析式，要求判断它的奇偶性。"
+                  }
+                },
+                {
+                  "check_id": "type-function-parity/supported-explicit-function-parity/supported-parity-structure",
+                  "status": "conflict",
+                  "feature_id": "function_parity",
+                  "actual": false,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-parity",
+                    "index": 1,
+                    "text": "先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-range",
+          "label": "求函数的值域",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "explicit-polynomial-interval-range",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-range/explicit-polynomial-interval-range/supported-function-range",
+                  "status": "unknown",
+                  "feature_id": "function_range",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-range",
+                    "index": 0,
+                    "text": "已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "known-range-affine-transfer",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-range/known-range-affine-transfer/supported-abstract-range",
+                  "status": "unknown",
+                  "feature_id": "abstract_function_range",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-range",
+                    "index": 0,
+                    "text": "已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "integer-translation-range",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-range/integer-translation-range/supported-translation-range",
+                  "status": "unknown",
+                  "feature_id": "translation_range",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-range",
+                    "index": 0,
+                    "text": "已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-monotonicity-abstract-proof",
+          "label": "证明抽象函数的单调性",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "abstract_relation",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-monotonicity-abstract-proof/abstract_relation/source",
+                  "status": "unknown",
+                  "feature_id": "abstract_monotonicity",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-monotonicity-abstract-proof",
+                    "index": 0,
+                    "text": "没有解析式，只给出对任意输入都成立的函数关系，如 $f(x+y)=f(x)+f(y)$ 或 $f(xy)=f(x)+f(y)$。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-monotonicity-extremum",
+          "label": "利用单调性求最值",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "extremum",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-monotonicity-extremum/extremum/source",
+                  "status": "unknown",
+                  "feature_id": "function_extremum",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-monotonicity-extremum",
+                    "index": 0,
+                    "text": "借助函数在指定区间上的单调性，确定最大值或最小值及能否取到。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-monotonicity-inequality",
+          "label": "利用单调性解不等式",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "known_order",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-monotonicity-inequality/known_order/source",
+                  "status": "unknown",
+                  "feature_id": "monotonicity_inequality",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-monotonicity-inequality",
+                    "index": 0,
+                    "text": "已知单调性，比较同一函数的两个输入所对应的函数值。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-monotonicity-parameter",
+          "label": "已知函数的单调性求参",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "required_monotonicity",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-monotonicity-parameter/required_monotonicity/source",
+                  "status": "unknown",
+                  "feature_id": "monotonicity_parameter",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-monotonicity-parameter",
+                    "index": 0,
+                    "text": "原目标是使函数在指定区间内增减的参数范围。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-parameter-quadratic-solve",
+          "label": "含参数的一元二次不等式求解问题",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "parameter-solve",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-parameter-quadratic-solve/parameter-solve/solution-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_range",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-parameter-quadratic-solve",
+                    "index": 1,
+                    "text": "要求的是 $x$ 的解集，答案按参数的不同取值分别写。"
+                  }
+                },
+                {
+                  "check_id": "type-parameter-quadratic-solve/parameter-solve/parameter-coefficients",
+                  "status": "unknown",
+                  "feature_id": "coefficients",
+                  "actual": null,
+                  "expected": {
+                    "predicate": "parameter_coefficients"
+                  },
+                  "op": "parameter_coefficients",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-parameter-quadratic-solve",
+                    "index": 0,
+                    "text": "要解的是关于 $x$ 的二次不等式，但系数里还有另一个字母（参数）。"
+                  }
+                },
+                {
+                  "check_id": "type-parameter-quadratic-solve/parameter-solve/no-quantifier",
+                  "status": "unknown",
+                  "feature_id": "quantifier",
+                  "actual": null,
+                  "expected": [
+                    "∀",
+                    "∃"
+                  ],
+                  "op": "in",
+                  "role": "exclude",
+                  "student_cue": {
+                    "type_id": "type-parameter-quadratic-solve",
+                    "index": 0,
+                    "text": "要解的是关于 $x$ 的二次不等式，但系数里还有另一个字母（参数）。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-piecewise-function",
+          "label": "分段函数常规问题",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "single-layer-equation",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-piecewise-function/single-layer-equation/supported-source-equation",
+                  "status": "unknown",
+                  "feature_id": "piecewise_equation",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-piecewise-function",
+                    "index": 0,
+                    "text": "给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "single-layer-inequality",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-piecewise-function/single-layer-inequality/supported-source-inequality",
+                  "status": "unknown",
+                  "feature_id": "piecewise_inequality",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-piecewise-function",
+                    "index": 0,
+                    "text": "给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "range-parameter",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-piecewise-function/range-parameter/supported-source-range-parameter",
+                  "status": "unknown",
+                  "feature_id": "piecewise_range_parameter",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-piecewise-function",
+                    "index": 2,
+                    "text": "值域由各段实际输出取并；给定整体值域求参数时，同时检查覆盖与不越界。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "marginal-pricing",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-piecewise-function/marginal-pricing/supported-source-pricing",
+                  "status": "unknown",
+                  "feature_id": "piecewise_modeling",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-piecewise-function",
+                    "index": 3,
+                    "text": "阶梯收费须区分超出部分与全部用量，建模时累计前段费用。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-quantified-quadratic",
+          "label": "含参一元二次不等式的恒成立与存在成立问题",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "bound-quadratic",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-quantified-quadratic/bound-quadratic/quantifier",
+                  "status": "unknown",
+                  "feature_id": "quantifier",
+                  "actual": null,
+                  "expected": [
+                    "∀",
+                    "∃"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 0,
+                    "text": "有「对所有……都成立」「恒成立」或「存在……使得成立」，并给出这个变量的范围。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/bound-quadratic/range-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": [
+                    "find_range",
+                    "find_minimum",
+                    "find_maximum"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/bound-quadratic/inequality",
+                  "status": "unknown",
+                  "feature_id": "relation",
+                  "actual": null,
+                  "expected": [
+                    "<",
+                    "<=",
+                    ">",
+                    ">="
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/bound-quadratic/quadratic-degree",
+                  "status": "unknown",
+                  "feature_id": "degree_in_bound",
+                  "actual": null,
+                  "expected": {
+                    "predicate": "quadratic"
+                  },
+                  "op": "quadratic",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "variable-swap",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/quantifier",
+                  "status": "unknown",
+                  "feature_id": "quantifier",
+                  "actual": null,
+                  "expected": [
+                    "∀",
+                    "∃"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 0,
+                    "text": "有「对所有……都成立」「恒成立」或「存在……使得成立」，并给出这个变量的范围。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/range-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": [
+                    "find_range",
+                    "find_minimum",
+                    "find_maximum"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/inequality",
+                  "status": "unknown",
+                  "feature_id": "relation",
+                  "actual": null,
+                  "expected": [
+                    "<",
+                    "<=",
+                    ">",
+                    ">="
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/goal-quadratic",
+                  "status": "unknown",
+                  "feature_id": "degree_in_goal",
+                  "actual": null,
+                  "expected": {
+                    "predicate": "quadratic"
+                  },
+                  "op": "quadratic",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/bound-linear",
+                  "status": "unknown",
+                  "feature_id": "degree_in_bound",
+                  "actual": null,
+                  "expected": 1,
+                  "op": "lte",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 3,
+                    "text": "先看清「对所有」后面的变量是谁，它不一定是 $x$。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/roles-swapped",
+                  "status": "unknown",
+                  "feature_id": "range_var_is_principal",
+                  "actual": null,
+                  "expected": false,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 3,
+                    "text": "先看清「对所有」后面的变量是谁，它不一定是 $x$。"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "primary": null,
+      "primary_source": "unsupported",
+      "supported": [],
+      "d1": null,
+      "d2": null,
+      "verification": {
+        "status": "unknown",
+        "reason": "verification.unknown_input",
+        "steps": [],
+        "input_refs": [
+          "/root/children/0/goals/0"
+        ]
+      },
+      "llm": null,
+      "unsupported_record": "unsupported/goal-001.json",
+      "debug_d1": {
+        "fragments": [],
+        "diagnostics": [
+          {
+            "code": "d1.unsupported_surface_command",
+            "start": 16
+          }
+        ]
+      }
+    },
+    {
+      "target_ref": "/root/children/1/goals/0",
+      "scope": "/root/children/1",
+      "label": "（2）",
+      "goal": {
+        "kind": "determine_function_parity",
+        "function": "f",
+        "variable": "x",
+        "expression": "abs(x)+x^2"
+      },
+      "status": "unsupported",
+      "diagnostics": [],
+      "knowledge": {
+        "items": [],
+        "links": [],
+        "diagnostics": []
+      },
+      "types": [
+        {
+          "type_id": "type-abstract-function-domain",
+          "label": "抽象函数的定义域问题",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "invertible-affine-known-plain-or-concrete-denominator-target",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-abstract-function-domain/invertible-affine-known-plain-or-concrete-denominator-target/abstract-domain-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_abstract_domain",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-abstract-function-domain",
+                    "index": 0,
+                    "text": "未给出完整解析式；已知的是 f 的输入范围，或某个复合写法关于外层自变量的定义域。"
+                  }
+                },
+                {
+                  "check_id": "type-abstract-function-domain/invertible-affine-known-plain-or-concrete-denominator-target/complete-supported-abstract-domain",
+                  "status": "unknown",
+                  "feature_id": "abstract_function_domain",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-abstract-function-domain",
+                    "index": 1,
+                    "text": "定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "finite-input-range-multiple-call-parameter-exists",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-abstract-function-domain/finite-input-range-multiple-call-parameter-exists/abstract-domain-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_abstract_domain_parameter",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-abstract-function-domain",
+                    "index": 4,
+                    "text": "已知 f 在固定有限区间的输入范围；多个调用的输入是外层变量和参数的有理线性式，通过共同有意义求存在合法外层变量的参数范围。题干仅说在区间上有定义时，只使用题设保证的输入范围，不推断区间外无定义。"
+                  }
+                },
+                {
+                  "check_id": "type-abstract-function-domain/finite-input-range-multiple-call-parameter-exists/complete-supported-abstract-domain",
+                  "status": "unknown",
+                  "feature_id": "abstract_function_domain",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-abstract-function-domain",
+                    "index": 4,
+                    "text": "已知 f 在固定有限区间的输入范围；多个调用的输入是外层变量和参数的有理线性式，通过共同有意义求存在合法外层变量的参数范围。题干仅说在区间上有定义时，只使用题设保证的输入范围，不推断区间外无定义。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-amgm-quantified",
+          "label": "应用基本不等式的恒成立与存在成立问题",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "verified-bound",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-amgm-quantified/verified-bound/quantifier",
+                  "status": "unknown",
+                  "feature_id": "quantifier",
+                  "actual": null,
+                  "expected": [
+                    "∀",
+                    "∃"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-amgm-quantified",
+                    "index": 0,
+                    "text": "有「恒成立」「对所有……都成立」或「存在……使得成立」这样的话，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-amgm-quantified/verified-bound/range-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": [
+                    "find_range",
+                    "find_minimum",
+                    "find_maximum"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-amgm-quantified",
+                    "index": 0,
+                    "text": "有「恒成立」「对所有……都成立」或「存在……使得成立」这样的话，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-amgm-quantified/verified-bound/verified-sum-product",
+                  "status": "unknown",
+                  "feature_id": "verification.amgm",
+                  "actual": "unknown",
+                  "expected": "supported",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-amgm-quantified",
+                    "index": 2,
+                    "text": "这个最值能用基本不等式求：能凑出两个正数，它们的积或和是定值。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-domain",
+          "label": "具体函数的定义域问题",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "fixed-affine-expression-domain",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-domain/fixed-affine-expression-domain/domain-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_domain",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-domain",
+                    "index": 0,
+                    "text": "已知具体函数表达式，要求全部合法输入；题设可以另外限定范围。"
+                  }
+                },
+                {
+                  "check_id": "type-function-domain/fixed-affine-expression-domain/complete-supported-expression",
+                  "status": "unknown",
+                  "feature_id": "function_domain",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-domain",
+                    "index": 0,
+                    "text": "已知具体函数表达式，要求全部合法输入；题设可以另外限定范围。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "domain-parameter-supported-expression",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-domain/domain-parameter-supported-expression/match-domain-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "match_domain",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-domain",
+                    "index": 1,
+                    "text": "已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+                  }
+                },
+                {
+                  "check_id": "type-function-domain/domain-parameter-supported-expression/complete-supported-parameter-expression",
+                  "status": "unknown",
+                  "feature_id": "function_domain",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-domain",
+                    "index": 1,
+                    "text": "已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-equality",
+          "label": "判断是否为相同函数",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "supported-real-function-comparison",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-equality/supported-real-function-comparison/comparison-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "compare_functions",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-equality",
+                    "index": 0,
+                    "text": "题目给出一对或多组函数，目标是判断它们是否表示同一函数。"
+                  }
+                },
+                {
+                  "check_id": "type-function-equality/supported-real-function-comparison/complete-supported-comparison",
+                  "status": "unknown",
+                  "feature_id": "function_comparison",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-equality",
+                    "index": 1,
+                    "text": "先比较定义域，再比较整个定义域上的对应关系。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-evaluation",
+          "label": "求函数值",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "explicit-function-forward-evaluation",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-evaluation/explicit-function-forward-evaluation/supported-evaluation-structure",
+                  "status": "unknown",
+                  "feature_id": "function_evaluation",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-evaluation",
+                    "index": 0,
+                    "text": "给定函数的对应关系，要求数值输入、表达式输入或嵌套复合输入对应的输出。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "unknown-function-relation-value",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-evaluation/unknown-function-relation-value/relation-value-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_value",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-evaluation",
+                    "index": 0,
+                    "text": "给定函数的对应关系，要求数值输入、表达式输入或嵌套复合输入对应的输出。"
+                  }
+                },
+                {
+                  "check_id": "type-function-evaluation/unknown-function-relation-value/supported-original-relation",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-evaluation",
+                    "index": 0,
+                    "text": "给定函数的对应关系，要求数值输入、表达式输入或嵌套复合输入对应的输出。"
+                  }
+                },
+                {
+                  "check_id": "type-function-evaluation/unknown-function-relation-value/no-stated-type",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": null,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-evaluation",
+                    "index": 1,
+                    "text": "函数值的组合与求和属于本型；已知函数值反求全部合法输入是逆向子情形。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-formula",
+          "label": "求函数的解析式",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "invertible-affine-input",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-formula/invertible-affine-input/unknown-rule-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_function_formula",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 1,
+                    "text": "给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/invertible-affine-input/supported-substitution-relation",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 1,
+                    "text": "给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/invertible-affine-input/single-input-version",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": "function-formula-substitution/v3",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 1,
+                    "text": "给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "stated-linear",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-formula/stated-linear/stated-type",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": "linear",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 0,
+                    "text": "已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/stated-linear/supported-identity",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 0,
+                    "text": "已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "stated-quadratic",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-formula/stated-quadratic/stated-type",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": "quadratic",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 0,
+                    "text": "已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/stated-quadratic/supported-identity",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 0,
+                    "text": "已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "paired-function-values",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-formula/paired-function-values/supported-pair",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 2,
+                    "text": "同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/paired-function-values/involution-version",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": "function-formula-system/v1",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 2,
+                    "text": "同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "two-variable-identity",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-formula/two-variable-identity/supported-assignment",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 2,
+                    "text": "同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+                  }
+                },
+                {
+                  "check_id": "type-function-formula/two-variable-identity/assignment-version",
+                  "status": "unknown",
+                  "feature_id": "function_formula",
+                  "actual": null,
+                  "expected": "function-formula-assignment/v1",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-formula",
+                    "index": 2,
+                    "text": "同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-graph",
+          "label": "函数图像及其应用",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "affine-absolute-options",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-graph/affine-absolute-options/graph-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "select_function_graph",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 0,
+                    "text": "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+                  }
+                },
+                {
+                  "check_id": "type-function-graph/affine-absolute-options/supported-source",
+                  "status": "unknown",
+                  "feature_id": "function_graph",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 0,
+                    "text": "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "draw_function_graph",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-graph/draw_function_graph/graph-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "draw_function_graph",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 0,
+                    "text": "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+                  }
+                },
+                {
+                  "check_id": "type-function-graph/draw_function_graph/supported-source",
+                  "status": "unknown",
+                  "feature_id": "function_graph",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 0,
+                    "text": "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "solve_graph_inequality",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-graph/solve_graph_inequality/graph-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "solve_graph_inequality",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 2,
+                    "text": "借助图像分析方程或不等式时，先确定临界点，再核对严格性及端点取舍。"
+                  }
+                },
+                {
+                  "check_id": "type-function-graph/solve_graph_inequality/supported-source",
+                  "status": "unknown",
+                  "feature_id": "function_graph",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-graph",
+                    "index": 2,
+                    "text": "借助图像分析方程或不等式时，先确定临界点，再核对严格性及端点取舍。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-monotonicity",
+          "label": "判断函数的单调性",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "find_monotonic_intervals",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-monotonicity/find_monotonic_intervals/goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_monotonic_intervals",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-monotonicity",
+                    "index": 0,
+                    "text": "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+                  }
+                },
+                {
+                  "check_id": "type-function-monotonicity/find_monotonic_intervals/supported-source",
+                  "status": "unknown",
+                  "feature_id": "function_monotonicity",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-monotonicity",
+                    "index": 0,
+                    "text": "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "prove_monotonicity_on_interval",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-monotonicity/prove_monotonicity_on_interval/goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "prove_monotonicity_on_interval",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-monotonicity",
+                    "index": 0,
+                    "text": "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+                  }
+                },
+                {
+                  "check_id": "type-function-monotonicity/prove_monotonicity_on_interval/supported-source",
+                  "status": "unknown",
+                  "feature_id": "function_monotonicity",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-monotonicity",
+                    "index": 0,
+                    "text": "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-parity",
+          "label": "判断函数的奇偶性",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "supported-explicit-function-parity",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-function-parity/supported-explicit-function-parity/parity-goal",
+                  "status": "supported",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "determine_function_parity",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-parity",
+                    "index": 0,
+                    "text": "题目给出具体函数的解析式，要求判断它的奇偶性。"
+                  }
+                },
+                {
+                  "check_id": "type-function-parity/supported-explicit-function-parity/supported-parity-structure",
+                  "status": "conflict",
+                  "feature_id": "function_parity",
+                  "actual": false,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-parity",
+                    "index": 1,
+                    "text": "先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-function-range",
+          "label": "求函数的值域",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "explicit-polynomial-interval-range",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-range/explicit-polynomial-interval-range/supported-function-range",
+                  "status": "unknown",
+                  "feature_id": "function_range",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-range",
+                    "index": 0,
+                    "text": "已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "known-range-affine-transfer",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-range/known-range-affine-transfer/supported-abstract-range",
+                  "status": "unknown",
+                  "feature_id": "abstract_function_range",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-range",
+                    "index": 0,
+                    "text": "已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "integer-translation-range",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-function-range/integer-translation-range/supported-translation-range",
+                  "status": "unknown",
+                  "feature_id": "translation_range",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-function-range",
+                    "index": 0,
+                    "text": "已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-monotonicity-abstract-proof",
+          "label": "证明抽象函数的单调性",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "abstract_relation",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-monotonicity-abstract-proof/abstract_relation/source",
+                  "status": "unknown",
+                  "feature_id": "abstract_monotonicity",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-monotonicity-abstract-proof",
+                    "index": 0,
+                    "text": "没有解析式，只给出对任意输入都成立的函数关系，如 $f(x+y)=f(x)+f(y)$ 或 $f(xy)=f(x)+f(y)$。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-monotonicity-extremum",
+          "label": "利用单调性求最值",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "extremum",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-monotonicity-extremum/extremum/source",
+                  "status": "unknown",
+                  "feature_id": "function_extremum",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-monotonicity-extremum",
+                    "index": 0,
+                    "text": "借助函数在指定区间上的单调性，确定最大值或最小值及能否取到。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-monotonicity-inequality",
+          "label": "利用单调性解不等式",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "known_order",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-monotonicity-inequality/known_order/source",
+                  "status": "unknown",
+                  "feature_id": "monotonicity_inequality",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-monotonicity-inequality",
+                    "index": 0,
+                    "text": "已知单调性，比较同一函数的两个输入所对应的函数值。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-monotonicity-parameter",
+          "label": "已知函数的单调性求参",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "required_monotonicity",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-monotonicity-parameter/required_monotonicity/source",
+                  "status": "unknown",
+                  "feature_id": "monotonicity_parameter",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-monotonicity-parameter",
+                    "index": 0,
+                    "text": "原目标是使函数在指定区间内增减的参数范围。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-parameter-quadratic-solve",
+          "label": "含参数的一元二次不等式求解问题",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "parameter-solve",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-parameter-quadratic-solve/parameter-solve/solution-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": "find_range",
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-parameter-quadratic-solve",
+                    "index": 1,
+                    "text": "要求的是 $x$ 的解集，答案按参数的不同取值分别写。"
+                  }
+                },
+                {
+                  "check_id": "type-parameter-quadratic-solve/parameter-solve/parameter-coefficients",
+                  "status": "unknown",
+                  "feature_id": "coefficients",
+                  "actual": null,
+                  "expected": {
+                    "predicate": "parameter_coefficients"
+                  },
+                  "op": "parameter_coefficients",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-parameter-quadratic-solve",
+                    "index": 0,
+                    "text": "要解的是关于 $x$ 的二次不等式，但系数里还有另一个字母（参数）。"
+                  }
+                },
+                {
+                  "check_id": "type-parameter-quadratic-solve/parameter-solve/no-quantifier",
+                  "status": "unknown",
+                  "feature_id": "quantifier",
+                  "actual": null,
+                  "expected": [
+                    "∀",
+                    "∃"
+                  ],
+                  "op": "in",
+                  "role": "exclude",
+                  "student_cue": {
+                    "type_id": "type-parameter-quadratic-solve",
+                    "index": 0,
+                    "text": "要解的是关于 $x$ 的二次不等式，但系数里还有另一个字母（参数）。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-piecewise-function",
+          "label": "分段函数常规问题",
+          "status": "unknown",
+          "branches": [
+            {
+              "branch_id": "single-layer-equation",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-piecewise-function/single-layer-equation/supported-source-equation",
+                  "status": "unknown",
+                  "feature_id": "piecewise_equation",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-piecewise-function",
+                    "index": 0,
+                    "text": "给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "single-layer-inequality",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-piecewise-function/single-layer-inequality/supported-source-inequality",
+                  "status": "unknown",
+                  "feature_id": "piecewise_inequality",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-piecewise-function",
+                    "index": 0,
+                    "text": "给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "range-parameter",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-piecewise-function/range-parameter/supported-source-range-parameter",
+                  "status": "unknown",
+                  "feature_id": "piecewise_range_parameter",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-piecewise-function",
+                    "index": 2,
+                    "text": "值域由各段实际输出取并；给定整体值域求参数时，同时检查覆盖与不越界。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "marginal-pricing",
+              "status": "unknown",
+              "checks": [
+                {
+                  "check_id": "type-piecewise-function/marginal-pricing/supported-source-pricing",
+                  "status": "unknown",
+                  "feature_id": "piecewise_modeling",
+                  "actual": null,
+                  "expected": true,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-piecewise-function",
+                    "index": 3,
+                    "text": "阶梯收费须区分超出部分与全部用量，建模时累计前段费用。"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type_id": "type-quantified-quadratic",
+          "label": "含参一元二次不等式的恒成立与存在成立问题",
+          "status": "conflict",
+          "branches": [
+            {
+              "branch_id": "bound-quadratic",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-quantified-quadratic/bound-quadratic/quantifier",
+                  "status": "unknown",
+                  "feature_id": "quantifier",
+                  "actual": null,
+                  "expected": [
+                    "∀",
+                    "∃"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 0,
+                    "text": "有「对所有……都成立」「恒成立」或「存在……使得成立」，并给出这个变量的范围。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/bound-quadratic/range-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": [
+                    "find_range",
+                    "find_minimum",
+                    "find_maximum"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/bound-quadratic/inequality",
+                  "status": "unknown",
+                  "feature_id": "relation",
+                  "actual": null,
+                  "expected": [
+                    "<",
+                    "<=",
+                    ">",
+                    ">="
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/bound-quadratic/quadratic-degree",
+                  "status": "unknown",
+                  "feature_id": "degree_in_bound",
+                  "actual": null,
+                  "expected": {
+                    "predicate": "quadratic"
+                  },
+                  "op": "quadratic",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                }
+              ]
+            },
+            {
+              "branch_id": "variable-swap",
+              "status": "conflict",
+              "checks": [
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/quantifier",
+                  "status": "unknown",
+                  "feature_id": "quantifier",
+                  "actual": null,
+                  "expected": [
+                    "∀",
+                    "∃"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 0,
+                    "text": "有「对所有……都成立」「恒成立」或「存在……使得成立」，并给出这个变量的范围。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/range-goal",
+                  "status": "conflict",
+                  "feature_id": "goal",
+                  "actual": "determine_function_parity",
+                  "expected": [
+                    "find_range",
+                    "find_minimum",
+                    "find_maximum"
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/inequality",
+                  "status": "unknown",
+                  "feature_id": "relation",
+                  "actual": null,
+                  "expected": [
+                    "<",
+                    "<=",
+                    ">",
+                    ">="
+                  ],
+                  "op": "in",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/goal-quadratic",
+                  "status": "unknown",
+                  "feature_id": "degree_in_goal",
+                  "actual": null,
+                  "expected": {
+                    "predicate": "quadratic"
+                  },
+                  "op": "quadratic",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 1,
+                    "text": "不等式里有二次式，要求的是参数的范围、最小值或最大值。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/bound-linear",
+                  "status": "unknown",
+                  "feature_id": "degree_in_bound",
+                  "actual": null,
+                  "expected": 1,
+                  "op": "lte",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 3,
+                    "text": "先看清「对所有」后面的变量是谁，它不一定是 $x$。"
+                  }
+                },
+                {
+                  "check_id": "type-quantified-quadratic/variable-swap/roles-swapped",
+                  "status": "unknown",
+                  "feature_id": "range_var_is_principal",
+                  "actual": null,
+                  "expected": false,
+                  "op": "eq",
+                  "role": "required",
+                  "student_cue": {
+                    "type_id": "type-quantified-quadratic",
+                    "index": 3,
+                    "text": "先看清「对所有」后面的变量是谁，它不一定是 $x$。"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "primary": null,
+      "primary_source": "unsupported",
+      "supported": [],
+      "d1": null,
+      "d2": null,
+      "verification": {
+        "status": "unknown",
+        "reason": "verification.unknown_input",
+        "steps": [],
+        "input_refs": [
+          "/root/children/1/goals/0"
+        ]
+      },
+      "llm": null,
+      "unsupported_record": "unsupported/goal-002.json",
+      "debug_d1": {
+        "fragments": [],
+        "diagnostics": []
+      }
+    }
+  ],
+  "llm": {
+    "semantic_calls": 0,
+    "network_attempts": 0,
+    "new_semantic_calls": 0,
+    "new_network_attempts": 0
+  },
+  "options": {
+    "verify_amgm": true,
+    "admission": "student_upload"
+  },
+  "unsupported_directory": "/private/tmp/fp-t1-live-20261111-initial/private-search/submissions/c8fb6080766f/unsupported/stage-two-1-9dc326e63f25",
+  "elapsed_seconds": 0.14194
+}

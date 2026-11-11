@@ -18,7 +18,7 @@ def save(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
 
 
-def export(run, target):
+def export(run, target, *, sources=REPO / 'internal/senior-high/source-images/function-monotonicity-planning-20261104'):
     target.mkdir(parents=True, exist_ok=False)
     summary = read(run / 'summary.json')
     save(target / 'summary.json', summary)
@@ -54,9 +54,21 @@ def export(run, target):
     for path in sorted(run.glob('upload-*.json')):
         shutil.copyfile(path, target / path.name)
         number = int(path.stem.split('-')[1])
-        source = REPO / f'internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-{number:02}.jpg'
-        uploads.append({'file': path.name, 'sha256': sha256(path.read_bytes()).hexdigest(),
-                        'source': str(source.relative_to(REPO)), 'source_sha256': sha256(source.read_bytes()).hexdigest()})
+        source = Path(sources) / f'source-image-{number:02}.jpg'
+        upload = {'file': path.name, 'sha256': sha256(path.read_bytes()).hexdigest(),
+                  'source': str(source.relative_to(REPO)), 'source_sha256': sha256(source.read_bytes()).hexdigest()}
+        page_id = read(path).get('body', {}).get('page_id')
+        if page_id:
+            artifacts = {}
+            for name in ('ocr.json', 'segments.json'):
+                original = run / 'private-search/pages' / page_id / name
+                if original.is_file():
+                    destination = target / f'page-{number:02}' / name
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(original, destination)
+                    artifacts[str(destination.relative_to(target))] = sha256(destination.read_bytes()).hexdigest()
+            upload['artifacts'] = artifacts
+        uploads.append(upload)
     save(target / 'uploads.json', uploads)
 
 
@@ -64,5 +76,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('run', type=Path)
     parser.add_argument('target', type=Path)
+    parser.add_argument('--sources', type=Path,
+                        default=REPO / 'internal/senior-high/source-images/function-monotonicity-planning-20261104')
     args = parser.parse_args()
-    export(args.run, args.target)
+    export(args.run, args.target, sources=args.sources.resolve())

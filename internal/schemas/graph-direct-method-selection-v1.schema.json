@@ -42,7 +42,8 @@
         "function_extremum",
         "monotonicity_inequality",
         "monotonicity_parameter",
-        "abstract_monotonicity"
+        "abstract_monotonicity",
+        "function_parity"
       ]
     },
     "routes": {
@@ -91,7 +92,8 @@
               "function_extremum",
               "monotonicity_inequality",
               "monotonicity_parameter",
-              "abstract_monotonicity"
+              "abstract_monotonicity",
+              "function_parity"
             ]
           },
           "label": {
@@ -134,7 +136,8 @@
             "function_extremum",
             "monotonicity_inequality",
             "monotonicity_parameter",
-            "abstract_monotonicity"
+            "abstract_monotonicity",
+            "function_parity"
           ]
         }
       }
@@ -169,7 +172,8 @@
             "function_extremum",
             "monotonicity_inequality",
             "monotonicity_parameter",
-            "abstract_monotonicity"
+            "abstract_monotonicity",
+            "function_parity"
           ]
         }
       }

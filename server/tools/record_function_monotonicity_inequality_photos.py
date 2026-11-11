@@ -34,7 +34,7 @@ def emit(**value):
     print(json.dumps(value, ensure_ascii=False), flush=True)
 
 
-def main(*, cases=CASES, request_prefix='t3-photo', continue_on_error=False):
+def main(*, cases=CASES, sources=SOURCES, request_prefix='t3-photo', continue_on_error=False):
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--cases', nargs='+', choices=list(cases), default=list(cases))
@@ -50,7 +50,7 @@ def main(*, cases=CASES, request_prefix='t3-photo', continue_on_error=False):
         pages = {}
         for key in args.cases:
             number, pixels = cases[key]
-            photo = SOURCES / f'source-image-{number:02}.jpg'
+            photo = Path(sources) / f'source-image-{number:02}.jpg'
             if number not in pages:
                 emit(stage='upload', source=photo.name)
                 started = time.monotonic()

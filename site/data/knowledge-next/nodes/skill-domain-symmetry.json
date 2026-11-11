@@ -1,0 +1,35 @@
+{
+  "id": "skill-domain-symmetry",
+  "kind": "skill",
+  "label": "检查定义域的对称性",
+  "summary": "把定义域里每个数换成相反数，比较得到的集合与原定义域是否相同。",
+  "source": "函数奇偶性 FP-T1",
+  "input": "已确定的定义域 $D$，包括区间端点的开闭、孤立点和孔洞。",
+  "output": "$D=-D$ 的依据，或一个 $t\\in D$ 而 $-t\\notin D$ 的输入。",
+  "conditions": "端点反序且开闭随端点交换；孤立点、去掉的点一并取相反数。不能只看最左、最右两个端点。",
+  "basis": [
+    "function-parity#domain"
+  ],
+  "operations": [
+    {
+      "id": "check",
+      "title": "检查定义域的对称性",
+      "body": [
+        "写出 $-D=\\{-x\\mid x\\in D\\}$：区间 $[a,b)$ 变为 $(-b,-a]$。",
+        "$-D$ 与 $D$ 相同，则对每个 $x\\in D$ 都有 $-x\\in D$。",
+        "不相同时，找出一个 $t\\in D$ 而 $-t\\notin D$；此时函数既不是奇函数也不是偶函数。"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "半开区间不对称",
+      "prompt": "$f(x)=x^2$，$x\\in[-2,2)$。定义域关于原点对称吗？",
+      "solution": [
+        "$-D=(-2,2]$，与 $[-2,2)$ 不同。",
+        "$-2\\in D$，而 $2\\notin D$，所以不对称，$f$ 非奇非偶。"
+      ],
+      "source": "函数奇偶性 FP-T1"
+    }
+  ]
+}

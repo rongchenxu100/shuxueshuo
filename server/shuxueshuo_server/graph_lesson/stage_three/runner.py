@@ -62,6 +62,10 @@ def fingerprint():
         Path(__file__).parent.parent / 'function_graph.py',
         Path(__file__).parent.parent / 'function_monotonicity.py',
         Path(__file__).parent.parent / 'abstract_monotonicity_math.py',
+        Path(__file__).parent.parent / 'function_parity.py',
+        Path(__file__).parent.parent / 'function_cells.py',
+        Path(__file__).parent / 'parity_runtime.py',
+        Path(__file__).parent / 'parity_presentation.py',
         Path(__file__).parent.parent / 'extremum_math.py',
         Path(__file__).parent.parent / 'monotonicity_inequality_math.py',
         Path(__file__).parent / 'monotonicity_inequality_runtime.py',
@@ -389,7 +393,8 @@ def _run_goals(loaded, result, output, store, preparation_store, stage_one, stag
                 })
             result["goals"].append(goal)
             folder = output / "goals" / f"goal-{number:03}"
-            if store and goal["selection"] and goal["status"] not in ("execution_error", "capability_gap"):
+            if (store and goal["selection"] and goal["selection"]["branches"]
+                    and goal["status"] not in ("execution_error", "capability_gap")):
                 try:
                     _execute_goal(candidate, goal, folder, store, milestone=milestone, hooks=hooks,
                                   solve_budget_seconds=solve_budget_seconds,

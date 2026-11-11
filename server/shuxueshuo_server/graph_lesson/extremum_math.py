@@ -577,7 +577,7 @@ attainment is a separate set. Infinite endpoints are never witnesses.
             if len(critical) > 2 or any(v.free_symbols-{p} or v.is_real is False for v in critical):
                 raise ValueError('extremum.critical_points_unsupported')
             proof = {'expression': expr, 'variable': x, 'bounds': r, 'derivative': derivative,
-                     'critical': critical, 'family': row['family']}
+                     'critical': critical, 'family': row['family'], 'source_ast': deepcopy(row['source_ast'])}
             proofs.append(proof)
             for point, closed, direction in ((r['low'], r['left_closed'], '+'), (r['high'], r['right_closed'], '-')):
                 value = sp.simplify(expr.subs(x, point)) if point.is_finite else sp.limit(expr, x, point, dir=direction)

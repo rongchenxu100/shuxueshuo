@@ -4,6 +4,7 @@ import json
 from copy import deepcopy
 
 import pytest
+from jsonschema import Draft202012Validator
 from test_math_notation_workflow import OK, Sequence, candidate, finding, run
 
 from shuxueshuo_server.problem_understanding.batch_smoke import CASES, NOTATION_FIXTURES
@@ -39,10 +40,14 @@ def scoped():
 )
 @pytest.mark.parametrize("value", [None, "", "t=1"])
 def test_removed_goal_field_is_rejected_for_every_kind_and_value(variant, value):
-    target = next(
-        k for k in ("expression", "object", "symbol") if k in variant["required"]
-    )
-    goal = {"kind": variant["properties"]["kind"]["const"], target: "t", "at": value}
+    contract = schema()
+    if '$ref' in variant:
+        variant = contract['$defs'][variant['$ref'].rsplit('/', 1)[1]]
+    goal = {"kind": variant["properties"]["kind"]["const"], "at": value}
+    # Each variant must reject the retired field itself, regardless of whether
+    # its modern target is a scalar, an option group or a structured relation.
+    errors = list(Draft202012Validator({**contract, **variant}).iter_errors(goal))
+    assert any(error.validator == 'additionalProperties' and "'at'" in error.message for error in errors)
     original = candidate(["t>0"], goals=[goal])
     report = NotationValidator().validate(original)
     assert not report.ok and not report.normalized and not report.semantic

@@ -191,6 +191,9 @@ def test_current_milestone_adds_function_methods_without_changing_earlier_sets()
         'method-piecewise-equation', 'method-piecewise-graph-inequality', 'method-piecewise-inequality',
         'method-piecewise-modeling', 'method-piecewise-range', 'method-piecewise-range-parameter',
         'method-monotonicity-definition', 'method-monotonicity-structure', 'method-piecewise-monotonicity',
+        'method-monotonicity-extremum', 'method-quantified-range-comparison',
+        'method-extremum-condition-parameter', 'method-monotonicity-inequality',
+        'method-monotonicity-parameter', 'method-parity-definition',
     }
     assert execution_contracts.default_milestone() == "6"
     assert execution_contracts.milestones() == ("1a", "1b-1", "1b", "2", "3", "4", "5", "6")

@@ -183,6 +183,9 @@ def build_context(candidate, target_ref):
     elif goal['kind'] == 'compare_functions':
         from ..stage_one.function_equality import inspect_comparison_target
         context['comparison_goal'] = inspect_comparison_target(candidate, target_ref)
+    elif goal['kind'] == 'determine_function_parity':
+        from ..function_parity import inspect_parity_target
+        context['parity_goal'] = inspect_parity_target(candidate, target_ref)
     elif goal['kind'] == 'find_function_formula':
         from ..stage_one.function_formula import inspect_formula_target
         context['formula_goal'] = inspect_formula_target(candidate, target_ref)

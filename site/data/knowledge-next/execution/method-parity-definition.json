@@ -1,0 +1,243 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-parity-definition",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_function_parity",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "parity_goal": "parity_goal",
+            "function": "function"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "domain",
+      "calls": [
+        {
+          "id": "domain",
+          "capability": "solve_original_function_domain",
+          "public_ref": "method-domain-intersection",
+          "inputs": {
+            "function": "$function"
+          },
+          "outputs": {
+            "solved": "solved"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "symmetry",
+      "calls": [
+        {
+          "id": "symmetry",
+          "capability": "check_domain_symmetry",
+          "public_ref": "skill-domain-symmetry",
+          "inputs": {
+            "parity_goal": "$parity_goal",
+            "solved": "$solved"
+          },
+          "outputs": {
+            "domain_evidence": "domain_evidence",
+            "symmetric": "symmetric"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_domain",
+          "after": "symmetry",
+          "template": "parity_derivation",
+          "bindings": {
+            "description": "$parity_goal",
+            "evidence": "$domain_evidence",
+            "phase": "domain",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "parity_goal",
+            "domain_evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reflect",
+      "calls": [
+        {
+          "id": "reflect",
+          "capability": "reflect_function_input",
+          "public_ref": "method-function-evaluation",
+          "inputs": {
+            "parity_goal": "$parity_goal"
+          },
+          "outputs": {
+            "reflected": "reflected"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_reflect",
+          "after": "reflect",
+          "template": "parity_derivation",
+          "bindings": {
+            "description": "$parity_goal",
+            "evidence": "$reflected",
+            "phase": "reflect",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "parity_goal",
+            "reflected"
+          ],
+          "guard": {
+            "ref": "symmetric",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "compare",
+      "calls": [
+        {
+          "id": "compare",
+          "capability": "compare_parity_relations",
+          "public_ref": "skill-simplify",
+          "inputs": {
+            "parity_goal": "$parity_goal",
+            "domain_evidence": "$domain_evidence",
+            "reflected": "$reflected"
+          },
+          "outputs": {
+            "relations": "relations"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_compare",
+          "after": "compare",
+          "template": "parity_derivation",
+          "bindings": {
+            "description": "$parity_goal",
+            "evidence": "$relations",
+            "phase": "compare",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "parity_goal",
+            "relations"
+          ],
+          "guard": {
+            "ref": "symmetric",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "calls": [
+        {
+          "id": "conclude",
+          "capability": "collect_function_parity",
+          "public_ref": null,
+          "inputs": {
+            "parity_goal": "$parity_goal",
+            "domain_evidence": "$domain_evidence",
+            "relations": "$relations"
+          },
+          "outputs": {
+            "parity_result": "parity_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_conclude",
+          "after": "conclude",
+          "template": "parity_derivation",
+          "bindings": {
+            "description": "$parity_goal",
+            "evidence": "$parity_result",
+            "phase": "conclude",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "parity_goal",
+            "parity_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "parity_result": "$parity_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_parity",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

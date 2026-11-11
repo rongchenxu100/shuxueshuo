@@ -331,6 +331,18 @@ def expression_latex(ast, variable, parent=_PREC_SUM, names=None):
         return ast[1]
     if ast[0] == "ref":
         return names.get(ast[1], ast[1].rsplit(":", 1)[-1])
+    if ast[:2] == ['call', 'piecewise']:
+        rows = [expression_latex(ast[i], variable, names=names) + r',&' +
+                expression_latex(ast[i + 1], variable, names=names) for i in range(2, len(ast), 2)]
+        return r'\begin{cases}' + r'\\'.join(rows) + r'\end{cases}'
+    if ast[0] in ('<', '<=', '>', '>=', '=', '!=', 'and', 'or', '∈'):
+        symbol = {'<=': r'\le ', '>=': r'\ge ', '!=': r'\ne ', 'and': r'\land ',
+                  'or': r'\lor ', '∈': r'\in '}.get(ast[0], ast[0])
+        return expression_latex(ast[1], variable, names=names) + symbol + expression_latex(ast[2], variable, names=names)
+    if ast[0] in ('interval', 'set', '∪', '∩', 'set_difference', 'real'):
+        from ..function_cells import input_set
+        from ..stage_three.equality_presentation import _domain_latex
+        return _domain_latex(input_set(ast))
     if ast[0] == "neg":
         body = "-" + expression_latex(ast[1], variable, _PREC_POW, names)
         return f"({body})" if parent > _PREC_SUM else body

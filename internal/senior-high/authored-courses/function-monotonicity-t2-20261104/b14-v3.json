@@ -1,0 +1,33 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-b14-v3",
+  "reviewer": "Codex：依据用户原图与修订的 T2 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-04.jpg",
+      "sha256": "597632a1a8d7df0543a87ba5390afaaabefe81aabf27ae2c506281b26c086a3a",
+      "location": "FM-B14，图 4"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x)=\\begin{cases}-(x-a)^2+a+\\frac{5}{2},&x<1\\\\-\\frac{1}{2}x+1,&x\\ge1\\end{cases}$，$f(1)$ 是函数 $f(x)$ 的最大值，求实数 $a$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(-(x-a)^2+a+5/2,x<1,-x/2+1,x>=1)"
+      ],
+      "facts": [
+        "max_{x}(f(x))=f(1)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(-∞,-2]∪[(3+sqrt(13))/2,+∞)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

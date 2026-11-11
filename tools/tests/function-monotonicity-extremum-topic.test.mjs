@@ -12,7 +12,8 @@ const katex = createRequire(import.meta.url)('../../site/assets/practice/vendor/
 const scope = vm.createContext({window: {}});
 vm.runInContext(await fs.readFile('site/assets/practice/components.js', 'utf8'), scope);
 const ui = scope.window.PracticeComponents;
-const prefix = id => `site/data/graph-walk/function-monotonicity-${id}-${id === 'a14' ? 'v1' : 'v2'}`;
+const VERSIONS = {a14: 'v1', b08: 'v3', b14: 'v3'};
+const prefix = id => `site/data/graph-walk/function-monotonicity-${id}-${VERSIONS[id] || 'v2'}`;
 const renderMath = math => katex.renderToString(math, {throwOnError: true, strict: 'ignore'});
 
 for (const id of ['a16', 'a14', 'a07', 'a18', 'b16', 'b11', 'b10', 'b08', 'b14']) {

@@ -1,10 +1,10 @@
 {
   "topic": "function-monotonicity",
-  "id": "function-monotonicity-b14-v2",
+  "id": "function-monotonicity-b14-v3",
   "label": "指定分界点为最大值点 · B14",
   "path": "/topics/function-monotonicity/q14b/",
   "runtime": "graph-walk",
-  "bundle": "/data/graph-walk/function-monotonicity-b14-v2.json",
+  "bundle": "/data/graph-walk/function-monotonicity-b14-v3.json",
   "types": [
     "type-monotonicity-extremum"
   ],
@@ -35,7 +35,7 @@
           "refs": [],
           "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
         },
-        "24f4e61703c7a9e708d09d04#1": {
+        "0beac3e02e310ca03b752229#1": {
           "title": "求指定点的函数值",
           "position": 4,
           "refs": [
@@ -44,7 +44,7 @@
             "function-range-extrema#extrema"
           ]
         },
-        "24f4e61703c7a9e708d09d04#2": {
+        "0beac3e02e310ca03b752229#2": {
           "title": "把指定最值写成全域条件",
           "position": 5,
           "refs": [
@@ -53,7 +53,7 @@
             "function-range-extrema#extrema"
           ]
         },
-        "2ef02a96948d41fb4579bba1#1": {
+        "6a3efd03d0421f7b4f3bcd26#1": {
           "title": "判断转化后的问题",
           "position": 6,
           "refs": [
@@ -62,7 +62,7 @@
             "function-range-extrema#extrema"
           ]
         },
-        "4fe826e643dd67365eb31b37#1": {
+        "a41f39cb292d273d642c1a48#1": {
           "title": "选择恒成立问题的解题方法",
           "position": 7,
           "refs": [
@@ -72,7 +72,7 @@
             "function-range-extrema#extrema"
           ]
         },
-        "9ea84fe47eadbe75b8ae3229#1": {
+        "1572be6bad655e7eb31c3d3f#1": {
           "title": "转化为最值条件",
           "position": 8,
           "refs": [
@@ -82,21 +82,21 @@
             "quantifiers#universal"
           ]
         },
-        "b67b4dce39a4be9f6f6895dc#1": {
+        "55ebde04ca0795136ed9d0d0#1": {
           "title": "选择分类依据",
           "position": 9,
           "refs": [
             "method-interval-extremum#select"
           ]
         },
-        "b67b4dce39a4be9f6f6895dc#2": {
+        "55ebde04ca0795136ed9d0d0#2": {
           "title": "判断各情况的最值位置",
           "position": 10,
           "refs": [
             "method-interval-extremum#select"
           ]
         },
-        "7a06bf45e10ced4caefcf962#1": {
+        "07e927c9a482e52763576629#1": {
           "title": "判断最值的位置",
           "position": 11,
           "refs": [
@@ -104,7 +104,7 @@
             "quadratic-interval-extremum"
           ]
         },
-        "b8ee59bb0cd878377469686b#1": {
+        "16b164b0748ac5a8d00998ef#1": {
           "title": "求本情况的参数范围",
           "position": 12,
           "refs": [
@@ -113,7 +113,7 @@
             "skill-inequality-transform"
           ]
         },
-        "f0664b9aac493e3e53a67ac3#1": {
+        "c5060d5158f027e3a5918c52#1": {
           "title": "判断最值的位置",
           "position": 13,
           "refs": [
@@ -121,7 +121,7 @@
             "quadratic-interval-extremum"
           ]
         },
-        "ea7650fd97cad3ea9f58642e#1": {
+        "fcb659b064de799b4cfe6879#1": {
           "title": "求本情况的参数范围",
           "position": 14,
           "refs": [
@@ -130,7 +130,7 @@
             "skill-inequality-transform"
           ]
         },
-        "3d367f6e38e800bafc541053#1": {
+        "33e648a17d003a2788573073#1": {
           "title": "求参数范围",
           "position": 15,
           "refs": [
@@ -138,7 +138,7 @@
             "method-interval-extremum#conditions"
           ]
         },
-        "3bfa514293b2eb4aa0da87a2#1": {
+        "ba24f6ab5c092c54dd6d1b0b#1": {
           "title": "快速验证本段",
           "position": 16,
           "refs": [
@@ -147,7 +147,7 @@
             "skill-linear-range"
           ]
         },
-        "b073d6630c43467952a7dee2#1": {
+        "5694d93aa318170aaf354b81#1": {
           "title": "回到原题，汇总参数范围",
           "position": 17,
           "refs": [
@@ -159,6 +159,6 @@
       }
     }
   },
-  "page_contract_hash": "911c97be92da529c99432a3dbe80c9451af6456a66e45e8d48c7a9de474f7169",
-  "practice_version": "2d96228e71b69a7358731511defb7d408b30db87cb5a7091f912a77ddafd0118"
+  "page_contract_hash": "a007b9b9370316ff82538d46d48cb5b5f017f7ed00af3e90e527ccd372cf108d",
+  "practice_version": "c95e0cd6cfa650c51a82d4d467029cb62e8b5cc769c1e3aa58414edd77f5ff44"
 }

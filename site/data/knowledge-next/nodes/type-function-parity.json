@@ -1,0 +1,51 @@
+{
+  "id": "type-function-parity",
+  "kind": "problem_type",
+  "status": "active",
+  "label": "判断函数的奇偶性",
+  "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+  "source": "函数奇偶性 FP-T1",
+  "choice_hint": "原目标是判断一个已给解析式的函数的奇偶性",
+  "features": [
+    {
+      "cue": "题目给出具体函数的解析式，要求判断它的奇偶性。"
+    },
+    {
+      "cue": "先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+    },
+    {
+      "cue": "有理式、根式、绝对值和分段函数都要保留原定义域：约分不能补回禁取的点，分段处和零点也要逐一检查。"
+    }
+  ],
+  "confuse": [
+    {
+      "text": "已知奇偶性求参数，目标是参数的取值，不是判断性质。",
+      "ref": "function-parity"
+    },
+    {
+      "text": "只看式子里出现 $x$ 或 $x^2$ 就下结论，没有检查定义域和整个对应关系。",
+      "ref": "function-parity"
+    }
+  ],
+  "knowledge": [
+    "function-parity",
+    "function-parity-graph"
+  ],
+  "methods": [
+    "method-parity-definition"
+  ],
+  "rules": [],
+  "examples": [
+    {
+      "title": "判断两个函数的奇偶性",
+      "prompt": "判断下列函数的奇偶性：① $f(x)=\\dfrac{x}{x^2+1}$；② $f(x)=|x|+x^2$。",
+      "solution": [
+        "两个函数的定义域都是 $\\mathbb R$，关于原点对称。",
+        "①$f(-x)=\\dfrac{-x}{x^2+1}=-f(x)$，且 $f(1)=\\frac12\\ne0$，所以是奇函数，不是偶函数。",
+        "②$f(-x)=|-x|+(-x)^2=f(x)$，且 $f(1)=2\\ne0$，所以是偶函数，不是奇函数。"
+      ],
+      "source": "函数奇偶性题源图 1 第 1 题；FP-A01"
+    }
+  ],
+  "sample": "先查定义域对称，再比较 f(-x)。"
+}

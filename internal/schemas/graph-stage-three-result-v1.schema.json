@@ -375,7 +375,7 @@
                       }
                     }
                   },
-                  "minItems": 1
+                  "minItems": 0
                 },
                 "recommendation_rule": {
                   "type": [
@@ -542,7 +542,8 @@
                                 "find_equation",
                                 "find_monotonic_intervals",
                                 "prove_monotonicity_on_interval",
-                                "determine_monotonicity_on_interval"
+                                "determine_monotonicity_on_interval",
+                                "determine_function_parity"
                               ]
                             }
                           }
@@ -2564,6 +2565,50 @@
                   }
                 }
               }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "classification",
+            "odd",
+            "even",
+            "latex"
+          ],
+          "properties": {
+            "kind": {
+              "const": "determine_function_parity"
+            },
+            "status": {
+              "const": "complete"
+            },
+            "classification": {
+              "enum": [
+                "odd_only",
+                "even_only",
+                "both",
+                "neither"
+              ]
+            },
+            "odd": {
+              "enum": [
+                "proved",
+                "refuted"
+              ]
+            },
+            "even": {
+              "enum": [
+                "proved",
+                "refuted"
+              ]
+            },
+            "latex": {
+              "type": "string",
+              "minLength": 1
             }
           }
         }

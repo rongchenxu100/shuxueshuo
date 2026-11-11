@@ -50,6 +50,10 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('function_parity', ('goal',), 'function_parity',
+                ('function-parity#definition', 'function-parity#domain'), '判断具体函数的奇偶性',
+                version='function-parity-definition/v2', supported_structures=('explicit_function_parity',),
+                computation_boundary='original bound rule, declared input set and its role only; no reflected rule or natural domain'),
     FeatureSpec('abstract_monotonicity', ('goal',), 'abstract_monotonicity',
                 ('function-monotonicity#definition', 'quantifiers#instantiation'), '由函数关系与符号条件判断抽象函数的单调性',
                 version='abstract-monotonicity/v2', supported_structures=('additive_relation', 'multiplicative_input_relation', 'exponential_relation', 'power_relation'),
@@ -694,6 +698,23 @@ def _scope_features(report, candidate, scope, ancestors, features):
             for spec in FEATURE_REGISTRY:
                 if spec.feature_id not in produced:
                     add(spec.feature_id, diagnostic={'code': 'feature.not_quantified_comparison_goal'}, source_refs=[target_ref])
+            continue
+        if goal['kind'] == 'determine_function_parity':
+            from ..function_parity import describe_parity_goal
+            add('goal', {'kind': 'determine_function_parity'}, source_refs=[target_ref])
+            produced['goal']['knowledge_refs'] = ['function-parity#definition']
+            try:
+                description = describe_parity_goal(report, scope, ancestors, goal_index, candidate=candidate)
+                function = description['function']
+                refs = [target_ref, function['source_ref'],
+                        *([function['input_domain_source_ref']] if function['input_domain_source_ref'] else [])]
+                add('function_parity', description, source_refs=refs)
+            except (NotationError, ValueError, TypeError) as exc:
+                add('function_parity', diagnostic={'code': getattr(exc, 'code', 'function_parity.invalid_structure')},
+                    source_refs=[target_ref])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_parity_goal'}, source_refs=[target_ref])
             continue
         if goal['kind'] == 'find_abstract_range':
             add('goal', {'kind': 'find_abstract_range', 'known_form': None,

@@ -1,6 +1,6 @@
 # FP-T1 判断函数的奇偶性：设计与实现方案
 
-更新：2026-11-10。状态：**开发设计，尚未实现本题型、生成练习课程或完成拍题验收。** 本文已核查现有代码的复用边界；下述候选接口、预算、测试和实施批次都是待交付要求，不是已通过项。
+更新：2026-11-11。状态：**显式函数的 T1 判定及常见变式已实现；完整题型尚未收尾。** 实际支持范围、回归及尚未开放的原题选项任务等见 [T1 修复与验证记录](function-parity-t1-generalization-acceptance.md)。A01 两问已通过[原照片真实 OCR、模型与课程 API 验收](function-parity-t1-photo-acceptance.md)；独立新照片留出验收仍待完成。本文保留完整设计要求，下述计划项不自动视为已通过。
 
 本文细化[函数奇偶性建设计划](function-parity-topic-plan.md)中的 T1，参照[函数单调性 T1 设计](function-monotonicity-problem-type-design.md)，遵循[专题与拍题学共用开发流程](topic-and-photo-learning-development-workflow.md)。专题课与学生拍题共用题意、数学执行、独立验证和教学投影。
 

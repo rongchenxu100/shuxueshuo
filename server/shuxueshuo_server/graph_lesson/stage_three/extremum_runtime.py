@@ -170,6 +170,31 @@ def _open_trivial_residual_ends(domain, residual, variable):
     return sp.Interval(domain.left, domain.right, left_open, right_open)
 
 
+LATEX_RELATION = {'<=': r'\le ', '>=': r'\ge '}
+
+
+def _source_latex(ast):
+    """The piece as written in the problem; the solver's cancelled form is not shown."""
+    import sympy as sp
+
+    from ..stage_one.function_domain import expression_latex
+    from .math_values import latex
+
+    names = {}
+
+    def bind(node):
+        if not isinstance(node, list):
+            return node
+        if node[0] == 'name':
+            names[node[1]] = latex(sp.Symbol(node[1]))
+            return ['ref', node[1]]
+        if node[0] == 'number':
+            return node
+        return [node[0], *map(bind, node[1:])]
+
+    return expression_latex(bind(ast), '', names=names)
+
+
 def bind_parameter_child(branch_case, extremum_result):
     import sympy as sp
     from . import capabilities
@@ -209,10 +234,11 @@ def bind_parameter_child(branch_case, extremum_result):
         'polynomial': 'method-interval-extremum',
         'independent': 'method-interval-extremum',
     }[piece_kind]
+    shown = _source_latex(proof['source_ast']) if proof.get('source_ast') else latex(expression)
     caption = (
-        f'本步条件来自分段式 ${latex(expression)}$'
+        f'本步条件来自分段式 ${shown}$'
         f'（${latex(variable)}\\in {latex(domain)}$）：'
-        f'要求 ${latex(relation)}$。'
+        f'要求 ${shown}{LATEX_RELATION[operator]}{latex(specified)}$。'
     )
     return result({
         'piece_expression': expression,

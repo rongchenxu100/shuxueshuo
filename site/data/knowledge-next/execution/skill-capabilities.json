@@ -36,7 +36,8 @@
       "expand_coefficient_relations",
       "simplify_system_formula",
       "simplify_assignment_formula",
-      "evaluate_piecewise_level"
+      "evaluate_piecewise_level",
+      "compare_parity_relations"
     ],
     "skill-quadratic-sign": [
       "quadratic_sign_condition",
@@ -112,7 +113,8 @@
       "submethod"
     ],
     "method-domain-intersection": [
-      "submethod"
+      "submethod",
+      "solve_original_function_domain"
     ],
     "method-quadratic-interval-range": [
       "submethod"
@@ -121,7 +123,8 @@
       "prepare_fraction_range"
     ],
     "method-function-evaluation": [
-      "submethod"
+      "submethod",
+      "reflect_function_input"
     ],
     "skill-polynomial-coefficient-comparison": [
       "compare_polynomial_coefficients"
@@ -165,6 +168,9 @@
       "specialize_function_relation",
       "instantiate_abstract_relation",
       "instantiate_abstract_sign"
+    ],
+    "skill-domain-symmetry": [
+      "check_domain_symmetry"
     ]
   },
   "internal": {
@@ -407,6 +413,12 @@
     ],
     "choose_abstract_substitution": [
       "method-difference-comparison#simplify"
+    ],
+    "prepare_function_parity": [
+      "method-parity-definition#prepare"
+    ],
+    "collect_function_parity": [
+      "method-parity-definition#conclude"
     ]
   }
 }

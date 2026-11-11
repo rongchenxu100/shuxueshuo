@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"1. 判断函数的奇偶性：（1）$f(x)=\\\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。\",\"root\":{\"children\":[{\"label\":\"（1）\",\"definitions\":[\"f(x)=x/(x^2+1)\"],\"goals\":[{\"kind\":\"determine_function_parity\",\"function\":\"f\",\"variable\":\"x\",\"expression\":\"x/(x^2+1)\"}]},{\"label\":\"（2）\",\"definitions\":[\"f(x)=abs(x)+x^2\"],\"goals\":[{\"kind\":\"determine_function_parity\",\"function\":\"f\",\"variable\":\"x\",\"expression\":\"abs(x)+x^2\"}]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"判断函数的奇偶性：\",\"choices\":[]},{\"scope_ref\":\"/root/children/0\",\"statement\":\"$f(x)=\\\\frac{x}{x^2+1}$为____函数；\",\"choices\":[{\"target_ref\":\"/root/children/0/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]},{\"scope_ref\":\"/root/children/1\",\"statement\":\"$f(x)=|x|+x^2$为____函数。\",\"choices\":[{\"target_ref\":\"/root/children/1/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1796,
+      "prompt_tokens": 25360,
+      "total_tokens": 27156,
+      "prompt_cache_hit_tokens": 25216,
+      "prompt_cache_miss_tokens": 144
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 991,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-8f510cbd-bb0a-4bd8-8d98-fd41b8b9d27e",
+        "sha256": "86802b6daf66ffec686a1e9435f75f86c9e227ebebba831ac291d73446cc0ba7",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 8819,
+        "expires_at": 1794444722,
+        "uploaded_at": 1794358322.517807
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "86802b6daf66ffec686a1e9435f75f86c9e227ebebba831ac291d73446cc0ba7",
+        "api_calls": 1,
+        "file_id": "file-api-8f510cbd-bb0a-4bd8-8d98-fd41b8b9d27e",
+        "expires_at": 1794444722,
+        "elapsed_ms": 786
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 10940,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1796,
+          "prompt_tokens": 25360,
+          "total_tokens": 27156,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1447
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25216
+          },
+          "prompt_cache_hit_tokens": 25216,
+          "prompt_cache_miss_tokens": 144
+        },
+        "raw_payload": {
+          "id": "33a21d80-38ab-4501-bb80-a817c0f4f6a8",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1796,
+            "prompt_tokens": 25360,
+            "total_tokens": 27156,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1447
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25216
+            },
+            "prompt_cache_hit_tokens": 25216,
+            "prompt_cache_miss_tokens": 144
+          },
+          "created": 1794358322,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"1. 判断函数的奇偶性：（1）$f(x)=\\\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。\",\"root\":{\"children\":[{\"label\":\"（1）\",\"definitions\":[\"f(x)=x/(x^2+1)\"],\"goals\":[{\"kind\":\"determine_function_parity\",\"function\":\"f\",\"variable\":\"x\",\"expression\":\"x/(x^2+1)\"}]},{\"label\":\"（2）\",\"definitions\":[\"f(x)=abs(x)+x^2\"],\"goals\":[{\"kind\":\"determine_function_parity\",\"function\":\"f\",\"variable\":\"x\",\"expression\":\"abs(x)+x^2\"}]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"判断函数的奇偶性：\",\"choices\":[]},{\"scope_ref\":\"/root/children/0\",\"statement\":\"$f(x)=\\\\frac{x}{x^2+1}$为____函数；\",\"choices\":[{\"target_ref\":\"/root/children/0/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]},{\"scope_ref\":\"/root/children/1\",\"statement\":\"$f(x)=|x|+x^2$为____函数。\",\"choices\":[{\"target_ref\":\"/root/children/1/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取图片题干。题目：1. 判断函数的奇偶性：（1）f(x)=x/(x^2+1)为____函数；（2）f(x)=|x|+x^2为____函数。手写“奇”“偶”不是题目内容，不转录，填空横线照原样。需要小问(1)(2)，root共用题干“判断函数的奇偶性”。每个小问局部函数定义与所求。目标判断奇偶性：determine_function_parity，function f, variable x, expression原式，input_domain? 题面未给定义域，不填。注意 root 定义？函数表达式是小问局部条件，应放小问 definitions。root facts? 无。root goals? 无。children各小问 label \"（1）\",\"（2）\"，definitions: f(x)=x/(x^2+1) 和 f(x)=abs(x)+x^2。goals determine_function_parity function f variable x expression分别。public_content scopes对应root及children。root statement \"判断函数的奇偶性：\" choices none; children statement \"（1）$f(x)=\\\\frac{x}{x^2+1}$为____函数；\" 目标选项无，status none。注意 scope statement 不重复父题干，且不含小问编号？说“不含小问编号和选项”，但 statement 应保留该作用域自己的题干、条件和所求。小问可以有填空和函数。编号不放在statement，label存“（1）”。所以 statement 为 \"$f(x)=\\\\frac{x}{x^2+1}$为____函数；\" 和 \"$f(x)=|x|+x^2$为____函数。\" 填空处照原样横线。original_text 保留题号1.，完整。手写答案不转录，只保留横线。uncertainties? 没有。figure none。public_content figure not_required. privacy separated? 题号属于来源题号？图片开头“1.”可能是题号，属于来源试卷题号；original_text可以保留，但公开字段不应含题号。root.label？我们不需要设root.label，不设。privacy can separated because题号不放入公开statement。original_text包含题号没问题。completeness complete。root label absent. figure_detection none regions [].\n\n需要注意 determine_function_parity 的 expression 是题给函数的原式，不约分不化简。表达式 x/(x^2+1) -> \"x/(x^2+1)\" maybe need parentheses denominator. abs(x)+x^2. input_domain 不填。function f variable x。小问 definitions 使用受控字符串。root children facts? Maybe no facts. public_content root statement \"判断函数的奇偶性：\" 但小问各自有函数和填空。Yes.\n\n目标：判断函数奇偶性，对于每个小问。注意 root共用题干“判断函数的奇偶性”已经包含所求，但小问的goals应写每个目标的所求？ 小问的目标就是“判断 f 的奇偶性”。好。\n\noriginal_text: \"1. 判断函数的奇偶性：（1）$f(x)=\\\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。\" 这里的横线长度？用____。手写“奇”“偶”不写。注意图片有手写“奇”在横线上，不属于题目。横线照印刷原样，但手写覆盖？我们需要只保留横线。Fine.\n\npublic_content scopes: \nroot statement \"判断函数的奇偶性：\" choices [] maybe root has no goals,但 public_content scopes 要求每个scope有choices? choices array required but can be empty. target_ref pattern only for each goal. If no goals, choices=[].\nchildren scope statement \"f(x)=...为____函数；\" without小问编号。choices [] because no options. But maybe goals have status none in corresponding choices? The schema says choices 每个goals项在对应作用域 choices中恰好出现一次. For each goal, there must be a choices item? Actually public_content.scopes item requires choices array, and description: 每个 goals 项都在对应作用域 choices 中恰好出现一次；无选项用 status=none、selection_mode=none、options=[]。So for each goal, include choice entry target_ref to goal, status none, selection_mode none, options []. For root with no goals, choices [].\n\nThus children choices each one entry. Wait it's choices array at scope, each item target_ref. yes.\n\nRoot definitions empty? We can omit optional fields. root facts? no. root goals? no. root children two. root uncertainties omitted. root label absent.\n\nFor each child definitions: [\"f(x)=x/(x^2+1)\"] and [\"f(x)=abs(x)+x^2\"]. goals [{\"kind\":\"determine_function_parity\",\"function\":\"f\",\"variable\":\"x\",\"expression\":\"x/(x^2+1)\"}]. Need expression includes division with parentheses? \"x/(x^2+1)\" okay. The catalog says expression original, not simplify. For abs, \"abs(x)+x^2\".\n\nPotential issue: determine_function_parity requires input_domain optional; omit.\n\nFigure detection status none.\n\nNeed figure_detection top-level only? public_content.figure_detection yes. root also? Schema root no figure. Only public_content.figure_detection.\n\nLet's craft JSON with original_text and root. Ensure backslashes in original_text: LaTeX needs \\\\frac, \\\\frac? In JSON string, to output \\frac need \"\\\\frac\". The instruction says JSON string反斜杠必须写成 \\\\。So original_text \"$f(x)=\\\\frac{x}{x^2+1}$\". For |x| no backslash. For x^2. Good.\n\nPublic_content statements use $…$; can use \\frac also escaped. Statement maybe \"$f(x)=\\\\frac{x}{x^2+1}$为____函数；\". Fine.\n\nRoot statement \"判断函数的奇偶性：\" includes colon.\n\nNo choices options.\n\nNeed not include root.label role.\n\nDouble-check public_content.scopes required min1; root + children. scope_ref \"/root\", \"/root/children/0\", \"/root/children/1\". child label? public_content scopes has no label field, only statement choices. root.label only root. So okay.\n\nPotential \"填空处照印刷原样写横线\": We use ____. Good.\n\nOriginal text could say \"判断函数的奇偶性：\" maybe semicolon after (1) etc. Good.\n\nUncertainties due handwritten answer? Not report since student handwriting is not content. No.\n\nLet's produce.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 11763
+  },
+  "raw_payload": {
+    "id": "33a21d80-38ab-4501-bb80-a817c0f4f6a8",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"1. 判断函数的奇偶性：（1）$f(x)=\\\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。\",\"root\":{\"children\":[{\"label\":\"（1）\",\"definitions\":[\"f(x)=x/(x^2+1)\"],\"goals\":[{\"kind\":\"determine_function_parity\",\"function\":\"f\",\"variable\":\"x\",\"expression\":\"x/(x^2+1)\"}]},{\"label\":\"（2）\",\"definitions\":[\"f(x)=abs(x)+x^2\"],\"goals\":[{\"kind\":\"determine_function_parity\",\"function\":\"f\",\"variable\":\"x\",\"expression\":\"abs(x)+x^2\"}]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"判断函数的奇偶性：\",\"choices\":[]},{\"scope_ref\":\"/root/children/0\",\"statement\":\"$f(x)=\\\\frac{x}{x^2+1}$为____函数；\",\"choices\":[{\"target_ref\":\"/root/children/0/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]},{\"scope_ref\":\"/root/children/1\",\"statement\":\"$f(x)=|x|+x^2$为____函数。\",\"choices\":[{\"target_ref\":\"/root/children/1/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取图片题干。题目：1. 判断函数的奇偶性：（1）f(x)=x/(x^2+1)为____函数；（2）f(x)=|x|+x^2为____函数。手写“奇”“偶”不是题目内容，不转录，填空横线照原样。需要小问(1)(2)，root共用题干“判断函数的奇偶性”。每个小问局部函数定义与所求。目标判断奇偶性：determine_function_parity，function f, variable x, expression原式，input_domain? 题面未给定义域，不填。注意 root 定义？函数表达式是小问局部条件，应放小问 definitions。root facts? 无。root goals? 无。children各小问 label \"（1）\",\"（2）\"，definitions: f(x)=x/(x^2+1) 和 f(x)=abs(x)+x^2。goals determine_function_parity function f variable x expression分别。public_content scopes对应root及children。root statement \"判断函数的奇偶性：\" choices none; children statement \"（1）$f(x)=\\\\frac{x}{x^2+1}$为____函数；\" 目标选项无，status none。注意 scope statement 不重复父题干，且不含小问编号？说“不含小问编号和选项”，但 statement 应保留该作用域自己的题干、条件和所求。小问可以有填空和函数。编号不放在statement，label存“（1）”。所以 statement 为 \"$f(x)=\\\\frac{x}{x^2+1}$为____函数；\" 和 \"$f(x)=|x|+x^2$为____函数。\" 填空处照原样横线。original_text 保留题号1.，完整。手写答案不转录，只保留横线。uncertainties? 没有。figure none。public_content figure not_required. privacy separated? 题号属于来源题号？图片开头“1.”可能是题号，属于来源试卷题号；original_text可以保留，但公开字段不应含题号。root.label？我们不需要设root.label，不设。privacy can separated because题号不放入公开statement。original_text包含题号没问题。completeness complete。root label absent. figure_detection none regions [].\n\n需要注意 determine_function_parity 的 expression 是题给函数的原式，不约分不化简。表达式 x/(x^2+1) -> \"x/(x^2+1)\" maybe need parentheses denominator. abs(x)+x^2. input_domain 不填。function f variable x。小问 definitions 使用受控字符串。root children facts? Maybe no facts. public_content root statement \"判断函数的奇偶性：\" 但小问各自有函数和填空。Yes.\n\n目标：判断函数奇偶性，对于每个小问。注意 root共用题干“判断函数的奇偶性”已经包含所求，但小问的goals应写每个目标的所求？ 小问的目标就是“判断 f 的奇偶性”。好。\n\noriginal_text: \"1. 判断函数的奇偶性：（1）$f(x)=\\\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。\" 这里的横线长度？用____。手写“奇”“偶”不写。注意图片有手写“奇”在横线上，不属于题目。横线照印刷原样，但手写覆盖？我们需要只保留横线。Fine.\n\npublic_content scopes: \nroot statement \"判断函数的奇偶性：\" choices [] maybe root has no goals,但 public_content scopes 要求每个scope有choices? choices array required but can be empty. target_ref pattern only for each goal. If no goals, choices=[].\nchildren scope statement \"f(x)=...为____函数；\" without小问编号。choices [] because no options. But maybe goals have status none in corresponding choices? The schema says choices 每个goals项在对应作用域 choices中恰好出现一次. For each goal, there must be a choices item? Actually public_content.scopes item requires choices array, and description: 每个 goals 项都在对应作用域 choices 中恰好出现一次；无选项用 status=none、selection_mode=none、options=[]。So for each goal, include choice entry target_ref to goal, status none, selection_mode none, options []. For root with no goals, choices [].\n\nThus children choices each one entry. Wait it's choices array at scope, each item target_ref. yes.\n\nRoot definitions empty? We can omit optional fields. root facts? no. root goals? no. root children two. root uncertainties omitted. root label absent.\n\nFor each child definitions: [\"f(x)=x/(x^2+1)\"] and [\"f(x)=abs(x)+x^2\"]. goals [{\"kind\":\"determine_function_parity\",\"function\":\"f\",\"variable\":\"x\",\"expression\":\"x/(x^2+1)\"}]. Need expression includes division with parentheses? \"x/(x^2+1)\" okay. The catalog says expression original, not simplify. For abs, \"abs(x)+x^2\".\n\nPotential issue: determine_function_parity requires input_domain optional; omit.\n\nFigure detection status none.\n\nNeed figure_detection top-level only? public_content.figure_detection yes. root also? Schema root no figure. Only public_content.figure_detection.\n\nLet's craft JSON with original_text and root. Ensure backslashes in original_text: LaTeX needs \\\\frac, \\\\frac? In JSON string, to output \\frac need \"\\\\frac\". The instruction says JSON string反斜杠必须写成 \\\\。So original_text \"$f(x)=\\\\frac{x}{x^2+1}$\". For |x| no backslash. For x^2. Good.\n\nPublic_content statements use $…$; can use \\frac also escaped. Statement maybe \"$f(x)=\\\\frac{x}{x^2+1}$为____函数；\". Fine.\n\nRoot statement \"判断函数的奇偶性：\" includes colon.\n\nNo choices options.\n\nNeed not include root.label role.\n\nDouble-check public_content.scopes required min1; root + children. scope_ref \"/root\", \"/root/children/0\", \"/root/children/1\". child label? public_content scopes has no label field, only statement choices. root.label only root. So okay.\n\nPotential \"填空处照印刷原样写横线\": We use ____. Good.\n\nOriginal text could say \"判断函数的奇偶性：\" maybe semicolon after (1) etc. Good.\n\nUncertainties due handwritten answer? Not report since student handwriting is not content. No.\n\nLet's produce."
+        }
+      }
+    ],
+    "created": 1794358322,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1796,
+      "prompt_tokens": 25360,
+      "total_tokens": 27156,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1447,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25216
+      },
+      "prompt_cache_hit_tokens": 25216,
+      "prompt_cache_miss_tokens": 144
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 11.795
+}

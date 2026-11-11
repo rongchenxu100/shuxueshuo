@@ -1,0 +1,89 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-a01-2-v2",
+  "label": "绝对值与平方的奇偶性 · A01.2",
+  "path": "/topics/function-parity/q01b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-a01-2-v2.json",
+  "types": [
+    "type-function-parity"
+  ],
+  "statement": "判断函数的奇偶性：$f(x)=|x|+x^2$。",
+  "routes": {
+    "parity-definition": {
+      "label": "奇偶性定义法",
+      "methods": [
+        "method-parity-definition"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-parity-definition"
+          ]
+        },
+        "28cf23b4eaf7ebb8f0a9cb8f#1": {
+          "title": "检查定义域的对称性",
+          "position": 4,
+          "refs": [
+            "method-parity-definition#symmetry",
+            "skill-domain-symmetry",
+            "function-parity#domain"
+          ]
+        },
+        "700f63e78b2ade35b6f098a3#1": {
+          "title": "代入相反数",
+          "position": 5,
+          "refs": [
+            "method-parity-definition#reflect",
+            "method-function-evaluation",
+            "function-parity#definition"
+          ]
+        },
+        "c9644617704fbdf464e5d609#1": {
+          "title": "核对奇函数的条件",
+          "position": 6,
+          "refs": [
+            "method-parity-definition#compare",
+            "skill-simplify",
+            "function-parity#definition"
+          ]
+        },
+        "c9644617704fbdf464e5d609#2": {
+          "title": "核对偶函数的条件",
+          "position": 7,
+          "refs": [
+            "method-parity-definition#compare",
+            "skill-simplify",
+            "function-parity#definition"
+          ]
+        },
+        "f886262a2f0e366358daaf89#1": {
+          "title": "得出结论",
+          "position": 8,
+          "refs": [
+            "method-parity-definition#conclude",
+            "function-parity#definition",
+            "function-parity#zero"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "1a3e687e52b387f29ba093d2ea137352cf0b5c9134fb2e2a930fb13cc2d91fe9",
+  "practice_version": "3841ea9f3a725ff8e10d0a0c73065313ecf703db653d4c6c4b94190ab681e8e8"
+}

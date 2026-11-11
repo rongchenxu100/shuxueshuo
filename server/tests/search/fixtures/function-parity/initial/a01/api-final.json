@@ -1,0 +1,479 @@
+{
+  "search_id": "c8fb6080766f",
+  "user_id": "2aa894e0-56a7-4dc6-a962-76962fbb38a1",
+  "problem_id": "9a401f79-bcc8-4584-a0c1-69988145faca",
+  "statement": "判断函数的奇偶性。\n（1）$f(x)=\\frac{x}{x^2+1}$为____函数；\n（2）$f(x)=|x|+x^2$为____函数。",
+  "recognition_status": "reviewed",
+  "lesson_status": "unsupported",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "475b1e6299c8d6f34777079a3278429d67d5eb9e92a1bf1004fc855fad59bbad",
+      "width": 955,
+      "height": 77,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/c8fb6080766f/figures/original?version=c6355de627f35dd37b5560e91773a917f839cdd0489ece193c70b4ecd58aed88"
+      }
+    ],
+    "content_id": "c6355de627f35dd37b5560e91773a917f839cdd0489ece193c70b4ecd58aed88"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "88d9a745d90c",
+    "box": [
+      0.0859375,
+      0.06037514654161782,
+      0.83203125,
+      0.10550996483001172
+    ],
+    "page_size": [
+      1280,
+      1706
+    ],
+    "crop_size": [
+      955,
+      77
+    ],
+    "bytes": 8819
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "1. 判断函数的奇偶性：（1）$f(x)=\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。",
+  "parts": [
+    "（1）",
+    "（2）"
+  ],
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [],
+    "children": [
+      {
+        "label": "（1）",
+        "definitions": [
+          "f(x)=x/(x^2+1)"
+        ],
+        "facts": [],
+        "goals": [
+          {
+            "kind": "determine_function_parity",
+            "function": "f",
+            "variable": "x",
+            "expression": "x/(x^2+1)"
+          }
+        ]
+      },
+      {
+        "label": "（2）",
+        "definitions": [
+          "f(x)=abs(x)+x^2"
+        ],
+        "facts": [],
+        "goals": [
+          {
+            "kind": "determine_function_parity",
+            "function": "f",
+            "variable": "x",
+            "expression": "abs(x)+x^2"
+          }
+        ]
+      }
+    ],
+    "uncertainties": []
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root/children/0",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root/children/0",
+      "status": "known"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "goal",
+      "scope": "/root/children/1",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root/children/1",
+      "status": "known"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "86802b6daf66ffec686a1e9435f75f86c9e227ebebba831ac291d73446cc0ba7",
+    "sent_image_sha256": [
+      "86802b6daf66ffec686a1e9435f75f86c9e227ebebba831ac291d73446cc0ba7"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 31.221,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/children/0/goals/0",
+        "scope": "/root/children/0",
+        "label": "（1）",
+        "status": "unsupported",
+        "primary": null,
+        "supported": [],
+        "d1": {
+          "rows": [],
+          "summary": ""
+        },
+        "walk": null
+      },
+      {
+        "target_ref": "/root/children/1/goals/0",
+        "scope": "/root/children/1",
+        "label": "（2）",
+        "status": "unsupported",
+        "primary": null,
+        "supported": [],
+        "d1": {
+          "rows": [],
+          "summary": ""
+        },
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "2dd3f9897f02455f9ef072b627347bec",
+      "lesson_version": "6d3de86b4fdea1ea1f198ae8377e0f72aa346c8fbc7dda36e787b355f0ce5059",
+      "stream_id": "2dd3f9897f02455f9ef072b627347bec",
+      "snapshot_url": "/api/search/problems/c8fb6080766f/lesson/2dd3f9897f02455f9ef072b627347bec/snapshot",
+      "events_url": "/api/search/problems/c8fb6080766f/lesson/2dd3f9897f02455f9ef072b627347bec/events",
+      "websocket_url": "/api/search/problems/c8fb6080766f/lesson/2dd3f9897f02455f9ef072b627347bec/ws"
+    }
+  }
+}

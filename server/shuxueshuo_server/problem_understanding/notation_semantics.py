@@ -332,6 +332,11 @@ class Canonical:
 
                 goals.append(canonical_comparison(g))
                 continue
+            if g['kind'] == 'determine_function_parity':
+                from .notation_function_parity import canonical_parity
+
+                goals.append(canonical_parity(g))
+                continue
             if g['kind'] in ('find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
                 from .notation_abstract_domain import canonical_abstract_domain
 

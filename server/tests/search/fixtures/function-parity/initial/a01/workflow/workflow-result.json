@@ -1,0 +1,1543 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "1. 判断函数的奇偶性：（1）$f(x)=\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [],
+      "children": [
+        {
+          "label": "（1）",
+          "definitions": [
+            "f(x)=x/(x^2+1)"
+          ],
+          "facts": [],
+          "goals": [
+            {
+              "kind": "determine_function_parity",
+              "function": "f",
+              "variable": "x",
+              "expression": "x/(x^2+1)"
+            }
+          ]
+        },
+        {
+          "label": "（2）",
+          "definitions": [
+            "f(x)=abs(x)+x^2"
+          ],
+          "facts": [],
+          "goals": [
+            {
+              "kind": "determine_function_parity",
+              "function": "f",
+              "variable": "x",
+              "expression": "abs(x)+x^2"
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "判断函数的奇偶性。",
+          "choices": []
+        },
+        {
+          "scope_ref": "/root/children/0",
+          "statement": "$f(x)=\\frac{x}{x^2+1}$为____函数；",
+          "choices": [
+            {
+              "target_ref": "/root/children/0/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        },
+        {
+          "scope_ref": "/root/children/1",
+          "statement": "$f(x)=|x|+x^2$为____函数。",
+          "choices": [
+            {
+              "target_ref": "/root/children/1/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "1. 判断函数的奇偶性：（1）$f(x)=\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [],
+      "children": [
+        {
+          "label": "（1）",
+          "definitions": [
+            "f(x)=x/(x^2+1)"
+          ],
+          "facts": [],
+          "goals": [
+            {
+              "kind": "determine_function_parity",
+              "function": "f",
+              "variable": "x",
+              "expression": "x/(x^2+1)"
+            }
+          ]
+        },
+        {
+          "label": "（2）",
+          "definitions": [
+            "f(x)=abs(x)+x^2"
+          ],
+          "facts": [],
+          "goals": [
+            {
+              "kind": "determine_function_parity",
+              "function": "f",
+              "variable": "x",
+              "expression": "abs(x)+x^2"
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "判断函数的奇偶性。",
+          "choices": []
+        },
+        {
+          "scope_ref": "/root/children/0",
+          "statement": "$f(x)=\\frac{x}{x^2+1}$为____函数；",
+          "choices": [
+            {
+              "target_ref": "/root/children/0/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        },
+        {
+          "scope_ref": "/root/children/1",
+          "statement": "$f(x)=|x|+x^2$为____函数。",
+          "choices": [
+            {
+              "target_ref": "/root/children/1/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [
+          {
+            "ref": "r.c0:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r.c0"
+          },
+          {
+            "ref": "r.c1:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r.c1"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [
+            {
+              "scope": "r.c0",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r.c0:function:f",
+                  "function"
+                ],
+                [
+                  "/",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ]
+              ]
+            },
+            {
+              "scope": "r.c1",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r.c1:function:f",
+                  "function"
+                ],
+                [
+                  "+",
+                  [
+                    "call",
+                    "abs",
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "canonical_facts": [
+            {
+              "scope": "r.c0",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r.c0:function:f",
+                  "function"
+                ],
+                [
+                  "/",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ]
+              ]
+            },
+            {
+              "scope": "r.c1",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r.c1:function:f",
+                  "function"
+                ],
+                [
+                  "+",
+                  [
+                    "call",
+                    "abs",
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "c03c9e8aae3abf212fdc67aa54e4c532ed8e7238962b565fde9c8aea9ca0566f",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [],
+        "uncertainties": [],
+        "children": [
+          {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r.c0:function:f",
+                    "function"
+                  ],
+                  "Mul(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(1)), Integer(-1)))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "determine_function_parity",
+                "expression_ast": [
+                  "/",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ],
+                "explicit_domain": false,
+                "input_domain_ast": [
+                  "real"
+                ],
+                "domain_role": "declared"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r.c1:function:f",
+                    "function"
+                  ],
+                  "Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Symbol('n_a7dd6643502723b727d7b028653e9fe44c62b7334d1e0d55f6543ff886a3f235', real=True))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "determine_function_parity",
+                "expression_ast": [
+                  "+",
+                  [
+                    "call",
+                    "abs",
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                "explicit_domain": false,
+                "input_domain_ast": [
+                  "real"
+                ],
+                "domain_role": "declared"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          }
+        ]
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [],
+        "uncertainties": [],
+        "children": [
+          {
+            "scope": "r.c0",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r.c0:function:f",
+                  "function"
+                ],
+                [
+                  "/",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "determine_function_parity",
+                "target": [
+                  "parity_task",
+                  "/root/children/0/goals/0"
+                ],
+                "target_ref": "/root/children/0/goals/0",
+                "function": {
+                  "function_ref": "/root/children/0/goals/0/function",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/children/0/goals/0/expression",
+                  "expression": "x/(x^2+1)",
+                  "expression_ast": [
+                    "/",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ],
+                  "expression_latex": "\\frac{x}{x^{2}+1}",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": "",
+                  "domain_role": "declared"
+                }
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          {
+            "scope": "r.c1",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r.c1:function:f",
+                  "function"
+                ],
+                [
+                  "+",
+                  [
+                    "call",
+                    "abs",
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "determine_function_parity",
+                "target": [
+                  "parity_task",
+                  "/root/children/1/goals/0"
+                ],
+                "target_ref": "/root/children/1/goals/0",
+                "function": {
+                  "function_ref": "/root/children/1/goals/0/function",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/children/1/goals/0/expression",
+                  "expression": "abs(x)+x^2",
+                  "expression_ast": [
+                    "+",
+                    [
+                      "call",
+                      "abs",
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  "expression_latex": "\\left|x\\right|+x^{2}",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": "",
+                  "domain_role": "declared"
+                }
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          }
+        ]
+      },
+      "objects": [
+        {
+          "ref": "r.c0:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r.c0"
+        },
+        {
+          "ref": "r.c1:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r.c1"
+        }
+      ],
+      "source_locations": {
+        "[\"function_definition\",[\"ref\",\"r.c0:function:f\",\"function\"],[\"/\",[\"bound\",\"function_argument\"],[\"+\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"number\",\"1\"]]]]": {
+          "path": "r.c0.definitions[0]",
+          "source": "f(x)=x/(x^2+1)"
+        },
+        "[\"function_definition\",[\"ref\",\"r.c1:function:f\",\"function\"],[\"+\",[\"call\",\"abs\",[\"bound\",\"function_argument\"]],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]]": {
+          "path": "r.c1.definitions[0]",
+          "source": "f(x)=abs(x)+x^2"
+        }
+      },
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r.c0",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r.c0:function:f",
+                "function"
+              ],
+              [
+                "/",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "+",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ]
+            ]
+          },
+          {
+            "scope": "r.c1",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r.c1:function:f",
+                "function"
+              ],
+              [
+                "+",
+                [
+                  "call",
+                  "abs",
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ],
+                [
+                  "^",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r.c0",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r.c0:function:f",
+                "function"
+              ],
+              [
+                "/",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "+",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ]
+            ]
+          },
+          {
+            "scope": "r.c1",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r.c1:function:f",
+                "function"
+              ],
+              [
+                "+",
+                [
+                  "call",
+                  "abs",
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ],
+                [
+                  "^",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "c8fb6080766f",
+      "source_sha256": "86802b6daf66ffec686a1e9435f75f86c9e227ebebba831ac291d73446cc0ba7"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "c03c9e8aae3abf212fdc67aa54e4c532ed8e7238962b565fde9c8aea9ca0566f",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [
+              {
+                "ref": "r.c0:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r.c0"
+              },
+              {
+                "ref": "r.c1:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r.c1"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r.c0",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r.c0:function:f",
+                      "function"
+                    ],
+                    [
+                      "/",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r.c1",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r.c1:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "call",
+                        "abs",
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r.c0",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r.c0:function:f",
+                      "function"
+                    ],
+                    [
+                      "/",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r.c1",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r.c1:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "call",
+                        "abs",
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "c03c9e8aae3abf212fdc67aa54e4c532ed8e7238962b565fde9c8aea9ca0566f",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [],
+            "uncertainties": [],
+            "children": [
+              {
+                "facts": [
+                  [
+                    [
+                      "function_definition",
+                      [
+                        "ref",
+                        "r.c0:function:f",
+                        "function"
+                      ],
+                      "Mul(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(1)), Integer(-1)))"
+                    ]
+                  ]
+                ],
+                "goals": [
+                  {
+                    "kind": "determine_function_parity",
+                    "expression_ast": [
+                      "/",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ],
+                    "explicit_domain": false,
+                    "input_domain_ast": [
+                      "real"
+                    ],
+                    "domain_role": "declared"
+                  }
+                ],
+                "uncertainties": [],
+                "children": []
+              },
+              {
+                "facts": [
+                  [
+                    [
+                      "function_definition",
+                      [
+                        "ref",
+                        "r.c1:function:f",
+                        "function"
+                      ],
+                      "Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Symbol('n_a7dd6643502723b727d7b028653e9fe44c62b7334d1e0d55f6543ff886a3f235', real=True))"
+                    ]
+                  ]
+                ],
+                "goals": [
+                  {
+                    "kind": "determine_function_parity",
+                    "expression_ast": [
+                      "+",
+                      [
+                        "call",
+                        "abs",
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    "explicit_domain": false,
+                    "input_domain_ast": [
+                      "real"
+                    ],
+                    "domain_role": "declared"
+                  }
+                ],
+                "uncertainties": [],
+                "children": []
+              }
+            ]
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [],
+            "uncertainties": [],
+            "children": [
+              {
+                "scope": "r.c0",
+                "facts": [
+                  [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r.c0:function:f",
+                      "function"
+                    ],
+                    [
+                      "/",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                "goals": [
+                  {
+                    "kind": "determine_function_parity",
+                    "target": [
+                      "parity_task",
+                      "/root/children/0/goals/0"
+                    ],
+                    "target_ref": "/root/children/0/goals/0",
+                    "function": {
+                      "function_ref": "/root/children/0/goals/0/function",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/children/0/goals/0/expression",
+                      "expression": "x/(x^2+1)",
+                      "expression_ast": [
+                        "/",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "+",
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "number",
+                            "1"
+                          ]
+                        ]
+                      ],
+                      "expression_latex": "\\frac{x}{x^{2}+1}",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": "",
+                      "domain_role": "declared"
+                    }
+                  }
+                ],
+                "uncertainties": [],
+                "children": []
+              },
+              {
+                "scope": "r.c1",
+                "facts": [
+                  [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r.c1:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "call",
+                        "abs",
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                "goals": [
+                  {
+                    "kind": "determine_function_parity",
+                    "target": [
+                      "parity_task",
+                      "/root/children/1/goals/0"
+                    ],
+                    "target_ref": "/root/children/1/goals/0",
+                    "function": {
+                      "function_ref": "/root/children/1/goals/0/function",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/children/1/goals/0/expression",
+                      "expression": "abs(x)+x^2",
+                      "expression_ast": [
+                        "+",
+                        [
+                          "call",
+                          "abs",
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      "expression_latex": "\\left|x\\right|+x^{2}",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": "",
+                      "domain_role": "declared"
+                    }
+                  }
+                ],
+                "uncertainties": [],
+                "children": []
+              }
+            ]
+          },
+          "objects": [
+            {
+              "ref": "r.c0:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r.c0"
+            },
+            {
+              "ref": "r.c1:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r.c1"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r.c0:function:f\",\"function\"],[\"/\",[\"bound\",\"function_argument\"],[\"+\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"number\",\"1\"]]]]": {
+              "path": "r.c0.definitions[0]",
+              "source": "f(x)=x/(x^2+1)"
+            },
+            "[\"function_definition\",[\"ref\",\"r.c1:function:f\",\"function\"],[\"+\",[\"call\",\"abs\",[\"bound\",\"function_argument\"]],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]]": {
+              "path": "r.c1.definitions[0]",
+              "source": "f(x)=abs(x)+x^2"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r.c0",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r.c0:function:f",
+                    "function"
+                  ],
+                  [
+                    "/",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r.c1",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r.c1:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "call",
+                      "abs",
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r.c0",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r.c0:function:f",
+                    "function"
+                  ],
+                  [
+                    "/",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r.c1",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r.c1:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "call",
+                      "abs",
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "c8fb6080766f",
+          "source_sha256": "86802b6daf66ffec686a1e9435f75f86c9e227ebebba831ac291d73446cc0ba7"
+        }
+      },
+      "revision": "c03c9e8aae3abf212fdc67aa54e4c532ed8e7238962b565fde9c8aea9ca0566f"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "c03c9e8aae3abf212fdc67aa54e4c532ed8e7238962b565fde9c8aea9ca0566f",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "c03c9e8aae3abf212fdc67aa54e4c532ed8e7238962b565fde9c8aea9ca0566f",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

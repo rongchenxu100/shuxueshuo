@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "id": "function-parity",
+  "label": "函数奇偶性",
+  "path": "/topics/function-parity/",
+  "presentation": "topic-overview",
+  "introduction": "先查定义域是否关于原点对称，再把自变量的相反数整体代入，分别核对奇函数和偶函数的条件。",
+  "chapter": {
+    "book": "人教 A 版 · 必修第一册",
+    "number": "第三章",
+    "label": "函数的概念与性质",
+    "section": "3.2.2",
+    "ref": "section-3-2"
+  },
+  "knowledge": [
+    "function-parity",
+    "function-parity-graph",
+    "function-concept",
+    "absolute-value-concept",
+    "rational-expression"
+  ],
+  "knowledgeGroups": [
+    {
+      "id": "parity",
+      "label": "定义与图像",
+      "description": "定义域关于原点对称是前提；奇函数满足 $f(-x)=-f(x)$，偶函数满足 $f(-x)=f(x)$。",
+      "refs": [
+        "function-parity",
+        "function-parity-graph"
+      ]
+    },
+    {
+      "id": "foundations",
+      "label": "定义域与式子",
+      "description": "分母不为零、根号内非负；绝对值内的相反数可以直接化简。",
+      "refs": [
+        "function-concept",
+        "absolute-value-concept",
+        "rational-expression"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "judgment",
+      "label": "判断函数的奇偶性",
+      "type": "type-function-parity",
+      "groupBy": "method",
+      "description": "有理式的奇函数 → 绝对值与平方的偶函数。",
+      "problems": [
+        "function-parity-a01-1-v2",
+        "function-parity-a01-2-v2"
+      ]
+    }
+  ],
+  "problems": {
+    "function-parity-a01-1-v2": {
+      "label": "有理式的奇偶性 · A01.1",
+      "path": "/topics/function-parity/q01a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a01-1-v2.json",
+      "types": [
+        "type-function-parity"
+      ]
+    },
+    "function-parity-a01-2-v2": {
+      "label": "绝对值与平方的奇偶性 · A01.2",
+      "path": "/topics/function-parity/q01b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a01-2-v2.json",
+      "types": [
+        "type-function-parity"
+      ]
+    }
+  }
+}

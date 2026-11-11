@@ -57,6 +57,9 @@ def _visible_sources(candidate):
                 for field in ('function_relation', 'periodic_function', 'period', 'periodic_domain', 'known_call', 'known_domain', 'known_range', 'target_call', 'input_domain', 'variable', 'parameter', 'quantifier', 'strength'):
                     if field in goal:
                         visible[target].add(f'{target}/{field}')
+            if goal['kind'] == 'determine_function_parity':
+                visible[target].update(f'{target}/{field}' for field in ('function', 'variable', 'expression', 'input_domain')
+                                       if field in goal)
             if goal['kind'] == 'compare_functions':
                 for fi, function in enumerate(goal['shared_functions']):
                     prefix = f'{target}/shared_functions/{fi}'
@@ -213,7 +216,7 @@ def validate_input(value, admission="acceptance"):
         # reviewed results do not contain irrelevant features introduced later;
         # any rows they do contain still receive all shape/source checks above.
         kind = expected[target]['goal']['kind']
-        required = registry - {'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range',
+        required = registry - {'function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range',
                                'function_graph', 'piecewise_equation', 'piecewise_inequality'}
         if kind == 'determine_monotonicity_on_interval' or (
                 kind == 'prove_monotonicity_on_interval' and 'relation' in expected[target]['goal']):
@@ -241,6 +244,8 @@ def validate_input(value, admission="acceptance"):
             required.add('function_domain')
         elif kind == 'compare_functions':
             required.add('function_comparison')
+        elif kind == 'determine_function_parity':
+            required.add('function_parity')
         elif kind in ('find_abstract_domain', 'find_abstract_domain_parameter'):
             required.add('abstract_function_domain')
         elif kind == 'find_translation_range':

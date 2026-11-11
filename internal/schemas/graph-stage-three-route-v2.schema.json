@@ -504,6 +504,22 @@
               "type": "object"
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "parity_result",
+            "answer"
+          ],
+          "properties": {
+            "parity_result": {
+              "type": "object"
+            },
+            "answer": {
+              "$ref": "#/$defs/goalAnswer"
+            }
+          }
         }
       ]
     },
@@ -1891,6 +1907,50 @@
                   }
                 }
               }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "classification",
+            "odd",
+            "even",
+            "latex"
+          ],
+          "properties": {
+            "kind": {
+              "const": "determine_function_parity"
+            },
+            "status": {
+              "const": "complete"
+            },
+            "classification": {
+              "enum": [
+                "odd_only",
+                "even_only",
+                "both",
+                "neither"
+              ]
+            },
+            "odd": {
+              "enum": [
+                "proved",
+                "refuted"
+              ]
+            },
+            "even": {
+              "enum": [
+                "proved",
+                "refuted"
+              ]
+            },
+            "latex": {
+              "type": "string",
+              "minLength": 1
             }
           }
         }

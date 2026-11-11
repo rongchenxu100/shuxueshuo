@@ -67,7 +67,8 @@
       "method-quantified-range-comparison",
       "method-extremum-condition-parameter",
       "method-monotonicity-inequality",
-      "method-monotonicity-parameter"
+      "method-monotonicity-parameter",
+      "method-parity-definition"
     ]
   }
 }

@@ -1703,6 +1703,9 @@ def _compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     if rule.get('compiler') == 'abstract_monotonicity':
         from .abstract_monotonicity_presentation import compile_abstract_monotonicity
         return compile_abstract_monotonicity(seeds, interaction_id)
+    if rule.get('compiler') == 'function_parity':
+        from .parity_presentation import compile_parity_cards
+        return compile_parity_cards(seeds, interaction_id)
     if rule.get('compiler') == 'monotonicity_parameter':
         from .monotonicity_parameter_presentation import compile_mono_parameter
         return compile_mono_parameter(seeds, interaction_id)

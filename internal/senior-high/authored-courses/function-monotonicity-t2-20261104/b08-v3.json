@@ -1,0 +1,33 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-b08-v3",
+  "reviewer": "Codex：依据用户原图与修订的 T2 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-03.jpg",
+      "sha256": "d9d342e44d852db78de967ca752e1a392f30d5c8e7e7464600a6fe8b607c48ad",
+      "location": "FM-B08，图 3"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x)=\\begin{cases}(x-a)^2,&x\\le0\\\\x+\\frac{1}{x}+a,&x>0\\end{cases}$，最小值为 $f(0)$，求实数 $a$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise((x-a)^2,x<=0,x+1/x+a,x>0)"
+      ],
+      "facts": [
+        "min_{x}(f(x))=f(0)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "[0,2]"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

@@ -1,0 +1,95 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "a01",
+      "search_id": "60a8401c5ebe",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 46.729,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 17.764,
+      "original_text": "1. 判断函数的奇偶性：（1）$f(x)=\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。",
+      "root": {
+        "children": [
+          {
+            "label": "（1）",
+            "definitions": [
+              "f(x)=x/(x^2+1)"
+            ],
+            "goals": [
+              {
+                "kind": "determine_function_parity",
+                "function": "f",
+                "variable": "x",
+                "expression": "x/(x^2+1)"
+              }
+            ]
+          },
+          {
+            "label": "（2）",
+            "definitions": [
+              "f(x)=abs(x)+x^2"
+            ],
+            "goals": [
+              {
+                "kind": "determine_function_parity",
+                "function": "f",
+                "variable": "x",
+                "expression": "abs(x)+x^2"
+              }
+            ]
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-function-parity",
+        "type-function-parity"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/children/0/goals/0": {
+          "answer": {
+            "classification": "odd_only",
+            "even": "refuted",
+            "kind": "determine_function_parity",
+            "latex": "\\text{奇函数}",
+            "odd": "proved",
+            "status": "complete"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        },
+        "/root/children/1/goals/0": {
+          "answer": {
+            "classification": "even_only",
+            "even": "proved",
+            "kind": "determine_function_parity",
+            "latex": "\\text{偶函数}",
+            "odd": "refuted",
+            "status": "complete"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 8,
+      "interactions_ready": false,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    }
+  ]
+}

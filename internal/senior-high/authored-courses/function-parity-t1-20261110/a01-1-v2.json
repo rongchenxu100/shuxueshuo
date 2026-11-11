@@ -1,0 +1,30 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a01-1-v2",
+  "reviewer": "Codex：对照用户原图第 1 题第（1）小问的印刷题干转录；忽略手写答案，独立计算并核验。此为人工核对转录，不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+      "sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+      "location": "第1张图，印刷第1题第（1）小问；规划编号 FP-A01.1"
+    }
+  ],
+  "candidate": {
+    "original_text": "判断函数的奇偶性：$f(x)=\\dfrac{x}{x^2+1}$。",
+    "root": {
+      "goals": [
+        {
+          "kind": "determine_function_parity",
+          "function": "f",
+          "variable": "x",
+          "expression": "x/(x^2+1)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "classification": "odd_only",
+    "latex": "\\text{奇函数}"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

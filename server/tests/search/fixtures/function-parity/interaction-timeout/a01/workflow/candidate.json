@@ -1,0 +1,75 @@
+{
+  "original_text": "1. 判断函数的奇偶性：（1）$f(x)=\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。",
+  "root": {
+    "children": [
+      {
+        "label": "（1）",
+        "definitions": [
+          "f(x)=x/(x^2+1)"
+        ],
+        "goals": [
+          {
+            "kind": "determine_function_parity",
+            "function": "f",
+            "variable": "x",
+            "expression": "x/(x^2+1)"
+          }
+        ]
+      },
+      {
+        "label": "（2）",
+        "definitions": [
+          "f(x)=abs(x)+x^2"
+        ],
+        "goals": [
+          {
+            "kind": "determine_function_parity",
+            "function": "f",
+            "variable": "x",
+            "expression": "abs(x)+x^2"
+          }
+        ]
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "判断函数的奇偶性：",
+        "choices": []
+      },
+      {
+        "scope_ref": "/root/children/0",
+        "statement": "$f(x)=\\frac{x}{x^2+1}$为____函数；",
+        "choices": [
+          {
+            "target_ref": "/root/children/0/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      },
+      {
+        "scope_ref": "/root/children/1",
+        "statement": "$f(x)=|x|+x^2$为____函数。",
+        "choices": [
+          {
+            "target_ref": "/root/children/1/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

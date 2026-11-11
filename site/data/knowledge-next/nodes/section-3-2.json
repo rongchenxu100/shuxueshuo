@@ -64,6 +64,10 @@
     {
       "ref": "type-monotonicity-abstract-proof",
       "relation": "extends"
+    },
+    {
+      "ref": "type-function-parity",
+      "relation": "extends"
     }
   ]
 }

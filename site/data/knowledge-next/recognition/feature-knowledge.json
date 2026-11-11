@@ -430,6 +430,54 @@
         "goal",
         "expression"
       ]
+    },
+    {
+      "rule_id": "function-parity-definition",
+      "ref": "function-parity#definition",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "determine_function_parity"
+          },
+          {
+            "feature_id": "function_parity",
+            "op": "eq",
+            "path": "structure_supported",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "goal",
+        "expression"
+      ]
+    },
+    {
+      "rule_id": "function-parity-domain",
+      "ref": "function-parity#domain",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "determine_function_parity"
+          },
+          {
+            "feature_id": "function_parity",
+            "op": "eq",
+            "path": "structure_supported",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "goal",
+        "expression"
+      ]
     }
   ]
 }

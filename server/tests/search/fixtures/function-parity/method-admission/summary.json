@@ -1,0 +1,64 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "a01",
+      "search_id": "e5aaff66bd9f",
+      "recognition_status": "reviewed",
+      "lesson_status": "failed",
+      "elapsed_seconds": 42.074,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 34.669,
+      "original_text": "1. 判断函数的奇偶性；（1）$f(x)=\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。",
+      "root": {
+        "label": "1.",
+        "definitions": [],
+        "facts": [],
+        "goals": [],
+        "children": [
+          {
+            "label": "（1）",
+            "definitions": [
+              "f(x)=x/(x^2+1)"
+            ],
+            "facts": [],
+            "goals": [
+              {
+                "kind": "determine_function_parity",
+                "function": "f",
+                "variable": "x",
+                "expression": "x/(x^2+1)"
+              }
+            ]
+          },
+          {
+            "label": "（2）",
+            "definitions": [
+              "f(x)=abs(x)+x^2"
+            ],
+            "facts": [],
+            "goals": [
+              {
+                "kind": "determine_function_parity",
+                "function": "f",
+                "variable": "x",
+                "expression": "abs(x)+x^2"
+              }
+            ]
+          }
+        ],
+        "uncertainties": []
+      }
+    }
+  ]
+}

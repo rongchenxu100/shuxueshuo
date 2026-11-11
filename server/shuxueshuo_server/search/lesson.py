@@ -146,6 +146,7 @@ def _goal(goal, features, text, candidate=None):
             or source_goal.get("kind") == "find_range" and "object" in source_goal
             or known.get('piecewise_equation', {}).get('structure_supported')
             or known.get('piecewise_inequality', {}).get('structure_supported')
+            or source_goal.get('kind') == 'determine_function_parity'
             or known.get('monotonicity_inequality', {}).get('structure_supported')
             or known.get('monotonicity_parameter', {}).get('structure_supported')):
         diagnostics = goal["d1"].get("diagnostics", [])
@@ -410,6 +411,8 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get('function_parity', {}).get('structure_supported'):
+        return _parity_d1_rows(target, fragments, known, text)
     if known.get('piecewise_modeling', {}).get('structure_supported'):
         return _piecewise_modeling_d1_rows(target, fragments, known, text)
     if known.get('piecewise_inequality', {}).get('structure_supported'):
@@ -550,6 +553,35 @@ def _extremum_d1_rows(target, fragments, known, text):
                                          ensure_ascii=False).encode()).hexdigest()[:16]}
     return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': question,
             'feedback': feedback, 'summary': correct}
+
+
+def _parity_d1_rows(target, fragments, known, text):
+    """Show the reviewed rule and input set without revealing the classification."""
+    from ..graph_lesson.stage_one.function_domain import expression_latex
+
+    selected = [row for row in fragments if row['fragment_kind'] in ('goal', 'given_domain')]
+    if not any(row['fragment_kind'] == 'goal' for row in selected):
+        return {'rows': [], 'summary': ''}
+    desc = known['function_parity']
+    function = desc['function']
+    spans = [_spans([row], text) for row in selected]
+    name, variable = function['function_name'], function['variable']
+    summary = f"${name}({variable})={function['expression_latex']}$。"
+    if function['explicit_domain']:
+        label = '题给输入范围' if function['domain_role'] == 'restriction' else '定义域'
+        summary += f"{label}为 ${expression_latex(function['input_domain_ast'], variable)}$。"
+    summary += '判断函数的奇偶性。'
+    feedback = '题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。'
+    row_id = f'{target}:goal'
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in selected],
+           'knowledge_refs': ['function-parity#definition', 'function-parity#domain'],
+           'source_refs': list(dict.fromkeys(ref for row in selected for ref in row['source_refs'])),
+           'options': _shuffle(row_id, [_option('判断函数的奇偶性'),
+                                       _option('求函数的单调区间', 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问需要判断什么？',
+            'feedback': feedback, 'summary': summary}
 
 
 def _monotonicity_d1_rows(target, fragments, known, text):

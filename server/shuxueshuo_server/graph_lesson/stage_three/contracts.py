@@ -198,6 +198,11 @@ def validate_result(value):
     if len({goal["target_ref"] for goal in goals}) != len(goals):
         raise ValueError("result.duplicate_target")
     for goal in goals:
+        selection = goal.get('selection')
+        if selection is not None and not selection['branches'] and (
+            goal['status'] != 'no_applicable_method' or selection.get('recommendation_rule') is not None
+        ):
+            raise ValueError('result.empty_selection_without_admission_failure')
         if goal["stage_two_status"] != "resolved":
             if goal["status"] != "skipped":
                 raise ValueError("result.unresolved_goal_not_skipped")

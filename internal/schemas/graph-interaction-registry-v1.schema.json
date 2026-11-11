@@ -366,7 +366,8 @@
             "function_extremum",
             "monotonicity_inequality",
             "monotonicity_parameter",
-            "abstract_monotonicity"
+            "abstract_monotonicity",
+            "function_parity"
           ]
         },
         "parts": {

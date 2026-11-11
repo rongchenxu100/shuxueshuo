@@ -779,6 +779,26 @@ for _name, _function in {'choose_abstract_pair': 'choose_pair',
     REGISTRY[_name] = _abstract_monotonicity_capability(_function)
 
 
+def _parity_capability(name):
+    def call(**inputs):
+        from .. import parity_runtime
+        return getattr(parity_runtime, name)(**inputs)
+    return call
+
+
+for _name in ('prepare_function_parity', 'check_domain_symmetry', 'reflect_function_input',
+              'compare_parity_relations', 'collect_function_parity'):
+    REGISTRY[_name] = _parity_capability(_name)
+
+
+def _solve_original_function_domain(**inputs):
+    from ..function_cells import solve_original_function_domain
+    return solve_original_function_domain(**inputs)
+
+
+REGISTRY['solve_original_function_domain'] = _solve_original_function_domain
+
+
 def _monotonicity_capability(name):
     def call(**inputs):
         from .. import monotonicity_runtime

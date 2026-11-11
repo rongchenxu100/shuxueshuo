@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
-    "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
-    "input_sha256": "63959f6143da102944fa71519efe089417f6aa882e28a7143031037207d93ea3",
-    "checkpoint_sha256": "093ed1214236e33acfd42619959313dcacde62a1aa566b5d777dac6b0db6b77d",
-    "result_sha256": "490ed2cedbd168a1bf4470d273623e064731a641b24b59f3f585c44166f9102e",
-    "stage_one_sha256": "8c444c324e3c7aebad931d7a085ac021370769ea60d656e581ed888441cc8332",
-    "stage_two_sha256": "424f65de4ee45a4cfa200a4fcfa939ff32b4e72699e273e41310c8d178c2f23f",
+    "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
+    "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
+    "input_sha256": "fe9d0aae18bca1dc3c1763956e5d389086efa47beaffffaad64d12ff5af3000a",
+    "checkpoint_sha256": "647d5ee3c200ece074fa23bd157078c0c299bdad46091c521cb105d4dc1684e7",
+    "result_sha256": "85abb72f4dbef0ff98c5399e241578409a1c5e03eccae3da3bded9d6a398d36c",
+    "stage_one_sha256": "3bd0c96179d74c26902346cc88d7130e6c5118ed2f293fc661524cc971479011",
+    "stage_two_sha256": "18ac951d75eba9aa9f514e4f8c6771d8f8eed061a25f161507b038ff9f577663",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "0bd551e1573def0a0b514daefb5cb768cace9be5ad7550ef95335570647661b4",
-    "teaching_revision": "51175e9e1c22eb782bb17b94d7222945aeda3585516d0385d006aed67665dcf1"
+    "teaching_revision": "9a78c49d13d0513cf215ec6e1ad3d06e97a59de28cba3123ee1d35b56ac66e1f"
   },
   "lesson": {
     "status": "completed",
@@ -96,7 +96,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-monotonicity-b14-v2//root/goals/0",
-            "graphVersion": "b6fc7e9ead06dfc524577dbf7e9ccdc693b0af6e5fa35f9618fba5d1a80b9474",
+            "graphVersion": "7f7d9fc32f9f3e28c15cefebf5f34e74e4c932beaf6ca28703bee7488b0e8d13",
             "problem": {
               "text": "已知 $f(x)=\\begin{cases}-(x-a)^2+a+\\frac{5}{2},&x<1\\\\-\\frac{1}{2}x+1,&x\\ge1\\end{cases}$，$f(1)$ 是函数 $f(x)$ 的最大值，求实数 $a$ 的取值范围。"
             },
@@ -541,12 +541,12 @@
                 }
               ]
             },
-            "bundleVersion": "1ac2f98f1e16bff04e12c9d5545b1e05bc0014f92ea33354984dadfa5adb15bb"
+            "bundleVersion": "435973b9b9d638198a863be0445ac254dd6c156da2325195c03ffb461a9c1201"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-monotonicity-b14-v2//root/goals/0",
-            "bundleVersion": "1ac2f98f1e16bff04e12c9d5545b1e05bc0014f92ea33354984dadfa5adb15bb",
+            "bundleVersion": "435973b9b9d638198a863be0445ac254dd6c156da2325195c03ffb461a9c1201",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -567,10 +567,10 @@
     ]
   },
   "stream": {
-    "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
-    "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
-    "input_sha256": "63959f6143da102944fa71519efe089417f6aa882e28a7143031037207d93ea3",
-    "stream_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+    "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
+    "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
+    "input_sha256": "fe9d0aae18bca1dc3c1763956e5d389086efa47beaffffaad64d12ff5af3000a",
+    "stream_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
     "last_seq": 61,
     "minimum_seq": 1,
     "math_steps": [
@@ -596,15 +596,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "9fd3b524a6da84c754647617fc5981c0572bf00135cc30841fa668be73f926d8",
+        "math_step_sha256": "583940506822083fe6c5a1998be69de87818697a47fede528c8f84dc2ef462e2",
         "method_ref": "method-extremum-condition-parameter#prepare",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/0/calls/0"
         ],
@@ -639,15 +639,15 @@
             }
           ]
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "6daefec1c3316b6b50d4aa6afd24627293f2a64dcd7dbb6cb2bbdfd8a8e4e0dd",
+        "math_step_sha256": "b21efc0e514f8501dc0bf76b9a50e6c1dbb88f8976c4bea166c483fdd5a0eda0",
         "method_ref": "method-extremum-condition-parameter#piece-inputs",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -682,15 +682,15 @@
             }
           ]
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "a22f4bce572217e8c0a4af05a76d05353cafd07b2b44212d189e7ddeba275231",
+        "math_step_sha256": "2503eb76939ea0b595d28d130d7a80cdadde6287678bbd52860583c2baa7790f",
         "method_ref": "method-extremum-condition-parameter#piece-inputs",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -731,15 +731,15 @@
           ],
           "result": "$h(x)=- x^{2} + 2 a x - a^{2} + a + 2$，$h(x)_{\\text{上端}} \\leq 0$"
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "aec63adbdd17c6e0363100cd117f6f608dbeb0ca819bde318b9db37746d51af1",
+        "math_step_sha256": "6798712edccf87d798ee1c8149681d7518d6eda0493ccc68a6de037d0be50540",
         "method_ref": "method-interval-extremum#quantifier",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -775,17 +775,17 @@
         "derivation": true,
         "display_unit": "interval_cases",
         "explanation": "$h(x)$ 的图像开口向下，对称轴为 $x=a$，\n① 当 $a < 1$，即 $a < 1$ 时，$h(x)_{\\max}=h\\left(a\\right)=a + 2$；\n② 当 $a \\geq 1$，即 $a \\geq 1$ 时，$h(x) < h\\left(1\\right)=- a^{2} + 3 a + 1$，最大值不存在，只能趋近上述值。",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "32e3946ba1667372215517d2ed8230a628e01921e6424ed3ae9acd44a1bee108",
+        "math_step_sha256": "d00d8a35e67301cdba47b780b8b079c562892327b356fd57a98ac81af22acec3",
         "method_ref": "method-interval-extremum#select",
         "ordinal": 5,
         "premise_refs": [
           "/steps/5/judgments/0"
         ],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/5/judgments/0"
         ],
@@ -827,18 +827,18 @@
             }
           ]
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "50b362287056cfd2841b28c211a0fabe60b35f51bde121da1aef2df58182a7d0",
+        "math_step_sha256": "4d9363f9f7ed2882f343ba0ac057d30f5008f801a03049a0c35073b428385f6e",
         "method_ref": "method-interval-extremum#select",
         "ordinal": 6,
         "premise_refs": [
           "/steps/5/judgments/0",
           "/steps/6/judgments/0"
         ],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/6/calls/0",
           "/steps/6/skipped_calls/0",
@@ -891,18 +891,18 @@
             }
           ]
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "2711712029add503882774bbf2a9c06e1852fde737f74e1ea4d3a86b258facb0",
+        "math_step_sha256": "da370fc8b8b9b3115b197e2e5967913a0022993312aab5423d460f619747a70e",
         "method_ref": "method-interval-extremum#conditions",
         "ordinal": 7,
         "premise_refs": [
           "/steps/5/judgments/0",
           "/steps/6/judgments/0"
         ],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/7/calls/0",
           "/steps/7/calls/1"
@@ -949,18 +949,18 @@
             }
           ]
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "a6cb4ff98ee289c69f15455270d7f0f842a8a524665407e607daece090cad1c2",
+        "math_step_sha256": "54f7ff8e260a611530df5c750f2b37af9da61339bb341424dade528888bf7509",
         "method_ref": "method-interval-extremum#select",
         "ordinal": 8,
         "premise_refs": [
           "/steps/5/judgments/0",
           "/steps/8/judgments/0"
         ],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/8/calls/0",
           "/steps/8/skipped_calls/0",
@@ -1013,18 +1013,18 @@
             }
           ]
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "3c4e750f76b06ebab95ee735c1baae2048296fcdce1b4f528e6aa97dd0adb83d",
+        "math_step_sha256": "cdc3d074cda4fd77fd02eb457c867367ab10e5a3149d91413c578ac0398da19b",
         "method_ref": "method-interval-extremum#conditions",
         "ordinal": 9,
         "premise_refs": [
           "/steps/5/judgments/0",
           "/steps/8/judgments/0"
         ],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/9/calls/0",
           "/steps/9/calls/1"
@@ -1087,9 +1087,9 @@
           "layout": "merge",
           "result": "$a \\in \\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$"
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "d7d6bf4fc32426e0ab6372b00184527042ae34114982cc662dc6d086a74a0d11",
+        "math_step_sha256": "760e8c732fc46ad2d4f5cd143850b907a65decdede65c89ed23b4fa60556750f",
         "method_ref": "method-interval-extremum#verify",
         "ordinal": 10,
         "premise_refs": [
@@ -1097,9 +1097,9 @@
           "/steps/6/judgments/0",
           "/steps/8/judgments/0"
         ],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/10/calls/0"
         ],
@@ -1144,15 +1144,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "a2c71d49d3bcca8c3eb5c30b2c2f9f1978bd0c9dda1c0553c77ef409544b83a3",
+        "math_step_sha256": "09d13cd80eebd4d22f8cb5d6806df5369b512b5539c73399d3229db022939a9e",
         "method_ref": "method-extremum-condition-parameter#borrowed",
         "ordinal": 11,
         "premise_refs": [],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/12/calls/0",
           "/steps/12/skipped_calls/0",
@@ -1188,9 +1188,9 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "local_check": "passed",
-        "math_step_sha256": "e774af3eef442f982fb61b7c10492b9ed5476d94c93782fdc5256cc82a89cc2c",
+        "math_step_sha256": "417d4488b4b269f1b7f4eeed9bd60c77c9eddc28585a7316a98a18e6a82b8137",
         "method_ref": "method-extremum-condition-parameter#conclude",
         "ordinal": 12,
         "premise_refs": [
@@ -1198,9 +1198,9 @@
           "/steps/6/judgments/0",
           "/steps/8/judgments/0"
         ],
-        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+        "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "source_refs": [
           "/steps/15/calls/0"
         ],
@@ -1389,75 +1389,75 @@
           "expression": "Union(Interval(-oo, -2), Interval(3/2 + sqrt(13)/2, oo))",
           "latex": "\\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
         },
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "math_steps": [
           {
-            "math_step_sha256": "9fd3b524a6da84c754647617fc5981c0572bf00135cc30841fa668be73f926d8",
+            "math_step_sha256": "583940506822083fe6c5a1998be69de87818697a47fede528c8f84dc2ef462e2",
             "ordinal": 1,
             "step_id": "39e5646dcb-extremum-condition-parameter-001-prepare"
           },
           {
-            "math_step_sha256": "6daefec1c3316b6b50d4aa6afd24627293f2a64dcd7dbb6cb2bbdfd8a8e4e0dd",
+            "math_step_sha256": "b21efc0e514f8501dc0bf76b9a50e6c1dbb88f8976c4bea166c483fdd5a0eda0",
             "ordinal": 2,
             "step_id": "39e5646dcb-extremum-condition-parameter-002-subproblem_recognize_polynomial"
           },
           {
-            "math_step_sha256": "a22f4bce572217e8c0a4af05a76d05353cafd07b2b44212d189e7ddeba275231",
+            "math_step_sha256": "2503eb76939ea0b595d28d130d7a80cdadde6287678bbd52860583c2baa7790f",
             "ordinal": 3,
             "step_id": "39e5646dcb-extremum-condition-parameter-003-subproblem_select_polynomial"
           },
           {
-            "math_step_sha256": "aec63adbdd17c6e0363100cd117f6f608dbeb0ca819bde318b9db37746d51af1",
+            "math_step_sha256": "6798712edccf87d798ee1c8149681d7518d6eda0493ccc68a6de037d0be50540",
             "ordinal": 4,
             "step_id": "39e5646dcb-extremum-condition-parameter-004-policy"
           },
           {
-            "math_step_sha256": "32e3946ba1667372215517d2ed8230a628e01921e6424ed3ae9acd44a1bee108",
+            "math_step_sha256": "d00d8a35e67301cdba47b780b8b079c562892327b356fd57a98ac81af22acec3",
             "ordinal": 5,
             "step_id": "39e5646dcb-extremum-condition-parameter-005-interval_cases"
           },
           {
-            "math_step_sha256": "50b362287056cfd2841b28c211a0fabe60b35f51bde121da1aef2df58182a7d0",
+            "math_step_sha256": "4d9363f9f7ed2882f343ba0ac057d30f5008f801a03049a0c35073b428385f6e",
             "ordinal": 6,
             "step_id": "39e5646dcb-extremum-condition-parameter-006-classified_range"
           },
           {
-            "math_step_sha256": "2711712029add503882774bbf2a9c06e1852fde737f74e1ea4d3a86b258facb0",
+            "math_step_sha256": "da370fc8b8b9b3115b197e2e5967913a0022993312aab5423d460f619747a70e",
             "ordinal": 7,
             "step_id": "39e5646dcb-extremum-condition-parameter-007-conditions"
           },
           {
-            "math_step_sha256": "a6cb4ff98ee289c69f15455270d7f0f842a8a524665407e607daece090cad1c2",
+            "math_step_sha256": "54f7ff8e260a611530df5c750f2b37af9da61339bb341424dade528888bf7509",
             "ordinal": 8,
             "step_id": "39e5646dcb-extremum-condition-parameter-008-classified_range"
           },
           {
-            "math_step_sha256": "3c4e750f76b06ebab95ee735c1baae2048296fcdce1b4f528e6aa97dd0adb83d",
+            "math_step_sha256": "cdc3d074cda4fd77fd02eb457c867367ab10e5a3149d91413c578ac0398da19b",
             "ordinal": 9,
             "step_id": "39e5646dcb-extremum-condition-parameter-009-conditions"
           },
           {
-            "math_step_sha256": "d7d6bf4fc32426e0ab6372b00184527042ae34114982cc662dc6d086a74a0d11",
+            "math_step_sha256": "760e8c732fc46ad2d4f5cd143850b907a65decdede65c89ed23b4fa60556750f",
             "ordinal": 10,
             "step_id": "39e5646dcb-extremum-condition-parameter-010-interval_merge"
           },
           {
-            "math_step_sha256": "a2c71d49d3bcca8c3eb5c30b2c2f9f1978bd0c9dda1c0553c77ef409544b83a3",
+            "math_step_sha256": "09d13cd80eebd4d22f8cb5d6806df5369b512b5539c73399d3229db022939a9e",
             "ordinal": 11,
             "step_id": "39e5646dcb-extremum-condition-parameter-011-independent_conclude"
           },
           {
-            "math_step_sha256": "e774af3eef442f982fb61b7c10492b9ed5476d94c93782fdc5256cc82a89cc2c",
+            "math_step_sha256": "417d4488b4b269f1b7f4eeed9bd60c77c9eddc28585a7316a98a18e6a82b8137",
             "ordinal": 12,
             "step_id": "39e5646dcb-extremum-condition-parameter-012-conclude"
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "67bc79728c9a465bc4d390e6b70dd4ddbb2942848c5f509dba239966cc9daccb",
-        "verified_route_sha256": "0ee42cb70847674ba9c4c388a18314cf940af4114bb2ecff30b983b542298de7"
+        "task_id": "e9f2ef613554b88c50d284c8aca94531581ad02d941b375cc8b8befde20ace51",
+        "verified_route_sha256": "4e4cdfd08c546e554f0b785fce421a5ee3d229c8f7ab6165a1b216447a673801"
       }
     ],
     "qa": [],
@@ -1585,112 +1585,112 @@
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-001-prepare",
         "ordinal": 1,
-        "math_step_sha256": "9fd3b524a6da84c754647617fc5981c0572bf00135cc30841fa668be73f926d8",
+        "math_step_sha256": "583940506822083fe6c5a1998be69de87818697a47fede528c8f84dc2ef462e2",
         "status": "interactive",
-        "interaction_id": "52892eb1b4c4756f34f8bcee"
+        "interaction_id": "357a61fdbd15c08f7145b7cb"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-002-subproblem_recognize_polynomial",
         "ordinal": 2,
-        "math_step_sha256": "6daefec1c3316b6b50d4aa6afd24627293f2a64dcd7dbb6cb2bbdfd8a8e4e0dd",
+        "math_step_sha256": "b21efc0e514f8501dc0bf76b9a50e6c1dbb88f8976c4bea166c483fdd5a0eda0",
         "status": "interactive",
-        "interaction_id": "aa56664bc3f580db96405d85"
+        "interaction_id": "4da37484d663063a5f8d562a"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-003-subproblem_select_polynomial",
         "ordinal": 3,
-        "math_step_sha256": "a22f4bce572217e8c0a4af05a76d05353cafd07b2b44212d189e7ddeba275231",
+        "math_step_sha256": "2503eb76939ea0b595d28d130d7a80cdadde6287678bbd52860583c2baa7790f",
         "status": "interactive",
-        "interaction_id": "c9e7494d6018b066229e3146"
+        "interaction_id": "a62db39b02ae9c8ad2f6a159"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-004-policy",
         "ordinal": 4,
-        "math_step_sha256": "aec63adbdd17c6e0363100cd117f6f608dbeb0ca819bde318b9db37746d51af1",
+        "math_step_sha256": "6798712edccf87d798ee1c8149681d7518d6eda0493ccc68a6de037d0be50540",
         "status": "interactive",
-        "interaction_id": "de22c778055e4fac4c0ac25d"
+        "interaction_id": "b0d66f2cb3e8014373ec45d3"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-005-interval_cases",
         "ordinal": 5,
-        "math_step_sha256": "32e3946ba1667372215517d2ed8230a628e01921e6424ed3ae9acd44a1bee108",
+        "math_step_sha256": "d00d8a35e67301cdba47b780b8b079c562892327b356fd57a98ac81af22acec3",
         "status": "interactive",
-        "interaction_id": "d41c756d215a913721d2e104"
+        "interaction_id": "9b32fde138331faf80bb6d48"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-006-classified_range",
         "ordinal": 6,
-        "math_step_sha256": "50b362287056cfd2841b28c211a0fabe60b35f51bde121da1aef2df58182a7d0",
+        "math_step_sha256": "4d9363f9f7ed2882f343ba0ac057d30f5008f801a03049a0c35073b428385f6e",
         "status": "interactive",
-        "interaction_id": "0eac9479d77de7815cb0628f"
+        "interaction_id": "528cd206f1b32cf57dfd2cb2"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-007-conditions",
         "ordinal": 7,
-        "math_step_sha256": "2711712029add503882774bbf2a9c06e1852fde737f74e1ea4d3a86b258facb0",
+        "math_step_sha256": "da370fc8b8b9b3115b197e2e5967913a0022993312aab5423d460f619747a70e",
         "status": "interactive",
-        "interaction_id": "438e7a28ba44a5ee7258c271"
+        "interaction_id": "e26e4c2dcebe57a9fd001c8e"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-008-classified_range",
         "ordinal": 8,
-        "math_step_sha256": "a6cb4ff98ee289c69f15455270d7f0f842a8a524665407e607daece090cad1c2",
+        "math_step_sha256": "54f7ff8e260a611530df5c750f2b37af9da61339bb341424dade528888bf7509",
         "status": "interactive",
-        "interaction_id": "efcdbced71accfa1681545f0"
+        "interaction_id": "f96df82ee1e5e9d791520d03"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-009-conditions",
         "ordinal": 9,
-        "math_step_sha256": "3c4e750f76b06ebab95ee735c1baae2048296fcdce1b4f528e6aa97dd0adb83d",
+        "math_step_sha256": "cdc3d074cda4fd77fd02eb457c867367ab10e5a3149d91413c578ac0398da19b",
         "status": "interactive",
-        "interaction_id": "20cc473f267303ee9a824d45"
+        "interaction_id": "0c4d90e756192be46d4adb89"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-010-interval_merge",
         "ordinal": 10,
-        "math_step_sha256": "d7d6bf4fc32426e0ab6372b00184527042ae34114982cc662dc6d086a74a0d11",
+        "math_step_sha256": "760e8c732fc46ad2d4f5cd143850b907a65decdede65c89ed23b4fa60556750f",
         "status": "interactive",
-        "interaction_id": "78f60d892b47e32e8a249f0f"
+        "interaction_id": "96d54cf94d64ffc10da77a59"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-011-independent_conclude",
         "ordinal": 11,
-        "math_step_sha256": "a2c71d49d3bcca8c3eb5c30b2c2f9f1978bd0c9dda1c0553c77ef409544b83a3",
+        "math_step_sha256": "09d13cd80eebd4d22f8cb5d6806df5369b512b5539c73399d3229db022939a9e",
         "status": "interactive",
-        "interaction_id": "2672101b71b5b8e4cb931b74"
+        "interaction_id": "9a70c83839466475b4b4d5b9"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "extremum-condition-parameter",
         "step_id": "39e5646dcb-extremum-condition-parameter-012-conclude",
         "ordinal": 12,
-        "math_step_sha256": "e774af3eef442f982fb61b7c10492b9ed5476d94c93782fdc5256cc82a89cc2c",
+        "math_step_sha256": "417d4488b4b269f1b7f4eeed9bd60c77c9eddc28585a7316a98a18e6a82b8137",
         "status": "interactive",
-        "interaction_id": "8173bec73a1f9acb68b7c2a4"
+        "interaction_id": "20cf4f042fae17c1762dd50c"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
+    "revisions_ref": "94245d3b1050174c0337ccb7f95d932fecc40ed893703f11b210c3d6c22dc146",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -2147,10 +2147,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "52892eb1b4c4756f34f8bcee",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "00404d2995321707573e3f45f90763529b4831e178fefa3f10b92abcc038dbbe",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "357a61fdbd15c08f7145b7cb",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "f0a329aab170e6c67eb6d36ae5265ab4a629abc56881176135293c6b235511cb",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "card_group": "prepare",
@@ -2178,7 +2178,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "52892eb1b4c4756f34f8bcee#1",
+            "id": "357a61fdbd15c08f7145b7cb#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -2187,12 +2187,12 @@
                   "value": "o1"
                 },
                 {
-                  "label": "$\\begin{gathered}f(x)=- \\frac{x}{2} + 1,\\ x\\in[1,\\infty)\\\\f(1)=- \\frac{1}{2}+1=\\frac{3}{2}\\end{gathered}$",
-                  "value": "o3"
-                },
-                {
                   "label": "$\\begin{gathered}f(x)=-\\left(x - a\\right)^2+a + \\frac{5}{2},\\ x\\in(-\\infty,1)\\\\f(1)=-\\left(1-a\\right)^2+a + \\frac{5}{2}=- a^{2} + 3 a + \\frac{3}{2}\\end{gathered}$",
                   "value": "o2"
+                },
+                {
+                  "label": "$\\begin{gathered}f(x)=- \\frac{x}{2} + 1,\\ x\\in[1,\\infty)\\\\f(1)=- \\frac{1}{2}+1=\\frac{3}{2}\\end{gathered}$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -2242,7 +2242,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "52892eb1b4c4756f34f8bcee#2",
+            "id": "357a61fdbd15c08f7145b7cb#2",
             "interaction": {
               "field": "answer",
               "options": [
@@ -2278,11 +2278,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "9fd3b524a6da84c754647617fc5981c0572bf00135cc30841fa668be73f926d8",
+            "math_step_sha256": "583940506822083fe6c5a1998be69de87818697a47fede528c8f84dc2ef462e2",
             "step_id": "39e5646dcb-extremum-condition-parameter-001-prepare"
           }
         ],
@@ -2290,10 +2290,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "aa56664bc3f580db96405d85",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "2c883057a37aa7f28287d541f20cbf4db7058716caa89ecce5dc0a0a323ee7bf",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "4da37484d663063a5f8d562a",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "957b44db946226a7d8ddc491395cf64f2b55771972e90d57e96b2e45e22ada85",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "completion_board": {
@@ -2325,7 +2325,7 @@
             "feedback": {
               "answer": "条件要求每个满足 $x < 1$ 的 $x$ 都成立，因此求的是恒成立时的参数范围。"
             },
-            "id": "aa56664bc3f580db96405d85#1",
+            "id": "4da37484d663063a5f8d562a#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -2340,8 +2340,8 @@
               ],
               "type": "choice"
             },
-            "question": "本步条件来自分段式 $- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2}$（$x\\in \\left(-\\infty, 1\\right)$）：要求 $- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}$。\n\n注意“对所有”这一条件：现在要解决的是哪一种问题？",
-            "source_context": "本步条件来自分段式 $- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2}$（$x\\in \\left(-\\infty, 1\\right)$）：要求 $- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}$。",
+            "question": "本步条件来自分段式 $-(x-a)^{2}+a+\\frac{5}{2}$（$x\\in \\left(-\\infty, 1\\right)$）：要求 $-(x-a)^{2}+a+\\frac{5}{2}\\le \\frac{1}{2}$。\n\n注意“对所有”这一条件：现在要解决的是哪一种问题？",
+            "source_context": "本步条件来自分段式 $-(x-a)^{2}+a+\\frac{5}{2}$（$x\\in \\left(-\\infty, 1\\right)$）：要求 $-(x-a)^{2}+a+\\frac{5}{2}\\le \\frac{1}{2}$。",
             "stem_board": {
               "caption": "转化后的不等式",
               "connector": "⇒",
@@ -2362,11 +2362,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "6daefec1c3316b6b50d4aa6afd24627293f2a64dcd7dbb6cb2bbdfd8a8e4e0dd",
+            "math_step_sha256": "b21efc0e514f8501dc0bf76b9a50e6c1dbb88f8976c4bea166c483fdd5a0eda0",
             "step_id": "39e5646dcb-extremum-condition-parameter-002-subproblem_recognize_polynomial"
           }
         ],
@@ -2374,10 +2374,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "c9e7494d6018b066229e3146",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "ed88eeac2a26d4c3ac16d04df89e01924ce2ea50e7743ad1aeb0f741f020abd9",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "a62db39b02ae9c8ad2f6a159",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "ef2d74ce1b020da154aaf3b9ce07be003d238523dcc76e1998de291f225094fc",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "alternatives": {},
@@ -2401,7 +2401,7 @@
               "x": "再看横轴：$x$ 的给定范围不是全体实数。",
               "y": "再看纵轴：$a$ 是所求参数。"
             },
-            "id": "c9e7494d6018b066229e3146#1",
+            "id": "a62db39b02ae9c8ad2f6a159#1",
             "interaction": {
               "methods": [
                 {
@@ -2494,11 +2494,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "a22f4bce572217e8c0a4af05a76d05353cafd07b2b44212d189e7ddeba275231",
+            "math_step_sha256": "2503eb76939ea0b595d28d130d7a80cdadde6287678bbd52860583c2baa7790f",
             "step_id": "39e5646dcb-extremum-condition-parameter-003-subproblem_select_polynomial"
           }
         ],
@@ -2506,10 +2506,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "de22c778055e4fac4c0ac25d",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "43af9c94f65930c4588d117515c443c003dcecaa21ded962543947fa6ae0f793",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "b0d66f2cb3e8014373ec45d3",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "fbc12f3d0e8b851906ada9888c4987b4156c69ce9902245a484dce2f45e0b562",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "expected_answer": {
@@ -2520,17 +2520,17 @@
             "feedback": {
               "answer": "把“对所有 $x$ 都成立”转化为比较函数在区间上的值域上端。"
             },
-            "id": "de22c778055e4fac4c0ac25d#1",
+            "id": "b0d66f2cb3e8014373ec45d3#1",
             "interaction": {
-              "field": "de22c778055e4fac4c0ac25d#1",
+              "field": "b0d66f2cb3e8014373ec45d3#1",
               "options": [
                 {
                   "label": "$x \\in \\left(-\\infty, 1\\right)$ 时，$h(x)_{\\text{上端}} \\leq 0$",
                   "value": "o1"
                 },
                 {
-                  "feedback": "要让每个函数值都满足 $h(x) \\leq 0$，最该担心的是值域上端附近的那些值。",
-                  "label": "$x \\in \\left(-\\infty, 1\\right)$ 时，$h(x)_{\\text{下端}} \\leq 0$",
+                  "feedback": "注意原题是否允许等号。",
+                  "label": "$x \\in \\left(-\\infty, 1\\right)$ 时，$h(x)_{\\text{上端}} < 0$",
                   "value": "o2"
                 },
                 {
@@ -2539,8 +2539,8 @@
                   "value": "o3"
                 },
                 {
-                  "feedback": "注意原题是否允许等号。",
-                  "label": "$x \\in \\left(-\\infty, 1\\right)$ 时，$h(x)_{\\text{上端}} < 0$",
+                  "feedback": "要让每个函数值都满足 $h(x) \\leq 0$，最该担心的是值域上端附近的那些值。",
+                  "label": "$x \\in \\left(-\\infty, 1\\right)$ 时，$h(x)_{\\text{下端}} \\leq 0$",
                   "value": "o4"
                 }
               ],
@@ -2552,11 +2552,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "aec63adbdd17c6e0363100cd117f6f608dbeb0ca819bde318b9db37746d51af1",
+            "math_step_sha256": "6798712edccf87d798ee1c8149681d7518d6eda0493ccc68a6de037d0be50540",
             "step_id": "39e5646dcb-extremum-condition-parameter-004-policy"
           }
         ],
@@ -2564,15 +2564,15 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "d41c756d215a913721d2e104",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "fff47d80c58ed1b0aee53a65a635ac46d20b0387527faa8e1d34ba92faf6ea36",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "9b32fde138331faf80bb6d48",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "ca9ba1ebe5977329913355f81373d9194de5d3e98dadca5c773b4808880b4cac",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "expected_answer": {
               "one_of": [
-                "o3"
+                "o1"
               ]
             },
             "feedback": {
@@ -2627,13 +2627,12 @@
                 ]
               }
             },
-            "id": "d41c756d215a913721d2e104#1",
+            "id": "9b32fde138331faf80bb6d48#1",
             "interaction": {
-              "field": "d41c756d215a913721d2e104#1",
+              "field": "9b32fde138331faf80bb6d48#1",
               "options": [
                 {
-                  "feedback": "按 $a$ 的正负分类只能分出 任何分界点，还缺 $1$：这个分界来自对称轴到达区间端点。例如 $a=\\frac{1}{2}$ 与 $a=\\frac{3}{2}$ 属于同一类，但前者值域上端在顶点，后者在右端点。",
-                  "label": "参数 $a$ 的正负",
+                  "label": "对称轴 $x=a$ 与区间端点的位置",
                   "value": "o1"
                 },
                 {
@@ -2642,7 +2641,8 @@
                   "value": "o2"
                 },
                 {
-                  "label": "对称轴 $x=a$ 与区间端点的位置",
+                  "feedback": "按 $a$ 的正负分类只能分出 任何分界点，还缺 $1$：这个分界来自对称轴到达区间端点。例如 $a=\\frac{1}{2}$ 与 $a=\\frac{3}{2}$ 属于同一类，但前者值域上端在顶点，后者在右端点。",
+                  "label": "参数 $a$ 的正负",
                   "value": "o3"
                 }
               ],
@@ -2755,8 +2755,8 @@
             ],
             "expected_answer": {
               "terms": [
-                "s1o2",
-                "s2o1"
+                "s1o3",
+                "s2o2"
               ]
             },
             "feedback": {
@@ -2811,22 +2811,22 @@
                 ]
               }
             },
-            "id": "d41c756d215a913721d2e104#2",
+            "id": "9b32fde138331faf80bb6d48#2",
             "interaction": {
               "slots": [
                 {
                   "label": "对称轴在区间内（$a < 1$）时，最大值",
                   "options": [
                     {
-                      "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
+                      "label": "当 $x\\to -\\infty$ 时趋近，取不到",
                       "value": "s1o1"
                     },
                     {
-                      "label": "在顶点 $x=a$ 处取到",
+                      "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
                       "value": "s1o2"
                     },
                     {
-                      "label": "当 $x\\to -\\infty$ 时趋近，取不到",
+                      "label": "在顶点 $x=a$ 处取到",
                       "value": "s1o3"
                     }
                   ]
@@ -2835,11 +2835,11 @@
                   "label": "对称轴在区间右侧（$a \\geq 1$）时，值域上端",
                   "options": [
                     {
-                      "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
+                      "label": "在右端点 $x=1$ 处取到",
                       "value": "s2o1"
                     },
                     {
-                      "label": "在右端点 $x=1$ 处取到",
+                      "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
                       "value": "s2o2"
                     },
                     {
@@ -2858,11 +2858,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "32e3946ba1667372215517d2ed8230a628e01921e6424ed3ae9acd44a1bee108",
+            "math_step_sha256": "d00d8a35e67301cdba47b780b8b079c562892327b356fd57a98ac81af22acec3",
             "step_id": "39e5646dcb-extremum-condition-parameter-005-interval_cases"
           }
         ],
@@ -2870,36 +2870,36 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "0eac9479d77de7815cb0628f",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "edf130150e1b79cfdc9b89bf49b31c2b61bad36fbeaa70ac9cdfc93e3d9a692e",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "528cd206f1b32cf57dfd2cb2",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "abb9fa54f4be658f6df6a269b7374ab6769da2f02ed9ae0bd787a507d2527c22",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "expected_answer": {
               "one_of": [
-                "o1"
+                "o2"
               ]
             },
             "feedback": {
               "answer": "对称轴在区间外，函数在区间上单调，最大值在端点；对称轴在区间内，再比较顶点与两端。"
             },
-            "id": "0eac9479d77de7815cb0628f#1",
+            "id": "528cd206f1b32cf57dfd2cb2#1",
             "interaction": {
-              "field": "0eac9479d77de7815cb0628f#1",
+              "field": "528cd206f1b32cf57dfd2cb2#1",
               "options": [
                 {
-                  "label": "在顶点 $x=a$ 处取到",
+                  "feedback": "例如 $a=\\frac{1}{2}$ 时右端点处函数趋近 $\\frac{9}{4}$，而值域上端为 $\\frac{5}{2}$。",
+                  "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
                   "value": "o1"
+                },
+                {
+                  "label": "在顶点 $x=a$ 处取到",
+                  "value": "o2"
                 },
                 {
                   "feedback": "例如 $a=\\frac{1}{2}$ 时左端点处函数趋近 $-\\infty$，而值域上端为 $\\frac{5}{2}$。",
                   "label": "当 $x\\to -\\infty$ 时趋近，取不到",
-                  "value": "o2"
-                },
-                {
-                  "feedback": "例如 $a=\\frac{1}{2}$ 时右端点处函数趋近 $\\frac{9}{4}$，而值域上端为 $\\frac{5}{2}$。",
-                  "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
                   "value": "o3"
                 }
               ],
@@ -2911,11 +2911,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "50b362287056cfd2841b28c211a0fabe60b35f51bde121da1aef2df58182a7d0",
+            "math_step_sha256": "4d9363f9f7ed2882f343ba0ac057d30f5008f801a03049a0c35073b428385f6e",
             "step_id": "39e5646dcb-extremum-condition-parameter-006-classified_range"
           }
         ],
@@ -2923,23 +2923,23 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "438e7a28ba44a5ee7258c271",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "1a5739489f1dbe49bd28ef518a12f63226ef34c1aa50272361bb2da160ea125f",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "e26e4c2dcebe57a9fd001c8e",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "214a32f01003e0fb201feff0ffb22de54542cbb51f87a58f88da97676d01a329",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "expected_answer": {
               "one_of": [
-                "o2"
+                "o3"
               ]
             },
             "feedback": {
               "answer": "解出条件后，与本情况的范围取交集。"
             },
-            "id": "438e7a28ba44a5ee7258c271#1",
+            "id": "e26e4c2dcebe57a9fd001c8e#1",
             "interaction": {
-              "field": "438e7a28ba44a5ee7258c271#1",
+              "field": "e26e4c2dcebe57a9fd001c8e#1",
               "options": [
                 {
                   "feedback": "再检查端点处能否取等号。",
@@ -2978,41 +2978,6 @@
                   "value": "o1"
                 },
                 {
-                  "graph": {
-                    "kind": "number_line",
-                    "params": {
-                      "bounds": [
-                        -2.75,
-                        1.75
-                      ],
-                      "description": "a 的取值集合：(-∞, -2]",
-                      "pieces": [
-                        {
-                          "from": null,
-                          "left_closed": false,
-                          "right_closed": true,
-                          "to": -2.0
-                        }
-                      ],
-                      "points": [],
-                      "ticks": [
-                        [
-                          -2.0,
-                          "-2"
-                        ],
-                        [
-                          1.0,
-                          "1"
-                        ]
-                      ],
-                      "title": "a 的取值范围",
-                      "variable": "a"
-                    }
-                  },
-                  "label": "$\\left(-\\infty, -2\\right]$",
-                  "value": "o2"
-                },
-                {
                   "feedback": "本情况的范围只是前提，还要满足由最值得到的条件。",
                   "graph": {
                     "kind": "number_line",
@@ -3046,6 +3011,41 @@
                     }
                   },
                   "label": "$\\left(-\\infty, 1\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        -2.75,
+                        1.75
+                      ],
+                      "description": "a 的取值集合：(-∞, -2]",
+                      "pieces": [
+                        {
+                          "from": null,
+                          "left_closed": false,
+                          "right_closed": true,
+                          "to": -2.0
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          -2.0,
+                          "-2"
+                        ],
+                        [
+                          1.0,
+                          "1"
+                        ]
+                      ],
+                      "title": "a 的取值范围",
+                      "variable": "a"
+                    }
+                  },
+                  "label": "$\\left(-\\infty, -2\\right]$",
                   "value": "o3"
                 }
               ],
@@ -3057,11 +3057,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "2711712029add503882774bbf2a9c06e1852fde737f74e1ea4d3a86b258facb0",
+            "math_step_sha256": "da370fc8b8b9b3115b197e2e5967913a0022993312aab5423d460f619747a70e",
             "step_id": "39e5646dcb-extremum-condition-parameter-007-conditions"
           }
         ],
@@ -3069,41 +3069,41 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "efcdbced71accfa1681545f0",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "03111c0a61d10ffc3fe7b85c4dbe36ee251c8d897f5599c4c2ea5c9108ed0790",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "f96df82ee1e5e9d791520d03",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "c28c84a9db107047cbb78b8481940ecc42503c35393ccbabe3f85b02b8f5a06f",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "expected_answer": {
               "one_of": [
-                "o2"
+                "o3"
               ]
             },
             "feedback": {
               "answer": "对称轴在区间外，函数在区间上单调，值域上端在端点；对称轴在区间内，再比较顶点与两端。"
             },
-            "id": "efcdbced71accfa1681545f0#1",
+            "id": "f96df82ee1e5e9d791520d03#1",
             "interaction": {
-              "field": "efcdbced71accfa1681545f0#1",
+              "field": "f96df82ee1e5e9d791520d03#1",
               "options": [
-                {
-                  "feedback": "例如 $a=\\frac{3}{2}$ 时左端点处函数趋近 $-\\infty$，而值域上端为 $\\frac{13}{4}$。",
-                  "label": "当 $x\\to -\\infty$ 时趋近，取不到",
-                  "value": "o1"
-                },
-                {
-                  "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
-                  "value": "o2"
-                },
                 {
                   "feedback": "$x=1$ 不在区间内，函数在这里只能无限接近值域上端，取不到。",
                   "label": "在右端点 $x=1$ 处取到",
-                  "value": "o3"
+                  "value": "o1"
                 },
                 {
                   "feedback": "例如 $a=\\frac{3}{2}$ 时顶点不在区间内。",
                   "label": "在顶点 $x=a$ 处取到",
+                  "value": "o2"
+                },
+                {
+                  "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "例如 $a=\\frac{3}{2}$ 时左端点处函数趋近 $-\\infty$，而值域上端为 $\\frac{13}{4}$。",
+                  "label": "当 $x\\to -\\infty$ 时趋近，取不到",
                   "value": "o4"
                 }
               ],
@@ -3115,11 +3115,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "a6cb4ff98ee289c69f15455270d7f0f842a8a524665407e607daece090cad1c2",
+            "math_step_sha256": "54f7ff8e260a611530df5c750f2b37af9da61339bb341424dade528888bf7509",
             "step_id": "39e5646dcb-extremum-condition-parameter-008-classified_range"
           }
         ],
@@ -3127,24 +3127,64 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "20cc473f267303ee9a824d45",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "03ffe9c460dc3152d2032cf83e3b55cb454280f0be6dee8e185cab457932219c",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "0c4d90e756192be46d4adb89",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "fe9e0e7d6ae8d279128064fce7600757b7019b5270b14f2f352246a71d42480f",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "expected_answer": {
               "one_of": [
-                "o4"
+                "o3"
               ]
             },
             "feedback": {
               "answer": "解出条件后，与本情况的范围取交集。"
             },
-            "id": "20cc473f267303ee9a824d45#1",
+            "id": "0c4d90e756192be46d4adb89#1",
             "interaction": {
-              "field": "20cc473f267303ee9a824d45#1",
+              "field": "0c4d90e756192be46d4adb89#1",
               "options": [
+                {
+                  "feedback": "再检查端点处能否取等号。",
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        -1.2041634565979922,
+                        4.204163456597993
+                      ],
+                      "description": "a 的取值集合：(3/2 + √(13)/2, +∞)",
+                      "pieces": [
+                        {
+                          "from": 3.302775637731995,
+                          "left_closed": false,
+                          "right_closed": false,
+                          "to": null
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          -0.3027756377319947,
+                          "3/2 - √(13)/2"
+                        ],
+                        [
+                          1.0,
+                          "1"
+                        ],
+                        [
+                          3.302775637731995,
+                          "3/2 + √(13)/2"
+                        ]
+                      ],
+                      "title": "a 的取值范围",
+                      "variable": "a"
+                    }
+                  },
+                  "label": "$\\left(\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                  "value": "o1"
+                },
                 {
                   "feedback": "解出的集合还要与本情况的范围 $a \\geq 1$ 取交集。",
                   "graph": {
@@ -3189,10 +3229,9 @@
                     }
                   },
                   "label": "$\\left(-\\infty, \\frac{3}{2} - \\frac{\\sqrt{13}}{2}\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
-                  "value": "o1"
+                  "value": "o2"
                 },
                 {
-                  "feedback": "再检查端点处能否取等号。",
                   "graph": {
                     "kind": "number_line",
                     "params": {
@@ -3200,11 +3239,11 @@
                         -1.2041634565979922,
                         4.204163456597993
                       ],
-                      "description": "a 的取值集合：(3/2 + √(13)/2, +∞)",
+                      "description": "a 的取值集合：[3/2 + √(13)/2, +∞)",
                       "pieces": [
                         {
                           "from": 3.302775637731995,
-                          "left_closed": false,
+                          "left_closed": true,
                           "right_closed": false,
                           "to": null
                         }
@@ -3228,8 +3267,8 @@
                       "variable": "a"
                     }
                   },
-                  "label": "$\\left(\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
-                  "value": "o2"
+                  "label": "$\\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                  "value": "o3"
                 },
                 {
                   "feedback": "本情况的范围只是前提，还要满足由最值得到的条件。",
@@ -3269,45 +3308,6 @@
                     }
                   },
                   "label": "$\\left[1, \\infty\\right)$",
-                  "value": "o3"
-                },
-                {
-                  "graph": {
-                    "kind": "number_line",
-                    "params": {
-                      "bounds": [
-                        -1.2041634565979922,
-                        4.204163456597993
-                      ],
-                      "description": "a 的取值集合：[3/2 + √(13)/2, +∞)",
-                      "pieces": [
-                        {
-                          "from": 3.302775637731995,
-                          "left_closed": true,
-                          "right_closed": false,
-                          "to": null
-                        }
-                      ],
-                      "points": [],
-                      "ticks": [
-                        [
-                          -0.3027756377319947,
-                          "3/2 - √(13)/2"
-                        ],
-                        [
-                          1.0,
-                          "1"
-                        ],
-                        [
-                          3.302775637731995,
-                          "3/2 + √(13)/2"
-                        ]
-                      ],
-                      "title": "a 的取值范围",
-                      "variable": "a"
-                    }
-                  },
-                  "label": "$\\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
                   "value": "o4"
                 }
               ],
@@ -3319,11 +3319,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "3c4e750f76b06ebab95ee735c1baae2048296fcdce1b4f528e6aa97dd0adb83d",
+            "math_step_sha256": "cdc3d074cda4fd77fd02eb457c867367ab10e5a3149d91413c578ac0398da19b",
             "step_id": "39e5646dcb-extremum-condition-parameter-009-conditions"
           }
         ],
@@ -3331,41 +3331,41 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "78f60d892b47e32e8a249f0f",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "9c9f695e4db6e6dcbf1c04ae1bfca0cb8ef1bd9812f05d64a3534600125d125e",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "96d54cf94d64ffc10da77a59",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "7534249e63233f4de0341012f6045e5396cf4499d1b78aa53fddbb643540547f",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "expected_answer": {
               "one_of": [
-                "o4"
+                "o2"
               ]
             },
             "feedback": {
               "answer": "每种情况内解出条件并与本情况取交集，各情况互不重叠，最后把结果取并集。"
             },
-            "id": "78f60d892b47e32e8a249f0f#1",
+            "id": "96d54cf94d64ffc10da77a59#1",
             "interaction": {
-              "field": "78f60d892b47e32e8a249f0f#1",
+              "field": "96d54cf94d64ffc10da77a59#1",
               "options": [
                 {
-                  "feedback": "每种情况解出的范围，要先与这种情况本身的范围取交集，再合并。",
-                  "label": "$a \\in \\left(-\\infty, \\frac{3}{2} - \\frac{\\sqrt{13}}{2}\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                  "feedback": "合并时漏掉了某一种情况的结果。",
+                  "label": "$a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}$",
                   "value": "o1"
+                },
+                {
+                  "label": "$a \\in \\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                  "value": "o2"
                 },
                 {
                   "feedback": "再检查端点：它属于哪种情况，在那种情况下条件是否成立。",
                   "label": "$a \\in \\left(-\\infty, -2\\right) \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
-                  "value": "o2"
-                },
-                {
-                  "feedback": "合并时漏掉了某一种情况的结果。",
-                  "label": "$a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}$",
                   "value": "o3"
                 },
                 {
-                  "label": "$a \\in \\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                  "feedback": "每种情况解出的范围，要先与这种情况本身的范围取交集，再合并。",
+                  "label": "$a \\in \\left(-\\infty, \\frac{3}{2} - \\frac{\\sqrt{13}}{2}\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
                   "value": "o4"
                 }
               ],
@@ -3384,11 +3384,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d7d6bf4fc32426e0ab6372b00184527042ae34114982cc662dc6d086a74a0d11",
+            "math_step_sha256": "760e8c732fc46ad2d4f5cd143850b907a65decdede65c89ed23b4fa60556750f",
             "step_id": "39e5646dcb-extremum-condition-parameter-010-interval_merge"
           }
         ],
@@ -3396,10 +3396,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "2672101b71b5b8e4cb931b74",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "e9a64ac302389b1bc07713645d8e0757070551761b6500a0430bbd9731818736",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "9a70c83839466475b4b4d5b9",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "fe7f1d95e802df944b6b16999b4db6909d55ffe7b404de9a4e9ec7f01efb2667",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "card_group": "independent",
@@ -3427,7 +3427,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "2672101b71b5b8e4cb931b74#1",
+            "id": "9a70c83839466475b4b4d5b9#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -3436,16 +3436,16 @@
                   "value": "o3"
                 },
                 {
-                  "label": "$\\varnothing$",
-                  "value": "o4"
+                  "label": "$\\text{整题无解}$",
+                  "value": "o2"
                 },
                 {
                   "label": "$\\text{对 }a\\text{ 无额外限制}$",
                   "value": "o1"
                 },
                 {
-                  "label": "$\\text{整题无解}$",
-                  "value": "o2"
+                  "label": "$\\varnothing$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -3471,11 +3471,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "a2c71d49d3bcca8c3eb5c30b2c2f9f1978bd0c9dda1c0553c77ef409544b83a3",
+            "math_step_sha256": "09d13cd80eebd4d22f8cb5d6806df5369b512b5539c73399d3229db022939a9e",
             "step_id": "39e5646dcb-extremum-condition-parameter-011-independent_conclude"
           }
         ],
@@ -3483,10 +3483,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "8173bec73a1f9acb68b7c2a4",
-        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
-        "interaction_sha256": "6d90464e2b749c1ab54616415bff60e67516b974311d8bc596b903072b5e9e5c",
-        "lesson_version": "e72edcdabcad941f72c62a089d27657fc5289a01b0f8c21cc961ead51c2cea36",
+        "interaction_id": "20cf4f042fae17c1762dd50c",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "a9dd4d88f19441f3d501c4e974e2fcef0af75b25aa8b7cdda1ed6cdeebfa48f2",
+        "lesson_version": "5d53ff6bd8741ef39bea875bd74a2bcc7ae4ebd7b304e49742476fa33544d935",
         "parts": [
           {
             "card_group": "solve",
@@ -3514,7 +3514,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "8173bec73a1f9acb68b7c2a4#1",
+            "id": "20cf4f042fae17c1762dd50c#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -3554,11 +3554,11 @@
           }
         ],
         "route_id": "extremum-condition-parameter",
-        "run_id": "f8e7512032d0466ca4a4bd5a0b46fa25",
+        "run_id": "38570d401cf04fbbb00b4d5fcd40a1c2",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "e774af3eef442f982fb61b7c10492b9ed5476d94c93782fdc5256cc82a89cc2c",
+            "math_step_sha256": "417d4488b4b269f1b7f4eeed9bd60c77c9eddc28585a7316a98a18e6a82b8137",
             "step_id": "39e5646dcb-extremum-condition-parameter-012-conclude"
           }
         ],

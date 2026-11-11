@@ -77,8 +77,8 @@
         "function-monotonicity-b16-v2",
         "function-monotonicity-b11-v2",
         "function-monotonicity-b10-v2",
-        "function-monotonicity-b08-v2",
-        "function-monotonicity-b14-v2"
+        "function-monotonicity-b08-v3",
+        "function-monotonicity-b14-v3"
       ]
     },
     {
@@ -237,20 +237,20 @@
         "type-monotonicity-extremum"
       ]
     },
-    "function-monotonicity-b08-v2": {
+    "function-monotonicity-b08-v3": {
       "label": "指定分界点为最小值点 · B08",
       "path": "/topics/function-monotonicity/q08b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-b08-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-b08-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ]
     },
-    "function-monotonicity-b14-v2": {
+    "function-monotonicity-b14-v3": {
       "label": "指定分界点为最大值点 · B14",
       "path": "/topics/function-monotonicity/q14b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-b14-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-b14-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ]

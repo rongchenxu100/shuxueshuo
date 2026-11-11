@@ -27,6 +27,23 @@ const qa = {...identity, step_id: step.step_id, math_step_sha256: step.math_step
 const exactValue = (value, latex = value) => ({expression: value, latex,
   exact: value.includes('/') ? {$math: 'Rational', p: value.split('/')[0], q: value.split('/')[1]} : {$math: 'Integer', value}});
 
+for (const [classification, label] of [
+  ['odd_only', '奇函数'], ['even_only', '偶函数'],
+  ['both', '既是奇函数又是偶函数'], ['neither', '既不是奇函数也不是偶函数'],
+]) test(`verified parity completion displays ${classification}`, () => {
+  const {document, find} = documentFixture();
+  const answer = {kind: 'determine_function_parity', status: 'complete', classification, latex: `\\text{${label}}`};
+  const {node, complete} = createRouteCompletion(document, {status: 'verified', answer});
+  assert.equal(complete, true);
+  assert.equal(node.children[0].textContent, '奇偶性：');
+  assert.equal(find('stage-three-answer', node)[0].textContent, answer.latex);
+  for (const payload of [
+    {status: 'verified', available: false, answer},
+    {status: 'verified', answer: {...answer, status: 'unresolved'}},
+    {status: 'verified', answer: {...answer, classification: 'unknown'}},
+  ]) assert.equal(createRouteCompletion(document, payload).complete, false);
+});
+
 test('generic set-answer completion displays labels without a T1 verdict board', () => {
   const {document, find} = documentFixture();
   const payload = {status: 'verified', target_ref: '/root/goals/0',

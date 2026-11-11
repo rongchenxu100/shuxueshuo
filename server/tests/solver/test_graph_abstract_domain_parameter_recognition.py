@@ -5,6 +5,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
+
 from shuxueshuo_server.graph_lesson.stage_one import contracts
 from shuxueshuo_server.graph_lesson.stage_one.abstract_domain_parameter import (
     inspect_abstract_domain_parameter_target,
@@ -204,9 +205,10 @@ def test_review_repair_restores_source_strength_without_changing_target(tmp_path
                           problem_id='parameter-authored-source-probe', contract_adapter=SearchStageOneContract())
     assert result['status'] == 'reviewed_candidate' and result['source_reviewed'], result
     assert result['candidate'] == corrected
-    for request in provider.requests:
-        assert 'find_abstract_domain_parameter' in request.prompt.system
-        assert '不能改成 exact' in request.prompt.system
-        assert '旁边解析、手写答案、选项勾画均不是题设条件' in request.prompt.system
+    # Assert the repair's mathematical effect and source binding, not a retired
+    # topic-specific sentence in the shared extraction prompt.
+    assert len(provider.requests) == 4
+    detail = inspect_abstract_domain_parameter_target(result['candidate'], TARGET)
+    assert detail['structure_supported'] and detail['known_strength'] == 'meaningful_only'
     repair = json.loads(provider.requests[2].prompt.user_prefix)
     assert {item['path'] for item in repair['diagnostics']} == {TARGET + '/strength'}

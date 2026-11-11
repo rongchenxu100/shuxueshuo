@@ -399,6 +399,25 @@
     ],
     "abstract_monotonicity_conclusion": [
       "function-monotonicity#definition"
+    ],
+    "parity_scope": [
+      "function-parity#definition"
+    ],
+    "domain_reflection_symmetry": [
+      "function-parity#domain"
+    ],
+    "whole_input_substitution": [
+      "function-parity#definition"
+    ],
+    "parity_relation_comparison": [
+      "function-parity#definition"
+    ],
+    "parity_value_counterexample": [
+      "function-parity#definition"
+    ],
+    "parity_classification": [
+      "function-parity#definition",
+      "function-parity#zero"
     ]
   }
 }

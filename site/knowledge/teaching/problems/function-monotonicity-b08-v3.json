@@ -1,10 +1,10 @@
 {
   "topic": "function-monotonicity",
-  "id": "function-monotonicity-b08-v2",
+  "id": "function-monotonicity-b08-v3",
   "label": "指定分界点为最小值点 · B08",
   "path": "/topics/function-monotonicity/q08b/",
   "runtime": "graph-walk",
-  "bundle": "/data/graph-walk/function-monotonicity-b08-v2.json",
+  "bundle": "/data/graph-walk/function-monotonicity-b08-v3.json",
   "types": [
     "type-monotonicity-extremum"
   ],
@@ -35,7 +35,7 @@
           "refs": [],
           "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
         },
-        "2d954501a07430ce2b69fd82#1": {
+        "19aa49ac35edd48f9dae53e9#1": {
           "title": "求指定点的函数值",
           "position": 4,
           "refs": [
@@ -44,7 +44,7 @@
             "function-range-extrema#extrema"
           ]
         },
-        "2d954501a07430ce2b69fd82#2": {
+        "19aa49ac35edd48f9dae53e9#2": {
           "title": "把指定最值写成全域条件",
           "position": 5,
           "refs": [
@@ -53,7 +53,7 @@
             "function-range-extrema#extrema"
           ]
         },
-        "0f0aa1649656816468940d24#1": {
+        "8ea34643c5969a6c8ca94b33#1": {
           "title": "判断转化后的问题",
           "position": 6,
           "refs": [
@@ -62,7 +62,7 @@
             "function-range-extrema#extrema"
           ]
         },
-        "eb2d35abbefc6fb832d725bd#1": {
+        "7f9e185c2c8b986d2e4dd42e#1": {
           "title": "选择恒成立问题的解题方法",
           "position": 7,
           "refs": [
@@ -72,7 +72,7 @@
             "function-range-extrema#extrema"
           ]
         },
-        "dd183f8eb1ef852b74a8eb5e#1": {
+        "9eb966758a5388ddeee371d2#1": {
           "title": "移项",
           "position": 8,
           "refs": [
@@ -82,7 +82,7 @@
             "inequality-properties#multiplication"
           ]
         },
-        "dd183f8eb1ef852b74a8eb5e#2": {
+        "9eb966758a5388ddeee371d2#2": {
           "title": "判断除数符号与不等号方向",
           "position": 9,
           "refs": [
@@ -92,7 +92,7 @@
             "inequality-properties#multiplication"
           ]
         },
-        "dd183f8eb1ef852b74a8eb5e#3": {
+        "9eb966758a5388ddeee371d2#3": {
           "title": "分离参数",
           "position": 10,
           "refs": [
@@ -102,7 +102,7 @@
             "inequality-properties#multiplication"
           ]
         },
-        "97b57257494aa90e84559af2#1": {
+        "b7ce16efe4d8430c1a7312fe#1": {
           "title": "转化为最值条件",
           "position": 11,
           "refs": [
@@ -112,7 +112,7 @@
             "quantifiers#universal"
           ]
         },
-        "7a2f947cfeb9bf1cf41f8d06#1": {
+        "302edf076cafbd8a2a1ffe4c#1": {
           "title": "确定函数值的范围",
           "position": 12,
           "refs": [
@@ -121,7 +121,7 @@
             "linear-interval-extremum#interval"
           ]
         },
-        "d3cd84dcdc1615bb8b611d49#1": {
+        "8ca6df0410cd159966b397ac#1": {
           "title": "求参数范围",
           "position": 13,
           "refs": [
@@ -136,7 +136,7 @@
             "quadratic-inequality#signs"
           ]
         },
-        "55fdd90bb0ecda14a991ee16#1": {
+        "84f260128991b52401559524#1": {
           "title": "判断转化后的问题",
           "position": 14,
           "refs": [
@@ -145,7 +145,7 @@
             "function-range-extrema#extrema"
           ]
         },
-        "4f2a641f9852783dbd5c623d#1": {
+        "c3f0dfc3d783c9531959d70b#1": {
           "title": "选择恒成立问题的解题方法",
           "position": 15,
           "refs": [
@@ -155,7 +155,7 @@
             "function-range-extrema#extrema"
           ]
         },
-        "78422bec774a80d7f26118fe#1": {
+        "5d73d91db095c43192b45612#1": {
           "title": "移项",
           "position": 16,
           "refs": [
@@ -165,7 +165,7 @@
             "inequality-properties#multiplication"
           ]
         },
-        "78422bec774a80d7f26118fe#2": {
+        "5d73d91db095c43192b45612#2": {
           "title": "分离参数",
           "position": 17,
           "refs": [
@@ -175,7 +175,7 @@
             "inequality-properties#multiplication"
           ]
         },
-        "1647315312f8a7d628c3f976#1": {
+        "5cd12f14bf1f9538371079fc#1": {
           "title": "转化为最值条件",
           "position": 18,
           "refs": [
@@ -185,7 +185,7 @@
             "quantifiers#universal"
           ]
         },
-        "9284ef87e98a167483a2907d#1": {
+        "1c75550e1d4ed3bdeaceb257#1": {
           "title": "认出对勾函数的拐点",
           "position": 19,
           "refs": [
@@ -194,7 +194,7 @@
             "reciprocal-sum-function"
           ]
         },
-        "9284ef87e98a167483a2907d#2": {
+        "1c75550e1d4ed3bdeaceb257#2": {
           "title": "看区间落在拐点哪一侧",
           "position": 20,
           "refs": [
@@ -203,7 +203,7 @@
             "reciprocal-sum-function"
           ]
         },
-        "a2ff0eb69ac23200f0bca843#1": {
+        "25e4192d5430b4c2a8986ab2#1": {
           "title": "求参数范围",
           "position": 21,
           "refs": [
@@ -219,7 +219,7 @@
             "quadratic-inequality#signs"
           ]
         },
-        "117e462aeca56236581d9448#1": {
+        "dcf2f29f968ca31a8b0ca842#1": {
           "title": "回到原题，汇总参数范围",
           "position": 22,
           "refs": [
@@ -231,6 +231,6 @@
       }
     }
   },
-  "page_contract_hash": "18f5bba058eb93dd5d0c7bb9fee61d135b5659f9752bf3c630d0f198f911372d",
-  "practice_version": "5113ccaebe7c6f2421465cf7cad8177ed433bf1c8eb88bbd164f8ec8213532d9"
+  "page_contract_hash": "3c9b9ce6e523ce22306d1ce0a960d7b4f60f24328980512e3e9e7be3c37f7245",
+  "practice_version": "4c84a28a8b2e0909ba008d0aa8259a2baa96bf39837d21c5370eda64108635b9"
 }

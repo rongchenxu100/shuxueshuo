@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a01-1-v2",
+  "title": "有理式的奇偶性 · A01.1",
+  "page": "/topics/function-parity/q01a/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "statement": "判断函数的奇偶性：$f(x)=\\dfrac{x}{x^2+1}$。",
+  "evidence": "site/data/graph-walk/function-parity-a01-1-v2.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t1-20261110/a01-1-v2.json"
+}

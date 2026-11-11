@@ -1,0 +1,153 @@
+{
+  "text": "{\n  \"original_text\": \"1. 判断函数的奇偶性：（1）$f(x)=\\\\frac{x}{x^2+1}$ 为 ______ 函数；（2）$f(x)=|x|+x^2$ 为 ______ 函数.\",\n  \"root\": {\n    \"label\": \"1\",\n    \"children\": [\n      {\n        \"label\": \"（1）\",\n        \"definitions\": [\n          \"f(x)=x/(x^2+1)\"\n        ],\n        \"goals\": [\n          {\n            \"kind\": \"determine_function_parity\",\n            \"function\": \"f\",\n            \"variable\": \"x\",\n            \"expression\": \"x/(x^2+1)\"\n          }\n        ]\n      },\n      {\n        \"label\": \"（2）\",\n        \"definitions\": [\n          \"f(x)=abs(x)+x^2\"\n        ],\n        \"goals\": [\n          {\n            \"kind\": \"determine_function_parity\",\n            \"function\": \"f\",\n            \"variable\": \"x\",\n            \"expression\": \"abs(x)+x^2\"\n          }\n        ]\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"root_label_role\": \"source\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"判断函数的奇偶性：\",\n        \"choices\": []\n      },\n      {\n        \"scope_ref\": \"/root/children/0\",\n        \"statement\": \"$f(x)=\\\\frac{x}{x^2+1}$ 为 ______ 函数\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/children/0/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      },\n      {\n        \"scope_ref\": \"/root/children/1\",\n        \"statement\": \"$f(x)=|x|+x^2$ 为 ______ 函数\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/children/1/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1907,
+      "prompt_tokens": 25360,
+      "total_tokens": 27267,
+      "prompt_cache_hit_tokens": 25216,
+      "prompt_cache_miss_tokens": 144
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 1754,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-898d7637-015c-4410-806c-f681a39e5dae",
+        "sha256": "86802b6daf66ffec686a1e9435f75f86c9e227ebebba831ac291d73446cc0ba7",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 8819,
+        "expires_at": 1794445123,
+        "uploaded_at": 1794358723.6626291
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "86802b6daf66ffec686a1e9435f75f86c9e227ebebba831ac291d73446cc0ba7",
+        "api_calls": 1,
+        "file_id": "file-api-898d7637-015c-4410-806c-f681a39e5dae",
+        "expires_at": 1794445123,
+        "elapsed_ms": 600
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 10876,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1907,
+          "prompt_tokens": 25360,
+          "total_tokens": 27267,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1382
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25216
+          },
+          "prompt_cache_hit_tokens": 25216,
+          "prompt_cache_miss_tokens": 144
+        },
+        "raw_payload": {
+          "id": "2151378c-f956-4f11-a635-78de4f1f2533",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1907,
+            "prompt_tokens": 25360,
+            "total_tokens": 27267,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1382
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25216
+            },
+            "prompt_cache_hit_tokens": 25216,
+            "prompt_cache_miss_tokens": 144
+          },
+          "created": 1794358723,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"original_text\": \"1. 判断函数的奇偶性：（1）$f(x)=\\\\frac{x}{x^2+1}$ 为 ______ 函数；（2）$f(x)=|x|+x^2$ 为 ______ 函数.\",\n  \"root\": {\n    \"label\": \"1\",\n    \"children\": [\n      {\n        \"label\": \"（1）\",\n        \"definitions\": [\n          \"f(x)=x/(x^2+1)\"\n        ],\n        \"goals\": [\n          {\n            \"kind\": \"determine_function_parity\",\n            \"function\": \"f\",\n            \"variable\": \"x\",\n            \"expression\": \"x/(x^2+1)\"\n          }\n        ]\n      },\n      {\n        \"label\": \"（2）\",\n        \"definitions\": [\n          \"f(x)=abs(x)+x^2\"\n        ],\n        \"goals\": [\n          {\n            \"kind\": \"determine_function_parity\",\n            \"function\": \"f\",\n            \"variable\": \"x\",\n            \"expression\": \"abs(x)+x^2\"\n          }\n        ]\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"root_label_role\": \"source\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"判断函数的奇偶性：\",\n        \"choices\": []\n      },\n      {\n        \"scope_ref\": \"/root/children/0\",\n        \"statement\": \"$f(x)=\\\\frac{x}{x^2+1}$ 为 ______ 函数\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/children/0/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      },\n      {\n        \"scope_ref\": \"/root/children/1\",\n        \"statement\": \"$f(x)=|x|+x^2$ 为 ______ 函数\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/children/1/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+                "reasoning_content": "We need answer only JSON per schema. Need extract from image. Need understand Chinese. Image shows:\n\n1. 判断函数的奇偶性：（1）$f(x)=\\frac{x}{x^2+1}$ 为 ____ 函数；（2）$f(x)=|x|+x^2$ 为 ____ 函数.\n\nHandwritten answers \"奇\" and \"偶\" are not to transcribe. Fill blanks exactly underscores. Need original_text preserve. It has source number 1. Could include in original_text. root label? There is \"1.\" likely source/problem number. The instructions: root.label if exists role. We can include label \"1\" and root_label_role source. But perhaps root.label should be omitted? Original_text includes 1. Public statement should not include source number. Need root definitions? There are two subquestions (1)(2). Common prompt \"判断函数的奇偶性\" parent. Each child own function and goal determine parity? Goal schema FunctionParityGoal: determine_function_parity. Need definitions? Each child needs function definition and goal. Parent facts maybe none; parent goals? Common prompt \"判断函数的奇偶性\" applies both. In root we could put no goal? But root is common stem; children goals. Need root.definitions? Since each function local to subquestion, put definitions in child. Shared prompt maybe root.facts [\"判断函数的奇偶性\"] but facts should be controlled math strings, not natural. Better no root facts. root label \"1\" maybe. children nodes label \"（1）\", \"（2）\"; definitions f(x)=x/(x^2+1), goals parity; (2) definitions f(x)=abs(x)+x^2. But same function symbol f in separate scopes okay. Need definitions in each child. Facts none. Goals kind determine_function_parity with function f, variable x, expression original. Should input_domain? The functions natural domain all reals? Not explicitly given, don't fill input_domain. For parity, expression as given. For (1), expression \"x/(x^2+1)\". For (2) \"abs(x)+x^2\" or |x|+x^2. Catalog supports abs. Use abs(x)+x^2. FunctionParityGoal fields function pattern ^[a-z] etc, variable x, expression. Good.\n\nOriginal_text: \"1. 判断函数的奇偶性：（1）$f(x)=\\\\frac{x}{x^2+1}$ 为 ____ 函数；（2）$f(x)=|x|+x^2$ 为 ____ 函数.\" Need blank underscores. Could use \"______\". They say fill blank as printed horizontal line. Good.\n\nPublic_content scopes: root statement only own题干: \"判断函数的奇偶性：\"? And children statements: \"(1)\"? Wait statement shouldn't include小问编号. It says each scope own pure题干 and所求, not repeat parent, not include小问编号. Root statement \"判断函数的奇偶性：\" could be parent. Child (1) statement maybe \"$f(x)=\\\\frac{x}{x^2+1}$ 为 ____ 函数\" with choice none. But statement of child includes local function and blank. It is both condition and所求? Goal has parity. Fine. Child (2) similarly. Choices none for each goal. scopes in preorder: /root, /root/children/0, /root/children/1. Need choices array each target_ref corresponding goal. For root no goals? Then choices [].\n\nBut public root statement \"判断函数的奇偶性：\" maybe incomplete without objects but child statements complete. That's okay. Could root statement be \"判断函数的奇偶性：\" exactly. Need no source \"1.\".\n\nCompleteness: complete. Privacy: separated? Image no personal info, only problem and handwritten answers. Handwritten answers are not public. We are excluding. Source number \"1\" maybe problem number; can separate. separated. Figure none, figure_detection status none regions [].\n\nRoot uncertainties? none.\n\nNeed ensure root definitions/facts? Could root definitions empty? Schema root properties optional; but maybe required? It lists properties but no required in Scope. We can provide label, definitions, facts, goals, children. For root no facts? Maybe omit. But public scopes root statement. Root can have label \"1\". root_label_role \"source\". Root.goals empty? Need maybe omit goals. But schema maybe allows. Need public_content choices root empty. Should we include root.facts? None.\n\nOne subtlety: \"判断函数的奇偶性\" is not controlled math, so can't put facts. Put nowhere? Root statement captures it. root has no definitions/facts/goals. children. Fine.\n\nNeed choices for each child: target_ref /root/children/0/goals/0, status none, selection_mode none, options [].\n\nNeed original_text max etc. Use LaTeX. For absolute value use |x|, okay. Need escape backslashes in JSON: \"\\\\frac\", \"\\\\(\" no. $f(x)=\\\\frac{x}{x^2+1}$. Good.\n\nNeed output exact JSON only.\n\nDouble-check schema root.label \"1\" perhaps allowed. If original includes \"1.\" as source. root.label role source. public_content root statement excludes. Good. Child labels \"（1）\", \"（2）\". These labels are not source; content? It's subquestion numbering. root_label_role only root. No public_content label roles for children. Fine.\n\nPotential issue: public_content.scopes statement should not include小问编号. We'll omit labels. Child statement (1): \"$f(x)=\\\\frac{x}{x^2+1}$ 为 ____ 函数\" includes blank and function. Good. Child (2): \"$f(x)=|x|+x^2$ 为 ____ 函数\". Good.\n\nShould child facts include function definition? In root representation definitions. The goal expression includes function. Statement includes formula. definitions in child. Fine.\n\nFunctionParityGoal kind exactly \"determine_function_parity\". Include expression. input_domain omitted.\n\nNeed maybe definition string \"f(x)=x/(x^2+1)\" not \\frac. In root math_expression_catalog use arithmetic. That's okay. For second \"f(x)=abs(x)+x^2\". Good.\n\nCould put both functions in root definitions? But f reused and subquestions local; better child. Parent condition \"判断奇偶性\" applies both but no math. Fine.\n\nUncertainties none. Figure detection none.\n\nLet's craft.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 11515
+  },
+  "raw_payload": {
+    "id": "2151378c-f956-4f11-a635-78de4f1f2533",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"original_text\": \"1. 判断函数的奇偶性：（1）$f(x)=\\\\frac{x}{x^2+1}$ 为 ______ 函数；（2）$f(x)=|x|+x^2$ 为 ______ 函数.\",\n  \"root\": {\n    \"label\": \"1\",\n    \"children\": [\n      {\n        \"label\": \"（1）\",\n        \"definitions\": [\n          \"f(x)=x/(x^2+1)\"\n        ],\n        \"goals\": [\n          {\n            \"kind\": \"determine_function_parity\",\n            \"function\": \"f\",\n            \"variable\": \"x\",\n            \"expression\": \"x/(x^2+1)\"\n          }\n        ]\n      },\n      {\n        \"label\": \"（2）\",\n        \"definitions\": [\n          \"f(x)=abs(x)+x^2\"\n        ],\n        \"goals\": [\n          {\n            \"kind\": \"determine_function_parity\",\n            \"function\": \"f\",\n            \"variable\": \"x\",\n            \"expression\": \"abs(x)+x^2\"\n          }\n        ]\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"root_label_role\": \"source\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"判断函数的奇偶性：\",\n        \"choices\": []\n      },\n      {\n        \"scope_ref\": \"/root/children/0\",\n        \"statement\": \"$f(x)=\\\\frac{x}{x^2+1}$ 为 ______ 函数\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/children/0/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      },\n      {\n        \"scope_ref\": \"/root/children/1\",\n        \"statement\": \"$f(x)=|x|+x^2$ 为 ______ 函数\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/children/1/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "We need answer only JSON per schema. Need extract from image. Need understand Chinese. Image shows:\n\n1. 判断函数的奇偶性：（1）$f(x)=\\frac{x}{x^2+1}$ 为 ____ 函数；（2）$f(x)=|x|+x^2$ 为 ____ 函数.\n\nHandwritten answers \"奇\" and \"偶\" are not to transcribe. Fill blanks exactly underscores. Need original_text preserve. It has source number 1. Could include in original_text. root label? There is \"1.\" likely source/problem number. The instructions: root.label if exists role. We can include label \"1\" and root_label_role source. But perhaps root.label should be omitted? Original_text includes 1. Public statement should not include source number. Need root definitions? There are two subquestions (1)(2). Common prompt \"判断函数的奇偶性\" parent. Each child own function and goal determine parity? Goal schema FunctionParityGoal: determine_function_parity. Need definitions? Each child needs function definition and goal. Parent facts maybe none; parent goals? Common prompt \"判断函数的奇偶性\" applies both. In root we could put no goal? But root is common stem; children goals. Need root.definitions? Since each function local to subquestion, put definitions in child. Shared prompt maybe root.facts [\"判断函数的奇偶性\"] but facts should be controlled math strings, not natural. Better no root facts. root label \"1\" maybe. children nodes label \"（1）\", \"（2）\"; definitions f(x)=x/(x^2+1), goals parity; (2) definitions f(x)=abs(x)+x^2. But same function symbol f in separate scopes okay. Need definitions in each child. Facts none. Goals kind determine_function_parity with function f, variable x, expression original. Should input_domain? The functions natural domain all reals? Not explicitly given, don't fill input_domain. For parity, expression as given. For (1), expression \"x/(x^2+1)\". For (2) \"abs(x)+x^2\" or |x|+x^2. Catalog supports abs. Use abs(x)+x^2. FunctionParityGoal fields function pattern ^[a-z] etc, variable x, expression. Good.\n\nOriginal_text: \"1. 判断函数的奇偶性：（1）$f(x)=\\\\frac{x}{x^2+1}$ 为 ____ 函数；（2）$f(x)=|x|+x^2$ 为 ____ 函数.\" Need blank underscores. Could use \"______\". They say fill blank as printed horizontal line. Good.\n\nPublic_content scopes: root statement only own题干: \"判断函数的奇偶性：\"? And children statements: \"(1)\"? Wait statement shouldn't include小问编号. It says each scope own pure题干 and所求, not repeat parent, not include小问编号. Root statement \"判断函数的奇偶性：\" could be parent. Child (1) statement maybe \"$f(x)=\\\\frac{x}{x^2+1}$ 为 ____ 函数\" with choice none. But statement of child includes local function and blank. It is both condition and所求? Goal has parity. Fine. Child (2) similarly. Choices none for each goal. scopes in preorder: /root, /root/children/0, /root/children/1. Need choices array each target_ref corresponding goal. For root no goals? Then choices [].\n\nBut public root statement \"判断函数的奇偶性：\" maybe incomplete without objects but child statements complete. That's okay. Could root statement be \"判断函数的奇偶性：\" exactly. Need no source \"1.\".\n\nCompleteness: complete. Privacy: separated? Image no personal info, only problem and handwritten answers. Handwritten answers are not public. We are excluding. Source number \"1\" maybe problem number; can separate. separated. Figure none, figure_detection status none regions [].\n\nRoot uncertainties? none.\n\nNeed ensure root definitions/facts? Could root definitions empty? Schema root properties optional; but maybe required? It lists properties but no required in Scope. We can provide label, definitions, facts, goals, children. For root no facts? Maybe omit. But public scopes root statement. Root can have label \"1\". root_label_role \"source\". Root.goals empty? Need maybe omit goals. But schema maybe allows. Need public_content choices root empty. Should we include root.facts? None.\n\nOne subtlety: \"判断函数的奇偶性\" is not controlled math, so can't put facts. Put nowhere? Root statement captures it. root has no definitions/facts/goals. children. Fine.\n\nNeed choices for each child: target_ref /root/children/0/goals/0, status none, selection_mode none, options [].\n\nNeed original_text max etc. Use LaTeX. For absolute value use |x|, okay. Need escape backslashes in JSON: \"\\\\frac\", \"\\\\(\" no. $f(x)=\\\\frac{x}{x^2+1}$. Good.\n\nNeed output exact JSON only.\n\nDouble-check schema root.label \"1\" perhaps allowed. If original includes \"1.\" as source. root.label role source. public_content root statement excludes. Good. Child labels \"（1）\", \"（2）\". These labels are not source; content? It's subquestion numbering. root_label_role only root. No public_content label roles for children. Fine.\n\nPotential issue: public_content.scopes statement should not include小问编号. We'll omit labels. Child statement (1): \"$f(x)=\\\\frac{x}{x^2+1}$ 为 ____ 函数\" includes blank and function. Good. Child (2): \"$f(x)=|x|+x^2$ 为 ____ 函数\". Good.\n\nShould child facts include function definition? In root representation definitions. The goal expression includes function. Statement includes formula. definitions in child. Fine.\n\nFunctionParityGoal kind exactly \"determine_function_parity\". Include expression. input_domain omitted.\n\nNeed maybe definition string \"f(x)=x/(x^2+1)\" not \\frac. In root math_expression_catalog use arithmetic. That's okay. For second \"f(x)=abs(x)+x^2\". Good.\n\nCould put both functions in root definitions? But f reused and subquestions local; better child. Parent condition \"判断奇偶性\" applies both but no math. Fine.\n\nUncertainties none. Figure detection none.\n\nLet's craft."
+        }
+      }
+    ],
+    "created": 1794358723,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1907,
+      "prompt_tokens": 25360,
+      "total_tokens": 27267,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1382,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25216
+      },
+      "prompt_cache_hit_tokens": 25216,
+      "prompt_cache_miss_tokens": 144
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 11.518
+}

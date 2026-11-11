@@ -284,11 +284,11 @@
       "path": "/topics/function-monotonicity/q10b/",
       "topic": "function-monotonicity"
     },
-    "function-monotonicity-b08-v2": {
+    "function-monotonicity-b08-v3": {
       "path": "/topics/function-monotonicity/q08b/",
       "topic": "function-monotonicity"
     },
-    "function-monotonicity-b14-v2": {
+    "function-monotonicity-b14-v3": {
       "path": "/topics/function-monotonicity/q14b/",
       "topic": "function-monotonicity"
     },
@@ -367,6 +367,14 @@
     "function-monotonicity-c02-v1": {
       "path": "/topics/function-monotonicity/q20/",
       "topic": "function-monotonicity"
+    },
+    "function-parity-a01-1-v2": {
+      "path": "/topics/function-parity/q01a/",
+      "topic": "function-parity"
+    },
+    "function-parity-a01-2-v2": {
+      "path": "/topics/function-parity/q01b/",
+      "topic": "function-parity"
     },
     "function-representations-b10-v1": {
       "path": "/topics/function-representations/q10b/",

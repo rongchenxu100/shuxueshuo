@@ -1,0 +1,1159 @@
+{
+  "search_id": "60a8401c5ebe",
+  "user_id": "f561cacc-3629-485c-b72d-5a05819f0896",
+  "problem_id": "46418ac1-b80b-4636-8e50-e19be1121b8e",
+  "statement": "判断函数的奇偶性：\n（1）$f(x)=\\frac{x}{x^2+1}$为____函数；\n（2）$f(x)=|x|+x^2$为____函数。",
+  "recognition_status": "reviewed",
+  "lesson_status": "ready",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "475b1e6299c8d6f34777079a3278429d67d5eb9e92a1bf1004fc855fad59bbad",
+      "width": 955,
+      "height": 77,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/60a8401c5ebe/figures/original?version=c6355de627f35dd37b5560e91773a917f839cdd0489ece193c70b4ecd58aed88"
+      }
+    ],
+    "content_id": "c6355de627f35dd37b5560e91773a917f839cdd0489ece193c70b4ecd58aed88"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "15f6521d5844",
+    "box": [
+      0.0859375,
+      0.06037514654161782,
+      0.83203125,
+      0.10550996483001172
+    ],
+    "page_size": [
+      1280,
+      1706
+    ],
+    "crop_size": [
+      955,
+      77
+    ],
+    "bytes": 8819
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "1. 判断函数的奇偶性：（1）$f(x)=\\frac{x}{x^2+1}$为____函数；（2）$f(x)=|x|+x^2$为____函数。",
+  "parts": [
+    "（1）",
+    "（2）"
+  ],
+  "root": {
+    "children": [
+      {
+        "label": "（1）",
+        "definitions": [
+          "f(x)=x/(x^2+1)"
+        ],
+        "goals": [
+          {
+            "kind": "determine_function_parity",
+            "function": "f",
+            "variable": "x",
+            "expression": "x/(x^2+1)"
+          }
+        ]
+      },
+      {
+        "label": "（2）",
+        "definitions": [
+          "f(x)=abs(x)+x^2"
+        ],
+        "goals": [
+          {
+            "kind": "determine_function_parity",
+            "function": "f",
+            "variable": "x",
+            "expression": "abs(x)+x^2"
+          }
+        ]
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root/children/0",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root/children/0",
+      "status": "known"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root/children/0",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "goal",
+      "scope": "/root/children/1",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root/children/1",
+      "status": "known"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root/children/1",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "86802b6daf66ffec686a1e9435f75f86c9e227ebebba831ac291d73446cc0ba7",
+    "sent_image_sha256": [
+      "86802b6daf66ffec686a1e9435f75f86c9e227ebebba831ac291d73446cc0ba7"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 17.764,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/children/0/goals/0",
+        "scope": "/root/children/0",
+        "label": "（1）",
+        "status": "resolved",
+        "primary": "type-function-parity",
+        "supported": [
+          "type-function-parity"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/children/0/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 16,
+                  "end": 36,
+                  "text": "$f(x)=\\frac{x}{x^2+1}$"
+                },
+                {
+                  "start": 8,
+                  "end": 11,
+                  "text": "奇偶性"
+                }
+              ],
+              "fragment_ids": [
+                "/root/children/0/goals/0:d1:1",
+                "/root/children/0/goals/0:d1:2"
+              ],
+              "knowledge_refs": [
+                "function-parity#definition",
+                "function-parity#domain"
+              ],
+              "source_refs": [
+                "/root/children/0/goals/0",
+                "/root/children/0/goals/0/expression",
+                "/root/children/0/goals/0/variable"
+              ],
+              "options": [
+                {
+                  "text": "求函数的单调区间",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。",
+                  "id": "/root/children/0/goals/0:goal:o0"
+                },
+                {
+                  "text": "判断函数的奇偶性",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/children/0/goals/0:goal:o1"
+                }
+              ],
+              "signature": "39a0af0707062a86"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问需要判断什么？",
+          "feedback": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。",
+          "summary": "$f(x)=\\frac{x}{x^{2}+1}$。判断函数的奇偶性。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-parity",
+            "label": "判断函数的奇偶性",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "题目给出具体函数的解析式，要求判断它的奇偶性。",
+              "先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+            ],
+            "choice_hint": "原目标是判断一个已给解析式的函数的奇偶性"
+          }
+        ],
+        "knowledge": [
+          {
+            "ref": "function-parity#definition",
+            "node": "function-parity",
+            "label": "函数的奇偶性",
+            "title": "奇函数与偶函数"
+          },
+          {
+            "ref": "function-parity#domain",
+            "node": "function-parity",
+            "label": "函数的奇偶性",
+            "title": "先看定义域能否成对"
+          }
+        ],
+        "links": [
+          {
+            "from": "function-parity",
+            "to": "type-function-parity",
+            "relation": "involves",
+            "knowledge_refs": [
+              "function-parity#definition",
+              "function-parity#domain"
+            ]
+          }
+        ],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "60a8401c5ebe//root/children/0/goals/0",
+            "graphVersion": "7f7d9fc32f9f3e28c15cefebf5f34e74e4c932beaf6ca28703bee7488b0e8d13",
+            "problem": {
+              "text": "判断函数的奇偶性：\n（1）$f(x)=\\frac{x}{x^2+1}$为____函数；\n（2）$f(x)=|x|+x^2$为____函数。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问需要判断什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/children/0/goals/0:goal:o0",
+                      "label": "求函数的单调区间",
+                      "feedback": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。"
+                    },
+                    {
+                      "value": "/root/children/0/goals/0:goal:o1",
+                      "label": "判断函数的奇偶性"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/children/0/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。"
+                },
+                "candidateNodes": [
+                  "function-parity",
+                  "type-function-parity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-parity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "$f(x)=\\frac{x}{x^{2}+1}$。判断函数的奇偶性。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 1 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-parity",
+                      "label": "判断函数的奇偶性",
+                      "note": "原目标是判断一个已给解析式的函数的奇偶性"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-parity"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-parity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-parity"
+                  ],
+                  "edges": [
+                    "type-function-parity|involves|function-parity"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：题目给出具体函数的解析式，要求判断它的奇偶性；先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+                  ],
+                  "log": "作答判断：选择主要题型「判断函数的奇偶性」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-parity",
+                  "kind": "knowledge",
+                  "label": "函数的奇偶性",
+                  "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-parity",
+                  "kind": "problem_type",
+                  "label": "判断函数的奇偶性",
+                  "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-parity-definition",
+                  "kind": "method",
+                  "label": "奇偶性定义法",
+                  "summary": "先检查定义域是否关于原点对称，再把 $-x$ 整体代入，分别核对奇性与偶性。",
+                  "aliases": [
+                    "定义法"
+                  ],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "整理函数",
+                      "calls": []
+                    },
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": [
+                        "method-domain-intersection"
+                      ]
+                    },
+                    {
+                      "id": "symmetry",
+                      "title": "检查定义域的对称性",
+                      "calls": [
+                        "skill-domain-symmetry"
+                      ]
+                    },
+                    {
+                      "id": "reflect",
+                      "title": "代入相反数",
+                      "calls": [
+                        "method-function-evaluation"
+                      ]
+                    },
+                    {
+                      "id": "compare",
+                      "title": "比较两条关系",
+                      "calls": [
+                        "skill-simplify"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "得出结论",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验奇偶性结论",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-function-parity|candidate|method-parity-definition",
+                  "from": "type-function-parity",
+                  "to": "method-parity-definition",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-parity|involves|function-parity",
+                  "from": "type-function-parity",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-parity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "759cc29ed09a0a460f80a16ddd899752ff29d910a355a35a7997953c7cb8b541"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "60a8401c5ebe//root/children/0/goals/0",
+            "bundleVersion": "759cc29ed09a0a460f80a16ddd899752ff29d910a355a35a7997953c7cb8b541",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/children/0/goals/0:goal:o1",
+                "reason": "$f(x)=\\frac{x}{x^{2}+1}$。判断函数的奇偶性。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-parity",
+                "reason": "选「判断函数的奇偶性」：题目给出具体函数的解析式，要求判断它的奇偶性；先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "target_ref": "/root/children/1/goals/0",
+        "scope": "/root/children/1",
+        "label": "（2）",
+        "status": "resolved",
+        "primary": "type-function-parity",
+        "supported": [
+          "type-function-parity"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/children/1/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 49,
+                  "end": 61,
+                  "text": "$f(x)=|x|+x^2$"
+                },
+                {
+                  "start": 8,
+                  "end": 11,
+                  "text": "奇偶性"
+                }
+              ],
+              "fragment_ids": [
+                "/root/children/1/goals/0:d1:1",
+                "/root/children/1/goals/0:d1:2"
+              ],
+              "knowledge_refs": [
+                "function-parity#definition",
+                "function-parity#domain"
+              ],
+              "source_refs": [
+                "/root/children/1/goals/0",
+                "/root/children/1/goals/0/expression",
+                "/root/children/1/goals/0/variable"
+              ],
+              "options": [
+                {
+                  "text": "求函数的单调区间",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。",
+                  "id": "/root/children/1/goals/0:goal:o0"
+                },
+                {
+                  "text": "判断函数的奇偶性",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/children/1/goals/0:goal:o1"
+                }
+              ],
+              "signature": "f110ef7b8a1876c1"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问需要判断什么？",
+          "feedback": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。",
+          "summary": "$f(x)=\\left|x\\right|+x^{2}$。判断函数的奇偶性。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-parity",
+            "label": "判断函数的奇偶性",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "题目给出具体函数的解析式，要求判断它的奇偶性。",
+              "先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+            ],
+            "choice_hint": "原目标是判断一个已给解析式的函数的奇偶性"
+          }
+        ],
+        "knowledge": [
+          {
+            "ref": "function-parity#definition",
+            "node": "function-parity",
+            "label": "函数的奇偶性",
+            "title": "奇函数与偶函数"
+          },
+          {
+            "ref": "function-parity#domain",
+            "node": "function-parity",
+            "label": "函数的奇偶性",
+            "title": "先看定义域能否成对"
+          }
+        ],
+        "links": [
+          {
+            "from": "function-parity",
+            "to": "type-function-parity",
+            "relation": "involves",
+            "knowledge_refs": [
+              "function-parity#definition",
+              "function-parity#domain"
+            ]
+          }
+        ],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "60a8401c5ebe//root/children/1/goals/0",
+            "graphVersion": "7f7d9fc32f9f3e28c15cefebf5f34e74e4c932beaf6ca28703bee7488b0e8d13",
+            "problem": {
+              "text": "判断函数的奇偶性：\n（1）$f(x)=\\frac{x}{x^2+1}$为____函数；\n（2）$f(x)=|x|+x^2$为____函数。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问需要判断什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/children/1/goals/0:goal:o0",
+                      "label": "求函数的单调区间",
+                      "feedback": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。"
+                    },
+                    {
+                      "value": "/root/children/1/goals/0:goal:o1",
+                      "label": "判断函数的奇偶性"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/children/1/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。"
+                },
+                "candidateNodes": [
+                  "function-parity",
+                  "type-function-parity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-parity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "$f(x)=\\left|x\\right|+x^{2}$。判断函数的奇偶性。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 1 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-parity",
+                      "label": "判断函数的奇偶性",
+                      "note": "原目标是判断一个已给解析式的函数的奇偶性"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-parity"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-parity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-parity"
+                  ],
+                  "edges": [
+                    "type-function-parity|involves|function-parity"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：题目给出具体函数的解析式，要求判断它的奇偶性；先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+                  ],
+                  "log": "作答判断：选择主要题型「判断函数的奇偶性」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-parity",
+                  "kind": "knowledge",
+                  "label": "函数的奇偶性",
+                  "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-parity",
+                  "kind": "problem_type",
+                  "label": "判断函数的奇偶性",
+                  "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-parity-definition",
+                  "kind": "method",
+                  "label": "奇偶性定义法",
+                  "summary": "先检查定义域是否关于原点对称，再把 $-x$ 整体代入，分别核对奇性与偶性。",
+                  "aliases": [
+                    "定义法"
+                  ],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "整理函数",
+                      "calls": []
+                    },
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": [
+                        "method-domain-intersection"
+                      ]
+                    },
+                    {
+                      "id": "symmetry",
+                      "title": "检查定义域的对称性",
+                      "calls": [
+                        "skill-domain-symmetry"
+                      ]
+                    },
+                    {
+                      "id": "reflect",
+                      "title": "代入相反数",
+                      "calls": [
+                        "method-function-evaluation"
+                      ]
+                    },
+                    {
+                      "id": "compare",
+                      "title": "比较两条关系",
+                      "calls": [
+                        "skill-simplify"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "得出结论",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验奇偶性结论",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-function-parity|candidate|method-parity-definition",
+                  "from": "type-function-parity",
+                  "to": "method-parity-definition",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-parity|involves|function-parity",
+                  "from": "type-function-parity",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-parity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "06fe41c76c7eda659152123aacef9da6e6fc7ea44130b4aa3c4780d3360c9f92"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "60a8401c5ebe//root/children/1/goals/0",
+            "bundleVersion": "06fe41c76c7eda659152123aacef9da6e6fc7ea44130b4aa3c4780d3360c9f92",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/children/1/goals/0:goal:o1",
+                "reason": "$f(x)=\\left|x\\right|+x^{2}$。判断函数的奇偶性。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-parity",
+                "reason": "选「判断函数的奇偶性」：题目给出具体函数的解析式，要求判断它的奇偶性；先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "0e5ecffeb6d04b38a53d6e3ce0b0f28a",
+      "lesson_version": "e87b944ce5001537e0d405cd927ec19267382dad6edc2536b36aa5007afe77e4",
+      "stream_id": "0e5ecffeb6d04b38a53d6e3ce0b0f28a",
+      "snapshot_url": "/api/search/problems/60a8401c5ebe/lesson/0e5ecffeb6d04b38a53d6e3ce0b0f28a/snapshot",
+      "events_url": "/api/search/problems/60a8401c5ebe/lesson/0e5ecffeb6d04b38a53d6e3ce0b0f28a/events",
+      "websocket_url": "/api/search/problems/60a8401c5ebe/lesson/0e5ecffeb6d04b38a53d6e3ce0b0f28a/ws"
+    }
+  }
+}

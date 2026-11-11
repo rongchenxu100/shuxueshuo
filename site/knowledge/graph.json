@@ -1434,6 +1434,60 @@
       ]
     },
     {
+      "id": "method-parity-definition",
+      "kind": "method",
+      "label": "奇偶性定义法",
+      "summary": "先检查定义域是否关于原点对称，再把 $-x$ 整体代入，分别核对奇性与偶性。",
+      "aliases": [
+        "定义法"
+      ],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "整理函数",
+          "calls": []
+        },
+        {
+          "id": "domain",
+          "title": "确定定义域",
+          "calls": [
+            "method-domain-intersection"
+          ]
+        },
+        {
+          "id": "symmetry",
+          "title": "检查定义域的对称性",
+          "calls": [
+            "skill-domain-symmetry"
+          ]
+        },
+        {
+          "id": "reflect",
+          "title": "代入相反数",
+          "calls": [
+            "method-function-evaluation"
+          ]
+        },
+        {
+          "id": "compare",
+          "title": "比较两条关系",
+          "calls": [
+            "skill-simplify"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "得出结论",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "核验奇偶性结论",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-piecewise-equation",
       "kind": "method",
       "label": "分段解方程法",
@@ -2462,6 +2516,13 @@
       "aliases": []
     },
     {
+      "id": "skill-domain-symmetry",
+      "kind": "skill",
+      "label": "检查定义域的对称性",
+      "summary": "把定义域里每个数换成相反数，比较得到的集合与原定义域是否相同。",
+      "aliases": []
+    },
+    {
       "id": "skill-equality-transform",
       "kind": "skill",
       "label": "等式变形与推导",
@@ -2706,6 +2767,15 @@
       "kind": "problem_type",
       "label": "判断函数的单调性",
       "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+      "aliases": [],
+      "status": "active",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-function-parity",
+      "kind": "problem_type",
+      "label": "判断函数的奇偶性",
+      "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
       "aliases": [],
       "status": "active",
       "home": "compulsory-1-ch3"
@@ -4218,6 +4288,54 @@
       "occurrences": [
         {
           "step": "normalize",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-definition|calls|method-domain-intersection",
+      "from": "method-parity-definition",
+      "to": "method-domain-intersection",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "domain",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-definition|calls|method-function-evaluation",
+      "from": "method-parity-definition",
+      "to": "method-function-evaluation",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "reflect",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-definition|calls|skill-domain-symmetry",
+      "from": "method-parity-definition",
+      "to": "skill-domain-symmetry",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "symmetry",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-definition|calls|skill-simplify",
+      "from": "method-parity-definition",
+      "to": "skill-simplify",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "compare",
           "when": ""
         }
       ]
@@ -6250,6 +6368,15 @@
       ]
     },
     {
+      "id": "section-3-2|extends|type-function-parity",
+      "from": "section-3-2",
+      "to": "type-function-parity",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "section-3-2|extends|type-monotonicity-abstract-proof",
       "from": "section-3-2",
       "to": "type-monotonicity-abstract-proof",
@@ -6354,6 +6481,17 @@
         },
         {
           "entry": "rule"
+        }
+      ]
+    },
+    {
+      "id": "skill-domain-symmetry|uses|function-parity",
+      "from": "skill-domain-symmetry",
+      "to": "function-parity",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "domain"
         }
       ]
     },
@@ -7361,6 +7499,33 @@
       "from": "type-function-monotonicity",
       "to": "rule-function-monotonicity-method",
       "type": "method_rule",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-parity|candidate|method-parity-definition",
+      "from": "type-function-parity",
+      "to": "method-parity-definition",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-parity|involves|function-parity",
+      "from": "type-function-parity",
+      "to": "function-parity",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-parity|involves|function-parity-graph",
+      "from": "type-function-parity",
+      "to": "function-parity-graph",
+      "type": "involves",
       "occurrences": [
         {}
       ]

@@ -71,6 +71,13 @@ def frozen_files():
         package / "graph_lesson/monotonicity_inequality_math.py",
         package / "graph_lesson/monotonicity_parameter_math.py",
         package / "graph_lesson/abstract_monotonicity_math.py",
+        package / "graph_lesson/function_parity.py",
+        package / "graph_lesson/function_cells.py",
+        package / "graph_lesson/stage_two/parity_surface.py",
+        package / "graph_lesson/stage_two/fragments.py",
+        package / "graph_lesson/stage_two/evaluation_surface.py",
+        package / "graph_lesson/stage_two/surface_math.py",
+        package / "problem_understanding/notation_function_parity.py",
         package / "graph_lesson/absolute_graph.py",
         package / "graph_lesson/quadratic_translation.py",
         package / "graph_lesson/schematic_transform.py",
@@ -164,7 +171,7 @@ def _alias_policy(scope, scope_path, related):
             if goal['kind'] == 'finite_sum':
                 # Sum index binders belong to their own term blocks.
                 continue
-            if goal['kind'] == 'compare_functions':
+            if goal['kind'] in ('compare_functions', 'determine_function_parity'):
                 # The dedicated compiler owns option-local function binders;
                 # these are not global scalar aliases or parameter targets.
                 continue

@@ -127,6 +127,7 @@ def test_schema_documents_each_goal_and_uncertainty_kind():
         "find_range",
         "find_domain",
         "match_domain",
+        "match_range",
         "compare_functions",
         "find_abstract_domain",
         "find_abstract_domain_parameter",

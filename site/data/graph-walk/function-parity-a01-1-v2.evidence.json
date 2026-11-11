@@ -1,0 +1,1235 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "1975ce4d19184b56b9212eca9d61529f",
+    "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+    "input_sha256": "b04b1b995255ef27da5b5d0407b27f30109e7dae5657e9482f6de221de97fdb1",
+    "checkpoint_sha256": "f9218c9ec461a33b70f0b8154082d087b177180112566d0c0904029dc28f0306",
+    "result_sha256": "ea6781c1684d2f2b82f0b9a4bda53a8e5f996461814f10edb3ef8337b2da2060",
+    "stage_one_sha256": "d2624d67b892e1e1a3b0a62a44bdd5794160740d3cbb7fc1b996a608f66bb93b",
+    "stage_two_sha256": "bd49d823c2f757afd85b80c8ab6e406d97f139ac204ce5fade86de40c718fcd8",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "291f4eac019fd9c39663122ee0d5cd4622706b7063d89fdbe22a71e54a0e0e08",
+    "teaching_revision": "c0c780d2b767dbf5c3471e96bf08056c576ba73757b5eabf7b723cf481413771"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-parity",
+        "supported": [
+          "type-function-parity"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 10,
+                  "end": 31,
+                  "text": "$f(x)=\\dfrac{x}{x^2+1}$"
+                },
+                {
+                  "start": 5,
+                  "end": 8,
+                  "text": "奇偶性"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1",
+                "/root/goals/0:d1:2"
+              ],
+              "knowledge_refs": [
+                "function-parity#definition",
+                "function-parity#domain"
+              ],
+              "source_refs": [
+                "/root/goals/0",
+                "/root/goals/0/expression",
+                "/root/goals/0/variable"
+              ],
+              "options": [
+                {
+                  "text": "判断函数的奇偶性",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求函数的单调区间",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "ec47a9b8f908b2ff"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问需要判断什么？",
+          "feedback": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。",
+          "summary": "$f(x)=\\frac{x}{x^{2}+1}$。判断函数的奇偶性。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-parity",
+            "label": "判断函数的奇偶性",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "题目给出具体函数的解析式，要求判断它的奇偶性。",
+              "先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+            ],
+            "choice_hint": "原目标是判断一个已给解析式的函数的奇偶性"
+          }
+        ],
+        "knowledge": [
+          {
+            "ref": "function-parity#definition",
+            "node": "function-parity",
+            "label": "函数的奇偶性",
+            "title": "奇函数与偶函数"
+          },
+          {
+            "ref": "function-parity#domain",
+            "node": "function-parity",
+            "label": "函数的奇偶性",
+            "title": "先看定义域能否成对"
+          }
+        ],
+        "links": [
+          {
+            "from": "function-parity",
+            "to": "type-function-parity",
+            "relation": "involves",
+            "knowledge_refs": [
+              "function-parity#definition",
+              "function-parity#domain"
+            ]
+          }
+        ],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-parity-a01-1-v2//root/goals/0",
+            "graphVersion": "7f7d9fc32f9f3e28c15cefebf5f34e74e4c932beaf6ca28703bee7488b0e8d13",
+            "problem": {
+              "text": "判断函数的奇偶性：$f(x)=\\dfrac{x}{x^2+1}$。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问需要判断什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "判断函数的奇偶性"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求函数的单调区间",
+                      "feedback": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "题目要求判断奇偶性，需要检查定义域及相反输入的函数值关系。"
+                },
+                "candidateNodes": [
+                  "function-parity",
+                  "type-function-parity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-parity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "$f(x)=\\frac{x}{x^{2}+1}$。判断函数的奇偶性。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 1 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-parity",
+                      "label": "判断函数的奇偶性",
+                      "note": "原目标是判断一个已给解析式的函数的奇偶性"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-parity"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-parity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-parity"
+                  ],
+                  "edges": [
+                    "type-function-parity|involves|function-parity"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：题目给出具体函数的解析式，要求判断它的奇偶性；先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+                  ],
+                  "log": "作答判断：选择主要题型「判断函数的奇偶性」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-parity",
+                  "kind": "knowledge",
+                  "label": "函数的奇偶性",
+                  "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-parity",
+                  "kind": "problem_type",
+                  "label": "判断函数的奇偶性",
+                  "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-parity-definition",
+                  "kind": "method",
+                  "label": "奇偶性定义法",
+                  "summary": "先检查定义域是否关于原点对称，再把 $-x$ 整体代入，分别核对奇性与偶性。",
+                  "aliases": [
+                    "定义法"
+                  ],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "整理函数",
+                      "calls": []
+                    },
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": [
+                        "method-domain-intersection"
+                      ]
+                    },
+                    {
+                      "id": "symmetry",
+                      "title": "检查定义域的对称性",
+                      "calls": [
+                        "skill-domain-symmetry"
+                      ]
+                    },
+                    {
+                      "id": "reflect",
+                      "title": "代入相反数",
+                      "calls": [
+                        "method-function-evaluation"
+                      ]
+                    },
+                    {
+                      "id": "compare",
+                      "title": "比较两条关系",
+                      "calls": [
+                        "skill-simplify"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "得出结论",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验奇偶性结论",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-function-parity|candidate|method-parity-definition",
+                  "from": "type-function-parity",
+                  "to": "method-parity-definition",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-parity|involves|function-parity",
+                  "from": "type-function-parity",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-parity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "73c9615c3ab282aa38165594e02ce42879d88863e0a605e85a7fc2f90aebc4fb"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-parity-a01-1-v2//root/goals/0",
+            "bundleVersion": "73c9615c3ab282aa38165594e02ce42879d88863e0a605e85a7fc2f90aebc4fb",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "$f(x)=\\frac{x}{x^{2}+1}$。判断函数的奇偶性。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-parity",
+                "reason": "选「判断函数的奇偶性」：题目给出具体函数的解析式，要求判断它的奇偶性；先看定义域是否关于原点对称；不对称时直接得出非奇非偶，对称时再比较 $f(-x)$ 与 $f(x)$、$-f(x)$。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "1975ce4d19184b56b9212eca9d61529f",
+    "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+    "input_sha256": "b04b1b995255ef27da5b5d0407b27f30109e7dae5657e9482f6de221de97fdb1",
+    "stream_id": "1975ce4d19184b56b9212eca9d61529f",
+    "last_seq": 22,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_domain",
+        "explanation": "$$\\begin{gathered}D=\\mathbb{R}\\\\-D=\\mathbb{R}=D\\end{gathered}$$",
+        "highlight": {
+          "caption": "检查定义域的对称性",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "函数与定义域",
+              "math": "\\begin{gathered}f\\left(x\\right)=\\frac{x}{x^{2}+1}\\\\D=\\mathbb{R}\\end{gathered}"
+            },
+            {
+              "label": "定义域的对称性",
+              "math": "D\\ \\text{关于原点对称}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+        "local_check": "passed",
+        "math_step_sha256": "106742655cdabca9e6c035ef35d42ba9638f92d9b2b633b4772fec679a269aab",
+        "method_ref": "method-parity-definition#symmetry",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "route_id": "parity-definition",
+        "run_id": "1975ce4d19184b56b9212eca9d61529f",
+        "source_refs": [
+          "/steps/2/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-definition-001-parity_domain",
+        "target_ref": "/root/goals/0",
+        "title": "检查定义域的对称性",
+        "used_basis": [
+          "function-parity#domain"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_reflect",
+        "explanation": "$$f\\left(-x\\right)=\\frac{(-x)}{(-x)^{2}+1}$$",
+        "highlight": {
+          "caption": "代入相反数",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "函数解析式",
+              "math": "f\\left(x\\right)=\\frac{x}{x^{2}+1}"
+            },
+            {
+              "label": "代入后的式子",
+              "math": "f\\left(-x\\right)=\\frac{(-x)}{(-x)^{2}+1}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+        "local_check": "passed",
+        "math_step_sha256": "d1d052a65f7ee0fcc9664ef6450eced3be59e43fd1de2cbbc64f5f95bde02b08",
+        "method_ref": "method-parity-definition#reflect",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "route_id": "parity-definition",
+        "run_id": "1975ce4d19184b56b9212eca9d61529f",
+        "source_refs": [
+          "/steps/3/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-definition-002-parity_reflect",
+        "target_ref": "/root/goals/0",
+        "title": "代入相反数",
+        "used_basis": [
+          "function-parity#definition"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_compare",
+        "explanation": "$$f\\left(-x\\right)=\\frac{(-x)}{(-x)^{2}+1}=- \\frac{x}{x^{2} + 1}=-f\\left(x\\right)$$\n\n$$\\begin{gathered}f\\left(1\\right)=\\frac{1}{2},\\ f\\left(-1\\right)=- \\frac{1}{2}\\\\f\\left(-1\\right)\\ne \\frac{1}{2}\\end{gathered}$$",
+        "highlight": {
+          "caption": "核对奇函数的条件",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "代入后的式子",
+              "math": "f\\left(-x\\right)=\\frac{(-x)}{(-x)^{2}+1}"
+            },
+            {
+              "label": "奇函数的条件",
+              "math": "f\\left(-x\\right)=-f\\left(x\\right)\\ \\text{对定义域内每个}\\ x\\ \\text{成立}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+        "local_check": "passed",
+        "math_step_sha256": "8701aaacf24d93a90ebe0586d67177e47aa09f55090f8a95f42c3609917b7298",
+        "method_ref": "method-parity-definition#compare",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "route_id": "parity-definition",
+        "run_id": "1975ce4d19184b56b9212eca9d61529f",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-definition-003-parity_compare",
+        "target_ref": "/root/goals/0",
+        "title": "核对奇函数的条件",
+        "used_basis": [
+          "function-parity#definition"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_conclude",
+        "explanation": "$$\\begin{gathered}f\\left(-x\\right)=-f\\left(x\\right)\\\\f\\left(-x\\right)=f\\left(x\\right)\\ \\text{不恒成立}\\\\f\\left(x\\right)\\ \\text{是奇函数，不是偶函数}\\end{gathered}$$",
+        "highlight": {
+          "caption": "得出结论",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "核对结果",
+              "math": "\\begin{gathered}f\\left(-x\\right)=-f\\left(x\\right)\\\\f\\left(-x\\right)=f\\left(x\\right)\\ \\text{不恒成立}\\end{gathered}"
+            },
+            {
+              "label": "奇偶性",
+              "math": "f\\left(x\\right)\\ \\text{是奇函数，不是偶函数}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+        "local_check": "passed",
+        "math_step_sha256": "663b4c11e6101ad062a92033c435d2f33fd710392c353073870534cbada835c8",
+        "method_ref": "method-parity-definition#conclude",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "route_id": "parity-definition",
+        "run_id": "1975ce4d19184b56b9212eca9d61529f",
+        "source_refs": [
+          "/steps/5/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-definition-004-parity_conclude",
+        "target_ref": "/root/goals/0",
+        "title": "得出结论",
+        "used_basis": [
+          "function-parity#definition",
+          "function-parity#zero"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "classification": "odd_only",
+          "even": "refuted",
+          "kind": "determine_function_parity",
+          "latex": "\\text{奇函数}",
+          "odd": "proved",
+          "status": "complete"
+        },
+        "available": true,
+        "feasible_set": null,
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "classification": "odd_only",
+          "even": "refuted",
+          "kind": "determine_function_parity",
+          "latex": "\\text{奇函数}",
+          "odd": "proved",
+          "status": "complete"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+        "math_steps": [
+          {
+            "math_step_sha256": "106742655cdabca9e6c035ef35d42ba9638f92d9b2b633b4772fec679a269aab",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-parity-definition-001-parity_domain"
+          },
+          {
+            "math_step_sha256": "d1d052a65f7ee0fcc9664ef6450eced3be59e43fd1de2cbbc64f5f95bde02b08",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-parity-definition-002-parity_reflect"
+          },
+          {
+            "math_step_sha256": "8701aaacf24d93a90ebe0586d67177e47aa09f55090f8a95f42c3609917b7298",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-parity-definition-003-parity_compare"
+          },
+          {
+            "math_step_sha256": "663b4c11e6101ad062a92033c435d2f33fd710392c353073870534cbada835c8",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-parity-definition-004-parity_conclude"
+          }
+        ],
+        "route_id": "parity-definition",
+        "run_id": "1975ce4d19184b56b9212eca9d61529f",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "f5e4ad84be939672b99e443781ff459997a4b7a4418d3b49a987c35694aade66",
+        "verified_route_sha256": "196a3bdf7232ff406db155969120613d4dde92f334c421493ce160bb441584e6"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "query": {
+            "from": "type-function-parity",
+            "op": "methods"
+          },
+          "question": "先求定义域，看它是否关于原点对称；对称时把 $-x$ 整体代入求 $f(-x)$，分别与 $f(x)$、$-f(x)$ 比较，再按奇偶性的定义下结论。",
+          "submit_label": "用奇偶性定义法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-parity-definition",
+              "recommendation": "preferred",
+              "route_id": "parity-definition",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-definition",
+        "step_id": "39e5646dcb-parity-definition-001-parity_domain",
+        "ordinal": 1,
+        "math_step_sha256": "106742655cdabca9e6c035ef35d42ba9638f92d9b2b633b4772fec679a269aab",
+        "status": "interactive",
+        "interaction_id": "b44667fc8978936906903c7d"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-definition",
+        "step_id": "39e5646dcb-parity-definition-002-parity_reflect",
+        "ordinal": 2,
+        "math_step_sha256": "d1d052a65f7ee0fcc9664ef6450eced3be59e43fd1de2cbbc64f5f95bde02b08",
+        "status": "interactive",
+        "interaction_id": "6fc284d17f31c09f223eb0aa"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-definition",
+        "step_id": "39e5646dcb-parity-definition-003-parity_compare",
+        "ordinal": 3,
+        "math_step_sha256": "8701aaacf24d93a90ebe0586d67177e47aa09f55090f8a95f42c3609917b7298",
+        "status": "interactive",
+        "interaction_id": "803702bf46e05257128ef429"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-definition",
+        "step_id": "39e5646dcb-parity-definition-004-parity_conclude",
+        "ordinal": 4,
+        "math_step_sha256": "663b4c11e6101ad062a92033c435d2f33fd710392c353073870534cbada835c8",
+        "status": "interactive",
+        "interaction_id": "37382ddf07f2d8873a8a039b"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-definition",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:parity-definition:complete",
+        "last_seq": 18
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-definition",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-parity-definition",
+            "step": "prepare",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-parity#definition"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-parity-definition",
+            "step": "domain",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-domain-intersection",
+                "used_basis": [
+                  "function-concept#elements",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-parity-definition",
+            "step": "symmetry",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-domain-symmetry",
+                "used_basis": [
+                  "function-parity#domain"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-parity-definition",
+            "step": "reflect",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-function-evaluation",
+                "used_basis": [
+                  "function-parity#definition"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 5,
+            "method": "method-parity-definition",
+            "step": "compare",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "function-parity#definition"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 6,
+            "method": "method-parity-definition",
+            "step": "conclude",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-parity#definition",
+                  "function-parity#zero"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 7,
+            "method": "method-parity-definition",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b44667fc8978936906903c7d",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "873bd999009a4aacb7cb70f680d6ae8c8ff9a4f54300062959acd2f6a3b7fe9b",
+        "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "检查定义域的对称性",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数与定义域",
+                  "math": "\\begin{gathered}f\\left(x\\right)=\\frac{x}{x^{2}+1}\\\\D=\\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "定义域的对称性",
+                  "math": "D\\ \\text{关于原点对称}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "b44667fc8978936906903c7d#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "找一找：是否有某个数在定义域内，而它的相反数不在？端点的开闭和挖去的点都要换成相反数再比较。",
+                  "label": "$D\\ \\text{关于原点对称}$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "把定义域内每个数取相反数后，得到的集合与原定义域相同。",
+                  "label": "$D\\ \\text{不关于原点对称}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "先求出定义域 $D$。把 $D$ 中每个数换成相反数，得到的集合还是 $D$ 吗？",
+            "stem_board": {
+              "caption": "检查定义域的对称性",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数与定义域",
+                  "math": "\\begin{gathered}f\\left(x\\right)=\\frac{x}{x^{2}+1}\\\\D=\\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "定义域的对称性",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "检查定义域的对称性"
+          }
+        ],
+        "route_id": "parity-definition",
+        "run_id": "1975ce4d19184b56b9212eca9d61529f",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "106742655cdabca9e6c035ef35d42ba9638f92d9b2b633b4772fec679a269aab",
+            "step_id": "39e5646dcb-parity-definition-001-parity_domain"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "6fc284d17f31c09f223eb0aa",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "211124baf89d280e7c690da6d32ae0a717a057729b385d651f923d57c73e3056",
+        "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "代入相反数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数解析式",
+                  "math": "f\\left(x\\right)=\\frac{x}{x^{2}+1}"
+                },
+                {
+                  "label": "代入后的式子",
+                  "math": "f\\left(-x\\right)=\\frac{(-x)}{(-x)^{2}+1}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "6fc284d17f31c09f223eb0aa#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f\\left(-x\\right)=\\frac{(-x)}{(-x)^{2}+1}$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "$\\left(-x\\right)$ 要整体乘方：偶数次幂没有负号，奇数次幂才有。",
+                  "label": "$f\\left(-x\\right)=\\frac{(-x)}{(-x^{2})+1}$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "还没有代入：$-x$ 要替换解析式中的 $x$。",
+                  "label": "$f\\left(-x\\right)=\\frac{x}{x^{2}+1}$",
+                  "value": "o4"
+                },
+                {
+                  "feedback": "解析式中每一处 $x$ 都要换成 $-x$，不能只换一处。",
+                  "label": "$f\\left(-x\\right)=\\frac{x}{(-x)^{2}+1}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把 $-x$ 作为整体代入解析式，$f\\left(-x\\right)$ 应写成什么？",
+            "stem_board": {
+              "caption": "代入相反数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数解析式",
+                  "math": "f\\left(x\\right)=\\frac{x}{x^{2}+1}"
+                },
+                {
+                  "label": "代入后的式子",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "代入相反数"
+          }
+        ],
+        "route_id": "parity-definition",
+        "run_id": "1975ce4d19184b56b9212eca9d61529f",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d1d052a65f7ee0fcc9664ef6450eced3be59e43fd1de2cbbc64f5f95bde02b08",
+            "step_id": "39e5646dcb-parity-definition-002-parity_reflect"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "803702bf46e05257128ef429",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "bc111cb3bd840c35e6e2066d71c52f216590da7a578c1fb24ddcebaa899067f5",
+        "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "核对奇函数的条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "代入后的式子",
+                  "math": "f\\left(-x\\right)=\\frac{(-x)}{(-x)^{2}+1}"
+                },
+                {
+                  "label": "奇函数的条件",
+                  "math": "f\\left(-x\\right)=-f\\left(x\\right)\\ \\text{对定义域内每个}\\ x\\ \\text{成立}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "803702bf46e05257128ef429#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "化简后两边恒等，定义域内每个数都满足这个关系。",
+                  "label": "$\\text{存在}\\ x\\ \\text{使}\\ f\\left(-x\\right)\\ne -f\\left(x\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "代入一个具体的数，比较两边的值；只要有一个数不满足，条件就不成立。",
+                  "label": "$f\\left(-x\\right)=-f\\left(x\\right)\\ \\text{对定义域内每个}\\ x\\ \\text{成立}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "化简 $f\\left(-x\\right)$，它与 $-f\\left(x\\right)$ 在整个定义域上都相等吗？",
+            "stem_board": {
+              "caption": "核对奇函数的条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "代入后的式子",
+                  "math": "f\\left(-x\\right)=\\frac{(-x)}{(-x)^{2}+1}"
+                },
+                {
+                  "label": "奇函数的条件",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "核对奇函数的条件"
+          },
+          {
+            "completion_board": {
+              "caption": "核对偶函数的条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "代入后的式子",
+                  "math": "f\\left(-x\\right)=\\frac{(-x)}{(-x)^{2}+1}"
+                },
+                {
+                  "label": "偶函数的条件",
+                  "math": "\\text{存在}\\ x\\ \\text{使}\\ f\\left(-x\\right)\\ne f\\left(x\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "803702bf46e05257128ef429#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "化简后两边恒等，定义域内每个数都满足这个关系。",
+                  "label": "$\\text{存在}\\ x\\ \\text{使}\\ f\\left(-x\\right)\\ne f\\left(x\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "代入一个具体的数，比较两边的值；只要有一个数不满足，条件就不成立。",
+                  "label": "$f\\left(-x\\right)=f\\left(x\\right)\\ \\text{对定义域内每个}\\ x\\ \\text{成立}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "化简 $f\\left(-x\\right)$，它与 $f\\left(x\\right)$ 在整个定义域上都相等吗？",
+            "stem_board": {
+              "caption": "核对偶函数的条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "代入后的式子",
+                  "math": "f\\left(-x\\right)=\\frac{(-x)}{(-x)^{2}+1}"
+                },
+                {
+                  "label": "偶函数的条件",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "核对偶函数的条件"
+          }
+        ],
+        "route_id": "parity-definition",
+        "run_id": "1975ce4d19184b56b9212eca9d61529f",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "8701aaacf24d93a90ebe0586d67177e47aa09f55090f8a95f42c3609917b7298",
+            "step_id": "39e5646dcb-parity-definition-003-parity_compare"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "37382ddf07f2d8873a8a039b",
+        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
+        "interaction_sha256": "22b021c3f58abdaca2e0cc861e1dea4cf852a12609c5b61acf54deba2520f0f3",
+        "lesson_version": "2c4ebb7f515fb926d6b3a8fbd12e5c01569295a81aa9466d1a40f1e66e789dcf",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "得出结论",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "核对结果",
+                  "math": "\\begin{gathered}f\\left(-x\\right)=-f\\left(x\\right)\\\\f\\left(-x\\right)=f\\left(x\\right)\\ \\text{不恒成立}\\end{gathered}"
+                },
+                {
+                  "label": "奇偶性",
+                  "math": "f\\left(x\\right)\\ \\text{是奇函数，不是偶函数}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "37382ddf07f2d8873a8a039b#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "回到定义：奇函数要求 $f(-x)=-f(x)$，偶函数要求 $f(-x)=f(x)$，且定义域关于原点对称。",
+                  "label": "$f\\left(x\\right)\\ \\text{既不是奇函数也不是偶函数}$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$f\\left(x\\right)\\ \\text{是奇函数，不是偶函数}$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "回到定义：奇函数要求 $f(-x)=-f(x)$，偶函数要求 $f(-x)=f(x)$，且定义域关于原点对称。",
+                  "label": "$f\\left(x\\right)\\ \\text{既是奇函数又是偶函数}$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "回到定义：奇函数要求 $f(-x)=-f(x)$，偶函数要求 $f(-x)=f(x)$，且定义域关于原点对称。",
+                  "label": "$f\\left(x\\right)\\ \\text{是偶函数，不是奇函数}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "根据定义域的对称性和上面两项核对，判断这个函数的奇偶性。",
+            "stem_board": {
+              "caption": "得出结论",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "核对结果",
+                  "math": "\\begin{gathered}f\\left(-x\\right)=-f\\left(x\\right)\\\\f\\left(-x\\right)=f\\left(x\\right)\\ \\text{不恒成立}\\end{gathered}"
+                },
+                {
+                  "label": "奇偶性",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "得出结论"
+          }
+        ],
+        "route_id": "parity-definition",
+        "run_id": "1975ce4d19184b56b9212eca9d61529f",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "663b4c11e6101ad062a92033c435d2f33fd710392c353073870534cbada835c8",
+            "step_id": "39e5646dcb-parity-definition-004-parity_conclude"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

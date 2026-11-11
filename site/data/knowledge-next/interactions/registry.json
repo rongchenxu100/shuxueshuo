@@ -1867,6 +1867,11 @@
       "repeat": "always",
       "compiler": "abstract_monotonicity",
       "parts": []
+    },
+    "parity_derivation": {
+      "repeat": "always",
+      "compiler": "function_parity",
+      "parts": []
     }
   },
   "overrides": {
