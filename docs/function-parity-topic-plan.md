@@ -1,10 +1,10 @@
 # 函数奇偶性：专题题目、方法与技能建设计划
 
-更新：2026-11-11。状态：**T1 已在 `c990af90` 交付显式函数判定，T2 R0–R3 已提交到 `5776ebbe`；T3 已在工作区实现并完成九道原题的真实照片 API 集成验收，T4–T6 仍为设计阶段。** 保留教材对应的 3 个知识节点及详情页可视化；T1 的实际能力见 [修复与验证记录](function-parity-t1-generalization-acceptance.md)。A01 两问已通过[原照片真实 OCR、模型与课程 API 验收](function-parity-t1-photo-acceptance.md)，T2 的实际范围见 [R3 记录](function-parity-t2-r3-acceptance.md)，A17 重新调用及七道代表题隔离正式页面的结果见[照片与页面验收](function-parity-t2-photo-page-acceptance.md)，T3 见[照片集成记录](function-parity-t3-photo-acceptance.md)。公开课程仍待 T2–T5 完成后统一重建，这些记录不表示整个专题或独立留出新题已完成拍题验收。
+更新：2026-11-12。状态：**T1 已在 `c990af90` 交付显式函数判定，T2 R0–R3 已提交到 `5776ebbe`，T3 已提交到 `ee9747bd`，T4 已提交到 `976a7f82`；T5 数学执行与隔离课程已在工作区实现，A10、A14 原照片真实拍题与课程集成通过；T6 仍为设计阶段。** 保留教材对应的 3 个知识节点及详情页可视化；T1 的实际能力见 [修复与验证记录](function-parity-t1-generalization-acceptance.md)。A01 两问已通过[原照片真实 OCR、模型与课程 API 验收](function-parity-t1-photo-acceptance.md)，T2 的实际范围见 [R3 记录](function-parity-t2-r3-acceptance.md)，A17 重新调用及七道代表题隔离正式页面的结果见[照片与页面验收](function-parity-t2-photo-page-acceptance.md)，T3、T4 分别见[九道原题照片集成记录](function-parity-t3-photo-acceptance.md)和[六道原题照片集成记录](function-parity-t4-photo-acceptance.md)，T5 见[实现与集成记录](function-parity-t5-implementation-acceptance.md)和[两道原题照片集成记录](function-parity-t5-photo-acceptance.md)。公开课程仍待 T2–T5 完成后统一重建，这些记录不表示整个专题或独立留出新题已完成拍题验收。
 
 本专题按六类组织：**判断函数的奇偶性、根据奇偶性求参、根据奇偶性求解析式、利用奇偶性解不等式、非奇偶的对称性、奇函数＋常数结论的应用**。两张练习页共 **20 道原题、25 个作答目标**，全部进入能力台账；专题首页从验收通过的题中精选。
 
-结构参照[函数单调性建设计划](function-monotonicity-topic-plan.md)，执行遵循[公共知识图谱本体](public-knowledge-graph-ontology-design.md)和[专题及拍题学共用开发流程](topic-and-photo-learning-development-workflow.md)。先完成本计划，再逐型写开发设计、实现和验收。T1、T2 R0–R3 已注册的身份与实际范围以实现记录为准，其余拟新增 ID 仍为候选，不视为已支持能力。
+结构参照[函数单调性建设计划](function-monotonicity-topic-plan.md)，执行遵循[公共知识图谱本体](public-knowledge-graph-ontology-design.md)和[专题及拍题学共用开发流程](topic-and-photo-learning-development-workflow.md)。先完成本计划，再逐型写开发设计、实现和验收。T1–T5 已注册的身份与实际范围以实现记录为准，其余拟新增 ID 仍为候选，不视为已支持能力。
 
 ## 1. 专题身份、分类与边界
 
@@ -174,7 +174,7 @@ A17 是系数路线代表题；A15、A20 提供端点参数路线。参数子任
 
 ### 5.4 T3：根据奇偶性求解析式及对称求值
 
-详细合同、确定范围与自由部分、双函数分离、交互及验收要求见 [FP-T3 设计与实现方案](function-parity-formula-problem-type-design.md)。复用基线为 `5776ebbe`；T3 的数学执行、教学卡与隔离课包已在工作区实现，九道完整原题的真实 OCR、模型复核、课程 API 及作答状态机集成通过；浏览器账号流程、独立新照片及公开专题仍待验收。Review 修复及泛化范围见设计 §8.5：多条局部规则、绝对值、既奇又偶、实二次代数数，以及整组关系的全范围相容检查；模型转写兼容修复及真实调用记录见 §8.6。具体题型逻辑由代码处理，本轮未修改 prompt；课程仍待 T2–T5 完成后统一重建。
+详细合同、确定范围与自由部分、双函数分离、交互及验收要求见 [FP-T3 设计与实现方案](function-parity-formula-problem-type-design.md)。开发复用基线为 `5776ebbe`，交付提交为 `ee9747bd`；T3 的数学执行、教学卡与隔离课包已实现，九道完整原题的真实 OCR、模型复核、课程 API 及作答状态机集成通过；浏览器账号流程、独立新照片及公开专题仍待验收。Review 修复及泛化范围见设计 §8.5：多条局部规则、绝对值、既奇又偶、实二次代数数，以及整组关系的全范围相容检查；模型转写兼容修复及真实调用记录见 §8.6。具体题型逻辑由代码处理，T3 交付未修改 prompt；课程仍待 T2–T5 完成后统一重建。
 
 T3 从 **A07 → A08** 开始：保留单方法选法卡，R0 复用 `condition_number_lines` 显示已知范围、目标范围与 $x\mapsto-x$，拖动和连续动画后续建设。补全规则用 `type-parity-formula`；A12、A13 等求值题在既有 `type-function-evaluation` 下新增 M5 分支。A15 直接调用 `borrow_domain_parameter`、`verify_borrowed_parameter`，处理剩余条件后继续原求值目标。T2 的单条局部规则相容性判定抽为共享能力，再扩展到 T3 多条规则，不各自复制重叠／零点判定。
 
@@ -201,7 +201,7 @@ $$
 
 ### 5.5 T4：利用奇偶性解不等式
 
-详细设计见 [FP-T4 利用奇偶性解不等式：设计与实现方案](function-parity-inequality-problem-type-design.md)。该文档细化三条路线、单调性与符号证据、父子任务、原题金标和验收范围；设计完成不代表已实现。
+详细设计及交付范围见 [FP-T4 利用奇偶性解不等式：设计与实现方案](function-parity-inequality-problem-type-design.md)。三条路线、Review 修复及泛化支持已在 `976a7f82` 提交，六道原题、八个目标完成真实 OCR／模型、课程 API 与作答集成，见[照片验收记录](function-parity-t4-photo-acceptance.md)。公开课程仍待 T2–T5 统一重建，未验收范围不因这些原题通过而自动开放。
 
 M4 按已有证据选择三条路线，而不是把所有题都改造成全域单调比较。
 
@@ -225,9 +225,9 @@ M4 按已有证据选择三条路线，而不是把所有题都改造成全域�
 
 ### 5.6 T5：非奇偶的对称性
 
-详细设计见 [FP-T5 非奇偶的对称性：设计与实现方案](function-symmetry-problem-type-design.md)。该文档细化一般轴／中心、两次反射、平移迭代、有限求和和一致性验证；设计完成不代表已实现。
+详细设计见 [FP-T5 非奇偶的对称性：设计与实现方案](function-symmetry-problem-type-design.md)。一般反射、非零有理斜率的仿射输入、正逆向迭代、有界局部关系、有限和与独立验证已实现，A10 两问及 A14 的内部课包通过。T5 测试 156 项、相关旧能力 263 项通过，来源及边界见[实现记录](function-parity-t5-implementation-acceptance.md)；[真实照片验收](function-parity-t5-photo-acceptance.md)重新上传两页、4 次模型调用完成三个目标，新增照片回归 3 项通过。独立材料、账号浏览器流程和公开课程仍待验收，尚未提交。
 
-M5 先把图像语言绑定为带定义域前提的函数关系：
+图像陈述先进入已登记的共享事实 `graph_symmetry(f,axis,a)`／`graph_symmetry(f,center,a,b)`，原题直接给出的函数等式仍保留原量词与范围。M5 由代码把已绑定来源规范为带定义域前提的函数关系，不让提取模型预先推导：
 
 | 给定性质 | 全域关系 | 必须同时验证 |
 | --- | --- | --- |
@@ -238,7 +238,11 @@ M5 先把图像语言绑定为带定义域前提的函数关系：
 
 随后按目标作合法代入、组合反射、平移迭代或有限求和。**对称性不足以确定唯一函数时，不生成一条假的精确曲线或公式。**
 
+T3 既有相反输入求值继续使用 `type-function-evaluation`；一般对称或抽象对称有限和通过独立特征进入 `type-function-symmetry`，共用 M5 和抽出的线性证书核。点值与有限和保留 `find_value`／`finite_sum` 原目标，不能丢掉额外对称条件回退到旧求值路线。
+
 A10 中，$f(2-x)=f(x)$ 与 $f(-x)=-f(x)$ 组合得到 $f(x+2)=-f(x)$，再次使用才得到 $f(x+4)=f(x)$。A14 同理得到 $f(x+1)=-f(x)$。两题的定义域都是 $\mathbb R$，可正反向迭代；局部关系不允许未经证明就无限外推。
+
+局部反射 $f(R_a(x))=\varepsilon f(x)+c$ 在 $E$ 上成立时，逆边的源范围为 $R_a(E)$，值变换为 $\varepsilon f-\varepsilon c$；必须按逆边倒序组合，不能只交换两条原公式。局部带常数配对不自动成为全域图像对称。
 
 求和证据保留索引范围、重复出现次数、每组的关系和剩余项。A10②是 13 组四项和再加 $f(53)+f(54)$；A14 可证明整数点均为零，不把这个结论扩展到非整数点。
 
@@ -268,10 +272,10 @@ A16 先得到 $g(1)=11$、$g(-1)=-11$，再减去 $2$ 得 $f(-1)=-13$；也可�
 
 | 代号／候选技能 | 输入与前提 | 输出及验证责任 | 首建位置 |
 | --- | --- | --- | --- |
-| S1 `skill-domain-symmetry`：检查定义域的对称性 | T1 固定域与 T2 R1 含参域各有独立输入合同，中心均为 $0$；T5 一般中心另需扩展 | `check_domain_symmetry` 返回固定域配对／反例；已交付的 `solve_domain_symmetry_conditions` 返回含参域分类与条件证书，保留非空、开闭和孔洞 | T1、T2 R1 已建；T5 后续扩一般中心 |
+| S1 `skill-domain-symmetry`：检查定义域的对称性 | T1 固定域与 T2 R1 含参域各有独立输入合同；T5 支持固定有理中心下的完整域及局部配对范围 | `check_domain_symmetry` 返回固定域配对／反例；`solve_domain_symmetry_conditions` 返回含参域分类；T5 的 `check_general_symmetry_domain` 验证一般反射及对应输入合法性，均保留开闭和孔洞 | T1、T2 R1、T5 已建 |
 | S2 `skill-function-symmetry-transform`：利用对称关系变换输入与函数值 | 已证明／题给的 $f(2a-u)=\varepsilon f(u)+c$（$\varepsilon=\pm1$）、域闭合证据和完整输入 | 合法替换后的函数调用、等式或分支表达式；记录所有外层负号／常数及来源，不自行证明全域对称性 | T3 首建已知关系的应用，T2、T5、T6 按需复用；T1 的显式公式代入使用代入法 `method-function-evaluation` |
 | S3 `skill-parity-monotonicity-transfer`：对称区间的单调性传递 | 奇／偶性质、区间 $I$ 上已知严格方向、$I$ 与 $-I$ 均合法 | 输出 $-I$ 上的方向和有序双点推导；不输出跨零的整体单调结论 | T4 |
-| S4 `skill-function-shift-iteration`：函数平移关系的迭代 | 已证 $f(x+p)=\varepsilon f(x)+c$、整数迭代次数、可沿轨道使用的作用域 | 迭代关系与可用周期／非周期诊断；正反向合法，不能凭一次等式外推所有整数 | T5 |
+| S4 `skill-function-shift-iteration`：函数平移关系的迭代 | 已证 $f(x+p)=\varepsilon f(x)+c$、整数迭代次数、可沿轨道使用的作用域 | 迭代关系与可用周期／非周期诊断；正反向合法，不能凭一次等式外推所有整数 | T5 已建；当前消费由反射生成的关系 |
 
 S1 不再新增同义公共节点，但“复用节点”不等于无需区分执行能力。T1 已支持固定的有理及实二次代数数端点；T2 R1 已建设受限含参端点和参数类覆盖证书，不能将含参表达式直接传入固定域入口。
 

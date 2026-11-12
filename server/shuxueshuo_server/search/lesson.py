@@ -415,6 +415,8 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get('symmetry_relation', {}).get('structure_supported'):
+        return _general_symmetry_d1_rows(target, fragments, known, text)
     if known.get('parity_extension', {}).get('structure_supported'):
         return _parity_extension_d1_rows(target, fragments, known, text)
     if known.get('parity_inequality', {}).get('structure_supported'):
@@ -737,6 +739,32 @@ def _parity_order_d1_rows(target, fragments, desc, text):
            'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
     return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问的已知条件和目标是什么？',
             'feedback': feedback, 'summary': summary + correct + '。'}
+
+
+def _general_symmetry_d1_rows(target, fragments, known, text):
+    from ..graph_lesson.stage_three.symmetry_relation_presentation import (
+        source_math,
+        target_math,
+    )
+
+    if not any(row['fragment_kind'] == 'goal' for row in fragments):
+        return {'rows': [], 'summary': ''}
+    desc = known['symmetry_relation']
+    asked = target_math(desc)
+    correct = f'利用题给对称关系，求 ${asked}$ 的值'
+    feedback = '已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。'
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in fragments]
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in fragments],
+           'knowledge_refs': ['function-graph-symmetry#paired-arguments'], 'source_refs': desc['source_refs'],
+           'options': _shuffle(row_id, [_option(correct),
+                        _option(f'求函数 ${desc["function"]}(x)$ 的完整解析式', 'goal', feedback),
+                        _option('求函数的最小正周期', 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    summary = '；'.join('$'+item+'$' for item in source_math(desc)) + '。' + correct + '。'
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问要利用已知条件求什么？',
+            'feedback': feedback, 'summary': summary}
 
 
 def _symmetry_d1_rows(target, fragments, known, text):

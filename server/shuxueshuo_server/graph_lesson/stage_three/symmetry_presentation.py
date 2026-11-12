@@ -56,9 +56,9 @@ def _source_latex(ast, x):
             right = rf'\left({right}\right)'
         return _source_latex(ast[1], x) + op + right
     if op == '*':
-        parts = [rf'\left({_source_latex(a, x)}\right)' if a[0] in ('+', '-') else _source_latex(a, x)
+        parts = [rf'\left({_source_latex(a, x)}\right)' if a[0] in ('+', '-', 'neg') else _source_latex(a, x)
                  for a in ast[1:]]
-        return parts[0] + (r'\cdot ' if ast[2][0] == 'number' else '') + parts[1]
+        return parts[0] + (r'\cdot ' if ast[2][0] in ('number', 'neg') else '') + parts[1]
     if op == '/':
         return rf'\frac{{{_source_latex(ast[1], x)}}}{{{_source_latex(ast[2], x)}}}'
     if op == '^' and ast[2][0] == 'number':
@@ -395,6 +395,9 @@ def _candidate_views(base, model, s, phase):
 
 def phase_views(values):
     d, phase = values['description'], values['phase']
+    if d['structure_version'] == 'function-symmetry/general-v1':
+        from .symmetry_relation_presentation import phase_views as general_views
+        return general_views(values)
     model = solve(d)
     base = None
     if d.get('parameter'):
@@ -510,4 +513,6 @@ def compile_cards(seeds, interaction_id):
                       'interaction': interaction, 'expected_answer': view['expected_answer'],
                       'feedback': view['feedback'], 'submit_label': '继续' if interaction['type'] == 'read' else '确认判断',
                       'stem_board': board, 'completion_board': view['derivation']})
+        if view.get('condition_number_lines'):
+            parts[-1]['condition_number_lines'] = deepcopy(view['condition_number_lines'])
     return {'parts': parts, 'diagnostics': []}

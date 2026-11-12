@@ -25,6 +25,7 @@ from .parity_extension_math import (
     undefined_on,
     within_domain_scope,
 )
+from .symmetry_linear import solve_linear as _solve_linear
 
 VERSION = 'function-symmetry/r3-v2'
 LIMITS = {'calls': 32, 'conditions': 32, 'unknowns': 32, 'functions': 2}
@@ -321,17 +322,7 @@ def _system(desc):
     return [list(k) for k in keys], equations, target, -rest + constant, calls
 
 
-def _solve_linear(rows, columns, rhs):
-    """A particular solution of rows·z = rhs, or None; free parameters are set to 0."""
-    if columns == 0:
-        return [] if all(v == 0 for v in rhs) else None
-    if not rows:
-        return [sp.S.Zero] * columns
-    try:
-        solution, params = sp.Matrix(rows).gauss_jordan_solve(sp.Matrix(rhs))
-    except ValueError:
-        return None
-    return list(solution.subs({p: 0 for p in params}))
+
 
 
 def _identity(source_ref, relation, variable_node, domain_ast):

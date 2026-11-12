@@ -21,6 +21,22 @@
             "description": "description"
           },
           "order": 0
+        },
+        {
+          "id": "domain",
+          "capability": "check_general_symmetry_domain",
+          "public_ref": "skill-domain-symmetry",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "domain_evidence": "domain_evidence"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "description.structure_version",
+            "equals": "function-symmetry/general-v1"
+          }
         }
       ],
       "judgments": [],
@@ -74,13 +90,60 @@
             "rewrite": "$rewrite"
           },
           "outputs": {
-            "rule_values": "rule_values"
+            "origin_rule_values": "rule_values"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "description.structure_version",
+            "equals": "function-symmetry/r3-v2"
+          }
+        },
+        {
+          "id": "iterate",
+          "capability": "iterate_function_symmetry",
+          "public_ref": "skill-function-shift-iteration",
+          "inputs": {
+            "description": "$description",
+            "rewrite": "$rewrite"
+          },
+          "outputs": {
+            "iteration_values": "rule_values"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "description.structure_version",
+            "equals": "function-symmetry/general-v1"
+          }
         }
       ],
       "judgments": [],
-      "display_units": []
+      "display_units": [],
+      "merges": [
+        {
+          "id": "values_ready",
+          "order": 2,
+          "branches": [
+            {
+              "guard": {
+                "ref": "description.structure_version",
+                "equals": "function-symmetry/r3-v2"
+              },
+              "bindings": {
+                "rule_values": "$origin_rule_values"
+              }
+            },
+            {
+              "guard": {
+                "ref": "description.structure_version",
+                "equals": "function-symmetry/general-v1"
+              },
+              "bindings": {
+                "rule_values": "$iteration_values"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "conclude",

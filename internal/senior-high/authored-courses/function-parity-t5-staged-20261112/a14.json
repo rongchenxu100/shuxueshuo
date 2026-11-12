@@ -1,0 +1,37 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a14",
+  "reviewer": "逐字核对用户原图印刷题干，忽略手写答案。利用奇性与所给对称轴推导平移关系；只断言所求整数点的值，不将函数视作零函数。人工转录，非真实 OCR。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+      "sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+      "location": "印刷第 14 题；FP-A14"
+    }
+  ],
+  "candidate": {
+    "original_text": "设 $f(x)$ 是定义在 $R$ 上的奇函数，且 $y=f(x)$ 的图像关于直线 $x=\\frac12$ 对称，则 $f(1)+f(2)+f(3)+f(4)+f(5)=$____。",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)",
+        "graph_symmetry(f,axis,1/2)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(1)+f(2)+f(3)+f(4)+f(5)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "goals": [
+      {
+        "type": "type-function-symmetry",
+        "value": "0"
+      }
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

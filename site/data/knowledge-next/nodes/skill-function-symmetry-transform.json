@@ -2,13 +2,15 @@
   "id": "skill-function-symmetry-transform",
   "kind": "skill",
   "label": "利用对称关系变换输入与函数值",
-  "summary": "按题给的奇偶关系，把输入换成相反数，并相应地变换函数值。",
+  "summary": "在题给范围内，把输入按对称位置配对，并相应地变换函数值。",
   "source": "函数奇偶性 FP-T3",
-  "input": "题给奇偶性及其函数、关系适用的输入范围、要变换的输入。",
-  "output": "相反输入所在范围的依据，以及 $f(x)=f(-x)$ 或 $f(x)=-f(-x)$ 的改写。",
+  "input": "题给的奇偶性、对称轴、对称中心或局部配对等式及其范围，要变换的输入。",
+  "output": "变换前后输入的范围与合法依据，以及对应的函数值等式。",
   "conditions": "只应用题给的函数性质；整体替换输入，负号作用于整个函数值；不把一次变换当作性质来源。",
   "basis": [
-    "function-parity#definition"
+    "function-parity#definition",
+    "function-graph-symmetry#axis",
+    "function-graph-symmetry#center"
   ],
   "operations": [
     {
@@ -23,6 +25,14 @@
       "title": "按奇偶性变换函数值",
       "body": [
         "偶函数 $f(x)=f(-x)$，奇函数 $f(x)=-f(-x)$。"
+      ]
+    },
+    {
+      "id": "general-reflection",
+      "title": "使用一般对称关系",
+      "body": [
+        "关于直线 $x=a$ 对称时，$f(2a-x)=f(x)$；关于点 $(a,b)$ 对称时，$f(2a-x)=2b-f(x)$。",
+        "局部关系只在题给范围内使用；反向使用时先把范围反射，常数项也要跟着移项。"
       ]
     }
   ],

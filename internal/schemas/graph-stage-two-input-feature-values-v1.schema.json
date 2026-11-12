@@ -4307,6 +4307,71 @@
         ]
       },
       "additionalProperties": false
+    },
+    "symmetry_relation": {
+      "type": "object",
+      "required": [
+        "source",
+        "target_ref",
+        "source_refs",
+        "given_entries",
+        "goal_ast",
+        "structure_supported",
+        "reason",
+        "structure_version"
+      ],
+      "properties": {
+        "source": {
+          "type": "object"
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "given_entries": {
+          "type": "array"
+        },
+        "goal_ast": {
+          "type": "object"
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "structure_version": {
+          "const": "function-symmetry/general-v1"
+        },
+        "function": {
+          "type": "string"
+        },
+        "function_ref": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "domain_ast": {},
+        "domain_source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "relations": {
+          "type": "array"
+        },
+        "value_equations": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

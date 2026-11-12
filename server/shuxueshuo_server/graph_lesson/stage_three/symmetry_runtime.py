@@ -11,7 +11,7 @@ from .trajectory import decode_value, encode_value
 
 
 def admitted(context):
-    desc = context.get('symmetry_value_goal', {})
+    desc = context.get('symmetry_relation_goal', context.get('symmetry_value_goal', {}))
     entries = [{k: r[k] for k in ('source_ref', 'expression', 'ast')} for r in context.get('entries', [])]
     return bool(desc.get('structure_supported') and desc['source'] == context['goal']
                 and desc['given_entries'] == entries)
@@ -19,7 +19,10 @@ def admitted(context):
 
 def _borrow(context):
     """Call the T2 domain-parameter subtask on the facts it owns; the original target stays open."""
-    from .parity_parameter_runtime import borrow_domain_parameter, verify_borrowed_parameter
+    from .parity_parameter_runtime import (
+        borrow_domain_parameter,
+        verify_borrowed_parameter,
+    )
     parameter = context['symmetry_value_goal']['parameter']
     output = borrow_domain_parameter(context, parameter['ref'], parameter['source_refs'])
     if not verify_borrowed_parameter(context, output):
@@ -38,7 +41,9 @@ def _borrow_bound(context, model):
 def prepare(context):
     if not admitted(context):
         raise CapabilityGap('symmetry_value.unsupported_source')
-    description = deepcopy(context['symmetry_value_goal'])
+    description = deepcopy(context.get('symmetry_relation_goal', context.get('symmetry_value_goal')))
+    if 'symmetry_relation_goal' in context:
+        return result({'description': description}, [], [{'kind': 'general_symmetry_sources_bound', 'passed': True}])
     checks = [{'kind': 'parity_value_target_and_conditions_bound', 'passed': True}]
     if description.get('parameter'):
         description['borrowed'] = _borrow(context)
@@ -53,8 +58,18 @@ def _model(description):
         raise CapabilityGap(str(exc)) from exc
 
 
+def check_general_domain(description):
+    from .symmetry_relation_runtime import check_domain
+    if description['structure_version'] != 'function-symmetry/general-v1':
+        raise CapabilityGap('symmetry.general_domain_contract_required')
+    return check_domain(description)
+
+
 def rewrite(description):
     """S2: F(c) = ±F(-c) for each input not used as written; stated identities at each input and its opposite."""
+    if description['structure_version'] == 'function-symmetry/general-v1':
+        from .symmetry_relation_runtime import rewrite as run
+        return run(description)
     model = _model(description)
     signs = {F['name']: SIGNS[F['property']] for F in description['functions']}
     calls = []
@@ -71,6 +86,9 @@ def rewrite(description):
 
 def evaluate(description, rewrite):
     """Substitute the printed rule at inputs inside its range; odd f(0)=0 needs no rule."""
+    if description['structure_version'] == 'function-symmetry/general-v1':
+        from .symmetry_relation_runtime import evaluate as run
+        return run(description, rewrite)
     if description.get('parameter'):
         description = _model(description)['description']
     rule, known = rule_of(description)
@@ -87,6 +105,9 @@ def evaluate(description, rewrite):
 
 
 def confirm(description, rewrite, rule_values):
+    if description['structure_version'] == 'function-symmetry/general-v1':
+        from .symmetry_relation_runtime import confirm as run
+        return run(description, rewrite, rule_values)
     model = _model(description)
     signs = {F['name']: SIGNS[F['property']] for F in description['functions']}
     used = {row['input']: row['value'] for row in rule_values['values']}
@@ -106,8 +127,12 @@ def verify_frozen(candidate, target_ref, context, encoded_result):
     from .context import build_context
     current = build_context(candidate, target_ref)
     model = decode_value(encoded_result)
-    valid = (current == context and admitted(current)
-             and verify(current['symmetry_value_goal'], model) and _borrow_bound(current, model))
+    if 'symmetry_relation_goal' in current:
+        from ..symmetry_relation_math import verify as verify_general
+        valid = current == context and admitted(current) and verify_general(current['symmetry_relation_goal'], model)
+    else:
+        valid = (current == context and admitted(current)
+                 and verify(current['symmetry_value_goal'], model) and _borrow_bound(current, model))
     return {'status': 'verified' if valid else 'math_failed',
             'checks': [{'kind': 'original_symmetry_value_statement', 'passed': valid}],
             'processing': [{'source_ref': r['source_ref'], 'kind': 'original_symmetry_value_condition',
@@ -124,6 +149,9 @@ def answer_for(desc, model):
 
 
 def finish(state, context, previous):
+    if 'symmetry_relation_goal' in context:
+        from .symmetry_relation_runtime import finish as run
+        return run(state, context, previous)
     model = decode_value(state['symmetry_result_exact'])
     desc = context['symmetry_value_goal']
     if not verify(desc, model) or not _borrow_bound(context, model):

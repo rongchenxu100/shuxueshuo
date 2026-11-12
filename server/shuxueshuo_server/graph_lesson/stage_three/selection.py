@@ -118,7 +118,7 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # Schema expansion alone must not silently reuse this admission check.
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
-        if admission not in ('parity_extension', 'parity_inequality', 'parity_parameter', 'function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_domain_routes', 'function_equality',
+        if admission not in ('function_symmetry', 'parity_extension', 'parity_inequality', 'parity_parameter', 'function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_domain_routes', 'function_equality',
                              'abstract_function_domain', 'function_evaluation', 'function_evaluation_routes', 'function_range', 'function_range_routes', 'function_formula', 'function_graph', 'piecewise_equation', 'piecewise_routes'):
             raise ValueError('selection.unsupported_direct_admission')
         from ..piecewise_equation import admitted as admitted_piecewise
@@ -213,6 +213,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
         elif admission == 'function_evaluation':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': admission, 'label': '代入法'}]
+        elif admission == 'function_symmetry':
+            routes = [{'method': contract['method'], 'route_id': contract['route_id'],
+                       'admission': admission, 'label': '对称关系法'}]
         elif admission == 'function_equality':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': admission, 'label': '同一函数判定法'}]
@@ -326,6 +329,8 @@ def evaluate_goal(candidate, target_ref, features, primary):
             '只知道一侧的解析式：先在已知范围内解不等式，再用奇偶性得到对称范围内的解；'
             '$0$ 不在两侧范围内时单独检查，最后合并。'
             if chosen['admission'] == 'parity_inequality' else
+            '先根据题给的对称轴、对称中心或限定范围的等式变换输入，再结合已知函数值求值或分组求和。'
+            if chosen['admission'] == 'function_symmetry' and context.get('symmetry_relation_goal') else
             '只求几个函数值或它们的组合：先用奇偶性把每个输入换成它的相反数，找出与已知条件的关系；'
             '能直接得到所求组合，就不用补出整个函数。'
             if chosen['admission'] == 'function_symmetry' else

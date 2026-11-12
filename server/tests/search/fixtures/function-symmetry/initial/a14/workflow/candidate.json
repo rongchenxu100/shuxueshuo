@@ -1,0 +1,39 @@
+{
+  "original_text": "14. 设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。",
+  "root": {
+    "facts": [
+      "Dom(f)=ℝ",
+      "parity(f,odd)",
+      "graph_symmetry(f,axis,1/2)"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(1)+f(2)+f(3)+f(4)+f(5)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

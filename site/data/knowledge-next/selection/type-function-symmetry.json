@@ -1,0 +1,7 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-function-symmetry",
+  "admission": "function_symmetry",
+  "method": "method-function-symmetry",
+  "route_id": "function-symmetry"
+}

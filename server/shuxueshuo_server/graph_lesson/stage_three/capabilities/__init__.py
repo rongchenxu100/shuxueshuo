@@ -850,8 +850,10 @@ def _symmetry_capability(name):
 
 
 for _name, _function in {'prepare_function_symmetry': 'prepare',
+                         'check_general_symmetry_domain': 'check_general_domain',
                          'rewrite_symmetric_inputs': 'rewrite',
                          'evaluate_symmetric_rule_values': 'evaluate',
+                         'iterate_function_symmetry': 'evaluate',
                          'confirm_function_symmetry': 'confirm'}.items():
     REGISTRY[_name] = _symmetry_capability(_function)
 

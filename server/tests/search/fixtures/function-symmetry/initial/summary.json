@@ -1,0 +1,188 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "a10",
+      "search_id": "2203e185315d",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 61.282,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 44.826,
+      "original_text": "10. 设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；\n$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____.",
+      "root": {
+        "facts": [
+          "Dom(f)=ℝ",
+          "parity(f,odd)",
+          "graph_symmetry(f,axis,1)",
+          "f(1)=1"
+        ],
+        "goals": [
+          {
+            "kind": "finite_sum",
+            "terms": [
+              {
+                "expression": "f(1)"
+              },
+              {
+                "expression": "f(2)"
+              },
+              {
+                "expression": "f(3)"
+              },
+              {
+                "expression": "f(4)"
+              }
+            ]
+          },
+          {
+            "kind": "finite_sum",
+            "terms": [
+              {
+                "expression": "f(1)"
+              },
+              {
+                "expression": "f(2)"
+              },
+              {
+                "expression": "f(k)",
+                "index": "k",
+                "lower": 3,
+                "upper": 54
+              }
+            ]
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-function-symmetry",
+        "type-function-symmetry"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "finite_sum",
+            "result_type": "finite_sum",
+            "status": "complete",
+            "value": {
+              "expression": "0",
+              "latex": "0"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        },
+        "/root/goals/1": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "finite_sum",
+            "result_type": "finite_sum",
+            "status": "complete",
+            "value": {
+              "expression": "1",
+              "latex": "1"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 4,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a14",
+      "search_id": "9a70b0745ffe",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 22.157,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 14.138,
+      "original_text": "14. 设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。",
+      "root": {
+        "facts": [
+          "Dom(f)=ℝ",
+          "parity(f,odd)",
+          "graph_symmetry(f,axis,1/2)"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(1)+f(2)+f(3)+f(4)+f(5)"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-function-symmetry"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "0",
+              "latex": "0"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 2,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    }
+  ]
+}

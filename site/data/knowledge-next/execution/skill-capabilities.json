@@ -179,7 +179,8 @@
     ],
     "skill-domain-symmetry": [
       "check_domain_symmetry",
-      "solve_domain_symmetry_conditions"
+      "solve_domain_symmetry_conditions",
+      "check_general_symmetry_domain"
     ],
     "skill-function-symmetry-transform": [
       "map_parity_extension_input",
@@ -191,6 +192,9 @@
     ],
     "skill-parity-monotonicity-transfer": [
       "parity_inequality_direction"
+    ],
+    "skill-function-shift-iteration": [
+      "iterate_function_symmetry"
     ]
   },
   "internal": {

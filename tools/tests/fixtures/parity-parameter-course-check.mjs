@@ -2,11 +2,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import {createRequire} from 'node:module';
+import vm from 'node:vm';
 import {compileCourse} from '../../build-graph-walk-topic.mjs';
 import {loadSources, publicGraphNodes} from '../../lib/public-knowledge-sources.mjs';
 import {validateGraph} from '../../../site/assets/knowledge-next/model.mjs';
 import {createState, currentDecision, submitAnswer, replayState, undo} from '../../../site/assets/graph-walk/walk-state.mjs';
 import {routeAnswerSummary} from '../../../site/assets/graph-walk/stream-math-dom.mjs';
+import {domainNumberLineGraph} from '../../../site/assets/graph-walk/domain-visuals.mjs';
 
 const evidence = JSON.parse(await fs.readFile(process.argv[2], 'utf8'));
 const {nodes, manifest} = await loadSources();
@@ -56,11 +58,23 @@ if (answer.kind === 'goal_group') assert.ok(summary.items.every(item => item.sum
 else assert.ok(summary.formula);
 const katex = createRequire(import.meta.url)('../../../site/assets/practice/vendor/katex-0.18.9/katex.min.js');
 let rendered = 0;
+let numberLines = 0;
+const context = vm.createContext({window: {}});
+vm.runInContext(await fs.readFile(new URL('../../../site/assets/practice/components.js', import.meta.url), 'utf8'), context);
+const components = context.window.PracticeComponents;
 const render = math => { katex.renderToString(math, {throwOnError: true, strict: 'ignore'}); rendered++; };
 function visit(value) {
   if (Array.isArray(value)) return value.forEach(visit);
   if (!value || typeof value !== 'object') return;
   for (const [key, item] of Object.entries(value)) {
+    if (key === 'condition_number_lines') for (const line of item) {
+      const graph = domainNumberLineGraph(line);
+      if (!graph) continue; // Crowded exact marks deliberately retain their formula instead.
+      assert.ok(components.validateGraph(graph));
+      const svg = components.graph({...graph, uid: `checked-line-${numberLines++}`});
+      assert.match(svg, /^<svg/);
+      assert.doesNotMatch(svg, /NaN|Infinity/);
+    }
     if (key === 'math' && typeof item === 'string') render(item);
     else if (typeof item === 'string') for (const match of item.matchAll(/\$\$([\s\S]*?)\$\$|\$([^$]+)\$/g)) render(match[1] ?? match[2]);
     else visit(item);
@@ -69,4 +83,5 @@ function visit(value) {
 visit(bundle);
 for (const formula of answer.kind === 'goal_group' ? summary.items.map(item => item.summary.formula) : [summary.formula]) render(formula);
 assert.ok(rendered > 8);
-console.log(JSON.stringify({targets, decisions: replay.actions.length, formulas: rendered, summary}));
+if (process.argv[4] === 'function-symmetry') assert.ok(numberLines > 0);
+console.log(JSON.stringify({targets, decisions: replay.actions.length, formulas: rendered, numberLines, summary}));

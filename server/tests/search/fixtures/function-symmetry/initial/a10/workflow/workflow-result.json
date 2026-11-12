@@ -1,0 +1,2115 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "10. 设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；\n$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____.",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)",
+        "graph_symmetry(f,axis,1)",
+        "f(1)=1"
+      ],
+      "goals": [
+        {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(1)"
+            },
+            {
+              "expression": "f(2)"
+            },
+            {
+              "expression": "f(3)"
+            },
+            {
+              "expression": "f(4)"
+            }
+          ]
+        },
+        {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(1)"
+            },
+            {
+              "expression": "f(2)"
+            },
+            {
+              "expression": "f(k)",
+              "index": "k",
+              "lower": 3,
+              "upper": 54
+            }
+          ]
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            },
+            {
+              "target_ref": "/root/goals/1",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "10. 设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；\n$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____.",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)",
+        "graph_symmetry(f,axis,1)",
+        "f(1)=1"
+      ],
+      "goals": [
+        {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(1)"
+            },
+            {
+              "expression": "f(2)"
+            },
+            {
+              "expression": "f(3)"
+            },
+            {
+              "expression": "f(4)"
+            }
+          ]
+        },
+        {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(1)"
+            },
+            {
+              "expression": "f(2)"
+            },
+            {
+              "expression": "f(k)",
+              "index": "k",
+              "lower": 3,
+              "upper": 54
+            }
+          ]
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            },
+            {
+              "target_ref": "/root/goals/1",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [
+          {
+            "ref": "r.goals[1].terms[2]:scalar:k",
+            "domain": "real",
+            "origin": "code_default"
+          }
+        ],
+        "objects": [
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          },
+          {
+            "ref": "r.goals[1].terms[2]:scalar:k",
+            "name": "k",
+            "kind": "scalar",
+            "scope": "r.goals[1].terms[2]"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "=",
+                [
+                  "call",
+                  "Dom",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ]
+                ],
+                [
+                  "real"
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 1,
+              "fact": [
+                "function_parity",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                "odd"
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 2,
+              "fact": [
+                "function_graph_symmetry",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                "axis",
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 3,
+              "fact": [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            }
+          ],
+          "canonical_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "=",
+                [
+                  "call",
+                  "Dom",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ]
+                ],
+                [
+                  "real"
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 1,
+              "fact": [
+                "function_parity",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                "odd"
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 2,
+              "fact": [
+                "function_graph_symmetry",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                "axis",
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 3,
+              "fact": [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            }
+          ],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "b1dbd0a6536603348908ee1144b87d010ce1da7ad636b831bf99af9a88a8ffcc",
+    "canonical": {
+      "root": {
+        "facts": [
+          [
+            [
+              "=",
+              [
+                "call",
+                "Dom",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ]
+              ],
+              [
+                "real"
+              ]
+            ],
+            [
+              "function_graph_symmetry",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "axis",
+              [
+                "math",
+                "Integer(1)"
+              ]
+            ],
+            [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ],
+            [
+              "relation",
+              "=",
+              "Add(Integer(1), Mul(Integer(-1), Symbol('n_f266a50d92b0b996d458f1c8816c6f4d4c1bcf225b75fa4b97a8965ca77c93a1', real=True)))"
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "finite_sum",
+            "target": [
+              "finite_sum",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "4"
+                ]
+              ]
+            ],
+            "terms": [
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              },
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              },
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              },
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "4"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "finite_sum",
+            "target": [
+              "finite_sum",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              [
+                "indexed_sum",
+                [
+                  "ref",
+                  "r.goals[1].terms[2]:scalar:k",
+                  "scalar"
+                ],
+                [
+                  "number",
+                  "3"
+                ],
+                [
+                  "number",
+                  "54"
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[1].terms[2]:scalar:k",
+                    "scalar"
+                  ]
+                ]
+              ]
+            ],
+            "terms": [
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              },
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              },
+              {
+                "index": [
+                  "ref",
+                  "r.goals[1].terms[2]:scalar:k",
+                  "scalar"
+                ],
+                "lower": 3,
+                "upper": 54,
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[1].terms[2]:scalar:k",
+                    "scalar"
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            "=",
+            [
+              "call",
+              "Dom",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ]
+            ],
+            [
+              "real"
+            ]
+          ],
+          [
+            "function_parity",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "odd"
+          ],
+          [
+            "function_graph_symmetry",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "axis",
+            [
+              "number",
+              "1"
+            ]
+          ],
+          [
+            "=",
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ],
+            [
+              "number",
+              "1"
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "finite_sum",
+            "target": [
+              "finite_sum",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "4"
+                ]
+              ]
+            ],
+            "terms": [
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              },
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              },
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              },
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "4"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "finite_sum",
+            "target": [
+              "finite_sum",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              [
+                "indexed_sum",
+                [
+                  "ref",
+                  "r.goals[1].terms[2]:scalar:k",
+                  "scalar"
+                ],
+                [
+                  "number",
+                  "3"
+                ],
+                [
+                  "number",
+                  "54"
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[1].terms[2]:scalar:k",
+                    "scalar"
+                  ]
+                ]
+              ]
+            ],
+            "terms": [
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              },
+              {
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              },
+              {
+                "index": [
+                  "ref",
+                  "r.goals[1].terms[2]:scalar:k",
+                  "scalar"
+                ],
+                "lower": 3,
+                "upper": 54,
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[1].terms[2]:scalar:k",
+                    "scalar"
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r.goals[1].terms[2]:scalar:k",
+          "name": "k",
+          "kind": "scalar",
+          "scope": "r.goals[1].terms[2]"
+        }
+      ],
+      "source_locations": {
+        "[\"=\",[\"call\",\"Dom\",[\"ref\",\"r:function:f\",\"function\"]],[\"real\"]]": {
+          "path": "r.facts[0]",
+          "source": "Dom(f)=ℝ"
+        },
+        "[\"function_parity\",[\"ref\",\"r:function:f\",\"function\"],\"odd\"]": {
+          "path": "r.facts[1]",
+          "source": "parity(f,odd)"
+        },
+        "[\"function_graph_symmetry\",[\"ref\",\"r:function:f\",\"function\"],\"axis\",[\"number\",\"1\"]]": {
+          "path": "r.facts[2]",
+          "source": "graph_symmetry(f,axis,1)"
+        },
+        "[\"=\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"number\",\"1\"]],[\"number\",\"1\"]]": {
+          "path": "r.facts[3]",
+          "source": "f(1)=1"
+        }
+      },
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "=",
+              [
+                "call",
+                "Dom",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ]
+              ],
+              [
+                "real"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "function_graph_symmetry",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "axis",
+              [
+                "number",
+                "1"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 3,
+            "fact": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "=",
+              [
+                "call",
+                "Dom",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ]
+              ],
+              [
+                "real"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "function_graph_symmetry",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "axis",
+              [
+                "number",
+                "1"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 3,
+            "fact": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "2203e185315d",
+      "source_sha256": "ea3d6079e2c644c63a6524ddc8cbad490b0860f2f1ccb673322c397492b68a8c"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "b1dbd0a6536603348908ee1144b87d010ce1da7ad636b831bf99af9a88a8ffcc",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [
+              {
+                "ref": "r.goals[1].terms[2]:scalar:k",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r.goals[1].terms[2]:scalar:k",
+                "name": "k",
+                "kind": "scalar",
+                "scope": "r.goals[1].terms[2]"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "=",
+                    [
+                      "call",
+                      "Dom",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ]
+                    ],
+                    [
+                      "real"
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 1,
+                  "fact": [
+                    "function_parity",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    "odd"
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 2,
+                  "fact": [
+                    "function_graph_symmetry",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    "axis",
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 3,
+                  "fact": [
+                    "=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "=",
+                    [
+                      "call",
+                      "Dom",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ]
+                    ],
+                    [
+                      "real"
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 1,
+                  "fact": [
+                    "function_parity",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    "odd"
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 2,
+                  "fact": [
+                    "function_graph_symmetry",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    "axis",
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 3,
+                  "fact": [
+                    "=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "b1dbd0a6536603348908ee1144b87d010ce1da7ad636b831bf99af9a88a8ffcc",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "=",
+                  [
+                    "call",
+                    "Dom",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ]
+                  ],
+                  [
+                    "real"
+                  ]
+                ],
+                [
+                  "function_graph_symmetry",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "axis",
+                  [
+                    "math",
+                    "Integer(1)"
+                  ]
+                ],
+                [
+                  "function_parity",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "odd"
+                ],
+                [
+                  "relation",
+                  "=",
+                  "Add(Integer(1), Mul(Integer(-1), Symbol('n_f266a50d92b0b996d458f1c8816c6f4d4c1bcf225b75fa4b97a8965ca77c93a1', real=True)))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "finite_sum",
+                "target": [
+                  "finite_sum",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "4"
+                    ]
+                  ]
+                ],
+                "terms": [
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  },
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  },
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ]
+                  },
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "4"
+                      ]
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "finite_sum",
+                "target": [
+                  "finite_sum",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "indexed_sum",
+                    [
+                      "ref",
+                      "r.goals[1].terms[2]:scalar:k",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ],
+                    [
+                      "number",
+                      "54"
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[1].terms[2]:scalar:k",
+                        "scalar"
+                      ]
+                    ]
+                  ]
+                ],
+                "terms": [
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  },
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  },
+                  {
+                    "index": [
+                      "ref",
+                      "r.goals[1].terms[2]:scalar:k",
+                      "scalar"
+                    ],
+                    "lower": 3,
+                    "upper": 54,
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[1].terms[2]:scalar:k",
+                        "scalar"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "=",
+                [
+                  "call",
+                  "Dom",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ]
+                ],
+                [
+                  "real"
+                ]
+              ],
+              [
+                "function_parity",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                "odd"
+              ],
+              [
+                "function_graph_symmetry",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                "axis",
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "finite_sum",
+                "target": [
+                  "finite_sum",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "4"
+                    ]
+                  ]
+                ],
+                "terms": [
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  },
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  },
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ]
+                  },
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "4"
+                      ]
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "finite_sum",
+                "target": [
+                  "finite_sum",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "indexed_sum",
+                    [
+                      "ref",
+                      "r.goals[1].terms[2]:scalar:k",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ],
+                    [
+                      "number",
+                      "54"
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[1].terms[2]:scalar:k",
+                        "scalar"
+                      ]
+                    ]
+                  ]
+                ],
+                "terms": [
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  },
+                  {
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  },
+                  {
+                    "index": [
+                      "ref",
+                      "r.goals[1].terms[2]:scalar:k",
+                      "scalar"
+                    ],
+                    "lower": 3,
+                    "upper": 54,
+                    "target": [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[1].terms[2]:scalar:k",
+                        "scalar"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r.goals[1].terms[2]:scalar:k",
+              "name": "k",
+              "kind": "scalar",
+              "scope": "r.goals[1].terms[2]"
+            }
+          ],
+          "source_locations": {
+            "[\"=\",[\"call\",\"Dom\",[\"ref\",\"r:function:f\",\"function\"]],[\"real\"]]": {
+              "path": "r.facts[0]",
+              "source": "Dom(f)=ℝ"
+            },
+            "[\"function_parity\",[\"ref\",\"r:function:f\",\"function\"],\"odd\"]": {
+              "path": "r.facts[1]",
+              "source": "parity(f,odd)"
+            },
+            "[\"function_graph_symmetry\",[\"ref\",\"r:function:f\",\"function\"],\"axis\",[\"number\",\"1\"]]": {
+              "path": "r.facts[2]",
+              "source": "graph_symmetry(f,axis,1)"
+            },
+            "[\"=\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"number\",\"1\"]],[\"number\",\"1\"]]": {
+              "path": "r.facts[3]",
+              "source": "f(1)=1"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "=",
+                  [
+                    "call",
+                    "Dom",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ]
+                  ],
+                  [
+                    "real"
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 1,
+                "fact": [
+                  "function_parity",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "odd"
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 2,
+                "fact": [
+                  "function_graph_symmetry",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "axis",
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 3,
+                "fact": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "=",
+                  [
+                    "call",
+                    "Dom",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ]
+                  ],
+                  [
+                    "real"
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 1,
+                "fact": [
+                  "function_parity",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "odd"
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 2,
+                "fact": [
+                  "function_graph_symmetry",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "axis",
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 3,
+                "fact": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "2203e185315d",
+          "source_sha256": "ea3d6079e2c644c63a6524ddc8cbad490b0860f2f1ccb673322c397492b68a8c"
+        }
+      },
+      "revision": "b1dbd0a6536603348908ee1144b87d010ce1da7ad636b831bf99af9a88a8ffcc"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "b1dbd0a6536603348908ee1144b87d010ce1da7ad636b831bf99af9a88a8ffcc",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "b1dbd0a6536603348908ee1144b87d010ce1da7ad636b831bf99af9a88a8ffcc",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

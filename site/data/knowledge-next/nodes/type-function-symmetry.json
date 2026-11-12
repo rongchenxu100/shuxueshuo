@@ -1,0 +1,33 @@
+{
+  "id": "type-function-symmetry",
+  "kind": "problem_type",
+  "status": "active",
+  "label": "利用图像对称关系求值与求和",
+  "summary": "依据对称轴、对称中心或限定范围的对称等式，变换输入并求值或求和。",
+  "source": "函数奇偶性 FP-T5",
+  "features": [
+    {
+      "cue": "题给图像的对称轴、对称中心或一般对称等式，要求函数值或有限和。"
+    }
+  ],
+  "knowledge": [
+    "function-graph-symmetry",
+    "function-parity"
+  ],
+  "methods": [
+    "method-function-symmetry"
+  ],
+  "rules": [],
+  "examples": [
+    {
+      "title": "关于一般直线对称",
+      "prompt": "函数 $f$ 的定义域为 $\\mathbb R$，图像关于 $x=2$ 对称，且 $f(1)=3$，求 $f(3)$。",
+      "solution": [
+        "$1+3=4$，两个输入关于 $2$ 配对。",
+        "$f(3)=f(1)=3$。"
+      ],
+      "source": "函数奇偶性 FP-T5 机制例"
+    }
+  ],
+  "choice_hint": "利用图像对称关系变换输入，再求值或求和"
+}

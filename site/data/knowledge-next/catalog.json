@@ -5,10 +5,10 @@
   "expectedCounts": {
     "method": 52,
     "knowledge": 32,
-    "problem_type": 26,
+    "problem_type": 27,
     "judgment_rule": 11,
     "section": 9,
-    "skill": 32,
+    "skill": 33,
     "textbook": 1,
     "collection": 1,
     "chapter": 3

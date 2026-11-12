@@ -54,6 +54,7 @@ RELATIONS = {"=", "!=", "<", "<=", ">", ">=", "∈", "∉", "⟂", "∥", *SUBSE
 BUILTINS = {
     "Dom",
     "parity",
+    "graph_symmetry",
     "defined_on",
     "degree",
     "sqrt",

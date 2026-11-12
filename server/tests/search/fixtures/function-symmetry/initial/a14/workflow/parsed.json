@@ -1,0 +1,555 @@
+{
+  "contract": "search-problem-extraction/v1",
+  "contract_valid": true,
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [],
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "=",
+              [
+                "call",
+                "Dom",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ]
+              ],
+              [
+                "real"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "function_graph_symmetry",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "axis",
+              [
+                "/",
+                [
+                  "number",
+                  "1"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "=",
+              [
+                "call",
+                "Dom",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ]
+              ],
+              [
+                "real"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "function_graph_symmetry",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "axis",
+              [
+                "/",
+                [
+                  "number",
+                  "1"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "scope_policy": {
+      "ok": true,
+      "diagnostics": []
+    }
+  },
+  "revision": "50c37ef3f2b1643fbd269e5ff114ee4bdede5afb06854f25a60e880339e5b21c",
+  "canonical": {
+    "root": {
+      "facts": [
+        [
+          [
+            "=",
+            [
+              "call",
+              "Dom",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ]
+            ],
+            [
+              "real"
+            ]
+          ],
+          [
+            "function_graph_symmetry",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "axis",
+            [
+              "math",
+              "Rational(1, 2)"
+            ]
+          ],
+          [
+            "function_parity",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "odd"
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "target": [
+            "+",
+            [
+              "+",
+              [
+                "+",
+                [
+                  "+",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "4"
+                ]
+              ]
+            ],
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "5"
+              ]
+            ]
+          ]
+        }
+      ],
+      "uncertainties": [],
+      "children": []
+    },
+    "well_definedness": []
+  },
+  "compiled": {
+    "root": {
+      "scope": "r",
+      "facts": [
+        [
+          "=",
+          [
+            "call",
+            "Dom",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ]
+          ],
+          [
+            "real"
+          ]
+        ],
+        [
+          "function_parity",
+          [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          "odd"
+        ],
+        [
+          "function_graph_symmetry",
+          [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          "axis",
+          [
+            "/",
+            [
+              "number",
+              "1"
+            ],
+            [
+              "number",
+              "2"
+            ]
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "target": [
+            "+",
+            [
+              "+",
+              [
+                "+",
+                [
+                  "+",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "4"
+                ]
+              ]
+            ],
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "5"
+              ]
+            ]
+          ]
+        }
+      ],
+      "uncertainties": [],
+      "children": []
+    },
+    "objects": [
+      {
+        "ref": "r:function:f",
+        "name": "f",
+        "kind": "function",
+        "scope": "r"
+      }
+    ],
+    "source_locations": {
+      "[\"=\",[\"call\",\"Dom\",[\"ref\",\"r:function:f\",\"function\"]],[\"real\"]]": {
+        "path": "r.facts[0]",
+        "source": "Dom(f)=ℝ"
+      },
+      "[\"function_parity\",[\"ref\",\"r:function:f\",\"function\"],\"odd\"]": {
+        "path": "r.facts[1]",
+        "source": "parity(f,odd)"
+      },
+      "[\"function_graph_symmetry\",[\"ref\",\"r:function:f\",\"function\"],\"axis\",[\"/\",[\"number\",\"1\"],[\"number\",\"2\"]]]": {
+        "path": "r.facts[2]",
+        "source": "graph_symmetry(f,axis,1/2)"
+      }
+    },
+    "normalization_report": {
+      "version": "semantic-equivalence/v1",
+      "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+      "initial_facts": [
+        {
+          "scope": "r",
+          "index": 0,
+          "fact": [
+            "=",
+            [
+              "call",
+              "Dom",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ]
+            ],
+            [
+              "real"
+            ]
+          ]
+        },
+        {
+          "scope": "r",
+          "index": 1,
+          "fact": [
+            "function_parity",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "odd"
+          ]
+        },
+        {
+          "scope": "r",
+          "index": 2,
+          "fact": [
+            "function_graph_symmetry",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "axis",
+            [
+              "/",
+              [
+                "number",
+                "1"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ]
+          ]
+        }
+      ],
+      "canonical_facts": [
+        {
+          "scope": "r",
+          "index": 0,
+          "fact": [
+            "=",
+            [
+              "call",
+              "Dom",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ]
+            ],
+            [
+              "real"
+            ]
+          ]
+        },
+        {
+          "scope": "r",
+          "index": 1,
+          "fact": [
+            "function_parity",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "odd"
+          ]
+        },
+        {
+          "scope": "r",
+          "index": 2,
+          "fact": [
+            "function_graph_symmetry",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "axis",
+            [
+              "/",
+              [
+                "number",
+                "1"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ]
+          ]
+        }
+      ],
+      "derived_facts": [],
+      "proofs": [],
+      "blocked": []
+    }
+  },
+  "binding": {
+    "problem_id": "9a70b0745ffe",
+    "source_sha256": "d01c291879a49fb3e73973482d16993a2bfb3531cd00760cd840d5dbb5b946e8"
+  }
+}

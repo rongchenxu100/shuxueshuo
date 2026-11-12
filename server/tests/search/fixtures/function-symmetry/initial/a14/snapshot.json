@@ -1,0 +1,975 @@
+{
+  "run_id": "a0509ff1794b43edb9db20faa3ef5b89",
+  "lesson_version": "e6a54fc2b5fea891651dd679d97b7b1a2c7620547f4e2954543a99b5b9886d24",
+  "input_sha256": "0f25c890c48915be93d137ce9b29c8481896fed4f1786886a6cbf4fb4faf7286",
+  "stream_id": "a0509ff1794b43edb9db20faa3ef5b89",
+  "last_seq": 18,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "function_symmetry_rewrite",
+      "explanation": "$$\\begin{gathered}x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 1\\\\f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x + 1)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(x + 1)=-f(x)\\\\\\text{一个周期为 }2\\end{gathered}$$",
+      "highlight": {
+        "caption": "连续使用两次对称关系",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知条件",
+            "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x + 1)=f(x)\\quad(x\\in \\mathbb{R})\\\\x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 1\\end{gathered}"
+          },
+          {
+            "label": "关系",
+            "math": "f(x + 1)=-f(x)"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "e6a54fc2b5fea891651dd679d97b7b1a2c7620547f4e2954543a99b5b9886d24",
+      "local_check": "passed",
+      "math_step_sha256": "18ec5cea203ac3282c3af1707aaf7902e4cc43557e781f1f622e4fdc2cfb908d",
+      "method_ref": "method-function-symmetry#rewrite",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "ca4ddbf3dae47d22aa7562e16008ffd2955162ce6600d5dc3c9ff9c5f97df9a9",
+      "route_id": "function-symmetry",
+      "run_id": "a0509ff1794b43edb9db20faa3ef5b89",
+      "source_refs": [
+        "/steps/1/calls/0"
+      ],
+      "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
+      "target_ref": "/root/goals/0",
+      "title": "连续使用两次对称关系",
+      "used_basis": []
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "function_symmetry_conclude",
+      "explanation": "$$\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x + 1)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(1)=-f(0)\\\\f(2)=f(0)\\\\f(3)=-f(0)\\\\f(4)=f(0)\\\\f(5)=-f(0)\\\\2 f{\\left(0 \\right)}=0\\\\f(1)+f(2)+f(3)+f(4)+f(5)=- f{\\left(0 \\right)}\\\\f(1)+f(2)+f(3)+f(4)+f(5)=0\\end{gathered}$$",
+      "highlight": {
+        "caption": "求出所求的值",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与改写",
+            "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=\\frac{1}{2}\\text{ 对称}\\\\f(1)=-f(0)\\\\f(2)=f(0)\\\\f(3)=-f(0)\\\\f(4)=f(0)\\\\f(5)=-f(0)\\\\2 f{\\left(0 \\right)}=0\\end{gathered}"
+          },
+          {
+            "label": "结论",
+            "math": "f(1)+f(2)+f(3)+f(4)+f(5)=0"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "e6a54fc2b5fea891651dd679d97b7b1a2c7620547f4e2954543a99b5b9886d24",
+      "local_check": "passed",
+      "math_step_sha256": "bfdae77b5ccab9de70dd93fbeca604d8a422fa42d346d103378e36eb708cebd2",
+      "method_ref": "method-function-symmetry#conclude",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "ca4ddbf3dae47d22aa7562e16008ffd2955162ce6600d5dc3c9ff9c5f97df9a9",
+      "route_id": "function-symmetry",
+      "run_id": "a0509ff1794b43edb9db20faa3ef5b89",
+      "source_refs": [
+        "/steps/3/calls/0"
+      ],
+      "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
+      "target_ref": "/root/goals/0",
+      "title": "求出所求的值",
+      "used_basis": []
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "defined": true,
+        "domain": {
+          "expression": "Reals",
+          "latex": "\\mathbb{R}"
+        },
+        "expression": null,
+        "is_constant": null,
+        "kind": "find_value",
+        "result_type": "scalar_value",
+        "status": "complete",
+        "value": {
+          "expression": "0",
+          "latex": "0"
+        }
+      },
+      "available": true,
+      "feasible_set": null,
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "defined": true,
+        "domain": {
+          "expression": "Reals",
+          "latex": "\\mathbb{R}"
+        },
+        "expression": null,
+        "is_constant": null,
+        "kind": "find_value",
+        "result_type": "scalar_value",
+        "status": "complete",
+        "value": {
+          "expression": "0",
+          "latex": "0"
+        }
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": null,
+      "lesson_version": "e6a54fc2b5fea891651dd679d97b7b1a2c7620547f4e2954543a99b5b9886d24",
+      "math_steps": [
+        {
+          "math_step_sha256": "18ec5cea203ac3282c3af1707aaf7902e4cc43557e781f1f622e4fdc2cfb908d",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
+        },
+        {
+          "math_step_sha256": "bfdae77b5ccab9de70dd93fbeca604d8a422fa42d346d103378e36eb708cebd2",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
+        }
+      ],
+      "route_id": "function-symmetry",
+      "run_id": "a0509ff1794b43edb9db20faa3ef5b89",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "4e16901d6d193e01c166ffa686d1fb6dbd86623d0e0484de4768b35b84c4ccce",
+      "verified_route_sha256": "7ed70ff31a9bdd8234dee05610a26cd47098e83622abe0ab549c4709a6ff972c"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {},
+        "id": "D3",
+        "interaction": {
+          "type": "read"
+        },
+        "query": {
+          "from": "type-function-symmetry",
+          "op": "methods"
+        },
+        "question": "先根据题给的对称轴、对称中心或限定范围的等式变换输入，再结合已知函数值求值或分组求和。",
+        "submit_label": "用对称关系法解题",
+        "title": "选择解题方法",
+        "verdicts": {}
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "direct",
+            "message": "开始解题",
+            "method": "method-function-symmetry",
+            "recommendation": "preferred",
+            "route_id": "function-symmetry",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "解题路线"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
+      "ordinal": 1,
+      "math_step_sha256": "18ec5cea203ac3282c3af1707aaf7902e4cc43557e781f1f622e4fdc2cfb908d",
+      "status": "interactive",
+      "interaction_id": "90bfcdcf4bc16c1d94c43390"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
+      "ordinal": 2,
+      "math_step_sha256": "bfdae77b5ccab9de70dd93fbeca604d8a422fa42d346d103378e36eb708cebd2",
+      "status": "interactive",
+      "interaction_id": "cd00a93b1cf7fd1075652534"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "ca4ddbf3dae47d22aa7562e16008ffd2955162ce6600d5dc3c9ff9c5f97df9a9",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:function-symmetry:complete",
+      "last_seq": 18
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-function-symmetry",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            },
+            {
+              "public_ref": "skill-domain-symmetry",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-function-symmetry",
+          "step": "rewrite",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-function-symmetry-transform",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 3,
+          "method": "method-function-symmetry",
+          "step": "evaluate",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-function-shift-iteration",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 4,
+          "method": "method-function-symmetry",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "90bfcdcf4bc16c1d94c43390",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "0f0b3afd2a2e54180a995b3f1892d1d6b6cf02656b79f4128b5206ef99fc29fe",
+      "lesson_version": "e6a54fc2b5fea891651dd679d97b7b1a2c7620547f4e2954543a99b5b9886d24",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "找出配对的输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=\\frac{1}{2}\\text{ 对称}\\end{gathered}"
+              },
+              {
+                "label": "输入配对",
+                "math": "1\\mapsto -1"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "condition_number_lines": [
+            {
+              "bounds": [
+                -2.0,
+                2.0
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Reals"
+                },
+                "expression": "Reals",
+                "latex": "\\mathbb{R}"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-oo, oo)",
+                    "latex": "\\left(-\\infty, \\infty\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "原输入范围\\quad x=1",
+              "points": [
+                {
+                  "at": 1.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "ticks": [
+                {
+                  "at": -1.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    "expression": "-1",
+                    "latex": "-1"
+                  },
+                  "label": "-1"
+                },
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                },
+                {
+                  "at": 1.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "variable": "x"
+            },
+            {
+              "bounds": [
+                -2.0,
+                2.0
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Reals"
+                },
+                "expression": "Reals",
+                "latex": "\\mathbb{R}"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-oo, oo)",
+                    "latex": "\\left(-\\infty, \\infty\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "配对后的范围\\quad x=-1",
+              "points": [
+                {
+                  "at": -1.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    "expression": "-1",
+                    "latex": "-1"
+                  },
+                  "label": "-1"
+                }
+              ],
+              "ticks": [
+                {
+                  "at": -1.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    "expression": "-1",
+                    "latex": "-1"
+                  },
+                  "label": "-1"
+                },
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                },
+                {
+                  "at": 1.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "variable": "x"
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "90bfcdcf4bc16c1d94c43390#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$1\\mapsto 0$",
+                "value": "o3"
+              },
+              {
+                "label": "$1\\mapsto -1$",
+                "value": "o1"
+              },
+              {
+                "label": "$1\\mapsto 1$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "这条对称关系把输入 $x$ 变为 $0-x$。输入为 $1$ 时，配对的输入是多少？",
+          "stem_board": {
+            "caption": "找出配对的输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=\\frac{1}{2}\\text{ 对称}\\end{gathered}"
+              },
+              {
+                "label": "输入配对",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "找出配对的输入"
+        },
+        {
+          "completion_board": {
+            "caption": "找出配对的输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=\\frac{1}{2}\\text{ 对称}\\end{gathered}"
+              },
+              {
+                "label": "输入配对",
+                "math": "1\\mapsto 0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "condition_number_lines": [
+            {
+              "bounds": [
+                -1.0,
+                2.0
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Reals"
+                },
+                "expression": "Reals",
+                "latex": "\\mathbb{R}"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-oo, oo)",
+                    "latex": "\\left(-\\infty, \\infty\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "原输入范围\\quad x=1",
+              "points": [
+                {
+                  "at": 1.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "ticks": [
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                },
+                {
+                  "at": 0.5,
+                  "exact": {
+                    "exact": {
+                      "$math": "Rational",
+                      "p": "1",
+                      "q": "2"
+                    },
+                    "expression": "1/2",
+                    "latex": "\\frac{1}{2}"
+                  },
+                  "label": "1/2"
+                },
+                {
+                  "at": 1.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "variable": "x"
+            },
+            {
+              "bounds": [
+                -1.0,
+                2.0
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Reals"
+                },
+                "expression": "Reals",
+                "latex": "\\mathbb{R}"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-oo, oo)",
+                    "latex": "\\left(-\\infty, \\infty\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "配对后的范围\\quad x=0",
+              "points": [
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                }
+              ],
+              "ticks": [
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                },
+                {
+                  "at": 0.5,
+                  "exact": {
+                    "exact": {
+                      "$math": "Rational",
+                      "p": "1",
+                      "q": "2"
+                    },
+                    "expression": "1/2",
+                    "latex": "\\frac{1}{2}"
+                  },
+                  "label": "1/2"
+                },
+                {
+                  "at": 1.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "variable": "x"
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "90bfcdcf4bc16c1d94c43390#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$1\\mapsto 1$",
+                "value": "o2"
+              },
+              {
+                "label": "$1\\mapsto - \\frac{1}{2}$",
+                "value": "o4"
+              },
+              {
+                "label": "$1\\mapsto -1$",
+                "value": "o3"
+              },
+              {
+                "label": "$1\\mapsto 0$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "这条对称关系把输入 $x$ 变为 $1-x$。输入为 $1$ 时，配对的输入是多少？",
+          "stem_board": {
+            "caption": "找出配对的输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=\\frac{1}{2}\\text{ 对称}\\end{gathered}"
+              },
+              {
+                "label": "输入配对",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "找出配对的输入"
+        },
+        {
+          "completion_board": {
+            "caption": "连续使用两次对称关系",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x + 1)=f(x)\\quad(x\\in \\mathbb{R})\\\\x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 1\\end{gathered}"
+              },
+              {
+                "label": "关系",
+                "math": "f(x + 1)=-f(x)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "90bfcdcf4bc16c1d94c43390#3",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "按顺序使用两条关系，同时记录输入的变化和函数值的变化。",
+          "stem_board": {
+            "caption": "连续使用两次对称关系",
+            "lines": [
+              "$$x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 1$$",
+              "$$f(- x)=-f(x)\\quad(x\\in \\mathbb{R})$$",
+              "$$f(- x + 1)=f(x)\\quad(x\\in \\mathbb{R})$$",
+              "$$f(x + 1)=-f(x)$$",
+              "$$\\text{一个周期为 }2$$"
+            ]
+          },
+          "submit_label": "继续",
+          "title": "连续使用两次对称关系"
+        }
+      ],
+      "route_id": "function-symmetry",
+      "run_id": "a0509ff1794b43edb9db20faa3ef5b89",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "18ec5cea203ac3282c3af1707aaf7902e4cc43557e781f1f622e4fdc2cfb908d",
+          "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "cd00a93b1cf7fd1075652534",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "47373c906ce12facb25a0e6bac86d75a9d63f9aa814e6ae43fe78e28df3a2202",
+      "lesson_version": "e6a54fc2b5fea891651dd679d97b7b1a2c7620547f4e2954543a99b5b9886d24",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "求出所求的值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与改写",
+                "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=\\frac{1}{2}\\text{ 对称}\\\\f(1)=-f(0)\\\\f(2)=f(0)\\\\f(3)=-f(0)\\\\f(4)=f(0)\\\\f(5)=-f(0)\\\\2 f{\\left(0 \\right)}=0\\end{gathered}"
+              },
+              {
+                "label": "结论",
+                "math": "f(1)+f(2)+f(3)+f(4)+f(5)=0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "cd00a93b1cf7fd1075652534#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(1)+f(2)+f(3)+f(4)+f(5)=-1$",
+                "value": "o3"
+              },
+              {
+                "label": "$f(1)+f(2)+f(3)+f(4)+f(5)=0$",
+                "value": "o1"
+              },
+              {
+                "label": "$f(1)+f(2)+f(3)+f(4)+f(5)=1$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把每一项换成对应的基准函数值，再合并系数和常数；所求结果是什么？",
+          "stem_board": {
+            "caption": "求出所求的值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与改写",
+                "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=\\frac{1}{2}\\text{ 对称}\\\\f(1)=-f(0)\\\\f(2)=f(0)\\\\f(3)=-f(0)\\\\f(4)=f(0)\\\\f(5)=-f(0)\\\\2 f{\\left(0 \\right)}=0\\end{gathered}"
+              },
+              {
+                "label": "结论",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求出所求的值"
+        }
+      ],
+      "route_id": "function-symmetry",
+      "run_id": "a0509ff1794b43edb9db20faa3ef5b89",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "bfdae77b5ccab9de70dd93fbeca604d8a422fa42d346d103378e36eb708cebd2",
+          "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

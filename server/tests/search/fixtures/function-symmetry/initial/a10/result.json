@@ -1,0 +1,2659 @@
+{
+  "pipeline": "text-then-figures/v1",
+  "output_contract": "search-problem-extraction/v1",
+  "status": "reviewed_candidate",
+  "source_reviewed": true,
+  "public_candidate": {
+    "original_text": "10. 设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；\n$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____.",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)",
+        "graph_symmetry(f,axis,1)",
+        "f(1)=1"
+      ],
+      "goals": [
+        {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(1)"
+            },
+            {
+              "expression": "f(2)"
+            },
+            {
+              "expression": "f(3)"
+            },
+            {
+              "expression": "f(4)"
+            }
+          ]
+        },
+        {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(1)"
+            },
+            {
+              "expression": "f(2)"
+            },
+            {
+              "expression": "f(k)",
+              "index": "k",
+              "lower": 3,
+              "upper": 54
+            }
+          ]
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            },
+            {
+              "target_ref": "/root/goals/1",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "10. 设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；\n$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____.",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)",
+        "graph_symmetry(f,axis,1)",
+        "f(1)=1"
+      ],
+      "goals": [
+        {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(1)"
+            },
+            {
+              "expression": "f(2)"
+            },
+            {
+              "expression": "f(3)"
+            },
+            {
+              "expression": "f(4)"
+            }
+          ]
+        },
+        {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(1)"
+            },
+            {
+              "expression": "f(2)"
+            },
+            {
+              "expression": "f(k)",
+              "index": "k",
+              "lower": 3,
+              "upper": 54
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "reviewed_candidate_revision": "b1dbd0a6536603348908ee1144b87d010ce1da7ad636b831bf99af9a88a8ffcc",
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "kind": "finite_sum"
+      },
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "symmetry_relation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "source": {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(1)"
+            },
+            {
+              "expression": "f(2)"
+            },
+            {
+              "expression": "f(3)"
+            },
+            {
+              "expression": "f(4)"
+            }
+          ]
+        },
+        "target_ref": "/root/goals/0",
+        "structure_version": "function-symmetry/general-v1",
+        "source_refs": [
+          "/root/goals/0",
+          "/root/facts/0",
+          "/root/facts/1",
+          "/root/facts/2",
+          "/root/facts/3"
+        ],
+        "given_entries": [
+          {
+            "source_ref": "/root/facts/0",
+            "expression": "Dom(f)=ℝ",
+            "ast": [
+              "=",
+              [
+                "call",
+                "Dom",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ]
+              ],
+              [
+                "real"
+              ]
+            ]
+          },
+          {
+            "source_ref": "/root/facts/1",
+            "expression": "parity(f,odd)",
+            "ast": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "source_ref": "/root/facts/2",
+            "expression": "graph_symmetry(f,axis,1)",
+            "ast": [
+              "function_graph_symmetry",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "axis",
+              [
+                "number",
+                "1"
+              ]
+            ]
+          },
+          {
+            "source_ref": "/root/facts/3",
+            "expression": "f(1)=1",
+            "ast": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "goal_ast": {
+          "kind": "finite_sum",
+          "target": [
+            "finite_sum",
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ],
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ],
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "3"
+              ]
+            ],
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "4"
+              ]
+            ]
+          ],
+          "terms": [
+            {
+              "target": [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "target": [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "target": [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ]
+            },
+            {
+              "target": [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "4"
+                ]
+              ]
+            }
+          ]
+        },
+        "structure_supported": true,
+        "reason": "",
+        "function": "f",
+        "function_ref": "r:function:f",
+        "variable": "x",
+        "domain_ast": [
+          "real"
+        ],
+        "domain_source_refs": [
+          "/root/facts/0"
+        ],
+        "relations": [
+          {
+            "source_ref": "/root/facts/1",
+            "expression": "parity(f,odd)",
+            "ast": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "source_ref": "/root/facts/2",
+            "expression": "graph_symmetry(f,axis,1)",
+            "ast": [
+              "function_graph_symmetry",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "axis",
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "value_equations": [
+          {
+            "source_ref": "/root/facts/3",
+            "expression": "f(1)=1",
+            "ast": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ]
+      },
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/facts/0",
+        "/root/facts/1",
+        "/root/facts/2",
+        "/root/facts/3",
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "function-symmetry/general-v1",
+      "knowledge_refs": [
+        "function-graph-symmetry#axis",
+        "function-graph-symmetry#center"
+      ]
+    },
+    {
+      "feature_id": "parity_extension",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "parity-extension/r0-v1",
+      "knowledge_refs": [
+        "function-parity#definition",
+        "function-parity#zero"
+      ]
+    },
+    {
+      "feature_id": "parity_inequality",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "parity-inequality/r3-v1",
+      "knowledge_refs": [
+        "function-parity#definition",
+        "function-parity#zero"
+      ]
+    },
+    {
+      "feature_id": "symmetry_evaluation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-symmetry/r2-v1",
+      "knowledge_refs": [
+        "function-parity#definition",
+        "function-parity#zero"
+      ]
+    },
+    {
+      "feature_id": "parity_parameter",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "parity-parameter/r3-v1",
+      "knowledge_refs": [
+        "function-parity#definition",
+        "function-parity#zero"
+      ]
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-parity-definition/v2",
+      "knowledge_refs": [
+        "function-parity#definition",
+        "function-parity#domain"
+      ]
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "abstract-monotonicity/v2",
+      "knowledge_refs": [
+        "function-monotonicity#definition",
+        "quantifiers#instantiation"
+      ]
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "monotonicity-parameter/v6",
+      "knowledge_refs": [
+        "function-monotonicity#definition"
+      ]
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "monotonicity-inequality/v1",
+      "knowledge_refs": [
+        "function-monotonicity#definition"
+      ]
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-extremum/v1",
+      "knowledge_refs": [
+        "function-range-extrema#extrema"
+      ]
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-monotonicity/v1",
+      "knowledge_refs": [
+        "function-monotonicity#definition"
+      ]
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-modeling/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition"
+      ]
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-range-parameter/v1",
+      "knowledge_refs": [
+        "piecewise-function#domain-range"
+      ]
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-inequality/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition",
+        "piecewise-function#inequality"
+      ]
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-equation/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition",
+        "piecewise-function#equation"
+      ]
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-graph/v5",
+      "knowledge_refs": [
+        "function-representations#graph",
+        "function-graph-transformations#translation"
+      ]
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-formula-root/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-representations#analytic"
+      ]
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "translation-range/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "abstract-function-range-coverage/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-range-answer-request/v9",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-evaluation-structural/v1",
+      "knowledge_refs": [
+        "function-concept#definition",
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-comparison-domain-first/v2",
+      "knowledge_refs": [
+        "function-concept#identity"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "abstract-function-domain-mixed-and-parameter/v4",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "fixed-rational-polynomial-function-domain/v6",
+      "knowledge_refs": [
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#universal",
+        "quantifiers#existential"
+      ]
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "domain"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "relation"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "bound_vars"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound",
+        "degree_in_goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "known",
+      "value": {
+        "kind": "finite_sum"
+      },
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "symmetry_relation",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "known",
+      "value": {
+        "source": {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(1)"
+            },
+            {
+              "expression": "f(2)"
+            },
+            {
+              "expression": "f(k)",
+              "index": "k",
+              "lower": 3,
+              "upper": 54
+            }
+          ]
+        },
+        "target_ref": "/root/goals/1",
+        "structure_version": "function-symmetry/general-v1",
+        "source_refs": [
+          "/root/goals/1",
+          "/root/facts/0",
+          "/root/facts/1",
+          "/root/facts/2",
+          "/root/facts/3"
+        ],
+        "given_entries": [
+          {
+            "source_ref": "/root/facts/0",
+            "expression": "Dom(f)=ℝ",
+            "ast": [
+              "=",
+              [
+                "call",
+                "Dom",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ]
+              ],
+              [
+                "real"
+              ]
+            ]
+          },
+          {
+            "source_ref": "/root/facts/1",
+            "expression": "parity(f,odd)",
+            "ast": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "source_ref": "/root/facts/2",
+            "expression": "graph_symmetry(f,axis,1)",
+            "ast": [
+              "function_graph_symmetry",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "axis",
+              [
+                "number",
+                "1"
+              ]
+            ]
+          },
+          {
+            "source_ref": "/root/facts/3",
+            "expression": "f(1)=1",
+            "ast": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "goal_ast": {
+          "kind": "finite_sum",
+          "target": [
+            "finite_sum",
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ],
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ],
+            [
+              "indexed_sum",
+              [
+                "ref",
+                "r.goals[1].terms[2]:scalar:k",
+                "scalar"
+              ],
+              [
+                "number",
+                "3"
+              ],
+              [
+                "number",
+                "54"
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "ref",
+                  "r.goals[1].terms[2]:scalar:k",
+                  "scalar"
+                ]
+              ]
+            ]
+          ],
+          "terms": [
+            {
+              "target": [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "target": [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "index": [
+                "ref",
+                "r.goals[1].terms[2]:scalar:k",
+                "scalar"
+              ],
+              "lower": 3,
+              "upper": 54,
+              "target": [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "ref",
+                  "r.goals[1].terms[2]:scalar:k",
+                  "scalar"
+                ]
+              ]
+            }
+          ]
+        },
+        "structure_supported": true,
+        "reason": "",
+        "function": "f",
+        "function_ref": "r:function:f",
+        "variable": "x",
+        "domain_ast": [
+          "real"
+        ],
+        "domain_source_refs": [
+          "/root/facts/0"
+        ],
+        "relations": [
+          {
+            "source_ref": "/root/facts/1",
+            "expression": "parity(f,odd)",
+            "ast": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "source_ref": "/root/facts/2",
+            "expression": "graph_symmetry(f,axis,1)",
+            "ast": [
+              "function_graph_symmetry",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "axis",
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "value_equations": [
+          {
+            "source_ref": "/root/facts/3",
+            "expression": "f(1)=1",
+            "ast": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ]
+      },
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/facts/0",
+        "/root/facts/1",
+        "/root/facts/2",
+        "/root/facts/3",
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "function-symmetry/general-v1",
+      "knowledge_refs": [
+        "function-graph-symmetry#axis",
+        "function-graph-symmetry#center"
+      ]
+    },
+    {
+      "feature_id": "parity_extension",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "parity-extension/r0-v1",
+      "knowledge_refs": [
+        "function-parity#definition",
+        "function-parity#zero"
+      ]
+    },
+    {
+      "feature_id": "parity_inequality",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "parity-inequality/r3-v1",
+      "knowledge_refs": [
+        "function-parity#definition",
+        "function-parity#zero"
+      ]
+    },
+    {
+      "feature_id": "symmetry_evaluation",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-symmetry/r2-v1",
+      "knowledge_refs": [
+        "function-parity#definition",
+        "function-parity#zero"
+      ]
+    },
+    {
+      "feature_id": "parity_parameter",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "parity-parameter/r3-v1",
+      "knowledge_refs": [
+        "function-parity#definition",
+        "function-parity#zero"
+      ]
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-parity-definition/v2",
+      "knowledge_refs": [
+        "function-parity#definition",
+        "function-parity#domain"
+      ]
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "abstract-monotonicity/v2",
+      "knowledge_refs": [
+        "function-monotonicity#definition",
+        "quantifiers#instantiation"
+      ]
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "monotonicity-parameter/v6",
+      "knowledge_refs": [
+        "function-monotonicity#definition"
+      ]
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "monotonicity-inequality/v1",
+      "knowledge_refs": [
+        "function-monotonicity#definition"
+      ]
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-extremum/v1",
+      "knowledge_refs": [
+        "function-range-extrema#extrema"
+      ]
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-monotonicity/v1",
+      "knowledge_refs": [
+        "function-monotonicity#definition"
+      ]
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-modeling/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition"
+      ]
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-range-parameter/v1",
+      "knowledge_refs": [
+        "piecewise-function#domain-range"
+      ]
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-inequality/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition",
+        "piecewise-function#inequality"
+      ]
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-equation/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition",
+        "piecewise-function#equation"
+      ]
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-graph/v5",
+      "knowledge_refs": [
+        "function-representations#graph",
+        "function-graph-transformations#translation"
+      ]
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-formula-root/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-representations#analytic"
+      ]
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "translation-range/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "abstract-function-range-coverage/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-range-answer-request/v9",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-evaluation-structural/v1",
+      "knowledge_refs": [
+        "function-concept#definition",
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "function-comparison-domain-first/v2",
+      "knowledge_refs": [
+        "function-concept#identity"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "abstract-function-domain-mixed-and-parameter/v4",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "fixed-rational-polynomial-function-domain/v6",
+      "knowledge_refs": [
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#universal",
+        "quantifiers#existential"
+      ]
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "domain"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "relation"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "bound_vars"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound",
+        "degree_in_goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_symmetry_relation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    }
+  ],
+  "features_ok": true,
+  "feature_diagnostics": [],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [],
+  "question_sha256": "ea3d6079e2c644c63a6524ddc8cbad490b0860f2f1ccb673322c397492b68a8c",
+  "sent_image_sha256": [
+    "ea3d6079e2c644c63a6524ddc8cbad490b0860f2f1ccb673322c397492b68a8c"
+  ],
+  "elapsed_seconds": 44.826,
+  "figure_attempts": [],
+  "stored_original_sha256": "c1963a1b0f7f46d0bff13bcb8bd30ee6a543386bb72c7ee1a33209e440a5fd6b"
+}

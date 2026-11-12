@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"14. 设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"parity(f,odd)\",\"graph_symmetry(f,axis,1/2)\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(1)+f(2)+f(3)+f(4)+f(5)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1210,
+      "prompt_tokens": 25853,
+      "total_tokens": 27063,
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 381
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 632,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-048dc275-68ef-48fc-8a5d-bb28653d6013",
+        "sha256": "d01c291879a49fb3e73973482d16993a2bfb3531cd00760cd840d5dbb5b946e8",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 12143,
+        "expires_at": 1794536237,
+        "uploaded_at": 1794449836.99088
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "d01c291879a49fb3e73973482d16993a2bfb3531cd00760cd840d5dbb5b946e8",
+        "api_calls": 1,
+        "file_id": "file-api-048dc275-68ef-48fc-8a5d-bb28653d6013",
+        "expires_at": 1794536237,
+        "elapsed_ms": 173
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 7465,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1210,
+          "prompt_tokens": 25853,
+          "total_tokens": 27063,
+          "completion_tokens_details": {
+            "reasoning_tokens": 939
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25472
+          },
+          "prompt_cache_hit_tokens": 25472,
+          "prompt_cache_miss_tokens": 381
+        },
+        "raw_payload": {
+          "id": "48b07a51-47fd-4a86-9349-026ccc525238",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1210,
+            "prompt_tokens": 25853,
+            "total_tokens": 27063,
+            "completion_tokens_details": {
+              "reasoning_tokens": 939
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25472
+            },
+            "prompt_cache_hit_tokens": 25472,
+            "prompt_cache_miss_tokens": 381
+          },
+          "created": 1794449837,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"14. 设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"parity(f,odd)\",\"graph_symmetry(f,axis,1/2)\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(1)+f(2)+f(3)+f(4)+f(5)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。题干：14. 设f(x)是定义在R上的奇函数，且y=f(x)的图象关于直线x=1/2对称，则 f(1)+f(2)+f(3)+f(4)+f(5)=____。手写0不是题目。需要输出JSON。题目有填空题，无选项。配图？没有，右侧有手写勾，不算。图形？没有配图。original_text保留题号？可以保留14.。public_content去除题号，题干只保留。root facts: f定义在R上奇函数，y=f(x)图象关于直线x=1/2对称。目标求值 f(1)+...+f(5)。注意奇函数和对称条件。goals find_value expression \"f(1)+f(2)+f(3)+f(4)+f(5)\"。definitions: f(x)是函数？没有解析式，可以定义 f(x) 吗？题面有f(x)，函数定义没有具体解析式；definitions可写 f(x)? 不能无解析式。facts写\"parity(f,odd)\"? 目录 parity(f,odd) 表示全域奇函数；\"graph_symmetry(f,axis,1/2)\" 表示图像关于直线 x=1/2 对称。还需\"Dom(f)=ℝ\"？题面“定义在R上的奇函数”明确完整定义域R；奇函数事实。facts可写 \"Dom(f)=ℝ\", \"parity(f,odd)\", \"graph_symmetry(f,axis,1/2)\"。定义域写facts。目标find_value expression保留。uncertainties无。public_content scopes root statement: \"设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。\" 注意$R$通常用ℝ；原文是R。保留。choices status none selection_mode none options []。figure_detection status none regions []。root.label? 题号14不是有题意标签？可以不放label，或放label \"14.\"? root_label_role source。如果放label需要public root_label_role source。但题号可能不算题目内容，可以省略label。Schema root.label可选。我们没有小问，children无。public_content.completeness complete, privacy separated? 图中有手写答案0及勾，已不在题干。题号是来源，已去除。可以separated。figure not_required。\n\n需要确保 original_text中的公式用$…$，完整。包含题号14. \"设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。\" 填横线。不要手写0。\n\nroot facts字符串：目录记法，根式不需要。写 \"Dom(f)=ℝ\", \"parity(f,odd)\", \"graph_symmetry(f,axis,1/2)\"。注意 graph_symmetry syntax 中 a 可以是1/2。没问题。目标 find_value expression应为 \"f(1)+f(2)+f(3)+f(4)+f(5)\"。也许可加in_terms_of无。没有函数定义，但目标引用f是可以的。\n\noriginal_text 题号14.保留，图片上“14.”。public statement不包含题号。scopes对应root。无选项。所有目标在choices中唯一出现且status none。\n\nfigure_detection none。uncertainties? 没有。\n\n注意“定义在R上的奇函数”的R在LaTeX用$R$。原图是R斜体。public statement公式用$…$，如$R$。对称直线$x=\\frac{1}{2}$。原式等号后空格横线。填____。\n\nJSON禁止多余字段。public_content required completeness privacy figure scopes figure_detection. scopes required scope_ref statement choices. choices target_ref status selection_mode options. target_ref精确/root/goals/0。\n\nroot required no? Scope fields only those. Use facts, goals. Could definitions omitted. Let's produce.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 7667
+  },
+  "raw_payload": {
+    "id": "48b07a51-47fd-4a86-9349-026ccc525238",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"14. 设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"parity(f,odd)\",\"graph_symmetry(f,axis,1/2)\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(1)+f(2)+f(3)+f(4)+f(5)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。题干：14. 设f(x)是定义在R上的奇函数，且y=f(x)的图象关于直线x=1/2对称，则 f(1)+f(2)+f(3)+f(4)+f(5)=____。手写0不是题目。需要输出JSON。题目有填空题，无选项。配图？没有，右侧有手写勾，不算。图形？没有配图。original_text保留题号？可以保留14.。public_content去除题号，题干只保留。root facts: f定义在R上奇函数，y=f(x)图象关于直线x=1/2对称。目标求值 f(1)+...+f(5)。注意奇函数和对称条件。goals find_value expression \"f(1)+f(2)+f(3)+f(4)+f(5)\"。definitions: f(x)是函数？没有解析式，可以定义 f(x) 吗？题面有f(x)，函数定义没有具体解析式；definitions可写 f(x)? 不能无解析式。facts写\"parity(f,odd)\"? 目录 parity(f,odd) 表示全域奇函数；\"graph_symmetry(f,axis,1/2)\" 表示图像关于直线 x=1/2 对称。还需\"Dom(f)=ℝ\"？题面“定义在R上的奇函数”明确完整定义域R；奇函数事实。facts可写 \"Dom(f)=ℝ\", \"parity(f,odd)\", \"graph_symmetry(f,axis,1/2)\"。定义域写facts。目标find_value expression保留。uncertainties无。public_content scopes root statement: \"设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。\" 注意$R$通常用ℝ；原文是R。保留。choices status none selection_mode none options []。figure_detection status none regions []。root.label? 题号14不是有题意标签？可以不放label，或放label \"14.\"? root_label_role source。如果放label需要public root_label_role source。但题号可能不算题目内容，可以省略label。Schema root.label可选。我们没有小问，children无。public_content.completeness complete, privacy separated? 图中有手写答案0及勾，已不在题干。题号是来源，已去除。可以separated。figure not_required。\n\n需要确保 original_text中的公式用$…$，完整。包含题号14. \"设$f(x)$是定义在$R$上的奇函数，且$y=f(x)$的图象关于直线$x=\\\\frac{1}{2}$对称，则$f(1)+f(2)+f(3)+f(4)+f(5)=$____。\" 填横线。不要手写0。\n\nroot facts字符串：目录记法，根式不需要。写 \"Dom(f)=ℝ\", \"parity(f,odd)\", \"graph_symmetry(f,axis,1/2)\"。注意 graph_symmetry syntax 中 a 可以是1/2。没问题。目标 find_value expression应为 \"f(1)+f(2)+f(3)+f(4)+f(5)\"。也许可加in_terms_of无。没有函数定义，但目标引用f是可以的。\n\noriginal_text 题号14.保留，图片上“14.”。public statement不包含题号。scopes对应root。无选项。所有目标在choices中唯一出现且status none。\n\nfigure_detection none。uncertainties? 没有。\n\n注意“定义在R上的奇函数”的R在LaTeX用$R$。原图是R斜体。public statement公式用$…$，如$R$。对称直线$x=\\frac{1}{2}$。原式等号后空格横线。填____。\n\nJSON禁止多余字段。public_content required completeness privacy figure scopes figure_detection. scopes required scope_ref statement choices. choices target_ref status selection_mode options. target_ref精确/root/goals/0。\n\nroot required no? Scope fields only those. Use facts, goals. Could definitions omitted. Let's produce."
+        }
+      }
+    ],
+    "created": 1794449837,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1210,
+      "prompt_tokens": 25853,
+      "total_tokens": 27063,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 939,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25472
+      },
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 381
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 7.668
+}

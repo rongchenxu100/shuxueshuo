@@ -1,0 +1,267 @@
+{
+  "date": "2026-11-12",
+  "scope": "original_development_photos_fresh_live_ocr_model_review_lesson_api",
+  "not_unseen_holdout": true,
+  "browser_acceptance": false,
+  "account_progress_persistence_acceptance": false,
+  "public_courses_rebuilt": false,
+  "prompts_changed_in_this_acceptance": false,
+  "calls": {
+    "initial": {
+      "semantic_calls": 4,
+      "network_attempts": 4,
+      "recordings": 2,
+      "page_uploads_with_real_ocr": 2
+    }
+  },
+  "cases": [
+    {
+      "case": "a10",
+      "attempt": "initial",
+      "search_id": "2203e185315d",
+      "recording": "server/tests/search/fixtures/function-symmetry/initial/a10",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+        "source_sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+        "crop_pixels": [
+          110,
+          1090,
+          1140,
+          1240
+        ],
+        "box": [
+          0.0859375,
+          0.6389214536928488,
+          0.890625,
+          0.7268464243845252
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 2,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "finite_sum",
+            "result_type": "finite_sum",
+            "status": "complete",
+            "value": {
+              "expression": "0",
+              "latex": "0"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        },
+        "/root/goals/1": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "finite_sum",
+            "result_type": "finite_sum",
+            "status": "complete",
+            "value": {
+              "expression": "1",
+              "latex": "1"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a10",
+        "search_id": "2203e185315d",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 61.282,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 44.826,
+        "execution_status": "completed",
+        "types": [
+          "type-function-symmetry",
+          "type-function-symmetry"
+        ],
+        "source_located": true,
+        "interaction_count": 4,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_export": {
+        "directory": "/private/tmp/fp-t5-live-20261112-initial/private-search/submissions/2203e185315d/stage-two-1/stage-three",
+        "evidence": "/private/tmp/fp-t5-live-course-exports-20261112/a10/evidence.json",
+        "evidence_sha256": "25a301e4583dc296406da7b5c744dac4aacd2366981be7701e3d93a3ab6b2509",
+        "provenance": {
+          "run_id": "12eb949b04224a499850c63e0b3c6c9b",
+          "lesson_version": "257e7948ffed31ef6ccb86b891d2d2bfbb9bff8b576c793ac126260537278b42",
+          "input_sha256": "9f05db5045fadef57bf2c026031fd697d8a308138cab725a975a65c7fccc7593",
+          "checkpoint_sha256": "94d47514f15fe8941ebe8f68ccac3d21365a4a5a63746d4795ef2b53752c987b",
+          "result_sha256": "6f7fab7701bb0d28598296828048177f84babca27fb174784c527223ec499f9a",
+          "stage_one_sha256": "998b3dd4a374574d502a5f009d794135521d670192fa0eb84ba6b2acb5910886",
+          "stage_two_sha256": "0f47d39c4076f11e9ad636a0c785cddc0f19d65f93b602ede0b8c82d505ca3da"
+        }
+      },
+      "compiler_and_grading": {
+        "targets": [
+          "/root/goals/0",
+          "/root/goals/1"
+        ],
+        "decisions": 13,
+        "formulas": 138,
+        "numberLines": 18,
+        "summary": {
+          "label": "本题全部目标已完成",
+          "formula": "",
+          "items": [
+            {
+              "title": "求四项之和",
+              "summary": {
+                "label": "总和：",
+                "formula": "0"
+              }
+            },
+            {
+              "title": "求前 54 项之和",
+              "summary": {
+                "label": "总和：",
+                "formula": "1"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "a14",
+      "attempt": "initial",
+      "search_id": "9a70b0745ffe",
+      "recording": "server/tests/search/fixtures/function-symmetry/initial/a14",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+        "source_sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+        "crop_pixels": [
+          110,
+          275,
+          1040,
+          424
+        ],
+        "box": [
+          0.0859375,
+          0.1611957796014068,
+          0.8125,
+          0.2485345838218054
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "0",
+              "latex": "0"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a14",
+        "search_id": "9a70b0745ffe",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 22.157,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 14.138,
+        "execution_status": "completed",
+        "types": [
+          "type-function-symmetry"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_export": {
+        "directory": "/private/tmp/fp-t5-live-20261112-initial/private-search/submissions/9a70b0745ffe/stage-two-1/stage-three",
+        "evidence": "/private/tmp/fp-t5-live-course-exports-20261112/a14/evidence.json",
+        "evidence_sha256": "adca3925d0dbd2a7929de82575defac32ca72a23154e29b9c7562253c39d4e22",
+        "provenance": {
+          "run_id": "a0509ff1794b43edb9db20faa3ef5b89",
+          "lesson_version": "e6a54fc2b5fea891651dd679d97b7b1a2c7620547f4e2954543a99b5b9886d24",
+          "input_sha256": "0f25c890c48915be93d137ce9b29c8481896fed4f1786886a6cbf4fb4faf7286",
+          "checkpoint_sha256": "c604fbf4005bcf71aa387e96fe6d4fc466f189a338e42fdfe678123c5239ae3c",
+          "result_sha256": "5e14d0395381b03e7387250785ba0938b652c1828d96b9b782360d622c26652d",
+          "stage_one_sha256": "ce74106c72d637ce1c9746f817c149dfd6d10b14da01ffa1c1ec3f4795aafc1e",
+          "stage_two_sha256": "9e494ceaf973090262687964da8cf5a34e1b04c017f962ea65944244f01eca42"
+        }
+      },
+      "compiler_and_grading": {
+        "targets": [
+          "/root/goals/0"
+        ],
+        "decisions": 7,
+        "formulas": 68,
+        "numberLines": 8,
+        "summary": {
+          "label": "函数值：",
+          "formula": "0"
+        }
+      }
+    }
+  ],
+  "totals": {
+    "questions": 2,
+    "goals": 3,
+    "decisions": 20,
+    "formulas": 206,
+    "numberLines": 26
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a10",
+  "reviewer": "逐字核对用户原图印刷题干，忽略手写答案。利用奇性与所给对称轴推导平移关系；只断言所求整数点的值，不将函数视作零函数。人工转录，非真实 OCR。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+      "sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+      "location": "印刷第 10 题；FP-A10"
+    }
+  ],
+  "candidate": {
+    "original_text": "设函数 $f(x)$ 是定义在 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$____；$f(1)+f(2)+\\cdots+f(54)$ 的值为____。",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)",
+        "graph_symmetry(f,axis,1)",
+        "f(1)=1"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(1)+f(2)+f(3)+f(4)"
+        },
+        {
+          "kind": "finite_sum",
+          "terms": [
+            {
+              "expression": "f(k)",
+              "index": "k",
+              "lower": 1,
+              "upper": 54
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "expected": {
+    "goals": [
+      {
+        "type": "type-function-symmetry",
+        "value": "0"
+      },
+      {
+        "type": "type-function-symmetry",
+        "value": "1"
+      }
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

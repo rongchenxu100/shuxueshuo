@@ -1,0 +1,73 @@
+{
+  "contract": "authored-topic-staging/v1",
+  "topic": "function-parity",
+  "group": "symmetry",
+  "publish_state": "awaiting_t2_t5_unified_rebuild",
+  "note": "内部待发布登记；只在隔离目录生成课程。统一重建前不新增公开课程链接。人工核对原图的转录，不是 OCR 或独立留出照片。",
+  "group_entry": {
+    "id": "symmetry",
+    "label": "利用图像的对称性",
+    "type": "type-function-symmetry",
+    "groupBy": "method",
+    "description": "写出对称配对，组合反射得到平移关系，逐项求值或分组求和。"
+  },
+  "pending": [
+    {
+      "id": "function-parity-a10",
+      "batch": "R1",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t5-staged-20261112/a10.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a10",
+        "title": "对称轴与奇性求和 · A10",
+        "page": "/topics/function-parity/q10/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t5-staged-20261112/a10.json",
+        "evidence": "site/data/graph-walk/function-parity-a10.evidence.json",
+        "targetRefs": [
+          "/root/goals/0",
+          "/root/goals/1"
+        ],
+        "targetTitles": [
+          "求四项之和",
+          "求前 54 项之和"
+        ],
+        "mainTargetRef": "/root/goals/1"
+      },
+      "topic_entry": {
+        "label": "对称轴与奇性求和 · A10",
+        "path": "/topics/function-parity/q10/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a10.json",
+        "types": [
+          "type-function-symmetry"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a14",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t5-staged-20261112/a14.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a14",
+        "title": "对称轴与整数点取值 · A14",
+        "page": "/topics/function-parity/q14/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t5-staged-20261112/a14.json",
+        "evidence": "site/data/graph-walk/function-parity-a14.evidence.json"
+      },
+      "topic_entry": {
+        "label": "对称轴与整数点取值 · A14",
+        "path": "/topics/function-parity/q14/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a14.json",
+        "types": [
+          "type-function-symmetry"
+        ]
+      }
+    }
+  ]
+}

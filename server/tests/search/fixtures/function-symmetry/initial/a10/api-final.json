@@ -1,0 +1,1074 @@
+{
+  "search_id": "2203e185315d",
+  "user_id": "1687e680-4492-461a-aa77-8e38ff91faa7",
+  "problem_id": "588beddf-7296-4559-a7f6-fd0225f7129b",
+  "statement": "设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____。",
+  "recognition_status": "reviewed",
+  "lesson_status": "ready",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "c1963a1b0f7f46d0bff13bcb8bd30ee6a543386bb72c7ee1a33209e440a5fd6b",
+      "width": 1030,
+      "height": 150,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/2203e185315d/figures/original?version=f29f5c17bca534f35f02a625df381f82eb92dc0cbb1094bd6a4b66925a94b6d7"
+      }
+    ],
+    "content_id": "f29f5c17bca534f35f02a625df381f82eb92dc0cbb1094bd6a4b66925a94b6d7"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "0fdb12c27308",
+    "box": [
+      0.0859375,
+      0.6389214536928488,
+      0.890625,
+      0.7268464243845252
+    ],
+    "page_size": [
+      1280,
+      1706
+    ],
+    "crop_size": [
+      1030,
+      150
+    ],
+    "bytes": 12963
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "10. 设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；\n$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____.",
+  "parts": [],
+  "root": {
+    "facts": [
+      "Dom(f)=ℝ",
+      "parity(f,odd)",
+      "graph_symmetry(f,axis,1)",
+      "f(1)=1"
+    ],
+    "goals": [
+      {
+        "kind": "finite_sum",
+        "terms": [
+          {
+            "expression": "f(1)"
+          },
+          {
+            "expression": "f(2)"
+          },
+          {
+            "expression": "f(3)"
+          },
+          {
+            "expression": "f(4)"
+          }
+        ]
+      },
+      {
+        "kind": "finite_sum",
+        "terms": [
+          {
+            "expression": "f(1)"
+          },
+          {
+            "expression": "f(2)"
+          },
+          {
+            "expression": "f(k)",
+            "index": "k",
+            "lower": 3,
+            "upper": 54
+          }
+        ]
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "symmetry_relation",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "parity_extension",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "symmetry_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "symmetry_relation",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "parity_extension",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "symmetry_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "ea3d6079e2c644c63a6524ddc8cbad490b0860f2f1ccb673322c397492b68a8c",
+    "sent_image_sha256": [
+      "ea3d6079e2c644c63a6524ddc8cbad490b0860f2f1ccb673322c397492b68a8c"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 44.826,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-symmetry",
+        "supported": [
+          "type-function-symmetry"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 9,
+                  "end": 13,
+                  "text": "$f(x)$"
+                },
+                {
+                  "start": 18,
+                  "end": 19,
+                  "text": "$R$"
+                },
+                {
+                  "start": 23,
+                  "end": 26,
+                  "text": "奇函数"
+                },
+                {
+                  "start": 34,
+                  "end": 37,
+                  "text": "$x=1$"
+                },
+                {
+                  "start": 43,
+                  "end": 49,
+                  "text": "$f(1)=1$"
+                },
+                {
+                  "start": 54,
+                  "end": 74,
+                  "text": "$f(1)+f(2)+f(3)+f(4)=$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1",
+                "/root/goals/0:d1:2",
+                "/root/goals/0:d1:3",
+                "/root/goals/0:d1:4",
+                "/root/goals/0:d1:5",
+                "/root/goals/0:d1:6"
+              ],
+              "knowledge_refs": [
+                "function-graph-symmetry#paired-arguments"
+              ],
+              "source_refs": [
+                "/root/goals/0",
+                "/root/facts/0",
+                "/root/facts/1",
+                "/root/facts/2",
+                "/root/facts/3"
+              ],
+              "options": [
+                {
+                  "text": "求函数 $f(x)$ 的完整解析式",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求函数的最小正周期",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。",
+                  "id": "/root/goals/0:goal:o1"
+                },
+                {
+                  "text": "利用题给对称关系，求 $f(1)+f(2)+f(3)+f(4)$ 的值",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o2"
+                }
+              ],
+              "signature": "86bac2f3afecb5f7"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问要利用已知条件求什么？",
+          "feedback": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。",
+          "summary": "$D=\\mathbb{R}$；$f\\text{ 为奇函数}$；$\\text{图像关于 }x=1\\text{ 对称}$；$f(1)=1$。利用题给对称关系，求 $f(1)+f(2)+f(3)+f(4)$ 的值。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-symmetry",
+            "label": "利用图像对称关系求值与求和",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "题给图像的对称轴、对称中心或一般对称等式，要求函数值或有限和。"
+            ],
+            "choice_hint": "利用图像对称关系变换输入，再求值或求和"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "2203e185315d//root/goals/0",
+            "graphVersion": "5601333b732afbcfb283a1044f6fb328abbb67db6f50da4ef263bdab3fff8d06",
+            "problem": {
+              "text": "设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问要利用已知条件求什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求函数 $f(x)$ 的完整解析式",
+                      "feedback": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求函数的最小正周期",
+                      "feedback": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o2",
+                      "label": "利用题给对称关系，求 $f(1)+f(2)+f(3)+f(4)$ 的值"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o2"
+                  ]
+                },
+                "feedback": {
+                  "answer": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。"
+                },
+                "candidateNodes": [
+                  "function-graph-symmetry"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-graph-symmetry"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "$D=\\mathbb{R}$；$f\\text{ 为奇函数}$；$\\text{图像关于 }x=1\\text{ 对称}$；$f(1)=1$。利用题给对称关系，求 $f(1)+f(2)+f(3)+f(4)$ 的值。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 0 个相关题型；最高覆盖 0/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-symmetry",
+                      "label": "利用图像对称关系求值与求和",
+                      "note": "利用图像对称关系变换输入，再求值或求和"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-symmetry"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-symmetry"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-symmetry"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "判断依据：题给图像的对称轴、对称中心或一般对称等式，要求函数值或有限和。"
+                  ],
+                  "log": "作答判断：选择主要题型「利用图像对称关系求值与求和」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-graph-symmetry",
+                  "kind": "knowledge",
+                  "label": "函数图像的对称性",
+                  "summary": "从相同或互补的函数值识别对称轴、对称中心；通过平移，把一般对称性联系到奇偶性。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                }
+              ],
+              "edges": [],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-graph-symmetry"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "cb5dc2f9e9248b4b2714da1a0eec2397c42362123eabe5395ce0d207dd7e857d"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "2203e185315d//root/goals/0",
+            "bundleVersion": "cb5dc2f9e9248b4b2714da1a0eec2397c42362123eabe5395ce0d207dd7e857d",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o2",
+                "reason": "$D=\\mathbb{R}$；$f\\text{ 为奇函数}$；$\\text{图像关于 }x=1\\text{ 对称}$；$f(1)=1$。利用题给对称关系，求 $f(1)+f(2)+f(3)+f(4)$ 的值。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-symmetry",
+                "reason": "选「利用图像对称关系求值与求和」：题给图像的对称轴、对称中心或一般对称等式，要求函数值或有限和。"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "target_ref": "/root/goals/1",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-symmetry",
+        "supported": [
+          "type-function-symmetry"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/1:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 9,
+                  "end": 13,
+                  "text": "$f(x)$"
+                },
+                {
+                  "start": 18,
+                  "end": 19,
+                  "text": "$R$"
+                },
+                {
+                  "start": 23,
+                  "end": 26,
+                  "text": "奇函数"
+                },
+                {
+                  "start": 34,
+                  "end": 37,
+                  "text": "$x=1$"
+                },
+                {
+                  "start": 43,
+                  "end": 49,
+                  "text": "$f(1)=1$"
+                },
+                {
+                  "start": 83,
+                  "end": 105,
+                  "text": "$f(1)+f(2)+\\cdots+f(54)$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/1:d1:1",
+                "/root/goals/1:d1:2",
+                "/root/goals/1:d1:3",
+                "/root/goals/1:d1:4",
+                "/root/goals/1:d1:5",
+                "/root/goals/1:d1:6"
+              ],
+              "knowledge_refs": [
+                "function-graph-symmetry#paired-arguments"
+              ],
+              "source_refs": [
+                "/root/goals/1",
+                "/root/facts/0",
+                "/root/facts/1",
+                "/root/facts/2",
+                "/root/facts/3"
+              ],
+              "options": [
+                {
+                  "text": "利用题给对称关系，求 $f(1)+f(2)+\\sum_{k=3}^{54}f(k)$ 的值",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/1:goal:o0"
+                },
+                {
+                  "text": "求函数的最小正周期",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。",
+                  "id": "/root/goals/1:goal:o1"
+                },
+                {
+                  "text": "求函数 $f(x)$ 的完整解析式",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。",
+                  "id": "/root/goals/1:goal:o2"
+                }
+              ],
+              "signature": "9b65f1d0f9a08076"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问要利用已知条件求什么？",
+          "feedback": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。",
+          "summary": "$D=\\mathbb{R}$；$f\\text{ 为奇函数}$；$\\text{图像关于 }x=1\\text{ 对称}$；$f(1)=1$。利用题给对称关系，求 $f(1)+f(2)+\\sum_{k=3}^{54}f(k)$ 的值。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-symmetry",
+            "label": "利用图像对称关系求值与求和",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "题给图像的对称轴、对称中心或一般对称等式，要求函数值或有限和。"
+            ],
+            "choice_hint": "利用图像对称关系变换输入，再求值或求和"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "2203e185315d//root/goals/1",
+            "graphVersion": "5601333b732afbcfb283a1044f6fb328abbb67db6f50da4ef263bdab3fff8d06",
+            "problem": {
+              "text": "设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问要利用已知条件求什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/1:goal:o0",
+                      "label": "利用题给对称关系，求 $f(1)+f(2)+\\sum_{k=3}^{54}f(k)$ 的值"
+                    },
+                    {
+                      "value": "/root/goals/1:goal:o1",
+                      "label": "求函数的最小正周期",
+                      "feedback": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。"
+                    },
+                    {
+                      "value": "/root/goals/1:goal:o2",
+                      "label": "求函数 $f(x)$ 的完整解析式",
+                      "feedback": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/1:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "已知的是函数的对称关系和取值条件，所求的是指定的函数值或函数值之和。"
+                },
+                "candidateNodes": [
+                  "function-graph-symmetry"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-graph-symmetry"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "$D=\\mathbb{R}$；$f\\text{ 为奇函数}$；$\\text{图像关于 }x=1\\text{ 对称}$；$f(1)=1$。利用题给对称关系，求 $f(1)+f(2)+\\sum_{k=3}^{54}f(k)$ 的值。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 0 个相关题型；最高覆盖 0/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-symmetry",
+                      "label": "利用图像对称关系求值与求和",
+                      "note": "利用图像对称关系变换输入，再求值或求和"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-symmetry"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-symmetry"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-symmetry"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "判断依据：题给图像的对称轴、对称中心或一般对称等式，要求函数值或有限和。"
+                  ],
+                  "log": "作答判断：选择主要题型「利用图像对称关系求值与求和」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-graph-symmetry",
+                  "kind": "knowledge",
+                  "label": "函数图像的对称性",
+                  "summary": "从相同或互补的函数值识别对称轴、对称中心；通过平移，把一般对称性联系到奇偶性。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                }
+              ],
+              "edges": [],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-graph-symmetry"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "a04b8048538fefeb05194f5df02055c8b0644d540ad58559113e2cce3d7c719c"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "2203e185315d//root/goals/1",
+            "bundleVersion": "a04b8048538fefeb05194f5df02055c8b0644d540ad58559113e2cce3d7c719c",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/1:goal:o0",
+                "reason": "$D=\\mathbb{R}$；$f\\text{ 为奇函数}$；$\\text{图像关于 }x=1\\text{ 对称}$；$f(1)=1$。利用题给对称关系，求 $f(1)+f(2)+\\sum_{k=3}^{54}f(k)$ 的值。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-symmetry",
+                "reason": "选「利用图像对称关系求值与求和」：题给图像的对称轴、对称中心或一般对称等式，要求函数值或有限和。"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "12eb949b04224a499850c63e0b3c6c9b",
+      "lesson_version": "257e7948ffed31ef6ccb86b891d2d2bfbb9bff8b576c793ac126260537278b42",
+      "stream_id": "12eb949b04224a499850c63e0b3c6c9b",
+      "snapshot_url": "/api/search/problems/2203e185315d/lesson/12eb949b04224a499850c63e0b3c6c9b/snapshot",
+      "events_url": "/api/search/problems/2203e185315d/lesson/12eb949b04224a499850c63e0b3c6c9b/events",
+      "websocket_url": "/api/search/problems/2203e185315d/lesson/12eb949b04224a499850c63e0b3c6c9b/ws"
+    }
+  }
+}

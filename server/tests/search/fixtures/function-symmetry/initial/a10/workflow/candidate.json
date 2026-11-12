@@ -1,0 +1,76 @@
+{
+  "original_text": "10. 设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；\n$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____.",
+  "root": {
+    "facts": [
+      "Dom(f)=ℝ",
+      "parity(f,odd)",
+      "graph_symmetry(f,axis,1)",
+      "f(1)=1"
+    ],
+    "goals": [
+      {
+        "kind": "finite_sum",
+        "terms": [
+          {
+            "expression": "f(1)"
+          },
+          {
+            "expression": "f(2)"
+          },
+          {
+            "expression": "f(3)"
+          },
+          {
+            "expression": "f(4)"
+          }
+        ]
+      },
+      {
+        "kind": "finite_sum",
+        "terms": [
+          {
+            "expression": "f(1)"
+          },
+          {
+            "expression": "f(2)"
+          },
+          {
+            "expression": "f(k)",
+            "index": "k",
+            "lower": 3,
+            "upper": 54
+          }
+        ]
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "设函数 $f(x)$ 是 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$ ____；$f(1)+f(2)+\\cdots+f(54)$ 的值为 ____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          },
+          {
+            "target_ref": "/root/goals/1",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

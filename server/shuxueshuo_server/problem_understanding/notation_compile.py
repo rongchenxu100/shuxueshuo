@@ -538,6 +538,12 @@ class Scope:
             return node(kind, ast[1], hints, body)
         if kind == "call":
             name, args = ast[1], ast[2:]
+            if name == 'graph_symmetry':
+                if (len(args) not in (3, 4) or args[0][0] != 'name' or args[1][0] != 'name'
+                        or (args[1][1], len(args)) not in (('axis', 3), ('center', 4))):
+                    raise NotationError('binding.graph_symmetry_fact')
+                return node('function_graph_symmetry', self.reference(args[0][1], 'function'),
+                            args[1][1], *[bind(a) for a in args[2:]])
             if name == 'parity':
                 from .notation_function_parity import PARITY_PROPERTIES
                 if (len(args) != 2 or args[0][0] != 'name' or args[1][0] != 'name'
@@ -668,6 +674,12 @@ def typecheck(ast):
         return "boolean"
     if kind in ("definition_prose", "role"):
         return "boolean"
+    if kind == 'function_graph_symmetry':
+        if (len(ast) not in (4, 5) or typecheck(ast[1]) != 'function'
+                or (ast[2], len(ast)) not in (('axis', 4), ('center', 5))
+                or any(typecheck(a) != 'scalar' for a in ast[3:])):
+            raise NotationError('type.graph_symmetry_fact')
+        return 'boolean'
     if kind == 'function_parity':
         from .notation_function_parity import PARITY_PROPERTIES
         if len(ast) != 3 or typecheck(ast[1]) != 'function' or ast[2] not in PARITY_PROPERTIES:
@@ -963,7 +975,7 @@ class NotationValidator:
                         name = side[2][1]
                         env.declare(name, 'function')
                         env.abstract_functions.add(name)
-            elif (len(ast) == 4 and ast[:2] == ['call', 'parity'] and ast[2][0] == 'name'
+            elif (len(ast) >= 4 and ast[0] == 'call' and ast[1] in ('parity', 'graph_symmetry') and ast[2][0] == 'name'
                   and env.lookup(ast[2][1]) is None and ast[2][1] not in env.functions):
                 env.declare(ast[2][1], 'function')
                 env.abstract_functions.add(ast[2][1])

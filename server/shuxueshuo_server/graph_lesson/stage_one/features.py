@@ -50,6 +50,10 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('symmetry_relation', ('goal',), 'symmetry_relation',
+                ('function-graph-symmetry#axis', 'function-graph-symmetry#center'), '利用图像对称关系求值或求和',
+                version='function-symmetry/general-v1', supported_structures=('rational_reflections',),
+                computation_boundary='original graph statements or scoped identities, exact domain and target syntax only'),
     FeatureSpec('parity_extension', ('goal',), 'parity_extension',
                 ('function-parity#definition', 'function-parity#zero'), '已知奇偶性与一侧解析式求另一侧',
                 version='parity-extension/r0-v1', supported_structures=('half_axis_polynomial_extension',),
@@ -571,7 +575,15 @@ def _scope_features(report, candidate, scope, ancestors, features):
         original = pointer(candidate, target_ref)
         sources = [{'source_ref': _json_path(row['path']), 'expression': pointer(candidate, _json_path(row['path']))} for row in records]
         from ..parity_parameter_math import describe as parity_parameter_description
+        from ..symmetry_relation_math import describe as symmetry_relation_description
         parity_entries = [{**src, 'ast': row['value']} for src, row in zip(sources, records, strict=True)]
+        if desc := symmetry_relation_description(original, goal, target_ref, parity_entries, candidate=candidate):
+            add('goal', {'kind': goal['kind']}, source_refs=[target_ref])
+            add('symmetry_relation', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_symmetry_relation_goal'}, source_refs=[target_ref])
+            continue
         from ..parity_extension_math import describe as parity_extension_description
         if desc := parity_extension_description(original, goal, target_ref, parity_entries, candidate=candidate):
             add('goal', {'kind': goal['kind']}, source_refs=[target_ref])

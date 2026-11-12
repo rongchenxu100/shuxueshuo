@@ -47,7 +47,8 @@
         "function_parity",
         "parity_parameter",
         "parity_extension",
-        "parity_inequality"
+        "parity_inequality",
+        "function_symmetry"
       ]
     },
     "routes": {
@@ -149,7 +150,8 @@
             "function_parity",
             "parity_parameter",
             "parity_extension",
-            "parity_inequality"
+            "parity_inequality",
+            "function_symmetry"
           ]
         }
       }
