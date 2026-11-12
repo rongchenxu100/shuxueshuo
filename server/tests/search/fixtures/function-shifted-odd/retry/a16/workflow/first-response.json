@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"16. 若函数$f(x)$满足：$g(x)=f(x)+2$是$R$上的奇函数，且$f(1)=9$，则$f(-1)$的值为____。\",\"root\":{\"definitions\":[\"g(x)=f(x)+2\"],\"facts\":[\"parity(g,odd)\",\"f(1)=9\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(-1)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数$f(x)$满足：$g(x)=f(x)+2$是$R$上的奇函数，且$f(1)=9$，则$f(-1)$的值为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 504,
+      "prompt_tokens": 25837,
+      "total_tokens": 26341,
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 237
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 558,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-3bba0ab7-0082-483d-8bd3-b50570003a10",
+        "sha256": "909077c4d9f8d1c9aaf3b7f44d6bc5eaaa6cc865069e7c13e03d86daf011fb90",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 7400,
+        "expires_at": 1794557903,
+        "uploaded_at": 1794471503.634509
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "909077c4d9f8d1c9aaf3b7f44d6bc5eaaa6cc865069e7c13e03d86daf011fb90",
+        "api_calls": 1,
+        "file_id": "file-api-3bba0ab7-0082-483d-8bd3-b50570003a10",
+        "expires_at": 1794557903,
+        "elapsed_ms": 809
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 3276,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 504,
+          "prompt_tokens": 25837,
+          "total_tokens": 26341,
+          "completion_tokens_details": {
+            "reasoning_tokens": 281
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25600
+          },
+          "prompt_cache_hit_tokens": 25600,
+          "prompt_cache_miss_tokens": 237
+        },
+        "raw_payload": {
+          "id": "bbf377ce-80f7-43fa-8956-05a048dec20e",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 504,
+            "prompt_tokens": 25837,
+            "total_tokens": 26341,
+            "completion_tokens_details": {
+              "reasoning_tokens": 281
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25600
+            },
+            "prompt_cache_hit_tokens": 25600,
+            "prompt_cache_miss_tokens": 237
+          },
+          "created": 1794471503,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"16. 若函数$f(x)$满足：$g(x)=f(x)+2$是$R$上的奇函数，且$f(1)=9$，则$f(-1)$的值为____。\",\"root\":{\"definitions\":[\"g(x)=f(x)+2\"],\"facts\":[\"parity(g,odd)\",\"f(1)=9\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(-1)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数$f(x)$满足：$g(x)=f(x)+2$是$R$上的奇函数，且$f(1)=9$，则$f(-1)$的值为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "题干：若函数f(x)满足：g(x)=f(x)+2是R上的奇函数，且f(1)=9，则f(-1)的值为____。\n\n手写答案 -13 不转录。\n\nRoot definitions: g(x)=f(x)+2. facts: parity(g,odd), f(1)=9. Goal: find_value expression f(-1).\n\n奇函数条件：g是R上奇函数。写 parity(g,odd) 或 ∀x∈ℝ: g(-x)=-g(x)。用 parity(g,odd) 适合。\n\n函数定义 f(x) 未知，只有关系。目标 f(-1) 求值，未知规则只有恒等关系时使用关系形式 find_value with function f, variable x, relation g(x)=f(x)+2? 但 relation 应是 f 的恒等式。这里题给的是 g(x)=f(x)+2 及 g 是奇函数，并非 f 的恒等式。求 f(-1) 用普通 find_value expression \"f(-1)\" 即可，definitions 有 g(x)=f(x)+2，facts parity(g,odd), f(1)=9。\n\npublic_content scopes root statement.\n\n无配图。figure_detection none, regions [].\n\nCompleteness complete。Privacy separated（手写答案排除）。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 4131
+  },
+  "raw_payload": {
+    "id": "bbf377ce-80f7-43fa-8956-05a048dec20e",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"16. 若函数$f(x)$满足：$g(x)=f(x)+2$是$R$上的奇函数，且$f(1)=9$，则$f(-1)$的值为____。\",\"root\":{\"definitions\":[\"g(x)=f(x)+2\"],\"facts\":[\"parity(g,odd)\",\"f(1)=9\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(-1)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数$f(x)$满足：$g(x)=f(x)+2$是$R$上的奇函数，且$f(1)=9$，则$f(-1)$的值为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "题干：若函数f(x)满足：g(x)=f(x)+2是R上的奇函数，且f(1)=9，则f(-1)的值为____。\n\n手写答案 -13 不转录。\n\nRoot definitions: g(x)=f(x)+2. facts: parity(g,odd), f(1)=9. Goal: find_value expression f(-1).\n\n奇函数条件：g是R上奇函数。写 parity(g,odd) 或 ∀x∈ℝ: g(-x)=-g(x)。用 parity(g,odd) 适合。\n\n函数定义 f(x) 未知，只有关系。目标 f(-1) 求值，未知规则只有恒等关系时使用关系形式 find_value with function f, variable x, relation g(x)=f(x)+2? 但 relation 应是 f 的恒等式。这里题给的是 g(x)=f(x)+2 及 g 是奇函数，并非 f 的恒等式。求 f(-1) 用普通 find_value expression \"f(-1)\" 即可，definitions 有 g(x)=f(x)+2，facts parity(g,odd), f(1)=9。\n\npublic_content scopes root statement.\n\n无配图。figure_detection none, regions [].\n\nCompleteness complete。Privacy separated（手写答案排除）。"
+        }
+      }
+    ],
+    "created": 1794471503,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 504,
+      "prompt_tokens": 25837,
+      "total_tokens": 26341,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 281,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25600
+      },
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 237
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 4.133
+}

@@ -141,7 +141,10 @@ def build_context(candidate, target_ref):
     from ..symmetry_value_math import describe as symmetry_value_description
     from ..parity_inequality_math import describe as parity_inequality_description
     from ..symmetry_relation_math import describe as symmetry_relation_description
-    if desc := symmetry_relation_description(goal, goal_ast, target_ref, entries, candidate=candidate):
+    from ..shifted_odd_math import describe as shifted_odd_description
+    if desc := shifted_odd_description(goal, goal_ast, target_ref, entries, candidate=candidate):
+        context['shifted_odd_goal'] = desc
+    elif desc := symmetry_relation_description(goal, goal_ast, target_ref, entries, candidate=candidate):
         context['symmetry_relation_goal'] = desc
     elif desc := parity_extension_description(goal, goal_ast, target_ref, entries, candidate=candidate):
         context['parity_extension_goal'] = desc

@@ -1,0 +1,113 @@
+{
+  "page_id": "47d956d611a2",
+  "image_url": "/api/search/pages/47d956d611a2/image",
+  "preview_url": "/api/search/pages/47d956d611a2/preview",
+  "width": 1279,
+  "height": 1706,
+  "orientation": {
+    "status": "upright",
+    "rotation_degrees": 0,
+    "predicted_degrees": 0,
+    "confidence": 0.9280499815940857
+  },
+  "rotation_reference": "upload_after_exif",
+  "rotation_count": 0,
+  "mode": "numbered",
+  "regions": [
+    {
+      "number": 15,
+      "column": 0,
+      "box": [
+        0.0566,
+        0.02518,
+        0.76174,
+        0.13379
+      ],
+      "crop": [
+        0.0566,
+        0.02518,
+        0.76174,
+        0.13379
+      ],
+      "label": "例15",
+      "index": 1
+    },
+    {
+      "number": 1,
+      "column": 0,
+      "box": [
+        0.06581,
+        0.25629,
+        0.92295,
+        0.38712
+      ],
+      "crop": [
+        0.06581,
+        0.25629,
+        0.92295,
+        0.38712
+      ],
+      "label": "变式1",
+      "index": 2
+    },
+    {
+      "number": 2,
+      "column": 0,
+      "box": [
+        0.06807,
+        0.50468,
+        0.8652,
+        0.59088
+      ],
+      "crop": [
+        0.06807,
+        0.50468,
+        0.8652,
+        0.59088
+      ],
+      "label": "变式2",
+      "index": 3
+    },
+    {
+      "number": 3,
+      "column": 0,
+      "box": [
+        0.04955,
+        0.77214,
+        1.0,
+        1.0
+      ],
+      "crop": [
+        0.04955,
+        0.77214,
+        1.0,
+        1.0
+      ],
+      "label": "变式3",
+      "index": 4
+    }
+  ],
+  "diagnostics": {
+    "angle_degrees": -2.32,
+    "median_line_height": 45.7,
+    "candidates": [
+      3,
+      2,
+      1,
+      15
+    ],
+    "chain": [
+      15,
+      1,
+      2,
+      3
+    ],
+    "columns": 1
+  },
+  "latency_ms": {
+    "orientation": 16,
+    "layout": 90,
+    "detect": 1371,
+    "recognize_heads": 920
+  }
+}

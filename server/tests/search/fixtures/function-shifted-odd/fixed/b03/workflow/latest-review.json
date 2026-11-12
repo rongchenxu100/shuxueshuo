@@ -1,0 +1,12 @@
+{
+  "revision": "576f30a6db8313c333a5b2fe4fed9a4085886f2403a6ae734e6d5c8921f1c344",
+  "status": "correction_required",
+  "findings": [
+    {
+      "path": "/public_content/scopes/0/statement",
+      "kind": "wrong_public_content",
+      "source_excerpt": "【变式2】",
+      "message": "公开题干的 statement 混入了变式编号/来源标记【变式2】；该标记不属于题目本身的数学条件或所求，应在保留 original_text 原转录的同时从公开题干中移除。"
+    }
+  ]
+}

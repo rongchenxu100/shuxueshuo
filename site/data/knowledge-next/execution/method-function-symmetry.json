@@ -37,6 +37,22 @@
             "ref": "description.structure_version",
             "equals": "function-symmetry/general-v1"
           }
+        },
+        {
+          "id": "shifted_domain",
+          "capability": "check_general_symmetry_domain",
+          "public_ref": "skill-domain-symmetry",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "shifted_domain_evidence": "domain_evidence"
+          },
+          "order": 2,
+          "guard": {
+            "ref": "description.structure_version",
+            "equals": "function-symmetry/shifted-odd-v1"
+          }
         }
       ],
       "judgments": [],
@@ -114,6 +130,23 @@
             "ref": "description.structure_version",
             "equals": "function-symmetry/general-v1"
           }
+        },
+        {
+          "id": "shifted_values",
+          "capability": "evaluate_symmetric_rule_values",
+          "public_ref": "method-function-evaluation",
+          "inputs": {
+            "description": "$description",
+            "rewrite": "$rewrite"
+          },
+          "outputs": {
+            "shifted_values": "rule_values"
+          },
+          "order": 2,
+          "guard": {
+            "ref": "description.structure_version",
+            "equals": "function-symmetry/shifted-odd-v1"
+          }
         }
       ],
       "judgments": [],
@@ -121,7 +154,7 @@
       "merges": [
         {
           "id": "values_ready",
-          "order": 2,
+          "order": 3,
           "branches": [
             {
               "guard": {
@@ -139,6 +172,15 @@
               },
               "bindings": {
                 "rule_values": "$iteration_values"
+              }
+            },
+            {
+              "guard": {
+                "ref": "description.structure_version",
+                "equals": "function-symmetry/shifted-odd-v1"
+              },
+              "bindings": {
+                "rule_values": "$shifted_values"
               }
             }
           ]

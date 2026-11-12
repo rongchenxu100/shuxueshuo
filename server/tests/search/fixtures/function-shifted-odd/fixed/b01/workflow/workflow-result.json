@@ -1,0 +1,1147 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "【例15】已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\underline{\\quad}$。",
+    "root": {
+      "label": "例15",
+      "definitions": [
+        "f(x)=g(x)+1"
+      ],
+      "facts": [
+        "parity(g,odd)",
+        "f(-2)=3"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(2)"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\underline{\\quad}$。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "【例15】已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\underline{\\quad}$。",
+    "root": {
+      "label": "例15",
+      "definitions": [
+        "f(x)=g(x)+1"
+      ],
+      "facts": [
+        "parity(g,odd)",
+        "f(-2)=3"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(2)"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\underline{\\quad}$。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [
+          {
+            "ref": "r:function:g",
+            "name": "g",
+            "kind": "function",
+            "scope": "r"
+          },
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "+",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 1,
+              "fact": [
+                "function_parity",
+                [
+                  "ref",
+                  "r:function:g",
+                  "function"
+                ],
+                "odd"
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 2,
+              "fact": [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "neg",
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ]
+            }
+          ],
+          "canonical_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "+",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 1,
+              "fact": [
+                "function_parity",
+                [
+                  "ref",
+                  "r:function:g",
+                  "function"
+                ],
+                "odd"
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 2,
+              "fact": [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "neg",
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ]
+            }
+          ],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "abee11690999c0689462b6e0305f188273814832c6bf7eb1da2d78716bc6b093",
+    "canonical": {
+      "root": {
+        "facts": [
+          [
+            [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "Add(Symbol('n_c480a07a01d5e4491d8eea582eebacc8b99ef42645ae07c8ee8fecf263b9975f', real=True), Integer(1))"
+            ],
+            [
+              "function_parity",
+              [
+                "ref",
+                "r:function:g",
+                "function"
+              ],
+              "odd"
+            ],
+            [
+              "relation",
+              "=",
+              "Add(Integer(2), Mul(Integer(-1), Symbol('n_7be5aefc32857dd14efbad4ae543b7543156fb1fe31f22500f91de4757b7fa92', real=True)))"
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "+",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:g",
+                  "function"
+                ],
+                [
+                  "bound",
+                  "function_argument"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          ],
+          [
+            "function_parity",
+            [
+              "ref",
+              "r:function:g",
+              "function"
+            ],
+            "odd"
+          ],
+          [
+            "=",
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "neg",
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ],
+            [
+              "number",
+              "3"
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:function:g",
+          "name": "g",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {
+        "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"+\",[\"function_call\",[\"ref\",\"r:function:g\",\"function\"],[\"bound\",\"function_argument\"]],[\"number\",\"1\"]]]": {
+          "path": "r.definitions[0]",
+          "source": "f(x)=g(x)+1"
+        },
+        "[\"function_parity\",[\"ref\",\"r:function:g\",\"function\"],\"odd\"]": {
+          "path": "r.facts[0]",
+          "source": "parity(g,odd)"
+        },
+        "[\"=\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"neg\",[\"number\",\"2\"]]],[\"number\",\"3\"]]": {
+          "path": "r.facts[1]",
+          "source": "f(-2)=3"
+        }
+      },
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "+",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:g",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "neg",
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "3"
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "+",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:g",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "neg",
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "3"
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "4e13fb89ce87",
+      "source_sha256": "582254913a77eed9078a15a0fda4d5c34dcd9b0512ad9301dbdc3283061fa93e"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "abee11690999c0689462b6e0305f188273814832c6bf7eb1da2d78716bc6b093",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [
+              {
+                "ref": "r:function:g",
+                "name": "g",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "r:function:g",
+                          "function"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 1,
+                  "fact": [
+                    "function_parity",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    "odd"
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 2,
+                  "fact": [
+                    "=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "neg",
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "r:function:g",
+                          "function"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 1,
+                  "fact": [
+                    "function_parity",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    "odd"
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 2,
+                  "fact": [
+                    "=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "neg",
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "abee11690999c0689462b6e0305f188273814832c6bf7eb1da2d78716bc6b093",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "Add(Symbol('n_c480a07a01d5e4491d8eea582eebacc8b99ef42645ae07c8ee8fecf263b9975f', real=True), Integer(1))"
+                ],
+                [
+                  "function_parity",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  "odd"
+                ],
+                [
+                  "relation",
+                  "=",
+                  "Add(Integer(2), Mul(Integer(-1), Symbol('n_7be5aefc32857dd14efbad4ae543b7543156fb1fe31f22500f91de4757b7fa92', real=True)))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "+",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ],
+              [
+                "function_parity",
+                [
+                  "ref",
+                  "r:function:g",
+                  "function"
+                ],
+                "odd"
+              ],
+              [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "neg",
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:g",
+              "name": "g",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"+\",[\"function_call\",[\"ref\",\"r:function:g\",\"function\"],[\"bound\",\"function_argument\"]],[\"number\",\"1\"]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=g(x)+1"
+            },
+            "[\"function_parity\",[\"ref\",\"r:function:g\",\"function\"],\"odd\"]": {
+              "path": "r.facts[0]",
+              "source": "parity(g,odd)"
+            },
+            "[\"=\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"neg\",[\"number\",\"2\"]]],[\"number\",\"3\"]]": {
+              "path": "r.facts[1]",
+              "source": "f(-2)=3"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:g",
+                        "function"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 1,
+                "fact": [
+                  "function_parity",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  "odd"
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 2,
+                "fact": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "neg",
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:g",
+                        "function"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 1,
+                "fact": [
+                  "function_parity",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  "odd"
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 2,
+                "fact": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "neg",
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "4e13fb89ce87",
+          "source_sha256": "582254913a77eed9078a15a0fda4d5c34dcd9b0512ad9301dbdc3283061fa93e"
+        }
+      },
+      "revision": "abee11690999c0689462b6e0305f188273814832c6bf7eb1da2d78716bc6b093"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "abee11690999c0689462b6e0305f188273814832c6bf7eb1da2d78716bc6b093",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "abee11690999c0689462b6e0305f188273814832c6bf7eb1da2d78716bc6b093",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

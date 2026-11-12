@@ -1,0 +1,153 @@
+{
+  "text": "{\n  \"original_text\": \"【变式2】已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\n  \"root\": {\n    \"definitions\": [\n      \"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\"\n    ],\n    \"facts\": [\n      \"f(a)=14\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_value\",\n        \"expression\": \"f(-a)\"\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1426,
+      "prompt_tokens": 25837,
+      "total_tokens": 27263,
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 237
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 887,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-302b53db-6386-449a-8200-67c690121018",
+        "sha256": "fe7ac27775793906d700f6800300375aebc5a718a734ec6d81e7733122626a64",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 10083,
+        "expires_at": 1794556594,
+        "uploaded_at": 1794470194.371258
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "fe7ac27775793906d700f6800300375aebc5a718a734ec6d81e7733122626a64",
+        "api_calls": 1,
+        "file_id": "file-api-302b53db-6386-449a-8200-67c690121018",
+        "expires_at": 1794556594,
+        "elapsed_ms": 176
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 8325,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1426,
+          "prompt_tokens": 25837,
+          "total_tokens": 27263,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1097
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25600
+          },
+          "prompt_cache_hit_tokens": 25600,
+          "prompt_cache_miss_tokens": 237
+        },
+        "raw_payload": {
+          "id": "2db34076-f8cd-4b9a-915c-67a850e43716",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1426,
+            "prompt_tokens": 25837,
+            "total_tokens": 27263,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1097
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25600
+            },
+            "prompt_cache_hit_tokens": 25600,
+            "prompt_cache_miss_tokens": 237
+          },
+          "created": 1794470194,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"original_text\": \"【变式2】已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\n  \"root\": {\n    \"definitions\": [\n      \"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\"\n    ],\n    \"facts\": [\n      \"f(a)=14\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_value\",\n        \"expression\": \"f(-a)\"\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+                "reasoning_content": "我们需要提取题目。图片：题面 \"【变式2】已知函数 f(x)= (2024x^3+2x^2+3x+6)/(x^2+3)，且 f(a)=14，则 f(-a) 的值为____.\" 需要输出 original_text 完整，root 数学候选不求解，public_content。需要 figure_detection none。目标是求 f(-a) 的值。函数定义 f(x)=... ; fact f(a)=14; goal find_value expression f(-a). 不需要小问。root label? \"【变式2】\" 是否是来源题号？可能是变式题号。原图明确是题目标签，可能应作为 label? root.label 可选。可以放 label \"变式2\"，root_label_role? 是来源题号还是内容？【变式2】更像来源/编号，可能 source。但 public_content 不包含题号来源。也可以省略 label 避免误删? 指令说保留题号？original_text 保留。root.label 存在时用 role。我们可以在 root 不写 label? 但 root 下的 label 可选。如果不写，public_content 无需 root_label_role。题面有【变式2】开头；公开 statement 应不包含来源题号。可以在 original_text 保留。root 不写 label。这样安全。\n\nroot.definitions: [\"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\"]；facts: [\"f(a)=14\"]；goals: [{\"kind\":\"find_value\",\"expression\":\"f(-a)\"}]。这里 f(a)=14 是已知条件。目标求 f(-a) 的值，不是解析式。好。\n\noriginal_text: 保留完整题干，包括横线填空。公式用 $...$，反斜杠转义 JSON。中文：\"【变式2】已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\" 需要 JSON 字符串中反斜杠双写。分式用 LaTeX。注意原图横线可能是填空下划线。可以写 \"______\"。\n\npublic_content: completeness complete, privacy separated? 题面没有姓名等。figure not_required. root_label_role 不填或? 因为 root.label 不存在，不必填。scopes: [{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]。需要公开 statement 不含题号来源，已去掉【变式2】。选择模式 none。figure_detection: {\"status\":\"none\",\"regions\":[]}。uncertainties? 无。但可以不放 root.uncertainties。需要输出 JSON 对象。\n\n注意 root 字段和 public_content 里都不应夹来源。original_text 可以保留题号。good.\n\n检查 schema: public_content.scopes 每个 item required scope_ref, statement, choices. choices each required target_ref status selection_mode options. Good.\n\nroot 里 definitions/facts/goals. root 没有 label 和 children 可省略。uncertainties 可省略。\n\n需要确保 original_text 中 LaTeX 反斜杠在 JSON 中双写。比如 \"\\\\frac\"。如果使用 JSON 输出，需要实际文本 `\\\\frac` 在 JSON 中。最终呈现 JSON 字符串中会有 `\\\\frac`。同样 public_content statement。root 数学表达式使用 catalog, 函数定义字符串 \"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\" 不需要反斜杠。\n\n目标 find_value expression \"f(-a)\"。fact \"f(a)=14\"。是否需要在 definitions 中包含函数名 f? yes.\n\n可以加 facts 吗？题中 f(a)=14 是条件。definitions 中函数定义。 good.\n\n原题 \"则 f(-a) 的值为\" 填空。没问题。\n\nfigure_detection status none. figure not_required. privacy separated 因为题面没有个人信息、手写答案。图片可能有模糊背景但没有。okay.\n\n需要注意 \"变式2\" 是否被排除公开题干；我们在 original_text 保留。privacy 声明 separated 要求来源题号已明确分离。我们在 public_content 已排除。original_text 保留来源不算公开字段。privacy 涵盖 root 所有内容，root 没有 label。good.\n\n是否 public_content.completeness complete? 题干完整，条件齐全。虽然没有明确问 a 的值，但目标 f(-a) 可由条件求得。不依赖图。complete.\n\nroot.uncertainties 可空省略。不需要。\n\n现在输出 JSON 严格按照 schema。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 8534
+  },
+  "raw_payload": {
+    "id": "2db34076-f8cd-4b9a-915c-67a850e43716",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"original_text\": \"【变式2】已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\n  \"root\": {\n    \"definitions\": [\n      \"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\"\n    ],\n    \"facts\": [\n      \"f(a)=14\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_value\",\n        \"expression\": \"f(-a)\"\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片：题面 \"【变式2】已知函数 f(x)= (2024x^3+2x^2+3x+6)/(x^2+3)，且 f(a)=14，则 f(-a) 的值为____.\" 需要输出 original_text 完整，root 数学候选不求解，public_content。需要 figure_detection none。目标是求 f(-a) 的值。函数定义 f(x)=... ; fact f(a)=14; goal find_value expression f(-a). 不需要小问。root label? \"【变式2】\" 是否是来源题号？可能是变式题号。原图明确是题目标签，可能应作为 label? root.label 可选。可以放 label \"变式2\"，root_label_role? 是来源题号还是内容？【变式2】更像来源/编号，可能 source。但 public_content 不包含题号来源。也可以省略 label 避免误删? 指令说保留题号？original_text 保留。root.label 存在时用 role。我们可以在 root 不写 label? 但 root 下的 label 可选。如果不写，public_content 无需 root_label_role。题面有【变式2】开头；公开 statement 应不包含来源题号。可以在 original_text 保留。root 不写 label。这样安全。\n\nroot.definitions: [\"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\"]；facts: [\"f(a)=14\"]；goals: [{\"kind\":\"find_value\",\"expression\":\"f(-a)\"}]。这里 f(a)=14 是已知条件。目标求 f(-a) 的值，不是解析式。好。\n\noriginal_text: 保留完整题干，包括横线填空。公式用 $...$，反斜杠转义 JSON。中文：\"【变式2】已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\" 需要 JSON 字符串中反斜杠双写。分式用 LaTeX。注意原图横线可能是填空下划线。可以写 \"______\"。\n\npublic_content: completeness complete, privacy separated? 题面没有姓名等。figure not_required. root_label_role 不填或? 因为 root.label 不存在，不必填。scopes: [{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]。需要公开 statement 不含题号来源，已去掉【变式2】。选择模式 none。figure_detection: {\"status\":\"none\",\"regions\":[]}。uncertainties? 无。但可以不放 root.uncertainties。需要输出 JSON 对象。\n\n注意 root 字段和 public_content 里都不应夹来源。original_text 可以保留题号。good.\n\n检查 schema: public_content.scopes 每个 item required scope_ref, statement, choices. choices each required target_ref status selection_mode options. Good.\n\nroot 里 definitions/facts/goals. root 没有 label 和 children 可省略。uncertainties 可省略。\n\n需要确保 original_text 中 LaTeX 反斜杠在 JSON 中双写。比如 \"\\\\frac\"。如果使用 JSON 输出，需要实际文本 `\\\\frac` 在 JSON 中。最终呈现 JSON 字符串中会有 `\\\\frac`。同样 public_content statement。root 数学表达式使用 catalog, 函数定义字符串 \"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\" 不需要反斜杠。\n\n目标 find_value expression \"f(-a)\"。fact \"f(a)=14\"。是否需要在 definitions 中包含函数名 f? yes.\n\n可以加 facts 吗？题中 f(a)=14 是条件。definitions 中函数定义。 good.\n\n原题 \"则 f(-a) 的值为\" 填空。没问题。\n\nfigure_detection status none. figure not_required. privacy separated 因为题面没有个人信息、手写答案。图片可能有模糊背景但没有。okay.\n\n需要注意 \"变式2\" 是否被排除公开题干；我们在 original_text 保留。privacy 声明 separated 要求来源题号已明确分离。我们在 public_content 已排除。original_text 保留来源不算公开字段。privacy 涵盖 root 所有内容，root 没有 label。good.\n\n是否 public_content.completeness complete? 题干完整，条件齐全。虽然没有明确问 a 的值，但目标 f(-a) 可由条件求得。不依赖图。complete.\n\nroot.uncertainties 可空省略。不需要。\n\n现在输出 JSON 严格按照 schema。"
+        }
+      }
+    ],
+    "created": 1794470194,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1426,
+      "prompt_tokens": 25837,
+      "total_tokens": 27263,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1097,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25600
+      },
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 237
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 8.535
+}

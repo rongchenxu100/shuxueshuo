@@ -1,0 +1,37 @@
+{
+  "original_text": "【变式 1】已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。",
+  "root": {
+    "definitions": [
+      "f(x)=a*x+b/x-2"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(2024)+f(-2024)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

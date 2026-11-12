@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=g(x)+1\"],\"facts\":[\"parity(g,odd)\",\"f(-2)=3\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2090,
+      "prompt_tokens": 25839,
+      "total_tokens": 27929,
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 239
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 567,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-cd3443f2-0561-4bc1-a2e7-80b08437cd3d",
+        "sha256": "582254913a77eed9078a15a0fda4d5c34dcd9b0512ad9301dbdc3283061fa93e",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 14577,
+        "expires_at": 1794557282,
+        "uploaded_at": 1794470882.8823318
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "582254913a77eed9078a15a0fda4d5c34dcd9b0512ad9301dbdc3283061fa93e",
+        "api_calls": 1,
+        "file_id": "file-api-cd3443f2-0561-4bc1-a2e7-80b08437cd3d",
+        "expires_at": 1794557282,
+        "elapsed_ms": 322
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 13357,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2090,
+          "prompt_tokens": 25839,
+          "total_tokens": 27929,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1876
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25600
+          },
+          "prompt_cache_hit_tokens": 25600,
+          "prompt_cache_miss_tokens": 239
+        },
+        "raw_payload": {
+          "id": "4974854b-6d6d-44f1-b442-29f931d9eac0",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2090,
+            "prompt_tokens": 25839,
+            "total_tokens": 27929,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1876
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25600
+            },
+            "prompt_cache_hit_tokens": 25600,
+            "prompt_cache_miss_tokens": 239
+          },
+          "created": 1794470883,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=g(x)+1\"],\"facts\":[\"parity(g,odd)\",\"f(-2)=3\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题目。需要忽略手写答案/解析？图片显示顶部类型VI：奇函数+常数结论的应用。然后【例15】已知g(x)为奇函数，f(x)=g(x)+1，且f(-2)=3，则f(2)=____。图片下方有手写/印刷解析“? = ... + g(x)+1 =2，所以 f(-2)+f(2)=2，故 f(2)=2-f(-2) ...” 这部分是解析，不是题目内容，不转录。需要判断来源题号：“类型VI：奇函数+常数结论的应用”可能是标题/题型，不是题号？“【例15】”是来源题号/例题编号。original_text 完整题干可保留“类型VI...”吗？指示：只读本题题干及所属选项，相邻题目、印刷解析、答案、手写批注和勾选不是题设，不写入。顶部“类型VI：奇函数+常数结论的应用”可能是题目所属类型标题，是否属于题干？它可能是分类标题，不是题目正文；但“例15”明确来源编号。需要保留？original_text 转录完整题干，可能不应包含类型VI标题和例15来源？来源只能明确分离时排除。这里“类型VI：奇函数+常数结论的应用”看起来是分类标题，不属于题目条件；“【例15】”是来源题号。我们可以排除它们于 public_content statement；original_text 或许可保留？契约：original_text 保留原题转录，不抄手写答案、批注或解析；来源/题号? 公开字段禁止来源题号。original_text可以保留来源题号? 它说original_text保留原题转录；不要写非题目。需要判断。为了安全，original_text 可以只写题目正文“已知 g(x) 为奇函数，...”，不写类型VI和例15。但完整性可能需要题干。没有选项。目标是求 f(2) 的值。已知 g 为奇函数，f(x)=g(x)+1，f(-2)=3，求 f(2)。这实际上是 find_value expression f(2)？目标求f(2)值。定义 f(x)=g(x)+1 放 definitions? 函数定义优先 definitions。g(x)为奇函数是事实：parity(g,odd) 或 g(-x)=-g(x) ∀x? 目录有 function_property: parity(g,odd)。但函数定义是 f(x)=g(x)+1。已知 f(-2)=3 是 fact。目标 find_value.expression = f(2)。由于已知具体值，不是未知函数关系求解析式。可以直接 find_value。\n\n但注意题面“已知 g(x) 为奇函数”需要定义 g? g 是抽象函数，没有解析式。可以 facts [\"parity(g,odd)\"]。还有 f(-2)=3 facts。definitions [\"f(x)=g(x)+1\"]。目标 {\"kind\":\"find_value\",\"expression\":\"f(2)\"}。是否需要求表达式 f(-2)+f(2)=2? 不，那是解析。\n\n要填写 root.label? 可以省略，因为“例15”不保留；类型VI不保留。或者 root.label 可能是“例15”来源，若保留，public_content.root_label_role=source。但避免题号混入，不保留 label。省得分类。public_content.scopes 一个 /root，statement 写自身题干“已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ____。” 不含例15。choices 对于目标无选项：status none, selection_mode none, options []。figure_detection status none, regions [].\n\n需要检查原图是否有配图：无，只有文字和手写解析。所以 none。\n\n不确定性：图片下方解析遮挡？题干清晰。手写答案不是题目，不报告。无 uncertainty。\n\noriginal_text 用 $…$。需要严格保留公式。写：“已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ＿＿。” 可能填空横线是实线下划线，题目“则 f(2)=______”。原图有“则 f(2)=________”。使用下划线。public_content statement 同样。\n\n但 original_text 是否应包含“类型VI：奇函数+常数结论的应用”和“【例15】”？指示：original_text 保留原题转录；来源题号? public_content不能放来源。original_text 可以保留题号，但“类型VI”可能不是题目。最好 original_text 仅题目正文，避免混淆。但“只读本题题干及所属选项。相邻题目、印刷解析、答案、手写批注和勾选不是题设，不写入 original_text、public_content 或 root”。顶部标题不是题设，不写入。例15是来源编号，不是题设，也可不写入 original_text？它说original_text完整题干原文，不抄手写答案、批注或解析。来源可能不写入？公开字段禁止。original_text 没有明确禁止题号，但“来源只能在能够明确分离时排除”。在这里例15明确是来源题号，可以排除。所以不写。\n\n需注意“类型VI + 常数结论的应用”中加号有无空格？不写。\n\n目标 find_value 的 expression 应该是 f(2)，不是“f(2)=___”。好的。\n\n是否需要 facts 包含 g 为奇函数用 ∀x∈ℝ: g(-x)=-g(x)，而不是 parity(g,odd)？目录 function_property 提供 parity(f,even etc)，可以。但受控表达式目录说parity(f,odd|even...)。所以 facts [\"parity(g,odd)\"] 符合。但“奇函数”定义域默认ℝ? g 没有定义域。parity 可能隐含全域？目录：题给全域奇偶性; 定义域另写 Dom。未给定义域，不补。parity足够。\n\n函数定义 f(x)=g(x)+1 放 definitions。g 命名后未定义解析，没关系。\n\nf(-2)=3 可以 fact \"f(-2)=3\"。目标 f(2)。还可以把“f(-2)+f(2)=2”不写，推导结果。\n\n注意：题目“已知 g(x) 为奇函数，f(x)=g(x)+1，且 f(-2)=3，则 f(2)=____”。求的是 f(2) 的值。find_value expression = f(2)。可以。\n\npublic_content completeness complete。privacy separated? 题目正文没有姓名/班级/答案；但图片有手写/解析？公开字段不包含。privacy 指“题目正文与姓名... 已明确分离”。虽然图片下方有印刷/手写解析，我们排除，可以 separated? 图片有解析内容与题干混在一起但可以分离。手写内容不是个人信息。可以 separated。但若手写答案紧接在填空后？图像下方“=... 所以...”是解析，不是手写答案？看起来下方有手写/印刷解析，填空题处有手写划掉？题面“则 f(2)=____”没有填写答案。存在解析不属于题干，明确分离。可以 separated。figure not_required。\n\npublic_content.statement 只能保留该作用域自身的纯题干和所求，不含小问编号和选项。写“已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ____。” 没有来源。公式用 $。空线用下划线。\n\nroot facts 数学字符串不能带 $，写 \"parity(g,odd)\" 和 \"f(-2)=3\"。definitions [\"f(x)=g(x)+1\"]。目标 expression \"f(2)\"。\n\nroot.uncertainties 空数组。public_content figure_detection 无区域。\n\n需要输出 JSON，符合 schema。注意 public_content 的 scopes 中 choices target_ref 必须 \"//root/goals/0\"? 实际 pattern \"^/root(?:/children/[0-9]+)*/goals/[0-9]+$\"。写 \"/root/goals/0\"。\n\nselection_mode none, status none, options []。figure_detection status none, regions []。\n\nOriginal_text 保留“则 $f(2)=$ ______。” 可以用全角下划线“＿＿＿＿”？最好用 “______”。不要用 LaTeX 填空。\n\n检查 JSON 字符串反斜杠：没有 LaTeX 反斜杠（f(x)等）。如果有 \\? 不用。\n\n我们可以输出。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 13717
+  },
+  "raw_payload": {
+    "id": "4974854b-6d6d-44f1-b442-29f931d9eac0",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=g(x)+1\"],\"facts\":[\"parity(g,odd)\",\"f(-2)=3\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题目。需要忽略手写答案/解析？图片显示顶部类型VI：奇函数+常数结论的应用。然后【例15】已知g(x)为奇函数，f(x)=g(x)+1，且f(-2)=3，则f(2)=____。图片下方有手写/印刷解析“? = ... + g(x)+1 =2，所以 f(-2)+f(2)=2，故 f(2)=2-f(-2) ...” 这部分是解析，不是题目内容，不转录。需要判断来源题号：“类型VI：奇函数+常数结论的应用”可能是标题/题型，不是题号？“【例15】”是来源题号/例题编号。original_text 完整题干可保留“类型VI...”吗？指示：只读本题题干及所属选项，相邻题目、印刷解析、答案、手写批注和勾选不是题设，不写入。顶部“类型VI：奇函数+常数结论的应用”可能是题目所属类型标题，是否属于题干？它可能是分类标题，不是题目正文；但“例15”明确来源编号。需要保留？original_text 转录完整题干，可能不应包含类型VI标题和例15来源？来源只能明确分离时排除。这里“类型VI：奇函数+常数结论的应用”看起来是分类标题，不属于题目条件；“【例15】”是来源题号。我们可以排除它们于 public_content statement；original_text 或许可保留？契约：original_text 保留原题转录，不抄手写答案、批注或解析；来源/题号? 公开字段禁止来源题号。original_text可以保留来源题号? 它说original_text保留原题转录；不要写非题目。需要判断。为了安全，original_text 可以只写题目正文“已知 g(x) 为奇函数，...”，不写类型VI和例15。但完整性可能需要题干。没有选项。目标是求 f(2) 的值。已知 g 为奇函数，f(x)=g(x)+1，f(-2)=3，求 f(2)。这实际上是 find_value expression f(2)？目标求f(2)值。定义 f(x)=g(x)+1 放 definitions? 函数定义优先 definitions。g(x)为奇函数是事实：parity(g,odd) 或 g(-x)=-g(x) ∀x? 目录有 function_property: parity(g,odd)。但函数定义是 f(x)=g(x)+1。已知 f(-2)=3 是 fact。目标 find_value.expression = f(2)。由于已知具体值，不是未知函数关系求解析式。可以直接 find_value。\n\n但注意题面“已知 g(x) 为奇函数”需要定义 g? g 是抽象函数，没有解析式。可以 facts [\"parity(g,odd)\"]。还有 f(-2)=3 facts。definitions [\"f(x)=g(x)+1\"]。目标 {\"kind\":\"find_value\",\"expression\":\"f(2)\"}。是否需要求表达式 f(-2)+f(2)=2? 不，那是解析。\n\n要填写 root.label? 可以省略，因为“例15”不保留；类型VI不保留。或者 root.label 可能是“例15”来源，若保留，public_content.root_label_role=source。但避免题号混入，不保留 label。省得分类。public_content.scopes 一个 /root，statement 写自身题干“已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ____。” 不含例15。choices 对于目标无选项：status none, selection_mode none, options []。figure_detection status none, regions [].\n\n需要检查原图是否有配图：无，只有文字和手写解析。所以 none。\n\n不确定性：图片下方解析遮挡？题干清晰。手写答案不是题目，不报告。无 uncertainty。\n\noriginal_text 用 $…$。需要严格保留公式。写：“已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ＿＿。” 可能填空横线是实线下划线，题目“则 f(2)=______”。原图有“则 f(2)=________”。使用下划线。public_content statement 同样。\n\n但 original_text 是否应包含“类型VI：奇函数+常数结论的应用”和“【例15】”？指示：original_text 保留原题转录；来源题号? public_content不能放来源。original_text 可以保留题号，但“类型VI”可能不是题目。最好 original_text 仅题目正文，避免混淆。但“只读本题题干及所属选项。相邻题目、印刷解析、答案、手写批注和勾选不是题设，不写入 original_text、public_content 或 root”。顶部标题不是题设，不写入。例15是来源编号，不是题设，也可不写入 original_text？它说original_text完整题干原文，不抄手写答案、批注或解析。来源可能不写入？公开字段禁止。original_text 没有明确禁止题号，但“来源只能在能够明确分离时排除”。在这里例15明确是来源题号，可以排除。所以不写。\n\n需注意“类型VI + 常数结论的应用”中加号有无空格？不写。\n\n目标 find_value 的 expression 应该是 f(2)，不是“f(2)=___”。好的。\n\n是否需要 facts 包含 g 为奇函数用 ∀x∈ℝ: g(-x)=-g(x)，而不是 parity(g,odd)？目录 function_property 提供 parity(f,even etc)，可以。但受控表达式目录说parity(f,odd|even...)。所以 facts [\"parity(g,odd)\"] 符合。但“奇函数”定义域默认ℝ? g 没有定义域。parity 可能隐含全域？目录：题给全域奇偶性; 定义域另写 Dom。未给定义域，不补。parity足够。\n\n函数定义 f(x)=g(x)+1 放 definitions。g 命名后未定义解析，没关系。\n\nf(-2)=3 可以 fact \"f(-2)=3\"。目标 f(2)。还可以把“f(-2)+f(2)=2”不写，推导结果。\n\n注意：题目“已知 g(x) 为奇函数，f(x)=g(x)+1，且 f(-2)=3，则 f(2)=____”。求的是 f(2) 的值。find_value expression = f(2)。可以。\n\npublic_content completeness complete。privacy separated? 题目正文没有姓名/班级/答案；但图片有手写/解析？公开字段不包含。privacy 指“题目正文与姓名... 已明确分离”。虽然图片下方有印刷/手写解析，我们排除，可以 separated? 图片有解析内容与题干混在一起但可以分离。手写内容不是个人信息。可以 separated。但若手写答案紧接在填空后？图像下方“=... 所以...”是解析，不是手写答案？看起来下方有手写/印刷解析，填空题处有手写划掉？题面“则 f(2)=____”没有填写答案。存在解析不属于题干，明确分离。可以 separated。figure not_required。\n\npublic_content.statement 只能保留该作用域自身的纯题干和所求，不含小问编号和选项。写“已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ____。” 没有来源。公式用 $。空线用下划线。\n\nroot facts 数学字符串不能带 $，写 \"parity(g,odd)\" 和 \"f(-2)=3\"。definitions [\"f(x)=g(x)+1\"]。目标 expression \"f(2)\"。\n\nroot.uncertainties 空数组。public_content figure_detection 无区域。\n\n需要输出 JSON，符合 schema。注意 public_content 的 scopes 中 choices target_ref 必须 \"//root/goals/0\"? 实际 pattern \"^/root(?:/children/[0-9]+)*/goals/[0-9]+$\"。写 \"/root/goals/0\"。\n\nselection_mode none, status none, options []。figure_detection status none, regions []。\n\nOriginal_text 保留“则 $f(2)=$ ______。” 可以用全角下划线“＿＿＿＿”？最好用 “______”。不要用 LaTeX 填空。\n\n检查 JSON 字符串反斜杠：没有 LaTeX 反斜杠（f(x)等）。如果有 \\? 不用。\n\n我们可以输出。"
+        }
+      }
+    ],
+    "created": 1794470883,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2090,
+      "prompt_tokens": 25839,
+      "total_tokens": 27929,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1876,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25600
+      },
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 239
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 13.719
+}

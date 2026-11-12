@@ -1,0 +1,40 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-b04",
+  "reviewer": "按原图印刷题意人工核对。忽略手写及教材解析；保留辅助函数、系数参数、原分母、符号输入和同域实际最值。非真实 OCR。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-t6-planning-20261112/source-page-01.png",
+      "sha256": "23d9fe6f39ccb2054ce82ed783968e47d2ee6d8f78272ab2dbf4c68fda9d6ec9",
+      "location": "FP-B04"
+    }
+  ],
+  "candidate": {
+    "original_text": "当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$____。",
+    "root": {
+      "definitions": [
+        "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+      ],
+      "facts": [
+        "Dom(f)=[-1,1]",
+        "M=max(f(x))",
+        "m=min(f(x))"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "M+m"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "goals": [
+      {
+        "type": "type-shifted-odd-application",
+        "value": "2"
+      }
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

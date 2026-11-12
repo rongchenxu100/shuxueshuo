@@ -1,0 +1,2415 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "workflow.oscillation",
+  "source_status": "correction_required",
+  "source_reviewed": false,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": true,
+    "reason": "workflow.oscillation"
+  },
+  "diagnostics": [
+    {
+      "stage": "review",
+      "code": "wrong_public_content",
+      "path": "/public_content/scopes/0/statement",
+      "source": "已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。",
+      "source_excerpt": "【变式2】",
+      "message": "公开题干的 statement 混入了变式编号/来源标记【变式2】；该标记不属于题目本身的数学条件或所求，应在保留 original_text 原转录的同时从公开题干中移除。",
+      "action": "repair"
+    }
+  ],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 3,
+  "content_calls": 2,
+  "review_calls": 1,
+  "network_attempts": 3,
+  "network_reserved": 3,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "【变式2】已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。",
+    "root": {
+      "definitions": [
+        "f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)"
+      ],
+      "facts": [
+        "f(a)=14"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(-a)"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "【变式2】已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。",
+    "root": {
+      "definitions": [
+        "f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)"
+      ],
+      "facts": [
+        "f(a)=14"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(-a)"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [
+          {
+            "ref": "r:scalar:a",
+            "domain": "real",
+            "origin": "code_default"
+          }
+        ],
+        "objects": [
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          },
+          {
+            "ref": "r:scalar:a",
+            "name": "a",
+            "kind": "scalar",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "/",
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2024"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "3"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "3"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "6"
+                    ]
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 1,
+              "fact": [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:a",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "number",
+                  "14"
+                ]
+              ]
+            }
+          ],
+          "canonical_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "/",
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2024"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "3"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "3"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "6"
+                    ]
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 1,
+              "fact": [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:a",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "number",
+                  "14"
+                ]
+              ]
+            }
+          ],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "576f30a6db8313c333a5b2fe4fed9a4085886f2403a6ae734e6d5c8921f1c344",
+    "canonical": {
+      "root": {
+        "facts": [
+          [
+            [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "Add(Mul(Integer(2024), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(3)), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(2), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(3), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(6), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))))"
+            ],
+            [
+              "relation",
+              "=",
+              "Add(Mul(Integer(-1), Integer(2024), Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(3)), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(-1), Integer(2), Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(-1), Integer(3), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))), Integer(14), Mul(Integer(-1), Integer(6), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))))"
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "neg",
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "/",
+              [
+                "+",
+                [
+                  "+",
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2024"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "3"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "6"
+                ]
+              ],
+              [
+                "+",
+                [
+                  "^",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ]
+            ]
+          ],
+          [
+            "=",
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "ref",
+                "r:scalar:a",
+                "scalar"
+              ]
+            ],
+            [
+              "number",
+              "14"
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "neg",
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {
+        "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"/\",[\"+\",[\"+\",[\"+\",[\"*\",[\"number\",\"2024\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"3\"]]],[\"*\",[\"number\",\"2\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]],[\"*\",[\"number\",\"3\"],[\"bound\",\"function_argument\"]]],[\"number\",\"6\"]],[\"+\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"number\",\"3\"]]]]": {
+          "path": "r.definitions[0]",
+          "source": "f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)"
+        },
+        "[\"=\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"ref\",\"r:scalar:a\",\"scalar\"]],[\"number\",\"14\"]]": {
+          "path": "r.facts[0]",
+          "source": "f(a)=14"
+        }
+      },
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "/",
+                [
+                  "+",
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2024"
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "3"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "3"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "6"
+                  ]
+                ],
+                [
+                  "+",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              ],
+              [
+                "number",
+                "14"
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "/",
+                [
+                  "+",
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2024"
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "3"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "3"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "6"
+                  ]
+                ],
+                [
+                  "+",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              ],
+              [
+                "number",
+                "14"
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "f9f17647e9b2",
+      "source_sha256": "fe7ac27775793906d700f6800300375aebc5a718a734ec6d81e7733122626a64"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "576f30a6db8313c333a5b2fe4fed9a4085886f2403a6ae734e6d5c8921f1c344",
+    "status": "correction_required",
+    "findings": [
+      {
+        "path": "/public_content/scopes/0/statement",
+        "kind": "wrong_public_content",
+        "source_excerpt": "【变式2】",
+        "message": "公开题干的 statement 混入了变式编号/来源标记【变式2】；该标记不属于题目本身的数学条件或所求，应在保留 original_text 原转录的同时从公开题干中移除。"
+      }
+    ]
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [
+              {
+                "ref": "r:scalar:a",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:a",
+                "name": "a",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "/",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2024"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "3"
+                                ]
+                              ]
+                            ],
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "3"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "6"
+                        ]
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 1,
+                  "fact": [
+                    "=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:a",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "14"
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "/",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2024"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "3"
+                                ]
+                              ]
+                            ],
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "3"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "6"
+                        ]
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 1,
+                  "fact": [
+                    "=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:a",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "14"
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "576f30a6db8313c333a5b2fe4fed9a4085886f2403a6ae734e6d5c8921f1c344",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "Add(Mul(Integer(2024), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(3)), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(2), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(3), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(6), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))))"
+                ],
+                [
+                  "relation",
+                  "=",
+                  "Add(Mul(Integer(-1), Integer(2024), Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(3)), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(-1), Integer(2), Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(-1), Integer(3), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))), Integer(14), Mul(Integer(-1), Integer(6), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "neg",
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "/",
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2024"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "3"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "3"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "6"
+                    ]
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:a",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "number",
+                  "14"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "neg",
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:a",
+              "name": "a",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"/\",[\"+\",[\"+\",[\"+\",[\"*\",[\"number\",\"2024\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"3\"]]],[\"*\",[\"number\",\"2\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]],[\"*\",[\"number\",\"3\"],[\"bound\",\"function_argument\"]]],[\"number\",\"6\"]],[\"+\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"number\",\"3\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)"
+            },
+            "[\"=\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"ref\",\"r:scalar:a\",\"scalar\"]],[\"number\",\"14\"]]": {
+              "path": "r.facts[0]",
+              "source": "f(a)=14"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "/",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2024"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "3"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "3"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "6"
+                      ]
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 1,
+                "fact": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "14"
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "/",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2024"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "3"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "3"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "6"
+                      ]
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 1,
+                "fact": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "14"
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "f9f17647e9b2",
+          "source_sha256": "fe7ac27775793906d700f6800300375aebc5a718a734ec6d81e7733122626a64"
+        }
+      },
+      "revision": "576f30a6db8313c333a5b2fe4fed9a4085886f2403a6ae734e6d5c8921f1c344"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "576f30a6db8313c333a5b2fe4fed9a4085886f2403a6ae734e6d5c8921f1c344",
+      "diagnostics": [
+        {
+          "stage": "review",
+          "code": "wrong_public_content",
+          "path": "/public_content/scopes/0/statement",
+          "source": "已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。",
+          "source_excerpt": "【变式2】",
+          "message": "公开题干的 statement 混入了变式编号/来源标记【变式2】；该标记不属于题目本身的数学条件或所求，应在保留 original_text 原转录的同时从公开题干中移除。",
+          "action": "repair"
+        }
+      ],
+      "adopted": false,
+      "review": {
+        "revision": "576f30a6db8313c333a5b2fe4fed9a4085886f2403a6ae734e6d5c8921f1c344",
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/public_content/scopes/0/statement",
+            "kind": "wrong_public_content",
+            "source_excerpt": "【变式2】",
+            "message": "公开题干的 statement 混入了变式编号/来源标记【变式2】；该标记不属于题目本身的数学条件或所求，应在保留 original_text 原转录的同时从公开题干中移除。"
+          }
+        ]
+      }
+    },
+    {
+      "call": 3,
+      "stage": "repair",
+      "base_revision": "576f30a6db8313c333a5b2fe4fed9a4085886f2403a6ae734e6d5c8921f1c344",
+      "diagnostics": [
+        {
+          "stage": "review",
+          "code": "wrong_public_content",
+          "path": "/public_content/scopes/0/statement",
+          "source": "已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。",
+          "source_excerpt": "【变式2】",
+          "message": "公开题干的 statement 混入了变式编号/来源标记【变式2】；该标记不属于题目本身的数学条件或所求，应在保留 original_text 原转录的同时从公开题干中移除。",
+          "action": "repair"
+        }
+      ],
+      "adopted": false,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [
+              {
+                "ref": "r:scalar:a",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:a",
+                "name": "a",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "/",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2024"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "3"
+                                ]
+                              ]
+                            ],
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "3"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "6"
+                        ]
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 1,
+                  "fact": [
+                    "=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:a",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "14"
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "/",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2024"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "3"
+                                ]
+                              ]
+                            ],
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "3"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "6"
+                        ]
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 1,
+                  "fact": [
+                    "=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:a",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "14"
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "576f30a6db8313c333a5b2fe4fed9a4085886f2403a6ae734e6d5c8921f1c344",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "Add(Mul(Integer(2024), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(3)), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(2), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(3), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(6), Pow(Add(Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2)), Integer(3)), Integer(-1))))"
+                ],
+                [
+                  "relation",
+                  "=",
+                  "Add(Mul(Integer(-1), Integer(2024), Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(3)), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(-1), Integer(2), Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))), Mul(Integer(-1), Integer(3), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))), Integer(14), Mul(Integer(-1), Integer(6), Pow(Add(Pow(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Integer(2)), Integer(3)), Integer(-1))))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "neg",
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "/",
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2024"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "3"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "3"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "6"
+                    ]
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:a",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "number",
+                  "14"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "neg",
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:a",
+              "name": "a",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"/\",[\"+\",[\"+\",[\"+\",[\"*\",[\"number\",\"2024\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"3\"]]],[\"*\",[\"number\",\"2\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]],[\"*\",[\"number\",\"3\"],[\"bound\",\"function_argument\"]]],[\"number\",\"6\"]],[\"+\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"number\",\"3\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)"
+            },
+            "[\"=\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"ref\",\"r:scalar:a\",\"scalar\"]],[\"number\",\"14\"]]": {
+              "path": "r.facts[0]",
+              "source": "f(a)=14"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "/",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2024"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "3"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "3"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "6"
+                      ]
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 1,
+                "fact": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "14"
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "/",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2024"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "3"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "3"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "6"
+                      ]
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 1,
+                "fact": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "14"
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "f9f17647e9b2",
+          "source_sha256": "fe7ac27775793906d700f6800300375aebc5a718a734ec6d81e7733122626a64"
+        }
+      }
+    }
+  ]
+}

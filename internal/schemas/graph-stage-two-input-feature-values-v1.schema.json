@@ -4372,6 +4372,52 @@
         }
       },
       "additionalProperties": false
+    },
+    "shifted_odd": {
+      "type": "object",
+      "required": [
+        "source",
+        "target_ref",
+        "source_refs",
+        "given_entries",
+        "goal_ast",
+        "structure_supported",
+        "reason",
+        "structure_version"
+      ],
+      "properties": {
+        "requested_expression": {
+          "type": ["string", "null"]
+        },
+        "source": {
+          "type": "object"
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "given_entries": {
+          "type": "array"
+        },
+        "goal_ast": {
+          "type": "object"
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "structure_version": {
+          "const": "function-symmetry/shifted-odd-v1"
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

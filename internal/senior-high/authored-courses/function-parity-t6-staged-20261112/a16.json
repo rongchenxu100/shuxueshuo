@@ -1,0 +1,40 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a16",
+  "reviewer": "按原图印刷题意人工核对。忽略手写及教材解析；保留辅助函数、系数参数、原分母、符号输入和同域实际最值。非真实 OCR。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+      "sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+      "location": "FP-A16"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $g(x)=f(x)+2$ 是 $\\mathbb R$ 上的奇函数，且 $f(1)=9$，求 $f(-1)$ 的值。",
+    "root": {
+      "definitions": [
+        "g(x)=f(x)+2"
+      ],
+      "facts": [
+        "Dom(g)=ℝ",
+        "parity(g,odd)",
+        "f(1)=9"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(-1)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "goals": [
+      {
+        "type": "type-shifted-odd-application",
+        "value": "-13"
+      }
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

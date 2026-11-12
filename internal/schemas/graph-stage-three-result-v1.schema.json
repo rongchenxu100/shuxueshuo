@@ -595,6 +595,50 @@
                           }
                         }
                       }
+                    },
+                    {
+                      "required": [
+                        "primary",
+                        "answer"
+                      ],
+                      "properties": {
+                        "primary": {
+                          "const": "type-shifted-odd-application"
+                        },
+                        "answer": {
+                          "required": [
+                            "kind",
+                            "status"
+                          ],
+                          "properties": {
+                            "status": {
+                              "const": "value"
+                            }
+                          },
+                          "anyOf": [
+                            {
+                              "properties": {
+                                "kind": {
+                                  "const": "derived_answer"
+                                },
+                                "request_kind": {
+                                  "const": "expression"
+                                }
+                              },
+                              "required": [
+                                "request_kind"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "kind": {
+                                  "const": "find_extrema_expression"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
                     }
                   ]
                 },

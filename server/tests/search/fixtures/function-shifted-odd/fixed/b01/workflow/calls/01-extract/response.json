@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"【例15】已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\\\underline{\\\\quad}$。\",\"root\":{\"label\":\"例15\",\"definitions\":[\"f(x)=g(x)+1\"],\"facts\":[\"parity(g,odd)\",\"f(-2)=3\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\\\underline{\\\\quad}$。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2472,
+      "prompt_tokens": 25839,
+      "total_tokens": 28311,
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 239
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 618,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-f8a8dd38-fb78-4876-a3cf-20a6303ff4d0",
+        "sha256": "582254913a77eed9078a15a0fda4d5c34dcd9b0512ad9301dbdc3283061fa93e",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 14577,
+        "expires_at": 1794556533,
+        "uploaded_at": 1794470133.4398022
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "582254913a77eed9078a15a0fda4d5c34dcd9b0512ad9301dbdc3283061fa93e",
+        "api_calls": 1,
+        "file_id": "file-api-f8a8dd38-fb78-4876-a3cf-20a6303ff4d0",
+        "expires_at": 1794556533,
+        "elapsed_ms": 126
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 15686,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2472,
+          "prompt_tokens": 25839,
+          "total_tokens": 28311,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2241
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25600
+          },
+          "prompt_cache_hit_tokens": 25600,
+          "prompt_cache_miss_tokens": 239
+        },
+        "raw_payload": {
+          "id": "0e5dd0ed-0ecf-4b0e-8801-8bb781d668c5",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2472,
+            "prompt_tokens": 25839,
+            "total_tokens": 28311,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2241
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25600
+            },
+            "prompt_cache_hit_tokens": 25600,
+            "prompt_cache_miss_tokens": 239
+          },
+          "created": 1794470133,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"【例15】已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\\\underline{\\\\quad}$。\",\"root\":{\"label\":\"例15\",\"definitions\":[\"f(x)=g(x)+1\"],\"facts\":[\"parity(g,odd)\",\"f(-2)=3\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\\\underline{\\\\quad}$。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要回答 JSON。需从图片提取题意，不求解。图片内容：标题\"类型VI：奇函数+常数结论的应用\"可能是来源/标题？下面【例15】已知 g(x) 为奇函数，f(x)=g(x)+1，且 f(-2)=3，则 f(2)=____。下方有手写/印刷解析？看起来解析文字\"所以 f(-2)+f(2)=2，所以 f(2)=...\"部分不是题设，不转录。要求只题目内容。图中无配图。需要构造 original_text 完整题干，可能包含标题？题目来源/题型标题\"类型VI：奇函数+常数结论的应用\"不是题设，不应放入公开题干，也不应作为题号。但 original_text 可保留完整题干原文？规则：original_text完整题干转录，来源题号/非题目指令不放公开字段。标题\"类型VI\"是来源/题型标签，可不转录？ original_text 是完整题干原文，可以保留【例15】？题号也不是题目内容，公开需排除。original_text 可以保留来源题号？说明：original_text 保留原题转录；public_content 排除来源题号。但题目手写答案不转录。这里【例15】是来源例号，原图明确题号？可以保留在 original_text，root.label 作为 source? 但 root.label存在时需角色。也许 root.label = 例15? 但 root.label 不是对象ID，题面分问标签；来源题号可放 root.label 并 role=source？需要时可用。若 root.label 放\"例15\"角色source。不过题目只有一个问，无小问。标题\"类型VI...\"可能来源标题，公开应排除，original_text 是否包含？完整题干原文可能只从【例15】开始，标题不是题干。可以不包含标题。但是不确定是否要求保留题首？通常题干是【例15】已知...。类型VI是题型标题，不属于题目本身。可忽略。原图下方有解析，不转录。\n\n目标：求 f(2) 的值。已知 g 为奇函数，f(x)=g(x)+1，f(-2)=3。需要 root definitions：g(x) 为奇函数？奇函数性质是否放facts \"g(-x)=-g(x)\"? 题面只说g(x)为奇函数，应放 facts parity(g,odd) 或\"g(-x)=-g(x)\"? 目录有 function_property parity(f,odd)，可放 facts: \"parity(g,odd)\"? 但它说函数定义/曲线定义/新概念原文优先 definitions；奇偶性题给性质可放facts。定义 f(x)=g(x)+1 放 definitions。f(-2)=3 放 facts。目标 find_value expression \"f(2)\"。不要求答案。\n\n需要注意：g(x) 为奇函数，f(x)=g(x)+1，且 f(-2)=3，则 f(2)=____。填空横线照原样写。original_text 用 LaTeX: 已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\underline{\\quad}$。需要保留【例15】？ original_text可写\"【例15】已知...\"。root.label \"例15\" role source。但 label 最大4096。public scopes statement 不含【例15】? 按公开排除题号，所以 statement \"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\underline{\\quad}$。\" 但 \\underline{\\quad} 在 statement 用 $…$ 中可。需要确保 JSON反斜杠转义。original_text 中 \\underline{\\quad} 反斜杠双写。root facts math strings 不要 $; 普通受控字符串。facts 可以写 \"parity(g,odd)\" 还是 \"g(-x)=-g(x)\"？ catalog的 function_property syntax parity(f,odd)，以题面“g(x)为奇函数”用 parity(g,odd) 放facts。但定义 g(x) 没有具体表达式，只有奇函数性质。需要 definitions? 函数定义? 题面未给 g 具体解析式，只声明g为奇函数。可不在definitions定义，只在facts写 parity(g,odd)。但是函数 g 需要定义吗？不是命名定义，只是性质。比较好：definitions [\"f(x)=g(x)+1\"]，facts [\"parity(g,odd)\", \"f(-2)=3\"]。不过 g(x) 未定义函数体，题面只说g(x)为奇函数，性质放 facts 足够。goal find_value expression \"f(2)\"。不需要 input_domain。\n\nuncertainties: none. 但标题/例号？没有不确定。 figure_detection status none regions [].\n\npublic_content: completeness complete, privacy separated? 图片有标题类型VI和例15，属于来源题号；如果已排除，公开题干不含姓名等。但原图有手写/解析（下方）属于作答/解析，未放入。可以 separated。figure not_required。root_label_role source if root.label exists. We will set root.label \"例15\" role source. 但 public_content scopes statement 不含题号。root.label in public? root label affects privacy? It's source; should be excluded from public fields. public scopes statement no label. OK.\n\nNeed decide original_text includes source title? Since original_text can保留来源题号，但也保留\"类型VI...\"? \"完整题干原文\" maybe not需要题型标题。图片中的\"类型VI：奇函数+常数结论的应用\"是题型分类标题，不属于题干；可忽略。original_text 如果只写【例15】...，完整题干。可保留【例15】。学生手写解析不转录。下方解析是印刷解析？看起来是答案/解析，不转录。还需注意图片中 f(2)=____ 后的答案被手写/印刷？横线上方有解析文本？不转录。\n\n构建 JSON。需要严格 schema: root has optional label, definitions, facts, goals, children? No children. uncertainties optional maybe not. public_content required fields figure_detection? Wait schema top-level requires original_text, root, public_content. public_content includes figure_detection inside required? Yes public_content.required includes completeness privacy figure scopes figure_detection. Wait public_content schema required [\"completeness\",\"privacy\",\"figure\",\"scopes\",\"figure_detection\"]. But top-level also has figure_detection? Actually response schema top-level properties: original_text, root, public_content. Public_content includes figure_detection. The instruction mentions \"同时填写 figure_detection\" but schema places inside public_content. Need output figure_detection inside public_content. Also top-level? The schema top-level doesn't have figure_detection. So include in public_content. Also root_label_role optional. Include \"root_label_role\":\"source\".\n\npublic_content.scopes one item scope_ref \"/root\", statement no label, choices array with target_ref \"/root/goals/0\", status none, selection_mode none, options [].\n\nNeed ensure \"每个 goals 项都在对应作用域 choices 中恰好出现一次\": one goal, choices item target_ref /root/goals/0.\n\nroot facts: \"parity(g,odd)\" maybe catalog uses parity(f,odd), okay. But function property says \"f\" name; can use g. Another fact \"f(-2)=3\". definitions [\"f(x)=g(x)+1\"]. Is g(x) 为奇函数 maybe definition should be \"g(x) 为奇函数\"? But use facts. Note catalog example function_property \"parity(f,even)\". Good.\n\nGoal find_value expression \"f(2)\". No in_terms_of.\n\noriginal_text must include math with $…$ and underline. JSON string: \"【例15】已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\\\underline{\\\\quad}$。\" Need double backslashes in JSON. In output, actual JSON string should contain \"\\\\underline{\\\\quad}\" to represent LaTeX with one slash? JSON requires backslash escaped. So write \"\\\\underline{\\\\quad}\". The final answer displayed will have \\underline{\\quad}. Similarly public statement.\n\nQuestion: Should original_text include \"类型VI...\"? It is at top, non题干. I think no. But \"完整题干原文\" might include【例15】. Use.\n\nroot.label \"例15\" and root_label_role \"source\". Is root.label max etc. Fine. Does root label \"例15\" count source? Original has 【例15】, yes.\n\nprivacy separated: Need exclude title/例号? public statement excludes例号. But original_text contains例号; privacy root content? public_content privacy separated if source题号已分离. Original_text may contain例号 but public fields exclude. root.label includes source, but privacy concerns root all content includes label; if label is source, should not declare separated? Rule: privacy also covers root's all content, including definitions and child labels, only all suitable for public then separated. But source题号 in root.label maybe not suitable. However privacy=separated requires题目正文与来源题号已明确分离. Does root.label source count separated? Maybe okay because root_label_role marks source; public scopes exclude label. But privacy covers root content including label; label source not content. I think separated acceptable.\n\nHowever root includes definitions/facts no source. root.label \"例15\" marked source. Public content.scopes statement no label. Complete.\n\nUncertainties? None; maybe original \"类型VI\" not included but not uncertainty. figure none.\n\nNeed consider f(-2)=3 and f(x)=g(x)+1 + g odd. We can represent g odd as fact. Maybe also g is function? No.\n\nLet's ensure schema additionalProperties false for root? Scope allows label definitions facts goals children uncertainties, no extra. Good.\n\npublic_content.completeness \"complete\". privacy \"separated\". figure \"not_required\". root_label_role \"source\". scopes array. figure_detection status none regions [].\n\nPotential issue: public_content.scopes statement \"已知...\" should not include source \"例15\". Good.\n\nNeed JSON only. Use proper escaping. final.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 15848
+  },
+  "raw_payload": {
+    "id": "0e5dd0ed-0ecf-4b0e-8801-8bb781d668c5",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"【例15】已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\\\underline{\\\\quad}$。\",\"root\":{\"label\":\"例15\",\"definitions\":[\"f(x)=g(x)+1\"],\"facts\":[\"parity(g,odd)\",\"f(-2)=3\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\\\underline{\\\\quad}$。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要回答 JSON。需从图片提取题意，不求解。图片内容：标题\"类型VI：奇函数+常数结论的应用\"可能是来源/标题？下面【例15】已知 g(x) 为奇函数，f(x)=g(x)+1，且 f(-2)=3，则 f(2)=____。下方有手写/印刷解析？看起来解析文字\"所以 f(-2)+f(2)=2，所以 f(2)=...\"部分不是题设，不转录。要求只题目内容。图中无配图。需要构造 original_text 完整题干，可能包含标题？题目来源/题型标题\"类型VI：奇函数+常数结论的应用\"不是题设，不应放入公开题干，也不应作为题号。但 original_text 可保留完整题干原文？规则：original_text完整题干转录，来源题号/非题目指令不放公开字段。标题\"类型VI\"是来源/题型标签，可不转录？ original_text 是完整题干原文，可以保留【例15】？题号也不是题目内容，公开需排除。original_text 可以保留来源题号？说明：original_text 保留原题转录；public_content 排除来源题号。但题目手写答案不转录。这里【例15】是来源例号，原图明确题号？可以保留在 original_text，root.label 作为 source? 但 root.label存在时需角色。也许 root.label = 例15? 但 root.label 不是对象ID，题面分问标签；来源题号可放 root.label 并 role=source？需要时可用。若 root.label 放\"例15\"角色source。不过题目只有一个问，无小问。标题\"类型VI...\"可能来源标题，公开应排除，original_text 是否包含？完整题干原文可能只从【例15】开始，标题不是题干。可以不包含标题。但是不确定是否要求保留题首？通常题干是【例15】已知...。类型VI是题型标题，不属于题目本身。可忽略。原图下方有解析，不转录。\n\n目标：求 f(2) 的值。已知 g 为奇函数，f(x)=g(x)+1，f(-2)=3。需要 root definitions：g(x) 为奇函数？奇函数性质是否放facts \"g(-x)=-g(x)\"? 题面只说g(x)为奇函数，应放 facts parity(g,odd) 或\"g(-x)=-g(x)\"? 目录有 function_property parity(f,odd)，可放 facts: \"parity(g,odd)\"? 但它说函数定义/曲线定义/新概念原文优先 definitions；奇偶性题给性质可放facts。定义 f(x)=g(x)+1 放 definitions。f(-2)=3 放 facts。目标 find_value expression \"f(2)\"。不要求答案。\n\n需要注意：g(x) 为奇函数，f(x)=g(x)+1，且 f(-2)=3，则 f(2)=____。填空横线照原样写。original_text 用 LaTeX: 已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\underline{\\quad}$。需要保留【例15】？ original_text可写\"【例15】已知...\"。root.label \"例15\" role source。但 label 最大4096。public scopes statement 不含【例15】? 按公开排除题号，所以 statement \"已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\underline{\\quad}$。\" 但 \\underline{\\quad} 在 statement 用 $…$ 中可。需要确保 JSON反斜杠转义。original_text 中 \\underline{\\quad} 反斜杠双写。root facts math strings 不要 $; 普通受控字符串。facts 可以写 \"parity(g,odd)\" 还是 \"g(-x)=-g(x)\"？ catalog的 function_property syntax parity(f,odd)，以题面“g(x)为奇函数”用 parity(g,odd) 放facts。但定义 g(x) 没有具体表达式，只有奇函数性质。需要 definitions? 函数定义? 题面未给 g 具体解析式，只声明g为奇函数。可不在definitions定义，只在facts写 parity(g,odd)。但是函数 g 需要定义吗？不是命名定义，只是性质。比较好：definitions [\"f(x)=g(x)+1\"]，facts [\"parity(g,odd)\", \"f(-2)=3\"]。不过 g(x) 未定义函数体，题面只说g(x)为奇函数，性质放 facts 足够。goal find_value expression \"f(2)\"。不需要 input_domain。\n\nuncertainties: none. 但标题/例号？没有不确定。 figure_detection status none regions [].\n\npublic_content: completeness complete, privacy separated? 图片有标题类型VI和例15，属于来源题号；如果已排除，公开题干不含姓名等。但原图有手写/解析（下方）属于作答/解析，未放入。可以 separated。figure not_required。root_label_role source if root.label exists. We will set root.label \"例15\" role source. 但 public_content scopes statement 不含题号。root.label in public? root label affects privacy? It's source; should be excluded from public fields. public scopes statement no label. OK.\n\nNeed decide original_text includes source title? Since original_text can保留来源题号，但也保留\"类型VI...\"? \"完整题干原文\" maybe not需要题型标题。图片中的\"类型VI：奇函数+常数结论的应用\"是题型分类标题，不属于题干；可忽略。original_text 如果只写【例15】...，完整题干。可保留【例15】。学生手写解析不转录。下方解析是印刷解析？看起来是答案/解析，不转录。还需注意图片中 f(2)=____ 后的答案被手写/印刷？横线上方有解析文本？不转录。\n\n构建 JSON。需要严格 schema: root has optional label, definitions, facts, goals, children? No children. uncertainties optional maybe not. public_content required fields figure_detection? Wait schema top-level requires original_text, root, public_content. public_content includes figure_detection inside required? Yes public_content.required includes completeness privacy figure scopes figure_detection. Wait public_content schema required [\"completeness\",\"privacy\",\"figure\",\"scopes\",\"figure_detection\"]. But top-level also has figure_detection? Actually response schema top-level properties: original_text, root, public_content. Public_content includes figure_detection. The instruction mentions \"同时填写 figure_detection\" but schema places inside public_content. Need output figure_detection inside public_content. Also top-level? The schema top-level doesn't have figure_detection. So include in public_content. Also root_label_role optional. Include \"root_label_role\":\"source\".\n\npublic_content.scopes one item scope_ref \"/root\", statement no label, choices array with target_ref \"/root/goals/0\", status none, selection_mode none, options [].\n\nNeed ensure \"每个 goals 项都在对应作用域 choices 中恰好出现一次\": one goal, choices item target_ref /root/goals/0.\n\nroot facts: \"parity(g,odd)\" maybe catalog uses parity(f,odd), okay. But function property says \"f\" name; can use g. Another fact \"f(-2)=3\". definitions [\"f(x)=g(x)+1\"]. Is g(x) 为奇函数 maybe definition should be \"g(x) 为奇函数\"? But use facts. Note catalog example function_property \"parity(f,even)\". Good.\n\nGoal find_value expression \"f(2)\". No in_terms_of.\n\noriginal_text must include math with $…$ and underline. JSON string: \"【例15】已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=\\\\underline{\\\\quad}$。\" Need double backslashes in JSON. In output, actual JSON string should contain \"\\\\underline{\\\\quad}\" to represent LaTeX with one slash? JSON requires backslash escaped. So write \"\\\\underline{\\\\quad}\". The final answer displayed will have \\underline{\\quad}. Similarly public statement.\n\nQuestion: Should original_text include \"类型VI...\"? It is at top, non题干. I think no. But \"完整题干原文\" might include【例15】. Use.\n\nroot.label \"例15\" and root_label_role \"source\". Is root.label max etc. Fine. Does root label \"例15\" count source? Original has 【例15】, yes.\n\nprivacy separated: Need exclude title/例号? public statement excludes例号. But original_text contains例号; privacy root content? public_content privacy separated if source题号已分离. Original_text may contain例号 but public fields exclude. root.label includes source, but privacy concerns root all content includes label; if label is source, should not declare separated? Rule: privacy also covers root's all content, including definitions and child labels, only all suitable for public then separated. But source题号 in root.label maybe not suitable. However privacy=separated requires题目正文与来源题号已明确分离. Does root.label source count separated? Maybe okay because root_label_role marks source; public scopes exclude label. But privacy covers root content including label; label source not content. I think separated acceptable.\n\nHowever root includes definitions/facts no source. root.label \"例15\" marked source. Public content.scopes statement no label. Complete.\n\nUncertainties? None; maybe original \"类型VI\" not included but not uncertainty. figure none.\n\nNeed consider f(-2)=3 and f(x)=g(x)+1 + g odd. We can represent g odd as fact. Maybe also g is function? No.\n\nLet's ensure schema additionalProperties false for root? Scope allows label definitions facts goals children uncertainties, no extra. Good.\n\npublic_content.completeness \"complete\". privacy \"separated\". figure \"not_required\". root_label_role \"source\". scopes array. figure_detection status none regions [].\n\nPotential issue: public_content.scopes statement \"已知...\" should not include source \"例15\". Good.\n\nNeed JSON only. Use proper escaping. final."
+        }
+      }
+    ],
+    "created": 1794470133,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2472,
+      "prompt_tokens": 25839,
+      "total_tokens": 28311,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2241,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25600
+      },
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 239
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 15.851
+}

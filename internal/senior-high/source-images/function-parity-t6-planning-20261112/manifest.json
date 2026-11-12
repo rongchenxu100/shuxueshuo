@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "source": "User attachment, 2026-11-12, Asia/Shanghai",
+  "purpose": "FP-T6 题源补充与开发范围更新",
+  "status": "planning_sources_not_extraction_gold",
+  "usage": "development_source_not_holdout",
+  "processing": "原图按原字节保存，未裁剪、重绘或删除文字。student_statement 只保留题干，去除栏目、例题及变式标签，不包含解析、答案或反思；不把原图未声明的定义域补成实数集。",
+  "plan": "../../../../docs/function-parity-topic-plan.md",
+  "design": "../../../../docs/function-shifted-odd-problem-type-design.md",
+  "source_question_count": 4,
+  "source_target_count": 4,
+  "images": [
+    {
+      "image_number": 1,
+      "file": "source-page-01.png",
+      "original_filename": "codex-clipboard-585c84ca-8943-4d82-936c-0b87e51ad9d1.png",
+      "sha256": "23d9fe6f39ccb2054ce82ed783968e47d2ee6d8f78272ab2dbf4c68fda9d6ec9",
+      "bytes": 202063,
+      "printed_page": 134,
+      "question_ids": ["FP-B01", "FP-B02", "FP-B03", "FP-B04"]
+    }
+  ],
+  "questions": [
+    {
+      "id": "FP-B01",
+      "type": "FP-T6",
+      "title": "由奇函数平移求值",
+      "source_location": {"image_number": 1, "question_order": 1},
+      "student_statement": "已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$____。",
+      "target": "f(2)",
+      "mathematical_review": {
+        "expected_answer": "-1",
+        "derivation": "f(-2)+f(2)=2，所以 f(2)=2-3=-1。",
+        "domain_note": "源题未显式声明完整定义域。由 g 的奇性、同输入定义 f=g+1 及已知 f(-2) 保证相反输入 2 合法，不补写全实数域。"
+      }
+    },
+    {
+      "id": "FP-B02",
+      "type": "FP-T6",
+      "title": "相反输入的函数值之和",
+      "source_location": {"image_number": 1, "question_order": 2},
+      "student_statement": "已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$____。",
+      "target": "f(2024)+f(-2024)",
+      "mathematical_review": {
+        "expected_answer": "-4",
+        "derivation": "在原式定义域内，ax+b/x 为奇函数，故 f(x)+f(-x)=-4；两个目标输入均非零。",
+        "domain_note": "保留原分母限制 x≠0，包括 b=0 时；a、b 是函数的系数参数，题目不要求求出它们。"
+      }
+    },
+    {
+      "id": "FP-B03",
+      "type": "FP-T6",
+      "title": "拆分有理式求相反输入值",
+      "source_location": {"image_number": 1, "question_order": 3},
+      "student_statement": "已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为____。",
+      "target": "f(-a)",
+      "mathematical_review": {
+        "expected_answer": "-10",
+        "derivation": "f(x)=(2024x^3+3x)/(x^2+3)+2，奇函数部分的相反输入值相消，所以 f(-a)=4-f(a)=-10。",
+        "domain_note": "x²+3 恒正，定义域为实数集；a 是已知函数值对应的输入，不是本题待求的函数系数。"
+      }
+    },
+    {
+      "id": "FP-B04",
+      "type": "FP-T6",
+      "title": "对称区间上的最大值与最小值之和",
+      "source_location": {"image_number": 1, "question_order": 4},
+      "student_statement": "当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$____。",
+      "target": "M+m",
+      "mathematical_review": {
+        "expected_answer": "2",
+        "derivation": "f(x)=1+(2x+ax^5)/(x²+1)，故 f(x)+f(-x)=2。在闭区间 [-1,1] 上函数连续并取得最值，最大值点的相反输入处取得最小值，故 M+m=2。",
+        "domain_note": "[-1,1] 是两个最值共同使用的范围；a 是任意实常数。不能把目标改为分别求 M、m 或 a，也不能用抽样猜测最值位置。"
+      }
+    }
+  ],
+  "review": {
+    "method": "人工逐题核对印刷题干；答案独立推导，显式式子的相反输入之和另以精确符号运算核对。",
+    "real_ocr_run": false,
+    "model_review_run": false,
+    "solver_acceptance": false,
+    "course_published": false
+  }
+}

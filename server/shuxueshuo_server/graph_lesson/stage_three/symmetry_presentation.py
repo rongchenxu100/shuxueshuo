@@ -395,6 +395,9 @@ def _candidate_views(base, model, s, phase):
 
 def phase_views(values):
     d, phase = values['description'], values['phase']
+    if d['structure_version'] == 'function-symmetry/shifted-odd-v1':
+        from .shifted_odd_presentation import phase_views as shifted_views
+        return shifted_views(values)
     if d['structure_version'] == 'function-symmetry/general-v1':
         from .symmetry_relation_presentation import phase_views as general_views
         return general_views(values)

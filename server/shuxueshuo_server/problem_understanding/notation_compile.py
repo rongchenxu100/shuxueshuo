@@ -419,12 +419,27 @@ class Scope:
             )
             if kind in ("function_definition", "function_input_relation"):
                 self.functions[ast[1]] = ast
+                # A named function in a function body's application is an
+                # abstract function, not an implicit real-domain declaration.
+                def declare_calls(body):
+                    if (body[0] == 'call' and len(body) == 3
+                            and body[1] not in BUILTINS and body[1] != ast[2]
+                            and re.fullmatch(r'[A-Za-z](?:_?\d+)?', body[1])
+                            and self.lookup(body[1]) is None):
+                        self.declare(body[1], 'function')
+                        self.abstract_functions.add(body[1])
+                    for child in children(body):
+                        declare_calls(child)
+                declare_calls(ast[-1])
             return
         if kind == "role":
             self.declare(ast[1], "point")
             return
         if kind == "=":
             left, right = ast[1:]
+            for name, value in ((left, right), (right, left)):
+                if name[0] == 'name' and value[0] == 'extremum':
+                    self.declare(name[1], 'scalar')
             for name, value in ((left, right), (right, left)):
                 if name[0] == "name" and (
                     value[0] == "tuple"

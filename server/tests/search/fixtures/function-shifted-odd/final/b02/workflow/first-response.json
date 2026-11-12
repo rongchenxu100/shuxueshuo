@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=a*x+b/x-2\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1721,
+      "prompt_tokens": 25821,
+      "total_tokens": 27542,
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 221
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 531,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-8a4ed1db-af3f-4919-9abb-7db5c4e1b07f",
+        "sha256": "570f7587ec136dcd8cb9a45d299d70e877f5a417947cb81ed7d4c3f97980f3ae",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 8354,
+        "expires_at": 1794557312,
+        "uploaded_at": 1794470912.193058
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "570f7587ec136dcd8cb9a45d299d70e877f5a417947cb81ed7d4c3f97980f3ae",
+        "api_calls": 1,
+        "file_id": "file-api-8a4ed1db-af3f-4919-9abb-7db5c4e1b07f",
+        "expires_at": 1794557312,
+        "elapsed_ms": 167
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 11193,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1721,
+          "prompt_tokens": 25821,
+          "total_tokens": 27542,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1530
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25600
+          },
+          "prompt_cache_hit_tokens": 25600,
+          "prompt_cache_miss_tokens": 221
+        },
+        "raw_payload": {
+          "id": "5a7123eb-a7b1-4790-99b7-9f6124bd982f",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1721,
+            "prompt_tokens": 25821,
+            "total_tokens": 27542,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1530
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25600
+            },
+            "prompt_cache_hit_tokens": 25600,
+            "prompt_cache_miss_tokens": 221
+          },
+          "created": 1794470912,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=a*x+b/x-2\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题意。题目：已知 f(x)=a x + b/x -2，则 f(2024)+f(-2024)=______。需要保留完整。需要判断是否有 a,b 条件？图片上方只有这一行。题干似乎没有额外说明 a,b 为常数？通常隐含。不要补。原图中有“【变式 1】”题号/来源标签？这可能是题号/变式标签，不是有题意标签。root.label? 可以不放 label 或放 label \"【变式1】\"并 role source？题面开头【变式 1】应是来源/题号，公开题干不应包含。original_text 保留完整题干包括【变式 1】？要求 original_text 完整题干原文，可以保留题号？它说来源题号不是题设，不能写入公开字段，但 original_text 可以保留来源题号？来源与完整性：只读题干；题号属于来源。original_text 完整题干原文，通常保留题号。public_content statement 不包含。若 root.label 存在，表示题面分问或图景标签。这里【变式1】是来源题号，可以 root.label=\"【变式 1】\" role source? root.label 可省略。如果省略，公开无题号，original_text 可保留。不需要 root.label。\n\n数学：定义 f(x)=a*x+b/x-2。目标 f(2024)+f(-2024) 求值。注意 f(-2024) 代入原式：a*(-2024)+b/(-2024)-2。题目没有给 a,b。无法求解，但只提取。目标 find_value expression \"f(2024)+f(-2024)\"。定义只包含 f(x)，参数 a,b 未声明常数？不补。definitions [\"f(x)=a*x+b/x-2\"]。facts 无。uncertainties 可能 unclear a,b? 不需要。题目完整，图像无配图，figure_detection none。public_content scope /root statement \"$已知 f(x)=a x+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\" 注意公式内 LaTeX 用 \\\\frac、\\\\ 反斜杠。公开 statement 用 $…$。不能含【变式1】。choices: 目标无选项 status none selection none options []。 completeness complete, privacy separated? 题干没有个人信息/手写，隐私 separated. figure not_required. Figure detection none.\n\n需要 original_text：完整题干；公式可用 LaTeX。要保留横线。写出\"【变式 1】已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\" JSON 中反斜杠需要转义。注意 $ 内集合花括号 \\{} 规则仅集合；\\frac okay. 在 JSON 字符串中写 \"\\\\frac\"。original_text 中“【变式 1】”保留。可能图片里有逗号。转录应保留变量、符号、量词措辞。使用 ax 还是 a x? 原题 f(x)=ax+\\frac{b}{x}-2。用 ax 可以，但 root 用 a*x。original_text 用 LaTeX ax 可接受。横线写 ______。句末有句号。\n\nroot definitions 使用受控数学字符串，不写 $ 和反斜杠？root 数学式仍用目录的 Unicode 记法，如 {a} ⊆ M。对于分数，目录 arithmetic允许 /；所以 f(x)=a*x+b/x-2。定义字符串 \"f(x)=a*x+b/x-2\"。goals [{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]。无 facts。\n\nuncertainties: 图片中 f(x) 后面有逗号，参数 a,b 没有说明为常数。未定义 a,b 是否导致题目条件不全？不报告，因为题面确实没有。不要补。是否需要 ambiguity? no.\n\npublic_content scopes：每个 scope 对应 root，包含 statement 和 choices。statement 只本作用域自己的题干、条件和所求，公式用 $…$。可以写\"已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\" Public choices array 对应 goal，target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []。\n\nfigure_detection status none regions [].\n\n需要只输出 JSON。确保 schema 不能额外字段。root.uncertainties maybe [] 可省略；不输出。root.label 可不输出。public_content.root_label_role 不填因为没有 root.label. privacy separated? 需要判断原图有“【变式 1】”是来源题号，公开 statement 已排除，满足 separated 因为能明确分离来源题号。图形无。figure_detection none。\n\n注意 original_text 中 LaTeX 字符串 JSON 反斜杠转义。例如 \"\\frac\" 必须写成 \"\\\\frac\"。public_content statement 同理。JSON 输出中 \"f(x)=ax+\\\\frac{b}{x}-2\"。\n\n是否 original_text 应包含“【变式 1】”还是只题目？完整题干原文；题号不是题干？它说original_text完整题干原文，保留原有中文叙述...不抄手写答案...来源题号可以保留吗？来源与完整性说“只读本题题干及所属选项。相邻题目、印刷解析、答案、手写批注和勾选不是题设，不写入 original_text、public_content 或 root；无法确认所属关系时报告 uncertainty。保留完整原式...” 题号不是题设，但 original_text 是题干原文，通常可含题号。但是后文“来源只能在能够明确分离时排除，不能泛化删除题干开头的数字、括号或数学条件”。这暗示如果明确是来源可排除。original_text可以保留来源题号？它说不能写入original_text？ \"相邻题目、印刷解析、答案、手写批注和勾选不是题设，不写入 original_text、public_content 或 root\" 列举不包括题号。另外 privacy也涵盖 root，公开字段不能含来源。original_text 可以保留。保留【变式1】应该没问题，因为它是题号。也可以去掉？完整题干原文我认为保留。\n\n没有小问，root only。public_content scopes 只有 /root。\n\n如果 original_text 有 '\\'，JSON 正确转义。例如 \"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\" 实际显示 \\frac。好。\n\nroot definitions 数学字符串不允许斜杠？分数用 /，b/x。没问题。\n\n目标 expression \"f(2024)+f(-2024)\"。\n\n有没有必要在facts里写 a,b为常数？题中没有明说，不能补。但原题隐含 a,b 常数。不添加。\n\nuncertainties 不输出。\n\nnow final JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 11394
+  },
+  "raw_payload": {
+    "id": "5a7123eb-a7b1-4790-99b7-9f6124bd982f",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=a*x+b/x-2\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题意。题目：已知 f(x)=a x + b/x -2，则 f(2024)+f(-2024)=______。需要保留完整。需要判断是否有 a,b 条件？图片上方只有这一行。题干似乎没有额外说明 a,b 为常数？通常隐含。不要补。原图中有“【变式 1】”题号/来源标签？这可能是题号/变式标签，不是有题意标签。root.label? 可以不放 label 或放 label \"【变式1】\"并 role source？题面开头【变式 1】应是来源/题号，公开题干不应包含。original_text 保留完整题干包括【变式 1】？要求 original_text 完整题干原文，可以保留题号？它说来源题号不是题设，不能写入公开字段，但 original_text 可以保留来源题号？来源与完整性：只读题干；题号属于来源。original_text 完整题干原文，通常保留题号。public_content statement 不包含。若 root.label 存在，表示题面分问或图景标签。这里【变式1】是来源题号，可以 root.label=\"【变式 1】\" role source? root.label 可省略。如果省略，公开无题号，original_text 可保留。不需要 root.label。\n\n数学：定义 f(x)=a*x+b/x-2。目标 f(2024)+f(-2024) 求值。注意 f(-2024) 代入原式：a*(-2024)+b/(-2024)-2。题目没有给 a,b。无法求解，但只提取。目标 find_value expression \"f(2024)+f(-2024)\"。定义只包含 f(x)，参数 a,b 未声明常数？不补。definitions [\"f(x)=a*x+b/x-2\"]。facts 无。uncertainties 可能 unclear a,b? 不需要。题目完整，图像无配图，figure_detection none。public_content scope /root statement \"$已知 f(x)=a x+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\" 注意公式内 LaTeX 用 \\\\frac、\\\\ 反斜杠。公开 statement 用 $…$。不能含【变式1】。choices: 目标无选项 status none selection none options []。 completeness complete, privacy separated? 题干没有个人信息/手写，隐私 separated. figure not_required. Figure detection none.\n\n需要 original_text：完整题干；公式可用 LaTeX。要保留横线。写出\"【变式 1】已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\" JSON 中反斜杠需要转义。注意 $ 内集合花括号 \\{} 规则仅集合；\\frac okay. 在 JSON 字符串中写 \"\\\\frac\"。original_text 中“【变式 1】”保留。可能图片里有逗号。转录应保留变量、符号、量词措辞。使用 ax 还是 a x? 原题 f(x)=ax+\\frac{b}{x}-2。用 ax 可以，但 root 用 a*x。original_text 用 LaTeX ax 可接受。横线写 ______。句末有句号。\n\nroot definitions 使用受控数学字符串，不写 $ 和反斜杠？root 数学式仍用目录的 Unicode 记法，如 {a} ⊆ M。对于分数，目录 arithmetic允许 /；所以 f(x)=a*x+b/x-2。定义字符串 \"f(x)=a*x+b/x-2\"。goals [{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]。无 facts。\n\nuncertainties: 图片中 f(x) 后面有逗号，参数 a,b 没有说明为常数。未定义 a,b 是否导致题目条件不全？不报告，因为题面确实没有。不要补。是否需要 ambiguity? no.\n\npublic_content scopes：每个 scope 对应 root，包含 statement 和 choices。statement 只本作用域自己的题干、条件和所求，公式用 $…$。可以写\"已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\" Public choices array 对应 goal，target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []。\n\nfigure_detection status none regions [].\n\n需要只输出 JSON。确保 schema 不能额外字段。root.uncertainties maybe [] 可省略；不输出。root.label 可不输出。public_content.root_label_role 不填因为没有 root.label. privacy separated? 需要判断原图有“【变式 1】”是来源题号，公开 statement 已排除，满足 separated 因为能明确分离来源题号。图形无。figure_detection none。\n\n注意 original_text 中 LaTeX 字符串 JSON 反斜杠转义。例如 \"\\frac\" 必须写成 \"\\\\frac\"。public_content statement 同理。JSON 输出中 \"f(x)=ax+\\\\frac{b}{x}-2\"。\n\n是否 original_text 应包含“【变式 1】”还是只题目？完整题干原文；题号不是题干？它说original_text完整题干原文，保留原有中文叙述...不抄手写答案...来源题号可以保留吗？来源与完整性说“只读本题题干及所属选项。相邻题目、印刷解析、答案、手写批注和勾选不是题设，不写入 original_text、public_content 或 root；无法确认所属关系时报告 uncertainty。保留完整原式...” 题号不是题设，但 original_text 是题干原文，通常可含题号。但是后文“来源只能在能够明确分离时排除，不能泛化删除题干开头的数字、括号或数学条件”。这暗示如果明确是来源可排除。original_text可以保留来源题号？它说不能写入original_text？ \"相邻题目、印刷解析、答案、手写批注和勾选不是题设，不写入 original_text、public_content 或 root\" 列举不包括题号。另外 privacy也涵盖 root，公开字段不能含来源。original_text 可以保留。保留【变式1】应该没问题，因为它是题号。也可以去掉？完整题干原文我认为保留。\n\n没有小问，root only。public_content scopes 只有 /root。\n\n如果 original_text 有 '\\'，JSON 正确转义。例如 \"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\" 实际显示 \\frac。好。\n\nroot definitions 数学字符串不允许斜杠？分数用 /，b/x。没问题。\n\n目标 expression \"f(2024)+f(-2024)\"。\n\n有没有必要在facts里写 a,b为常数？题中没有明说，不能补。但原题隐含 a,b 常数。不添加。\n\nuncertainties 不输出。\n\nnow final JSON."
+        }
+      }
+    ],
+    "created": 1794470912,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1721,
+      "prompt_tokens": 25821,
+      "total_tokens": 27542,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1530,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25600
+      },
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 221
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 11.396
+}

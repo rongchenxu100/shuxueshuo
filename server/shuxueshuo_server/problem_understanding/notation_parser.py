@@ -407,6 +407,11 @@ def _one_group(text):
 
 def definition(text, known_functions=()):
     text = clean(text)
+    # A free scalar is real by the existing notation convention. A printed
+    # constant declaration adds that same membership, never a numerical value.
+    constant = re.fullmatch(r"([A-Za-z][\w]*)\s*(?:为|是)\s*(?:实)?常数[。.]?", text)
+    if constant:
+        return node("∈", node("name", constant[1]), node("real"))
     curve = re.fullmatch(r"([A-Za-z\u0370-\u03ff][\w]*)\s*:\s*y\s*=\s*(.+)", text)
     if curve:
         return node("curve_definition", curve[1], parse(curve[2]))

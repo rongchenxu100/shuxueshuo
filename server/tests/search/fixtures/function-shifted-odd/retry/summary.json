@@ -1,0 +1,172 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "a16",
+      "search_id": "9781ff866879",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 51.402,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 41.023,
+      "original_text": "16. 若函数$f(x)$满足：$g(x)=f(x)+2$是$R$上的奇函数，且$f(1)=9$，则$f(-1)$的值为____。",
+      "root": {
+        "definitions": [
+          "g(x)=f(x)+2"
+        ],
+        "facts": [
+          "parity(g,odd)",
+          "Dom(g)=ℝ",
+          "f(1)=9"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(-1)"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-shifted-odd-application"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-13",
+              "latex": "-13"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 2,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b04",
+      "search_id": "611b05e60500",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 70.239,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 60.703,
+      "original_text": "【变式3】当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$____.",
+      "root": {
+        "label": "变式3",
+        "definitions": [
+          "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+        ],
+        "facts": [
+          "a∈ℝ"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "object": "f",
+            "input_domain": "[-1,1]",
+            "answer_request": {
+              "kind": "expression",
+              "bindings": [
+                {
+                  "symbol": "M",
+                  "quantity": "maximum"
+                },
+                {
+                  "symbol": "m",
+                  "quantity": "minimum"
+                }
+              ],
+              "expression": "M+m"
+            }
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-shifted-odd-application"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "derived_answer",
+            "request_kind": "expression",
+            "status": "value",
+            "value": {
+              "exact": {
+                "$math": "Integer",
+                "value": "2"
+              },
+              "expression": "2",
+              "latex": "2"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 2,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    }
+  ]
+}

@@ -11,9 +11,18 @@ from .trajectory import decode_value, encode_value
 
 
 def admitted(context):
-    desc = context.get('symmetry_relation_goal', context.get('symmetry_value_goal', {}))
+    desc = context.get('shifted_odd_goal', context.get('symmetry_relation_goal', context.get('symmetry_value_goal', {})))
     entries = [{k: r[k] for k in ('source_ref', 'expression', 'ast')} for r in context.get('entries', [])]
-    return bool(desc.get('structure_supported') and desc['source'] == context['goal']
+    if context.get('shifted_odd_goal'):
+        from ..shifted_odd_math import extrema_request
+
+        adapted = extrema_request(context['goal'], context['goal_ast'], context['target_ref'], entries)
+        if adapted:
+            _, goal_ast, entries = adapted
+            if desc['goal_ast'] != goal_ast:
+                return False
+    return bool(desc.get('structure_version') in {'function-symmetry/r3-v2', 'function-symmetry/general-v1', 'function-symmetry/shifted-odd-v1'}
+                and desc.get('structure_supported') and desc['source'] == context['goal']
                 and desc['given_entries'] == entries)
 
 
@@ -41,6 +50,8 @@ def _borrow_bound(context, model):
 def prepare(context):
     if not admitted(context):
         raise CapabilityGap('symmetry_value.unsupported_source')
+    if 'shifted_odd_goal' in context:
+        return result({'description': deepcopy(context['shifted_odd_goal'])}, [], [{'kind': 'shifted_odd_sources_bound', 'passed': True}])
     description = deepcopy(context.get('symmetry_relation_goal', context.get('symmetry_value_goal')))
     if 'symmetry_relation_goal' in context:
         return result({'description': description}, [], [{'kind': 'general_symmetry_sources_bound', 'passed': True}])
@@ -59,6 +70,9 @@ def _model(description):
 
 
 def check_general_domain(description):
+    if description['structure_version'] == 'function-symmetry/shifted-odd-v1':
+        from .shifted_odd_runtime import check_domain
+        return check_domain(description)
     from .symmetry_relation_runtime import check_domain
     if description['structure_version'] != 'function-symmetry/general-v1':
         raise CapabilityGap('symmetry.general_domain_contract_required')
@@ -67,6 +81,9 @@ def check_general_domain(description):
 
 def rewrite(description):
     """S2: F(c) = ±F(-c) for each input not used as written; stated identities at each input and its opposite."""
+    if description['structure_version'] == 'function-symmetry/shifted-odd-v1':
+        from .shifted_odd_runtime import rewrite as run
+        return run(description)
     if description['structure_version'] == 'function-symmetry/general-v1':
         from .symmetry_relation_runtime import rewrite as run
         return run(description)
@@ -86,6 +103,9 @@ def rewrite(description):
 
 def evaluate(description, rewrite):
     """Substitute the printed rule at inputs inside its range; odd f(0)=0 needs no rule."""
+    if description['structure_version'] == 'function-symmetry/shifted-odd-v1':
+        from .shifted_odd_runtime import evaluate as run
+        return run(description, rewrite)
     if description['structure_version'] == 'function-symmetry/general-v1':
         from .symmetry_relation_runtime import evaluate as run
         return run(description, rewrite)
@@ -105,6 +125,9 @@ def evaluate(description, rewrite):
 
 
 def confirm(description, rewrite, rule_values):
+    if description['structure_version'] == 'function-symmetry/shifted-odd-v1':
+        from .shifted_odd_runtime import confirm as run
+        return run(description, rewrite, rule_values)
     if description['structure_version'] == 'function-symmetry/general-v1':
         from .symmetry_relation_runtime import confirm as run
         return run(description, rewrite, rule_values)
@@ -127,7 +150,10 @@ def verify_frozen(candidate, target_ref, context, encoded_result):
     from .context import build_context
     current = build_context(candidate, target_ref)
     model = decode_value(encoded_result)
-    if 'symmetry_relation_goal' in current:
+    if 'shifted_odd_goal' in current:
+        from ..shifted_odd_math import verify as verify_shifted
+        valid = current == context and admitted(current) and verify_shifted(current['shifted_odd_goal'], model)
+    elif 'symmetry_relation_goal' in current:
         from ..symmetry_relation_math import verify as verify_general
         valid = current == context and admitted(current) and verify_general(current['symmetry_relation_goal'], model)
     else:
@@ -149,6 +175,9 @@ def answer_for(desc, model):
 
 
 def finish(state, context, previous):
+    if 'shifted_odd_goal' in context:
+        from .shifted_odd_runtime import finish as run
+        return run(state, context, previous)
     if 'symmetry_relation_goal' in context:
         from .symmetry_relation_runtime import finish as run
         return run(state, context, previous)

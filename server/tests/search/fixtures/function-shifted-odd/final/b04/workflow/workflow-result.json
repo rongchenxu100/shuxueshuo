@@ -1,0 +1,551 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "code_gap",
+  "source_status": "not_reviewed",
+  "source_reviewed": false,
+  "parse_status": "invalid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": true,
+    "reason": "code_gap"
+  },
+  "diagnostics": [
+    {
+      "stage": "compile",
+      "code": "notation.unsupported_declaration",
+      "path": "/root/facts/0",
+      "source": "a为常数。",
+      "message": "notation.unsupported_declaration",
+      "action": "code_gap"
+    }
+  ],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 1,
+  "content_calls": 1,
+  "review_calls": 0,
+  "network_attempts": 1,
+  "network_reserved": 1,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "【变式3】当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$ ____．",
+    "root": {
+      "definitions": [
+        "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+      ],
+      "facts": [
+        "a为常数。"
+      ],
+      "goals": [
+        {
+          "kind": "find_extrema_expression",
+          "object": "f",
+          "extrema": [
+            {
+              "symbol": "M",
+              "kind": "maximum"
+            },
+            {
+              "symbol": "m",
+              "kind": "minimum"
+            }
+          ],
+          "expression": "M+m",
+          "input_domain": "[-1,1]"
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$ ____．",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "【变式3】当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$ ____．",
+    "root": {
+      "definitions": [
+        "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+      ],
+      "facts": [
+        "a为常数。"
+      ],
+      "goals": [
+        {
+          "kind": "find_extrema_expression",
+          "object": "f",
+          "extrema": [
+            {
+              "symbol": "M",
+              "kind": "maximum"
+            },
+            {
+              "symbol": "m",
+              "kind": "minimum"
+            }
+          ],
+          "expression": "M+m",
+          "input_domain": "[-1,1]"
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$ ____．",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": false,
+    "reports": {
+      "ir": {
+        "ok": false,
+        "issues": [
+          {
+            "path": "r.facts[0]",
+            "source": "a为常数。",
+            "code": "notation.parse",
+            "reason_code": "notation.unsupported_declaration",
+            "message": "notation.unsupported_declaration"
+          }
+        ],
+        "defaults": [
+          {
+            "ref": "r:scalar:a",
+            "domain": "real",
+            "origin": "code_default"
+          }
+        ],
+        "objects": [
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          },
+          {
+            "ref": "r:scalar:a",
+            "name": "a",
+            "kind": "scalar",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {}
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "56ac58818dbbef4b9435efee22de76169fb39ab921f2bc373ce79060f53fdd42",
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "/",
+              [
+                "+",
+                [
+                  "^",
+                  [
+                    "+",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "ref",
+                    "r:scalar:a",
+                    "scalar"
+                  ],
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "+",
+                [
+                  "^",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_extrema_expression",
+            "target": [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "task": {
+              "kind": "find_extrema_expression",
+              "object": "f",
+              "extrema": [
+                {
+                  "symbol": "M",
+                  "kind": "maximum"
+                },
+                {
+                  "symbol": "m",
+                  "kind": "minimum"
+                }
+              ],
+              "expression": "M+m",
+              "input_domain": "[-1,1]"
+            },
+            "input_domain": [
+              "interval",
+              true,
+              true,
+              [
+                "neg",
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {
+        "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"/\",[\"+\",[\"^\",[\"+\",[\"bound\",\"function_argument\"],[\"number\",\"1\"]],[\"number\",\"2\"]],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"5\"]]]],[\"+\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"number\",\"1\"]]]]": {
+          "path": "r.definitions[0]",
+          "source": "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+        }
+      },
+      "normalization_report": {}
+    },
+    "binding": {
+      "problem_id": "88ac46d6f830",
+      "source_sha256": "5725f72504ffe4459bb398a5ee027f82f32d31ecb684c04d1f7981abe9fa55c9"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": null,
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [
+        {
+          "stage": "compile",
+          "code": "notation.unsupported_declaration",
+          "path": "/root/facts/0",
+          "source": "a为常数。",
+          "message": "notation.unsupported_declaration",
+          "action": "code_gap"
+        }
+      ],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": false,
+        "reports": {
+          "ir": {
+            "ok": false,
+            "issues": [
+              {
+                "path": "r.facts[0]",
+                "source": "a为常数。",
+                "code": "notation.parse",
+                "reason_code": "notation.unsupported_declaration",
+                "message": "notation.unsupported_declaration"
+              }
+            ],
+            "defaults": [
+              {
+                "ref": "r:scalar:a",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:a",
+                "name": "a",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {}
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "56ac58818dbbef4b9435efee22de76169fb39ab921f2bc373ce79060f53fdd42",
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "/",
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "+",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "ref",
+                        "r:scalar:a",
+                        "scalar"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_extrema_expression",
+                "target": [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                "task": {
+                  "kind": "find_extrema_expression",
+                  "object": "f",
+                  "extrema": [
+                    {
+                      "symbol": "M",
+                      "kind": "maximum"
+                    },
+                    {
+                      "symbol": "m",
+                      "kind": "minimum"
+                    }
+                  ],
+                  "expression": "M+m",
+                  "input_domain": "[-1,1]"
+                },
+                "input_domain": [
+                  "interval",
+                  true,
+                  true,
+                  [
+                    "neg",
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:a",
+              "name": "a",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"/\",[\"+\",[\"^\",[\"+\",[\"bound\",\"function_argument\"],[\"number\",\"1\"]],[\"number\",\"2\"]],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"5\"]]]],[\"+\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"number\",\"1\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+            }
+          },
+          "normalization_report": {}
+        },
+        "binding": {
+          "problem_id": "88ac46d6f830",
+          "source_sha256": "5725f72504ffe4459bb398a5ee027f82f32d31ecb684c04d1f7981abe9fa55c9"
+        }
+      },
+      "revision": "56ac58818dbbef4b9435efee22de76169fb39ab921f2bc373ce79060f53fdd42"
+    }
+  ]
+}

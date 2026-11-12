@@ -1,0 +1,1069 @@
+{
+  "date": "2026-11-12",
+  "scope": "original_development_photos_fresh_live_ocr_model_review_lesson_api",
+  "not_unseen_holdout": true,
+  "browser_acceptance": false,
+  "account_progress_persistence_acceptance": false,
+  "public_courses_rebuilt": false,
+  "prompts_changed_in_this_acceptance": false,
+  "calls": {
+    "initial": {
+      "semantic_calls": 10,
+      "network_attempts": 10,
+      "recordings": 5,
+      "page_uploads_with_real_ocr": 2
+    },
+    "fixed": {
+      "semantic_calls": 11,
+      "network_attempts": 11,
+      "recordings": 5,
+      "page_uploads_with_real_ocr": 2
+    },
+    "final": {
+      "semantic_calls": 10,
+      "network_attempts": 10,
+      "recordings": 5,
+      "page_uploads_with_real_ocr": 2
+    },
+    "retry": {
+      "semantic_calls": 9,
+      "network_attempts": 9,
+      "recordings": 2,
+      "page_uploads_with_real_ocr": 2
+    }
+  },
+  "attempts": [
+    {
+      "attempt": "initial",
+      "cases": [
+        {
+          "case": "a16",
+          "search_id": "8b1fc2ddfd84",
+          "recognition_status": "reviewed",
+          "lesson_status": "unsupported",
+          "elapsed_seconds": 23.922,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 21.1
+        },
+        {
+          "case": "b01",
+          "search_id": "de22561f8663",
+          "recognition_status": "reviewed",
+          "lesson_status": "unsupported",
+          "elapsed_seconds": 21.318,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 18.8
+        },
+        {
+          "case": "b02",
+          "search_id": "fa37197e0912",
+          "recognition_status": "reviewed",
+          "lesson_status": "ready",
+          "elapsed_seconds": 25.261,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 15.389,
+          "execution_status": "completed",
+          "types": [
+            "type-shifted-odd-application"
+          ],
+          "source_located": false,
+          "interaction_count": 2,
+          "interactions_ready": true,
+          "same_stream_on_reopen": true,
+          "same_snapshot_on_reopen": true
+        },
+        {
+          "case": "b03",
+          "search_id": "345e27a861e5",
+          "recognition_status": "reviewed",
+          "lesson_status": "ready",
+          "elapsed_seconds": 22.223,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 12.532,
+          "execution_status": "completed",
+          "types": [
+            "type-shifted-odd-application"
+          ],
+          "source_located": false,
+          "interaction_count": 2,
+          "interactions_ready": true,
+          "same_stream_on_reopen": true,
+          "same_snapshot_on_reopen": true
+        },
+        {
+          "case": "b04",
+          "search_id": "5f6077601a80",
+          "recognition_status": "reviewed",
+          "lesson_status": "unsupported",
+          "elapsed_seconds": 22.614,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 19.757
+        }
+      ]
+    },
+    {
+      "attempt": "fixed",
+      "cases": [
+        {
+          "case": "a16",
+          "search_id": "612d8ecc1b05",
+          "recognition_status": "reviewed",
+          "lesson_status": "ready",
+          "elapsed_seconds": 29.815,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 21.492,
+          "execution_status": "completed",
+          "types": [
+            "type-shifted-odd-application"
+          ],
+          "source_located": true,
+          "interaction_count": 2,
+          "interactions_ready": true,
+          "same_stream_on_reopen": true,
+          "same_snapshot_on_reopen": true
+        },
+        {
+          "case": "b01",
+          "search_id": "4e13fb89ce87",
+          "recognition_status": "reviewed",
+          "lesson_status": "unsupported",
+          "elapsed_seconds": 34.871,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 32.145
+        },
+        {
+          "case": "b02",
+          "search_id": "c911f9a712e8",
+          "recognition_status": "reviewed",
+          "lesson_status": "ready",
+          "elapsed_seconds": 25.767,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 17.549,
+          "execution_status": "completed",
+          "types": [
+            "type-shifted-odd-application"
+          ],
+          "source_located": true,
+          "interaction_count": 2,
+          "interactions_ready": true,
+          "same_stream_on_reopen": true,
+          "same_snapshot_on_reopen": true
+        },
+        {
+          "case": "b03",
+          "search_id": "f9f17647e9b2",
+          "recognition_status": "failed",
+          "lesson_status": "not_started",
+          "elapsed_seconds": 28.926,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            },
+            {
+              "stage": "repair",
+              "status": "completed"
+            }
+          ],
+          "status": "workflow.oscillation",
+          "recognition_seconds": 28.659
+        },
+        {
+          "case": "b04",
+          "search_id": "1997c511711d",
+          "recognition_status": "reviewed",
+          "lesson_status": "failed",
+          "elapsed_seconds": 31.283,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 22.119
+        }
+      ]
+    },
+    {
+      "attempt": "final",
+      "cases": [
+        {
+          "case": "a16",
+          "search_id": "2860c39c5d7b",
+          "recognition_status": "reviewed",
+          "lesson_status": "unsupported",
+          "elapsed_seconds": 31.866,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "repair",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 28.863
+        },
+        {
+          "case": "b01",
+          "search_id": "e95eb2b3e6df",
+          "recognition_status": "reviewed",
+          "lesson_status": "ready",
+          "elapsed_seconds": 29.222,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 20.471,
+          "execution_status": "completed",
+          "types": [
+            "type-shifted-odd-application"
+          ],
+          "source_located": true,
+          "interaction_count": 2,
+          "interactions_ready": true,
+          "same_stream_on_reopen": true,
+          "same_snapshot_on_reopen": true
+        },
+        {
+          "case": "b02",
+          "search_id": "69ee797cb590",
+          "recognition_status": "reviewed",
+          "lesson_status": "ready",
+          "elapsed_seconds": 30.058,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 21.129,
+          "execution_status": "completed",
+          "types": [
+            "type-shifted-odd-application"
+          ],
+          "source_located": true,
+          "interaction_count": 2,
+          "interactions_ready": true,
+          "same_stream_on_reopen": true,
+          "same_snapshot_on_reopen": true
+        },
+        {
+          "case": "b03",
+          "search_id": "468868aab0db",
+          "recognition_status": "reviewed",
+          "lesson_status": "ready",
+          "elapsed_seconds": 30.171,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 18.921,
+          "execution_status": "completed",
+          "types": [
+            "type-shifted-odd-application"
+          ],
+          "source_located": true,
+          "interaction_count": 2,
+          "interactions_ready": true,
+          "same_stream_on_reopen": true,
+          "same_snapshot_on_reopen": true
+        },
+        {
+          "case": "b04",
+          "search_id": "88ac46d6f830",
+          "recognition_status": "failed",
+          "lesson_status": "not_started",
+          "elapsed_seconds": 14.675,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            }
+          ],
+          "status": "code_gap",
+          "recognition_seconds": 14.333
+        }
+      ]
+    },
+    {
+      "attempt": "retry",
+      "cases": [
+        {
+          "case": "a16",
+          "search_id": "9781ff866879",
+          "recognition_status": "reviewed",
+          "lesson_status": "ready",
+          "elapsed_seconds": 51.402,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            },
+            {
+              "stage": "repair",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 41.023,
+          "execution_status": "completed",
+          "types": [
+            "type-shifted-odd-application"
+          ],
+          "source_located": true,
+          "interaction_count": 2,
+          "interactions_ready": true,
+          "same_stream_on_reopen": true,
+          "same_snapshot_on_reopen": true
+        },
+        {
+          "case": "b04",
+          "search_id": "611b05e60500",
+          "recognition_status": "reviewed",
+          "lesson_status": "ready",
+          "elapsed_seconds": 70.239,
+          "calls": [
+            {
+              "stage": "extract",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            },
+            {
+              "stage": "repair",
+              "status": "completed"
+            },
+            {
+              "stage": "repair",
+              "status": "completed"
+            },
+            {
+              "stage": "review",
+              "status": "completed"
+            }
+          ],
+          "status": "reviewed_candidate",
+          "recognition_seconds": 60.703,
+          "execution_status": "completed",
+          "types": [
+            "type-shifted-odd-application"
+          ],
+          "source_located": true,
+          "interaction_count": 2,
+          "interactions_ready": true,
+          "same_stream_on_reopen": true,
+          "same_snapshot_on_reopen": true
+        }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "case": "a16",
+      "attempt": "retry",
+      "search_id": "9781ff866879",
+      "recording": "server/tests/search/fixtures/function-shifted-odd/retry/a16",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+        "source_sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+        "crop_pixels": [
+          110,
+          545,
+          1110,
+          625
+        ],
+        "box": [
+          0.0859375,
+          0.3194607268464244,
+          0.8671875,
+          0.36635404454865184
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-13",
+              "latex": "-13"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a16",
+        "search_id": "9781ff866879",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 51.402,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          },
+          {
+            "stage": "repair",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 41.023,
+        "execution_status": "completed",
+        "types": [
+          "type-shifted-odd-application"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_export": {
+        "directory": "/private/tmp/fp-t6-live-20261112-retry/private-search/submissions/9781ff866879/stage-two-1/stage-three",
+        "evidence": "/private/tmp/fp-t6-live-course-exports-20261112/a16/evidence.json",
+        "evidence_sha256": "99636a56fd99da30df9c6ae83f307abc606661b90c6965e8ef0ea40eab059f3a",
+        "provenance": {
+          "run_id": "da50442a1a55470e9eee522780435b77",
+          "lesson_version": "8ea47555c0900ebd3d3201e1c688b7e9efe1ce4eee021d91e24be5616cdb25d4",
+          "input_sha256": "a4b54f9a3681c2de7b00714d5359cb986f32a85399c3621dd6fba2b51a95678f",
+          "checkpoint_sha256": "ab06bfad770a6e8d53c3dae2b75a50359df03f47ce186ee17da947403df1c597",
+          "result_sha256": "aa6df9f48747b1684c552404b7208d2e89bb0f83b8a1f9a9d1749d2df692763c",
+          "stage_one_sha256": "62a956fdc7052bd700a7c225ed46324257b08da6675d25a1a7578e69537285bc",
+          "stage_two_sha256": "c230d29afc76ef46b2a3c3fc3363b5edcfbbde587c38a16d95bce34521aa6dd1"
+        }
+      },
+      "compiler_and_grading": {
+        "targets": [
+          "/root/goals/0"
+        ],
+        "decisions": 5,
+        "formulas": 44,
+        "numberLines": 8,
+        "summary": {
+          "label": "函数值：",
+          "formula": "-13"
+        }
+      }
+    },
+    {
+      "case": "b01",
+      "attempt": "final",
+      "search_id": "e95eb2b3e6df",
+      "recording": "server/tests/search/fixtures/function-shifted-odd/final/b01",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-t6-planning-20261112/source-page-01.png",
+        "source_sha256": "23d9fe6f39ccb2054ce82ed783968e47d2ee6d8f78272ab2dbf4c68fda9d6ec9",
+        "crop_pixels": [
+          100,
+          103,
+          1020,
+          218
+        ],
+        "box": [
+          0.07818608287724785,
+          0.06037514654161782,
+          0.7974980453479281,
+          0.12778429073856976
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Dom(f)",
+              "latex": "D_{f}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-1",
+              "latex": "-1"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "b01",
+        "search_id": "e95eb2b3e6df",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 29.222,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 20.471,
+        "execution_status": "completed",
+        "types": [
+          "type-shifted-odd-application"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_export": {
+        "directory": "/private/tmp/fp-t6-live-20261112-final/private-search/submissions/e95eb2b3e6df/stage-two-1/stage-three",
+        "evidence": "/private/tmp/fp-t6-live-course-exports-20261112/b01/evidence.json",
+        "evidence_sha256": "e3f4095de19d7ad05894e8659baf31f188563f4610f685a55153281fd27ed3a2",
+        "provenance": {
+          "run_id": "e79671ac449f45e3a9b8fc7b50be5535",
+          "lesson_version": "467cf26cc6432c6618dbb0b1b94a56fc98f0a8cafa3a8f65bd772aadbe23be6d",
+          "input_sha256": "c81916c5e8570f9cce4beb63db0dee8453f558f5bc1b465e28e5a596fc0d5fda",
+          "checkpoint_sha256": "3d61eb3d843c628bac8d8dd6e52f48291425cc8895687536177318eca9cca42c",
+          "result_sha256": "a62b57964912b1de051e40c4106b78f5ee391fb4daf8d0faa1c061a3827a0d7e",
+          "stage_one_sha256": "e17d8910b6f88534f8841c072f3db0f737b3fa48f0832386c59819ebf9d9c928",
+          "stage_two_sha256": "5b417fc52e430bf8b7cc90aceb980052fe4d40fbfc2b465c12c743039014734b"
+        }
+      },
+      "compiler_and_grading": {
+        "targets": [
+          "/root/goals/0"
+        ],
+        "decisions": 5,
+        "formulas": 43,
+        "numberLines": 8,
+        "summary": {
+          "label": "函数值：",
+          "formula": "-1"
+        }
+      }
+    },
+    {
+      "case": "b02",
+      "attempt": "final",
+      "search_id": "69ee797cb590",
+      "recording": "server/tests/search/fixtures/function-shifted-odd/final/b02",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-t6-planning-20261112/source-page-01.png",
+        "source_sha256": "23d9fe6f39ccb2054ce82ed783968e47d2ee6d8f78272ab2dbf4c68fda9d6ec9",
+        "crop_pixels": [
+          108,
+          482,
+          1070,
+          574
+        ],
+        "box": [
+          0.08444096950742767,
+          0.2825322391559203,
+          0.836591086786552,
+          0.3364595545134818
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
+              "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-4",
+              "latex": "-4"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "b02",
+        "search_id": "69ee797cb590",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 30.058,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 21.129,
+        "execution_status": "completed",
+        "types": [
+          "type-shifted-odd-application"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_export": {
+        "directory": "/private/tmp/fp-t6-live-20261112-final/private-search/submissions/69ee797cb590/stage-two-1/stage-three",
+        "evidence": "/private/tmp/fp-t6-live-course-exports-20261112/b02/evidence.json",
+        "evidence_sha256": "b1381ea62e09aa4c7ae02a2bed84bcb06e2ef15e7c8b48d650a1f6eb3ed12812",
+        "provenance": {
+          "run_id": "ca70b2a71be3419782c449a5ee574f94",
+          "lesson_version": "d47ffa9fc70a6a2ca237482ba1aed39066bdd8e26eeecb77919c9df854a266a8",
+          "input_sha256": "c4280ddfc5e79704b483884c98818bb0efe2c1b6a38e6b45fa47b34bd6d3c396",
+          "checkpoint_sha256": "02db446411d09423037924466c19981420704b69b0259f22c46d5a190f666489",
+          "result_sha256": "36b3acc11b4d28ba4b76891b8c0ea69142f51d5bde67e700840b1d18e4e38c13",
+          "stage_one_sha256": "d448169cbe7a79442840a537479448b89a58ff71aad0ca178be4fc5f27858351",
+          "stage_two_sha256": "fca186fae4969a5cc1c2fea839642f99a48c6087816955df1006e9a7b9b7902e"
+        }
+      },
+      "compiler_and_grading": {
+        "targets": [
+          "/root/goals/0"
+        ],
+        "decisions": 5,
+        "formulas": 41,
+        "numberLines": 8,
+        "summary": {
+          "label": "函数值：",
+          "formula": "-4"
+        }
+      }
+    },
+    {
+      "case": "b03",
+      "attempt": "final",
+      "search_id": "468868aab0db",
+      "recording": "server/tests/search/fixtures/function-shifted-odd/final/b03",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-t6-planning-20261112/source-page-01.png",
+        "source_sha256": "23d9fe6f39ccb2054ce82ed783968e47d2ee6d8f78272ab2dbf4c68fda9d6ec9",
+        "crop_pixels": [
+          105,
+          901,
+          1155,
+          986
+        ],
+        "box": [
+          0.08209538702111024,
+          0.5281359906213364,
+          0.9030492572322126,
+          0.5779601406799532
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-10",
+              "latex": "-10"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "b03",
+        "search_id": "468868aab0db",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 30.171,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 18.921,
+        "execution_status": "completed",
+        "types": [
+          "type-shifted-odd-application"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_export": {
+        "directory": "/private/tmp/fp-t6-live-20261112-final/private-search/submissions/468868aab0db/stage-two-1/stage-three",
+        "evidence": "/private/tmp/fp-t6-live-course-exports-20261112/b03/evidence.json",
+        "evidence_sha256": "0f37d72de11274ea1fc038e4536c56c8b8255cf265b7301504d0c9285f6b9f0c",
+        "provenance": {
+          "run_id": "5674688139ed49ceb88619d3f137c206",
+          "lesson_version": "1dadc638904e893b23a7865af86d22ccdd1b885af5fed1a2b7eada001993c9d5",
+          "input_sha256": "4982187d5cd41ccd72c166882b77fb83dc6290f549ddedede9f87c2d261d498d",
+          "checkpoint_sha256": "fbf404126b8bf193a714d7833aa5b352f606d2c82d5d89a3fc46548206701a98",
+          "result_sha256": "69169dec9c19a2215025f089ae74ca0f6c7443666fb5dcb1163e233e88878ddb",
+          "stage_one_sha256": "f076449df275707dfc9f94e7afad5e8ded2423a2de1ac234fc88b8f4ae12a109",
+          "stage_two_sha256": "00769a967eb2b1e4800d80c3c45c767a40d68a5a82753874b35bbcb2f386d47e"
+        }
+      },
+      "compiler_and_grading": {
+        "targets": [
+          "/root/goals/0"
+        ],
+        "decisions": 5,
+        "formulas": 42,
+        "numberLines": 4,
+        "summary": {
+          "label": "函数值：",
+          "formula": "-10"
+        }
+      }
+    },
+    {
+      "case": "b04",
+      "attempt": "retry",
+      "search_id": "611b05e60500",
+      "recording": "server/tests/search/fixtures/function-shifted-odd/retry/b04",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-t6-planning-20261112/source-page-01.png",
+        "source_sha256": "23d9fe6f39ccb2054ce82ed783968e47d2ee6d8f78272ab2dbf4c68fda9d6ec9",
+        "crop_pixels": [
+          104,
+          1384,
+          1242,
+          1516
+        ],
+        "box": [
+          0.08131352619233777,
+          0.8112543962485346,
+          0.9710711493354183,
+          0.8886283704572099
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "derived_answer",
+            "request_kind": "expression",
+            "status": "value",
+            "value": {
+              "exact": {
+                "$math": "Integer",
+                "value": "2"
+              },
+              "expression": "2",
+              "latex": "2"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "b04",
+        "search_id": "611b05e60500",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 70.239,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          },
+          {
+            "stage": "repair",
+            "status": "completed"
+          },
+          {
+            "stage": "repair",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 60.703,
+        "execution_status": "completed",
+        "types": [
+          "type-shifted-odd-application"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_export": {
+        "directory": "/private/tmp/fp-t6-live-20261112-retry/private-search/submissions/611b05e60500/stage-two-1/stage-three",
+        "evidence": "/private/tmp/fp-t6-live-course-exports-20261112/b04/evidence.json",
+        "evidence_sha256": "885ec3f7fcaf05660be3768503fe3e66bca267c254bb2f6c86880fd7beae7d5d",
+        "provenance": {
+          "run_id": "1efd6f0faf174ba4a10f8a17411ed41f",
+          "lesson_version": "61033737410c482ee8ae187c3392cd97006a69c752a0e09207e9452ba5fc01c4",
+          "input_sha256": "8711a1ecd35c610ecd32505baa892868c37fb24d57d4e8a880d78f087d3b1094",
+          "checkpoint_sha256": "c89affac0ec8a5bfd835113f4f0be34e7e4dabefa9fad1e1d6cb3db42bb922c9",
+          "result_sha256": "5b5c27fec92875416aa3a327eeaa64c222a2de52a5ca653ee5c38dc2d4c0a5cb",
+          "stage_one_sha256": "ecefcb34bfd77f3b7e82027cc7741b42662ab72f5f6a83c2cf525b717da5a4a2",
+          "stage_two_sha256": "3cc6ef91bc8984ae37c841df40946cf08c8985b5ed4b8e49fd1f913180d4bbe2"
+        }
+      },
+      "compiler_and_grading": {
+        "targets": [
+          "/root/goals/0"
+        ],
+        "decisions": 5,
+        "formulas": 42,
+        "numberLines": 8,
+        "summary": {
+          "label": "所求值：",
+          "formula": "2"
+        }
+      }
+    }
+  ],
+  "totals": {
+    "questions": 5,
+    "goals": 5,
+    "decisions": 25,
+    "formulas": 212,
+    "numberLines": 36,
+    "semantic_calls": 40,
+    "network_attempts": 40,
+    "page_uploads_with_real_ocr": 8
+  },
+  "regression": {
+    "distinct_tests_passed": 293,
+    "groups": [
+      {
+        "name": "affected_math_range_notation_extraction_lesson_and_t5_photo",
+        "passed": 277,
+        "seconds": 192.81,
+        "files": [
+          "tests/solver/test_graph_shifted_odd.py",
+          "tests/solver/test_graph_shifted_odd_generalization.py",
+          "tests/solver/test_graph_shifted_odd_staging.py",
+          "tests/solver/test_graph_shifted_odd_photo_adapters.py",
+          "tests/solver/test_graph_range_tasks.py",
+          "tests/solver/test_math_notation.py",
+          "tests/search/test_public_extraction.py",
+          "tests/search/test_lesson.py",
+          "tests/search/test_function_symmetry_photo.py"
+        ]
+      },
+      {
+        "name": "t6_recorded_photo_replay_and_provenance",
+        "passed": 15,
+        "seconds": 78.96,
+        "files": [
+          "tests/search/test_function_shifted_odd_photo.py"
+        ]
+      },
+      {
+        "name": "serial_dependency_bytes_and_resume",
+        "passed": 1,
+        "seconds": 8.84,
+        "files": [
+          "tests/solver/test_graph_shifted_odd_revisions.py"
+        ]
+      }
+    ],
+    "additional_provenance_label_assertion_rerun": {
+      "passed": 1,
+      "seconds": 1.27,
+      "included_in_distinct_count": true
+    },
+    "live_calls_in_regression": 0,
+    "test_data_dir": "/private/tmp/shuxueshuo-fm-review-20261109",
+    "test_instance": "fm-review-20261109"
+  },
+  "static_checks": {
+    "ruff_new_modules_and_acceptance_changes": "passed",
+    "existing_shared_file_style_diagnostics": "unchanged_from_HEAD",
+    "diff_check": "passed"
+  }
+}

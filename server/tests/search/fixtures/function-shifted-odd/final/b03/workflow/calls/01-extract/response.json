@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"【变式 2】已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\"root\":{\"label\":\"【变式 2】\",\"definitions\":[\"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\"],\"facts\":[\"f(a)=14\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(-a)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1932,
+      "prompt_tokens": 25837,
+      "total_tokens": 27769,
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 237
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 645,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-81255373-69a3-4ff0-b21c-a5a46b8639f0",
+        "sha256": "fe7ac27775793906d700f6800300375aebc5a718a734ec6d81e7733122626a64",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 10083,
+        "expires_at": 1794557342,
+        "uploaded_at": 1794470942.795438
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "fe7ac27775793906d700f6800300375aebc5a718a734ec6d81e7733122626a64",
+        "api_calls": 1,
+        "file_id": "file-api-81255373-69a3-4ff0-b21c-a5a46b8639f0",
+        "expires_at": 1794557342,
+        "elapsed_ms": 492
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 11779,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1932,
+          "prompt_tokens": 25837,
+          "total_tokens": 27769,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1668
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25600
+          },
+          "prompt_cache_hit_tokens": 25600,
+          "prompt_cache_miss_tokens": 237
+        },
+        "raw_payload": {
+          "id": "dc363aaf-63d9-4ef7-8ad5-cdd401f44595",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1932,
+            "prompt_tokens": 25837,
+            "total_tokens": 27769,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1668
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25600
+            },
+            "prompt_cache_hit_tokens": 25600,
+            "prompt_cache_miss_tokens": 237
+          },
+          "created": 1794470942,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"【变式 2】已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\"root\":{\"label\":\"【变式 2】\",\"definitions\":[\"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\"],\"facts\":[\"f(a)=14\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(-a)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题目。文字：`【变式2】已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为____。`\n\n需要输出 original_text 完整转录，root 数学结构，public_content。没有小问。配图无。\n\n注意原题有\"【变式2】\"，这是标签？可能来源/题号？需要判断 root.label。题目开头【变式2】似乎是题目标签，可能来源题号。需要保守按 content？规则：root.label 存在时用 root_label_role 区分来源题号与有题意标签；仅原图明确是来源或试卷题号时为 source。这里【变式2】可能是教辅变式编号，不是数学题意。但公开内容中不应包含来源题号。要填 root.label=\"【变式2】\"，root_label_role? 如果作为来源题号则可 source 并 public 排除。原图明确是题号（变式2）可视为来源/题号。但也许保守 content？题目本身是\"变式2\"，不是数学条件。如果 root.label_role=source，则 public statement 不包含它。original_text 可以保留。public_content.statement 只保留题干，不含【变式2】。这样合适。\n\nroot facts: f(a)=14。definitions: f(x)= (2024*x^3+2*x^2+3*x+6)/(x^2+3)。goal: find_value expression f(-a)。注意 f(a)=14 是条件放 facts。没有额外关系。是否求函数值 f(-a)，用 find_value.expression=\"f(-a)\"。没问题。\n\noriginal_text 保留 LaTeX 公式，需要双反斜杠。JSON字符串里的反斜杠必须写成 \\\\。公式用 $...$，分式用 \\frac。需要写成 `$f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$`。但 original_text 中是否应该包括【变式2】？可以保留。填空处横线原样：`____` 或 `______`。图中横线较长，写 `______`。不能含手写答案（图中横线上没写？似乎空白）。好。\n\npublic_content.scopes 只有 root 一个，scope_ref \"/root\"，statement 不含【变式2】，包含完整题干和填空横线：`已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。` 需要公式内 LaTeX，JSON 转义。choices：目标无选项 status none selection_mode none options []。\n\npublic completeness complete, privacy separated? 没有姓名等。figure not_required。figure_detection status none regions []。root_label_role source。root.label 写【变式2】。\n\nroot facts \"f(a)=14\". Goal find_value expression \"f(-a)\"。不需要 in_terms。definitions [\"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\"]。注意乘法：2024x^3 应写 2024*x^3，2x^2 -> 2*x^2，3x -> 3*x。分母 x^2+3。好。\n\nroot uncertainty 空？没有。original_text 中【变式2】保留。是否需要将 root label 标注？ root.label 可以“【变式2】”。public scope statement不重复父题干？root自身题干包含全部，不含标签。这可以。\n\n需要检查 public_content figure_detection status none。public figure not_required。\n\n注意 response 只能 JSON object，无其他。需要正确转义。original_text 中 LaTeX 反斜杠需双写：`\\\\frac` 等。JSON 字符串中 `\\\\` 表示一个反斜杠，输出后看到 \\frac。但要求 original_text 公式用 $…$。JSON 序列化后，实际字符有反斜杠。在 final 文本中需要写两个反斜杠。\n\npublic_content.statement 同样的 LaTeX 需要双反斜杠。但“公式用 $…$” 这里同样。JSON 中写 `$f(x)=\\\\frac{...}{...}$`。好的。\n\nroot definitions 的数学字符串不写 $ 和反斜杠，用目录 Unicode 记法。这里没有特殊。f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)。注意目录里除法用 /，可以。fact \"f(a)=14\"。\n\nGoal: {\"kind\":\"find_value\",\"expression\":\"f(-a)\"}。题中“f(-a)的值”就是表达式。好。\n\npublic scopes statement 需要尽可能保留原题完整。不含【变式2】和手写。写：“已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。” 注意在 JSON 里面 LaTeX \\frac 必须写成 \\\\frac。横线可用 ______。original_text 同样。\n\n可能 root.label 是“【变式2】”，root_label_role source。是否需要 public_content statement 排除题号？是的。好。\n\nuncertainties 空数组？root 可以不加，或空。schema可省略。无 uncertainties 不用输出？root 允许。可以省略 uncertainties 字段，减少。但响应 schema 的 root 不要求 uncertainties。好。\n\npublic_content 的 required 字段：completeness,privacy,figure,scopes,figure_detection。root_label_role 可选。要提供 source。好。\n\nchoices 中 target_ref \"/root/goals/0\"。\n\n完成。注意 JSON 对象 additionalProperties false，root 中只输出 definitions/facts/goals/label 等。可以。不要输出 label_role 在 root，不适用。root_label_role 在 public_content。好。\n\n检查 original_text 的最外层可能包含题号【变式2】。题目原文有“【变式 2】”？图片显示“【变式 2】”还是“【变式2】”？字间有空格吗？看起来“【变式 2】”可能一个空格。我们可以转录“【变式 2】”保留？仔细看图片：`【变式 2】` 其中“式”和“2”之间有空格？似乎“变式 2”有一个小空格。可以写“【变式 2】”。但题号分类 source。public exclude。original_text 保留。题面公式中 `2024x^3` 显示为 2024x^3，有上标。好。\n\n需要 original_text 中数学使用 LaTeX：`$f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$`。JSON 字符串里的 `\\` 必须双。最终显示为 `\\\\frac`。注意在 final 中我作为 JSON 文本，需要写 `\\\\frac`（两个字符反斜杠f？）。实际上 JSON 解析时 `\\\\` 转为 `\\`，而 `\\f` 如果不转义则 form feed。所以必须 `\\\\frac`。同样 `$...$` 无问题。\n\npublic statement 也要 `\\\\frac`。好的。\n\n是否需要 original_text 的公式中集合花括号？没有。\n\n完成。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 12303
+  },
+  "raw_payload": {
+    "id": "dc363aaf-63d9-4ef7-8ad5-cdd401f44595",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"【变式 2】已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\"root\":{\"label\":\"【变式 2】\",\"definitions\":[\"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\"],\"facts\":[\"f(a)=14\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(-a)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题目。文字：`【变式2】已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为____。`\n\n需要输出 original_text 完整转录，root 数学结构，public_content。没有小问。配图无。\n\n注意原题有\"【变式2】\"，这是标签？可能来源/题号？需要判断 root.label。题目开头【变式2】似乎是题目标签，可能来源题号。需要保守按 content？规则：root.label 存在时用 root_label_role 区分来源题号与有题意标签；仅原图明确是来源或试卷题号时为 source。这里【变式2】可能是教辅变式编号，不是数学题意。但公开内容中不应包含来源题号。要填 root.label=\"【变式2】\"，root_label_role? 如果作为来源题号则可 source 并 public 排除。原图明确是题号（变式2）可视为来源/题号。但也许保守 content？题目本身是\"变式2\"，不是数学条件。如果 root.label_role=source，则 public statement 不包含它。original_text 可以保留。public_content.statement 只保留题干，不含【变式2】。这样合适。\n\nroot facts: f(a)=14。definitions: f(x)= (2024*x^3+2*x^2+3*x+6)/(x^2+3)。goal: find_value expression f(-a)。注意 f(a)=14 是条件放 facts。没有额外关系。是否求函数值 f(-a)，用 find_value.expression=\"f(-a)\"。没问题。\n\noriginal_text 保留 LaTeX 公式，需要双反斜杠。JSON字符串里的反斜杠必须写成 \\\\。公式用 $...$，分式用 \\frac。需要写成 `$f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$`。但 original_text 中是否应该包括【变式2】？可以保留。填空处横线原样：`____` 或 `______`。图中横线较长，写 `______`。不能含手写答案（图中横线上没写？似乎空白）。好。\n\npublic_content.scopes 只有 root 一个，scope_ref \"/root\"，statement 不含【变式2】，包含完整题干和填空横线：`已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。` 需要公式内 LaTeX，JSON 转义。choices：目标无选项 status none selection_mode none options []。\n\npublic completeness complete, privacy separated? 没有姓名等。figure not_required。figure_detection status none regions []。root_label_role source。root.label 写【变式2】。\n\nroot facts \"f(a)=14\". Goal find_value expression \"f(-a)\"。不需要 in_terms。definitions [\"f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)\"]。注意乘法：2024x^3 应写 2024*x^3，2x^2 -> 2*x^2，3x -> 3*x。分母 x^2+3。好。\n\nroot uncertainty 空？没有。original_text 中【变式2】保留。是否需要将 root label 标注？ root.label 可以“【变式2】”。public scope statement不重复父题干？root自身题干包含全部，不含标签。这可以。\n\n需要检查 public_content figure_detection status none。public figure not_required。\n\n注意 response 只能 JSON object，无其他。需要正确转义。original_text 中 LaTeX 反斜杠需双写：`\\\\frac` 等。JSON 字符串中 `\\\\` 表示一个反斜杠，输出后看到 \\frac。但要求 original_text 公式用 $…$。JSON 序列化后，实际字符有反斜杠。在 final 文本中需要写两个反斜杠。\n\npublic_content.statement 同样的 LaTeX 需要双反斜杠。但“公式用 $…$” 这里同样。JSON 中写 `$f(x)=\\\\frac{...}{...}$`。好的。\n\nroot definitions 的数学字符串不写 $ 和反斜杠，用目录 Unicode 记法。这里没有特殊。f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)。注意目录里除法用 /，可以。fact \"f(a)=14\"。\n\nGoal: {\"kind\":\"find_value\",\"expression\":\"f(-a)\"}。题中“f(-a)的值”就是表达式。好。\n\npublic scopes statement 需要尽可能保留原题完整。不含【变式2】和手写。写：“已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。” 注意在 JSON 里面 LaTeX \\frac 必须写成 \\\\frac。横线可用 ______。original_text 同样。\n\n可能 root.label 是“【变式2】”，root_label_role source。是否需要 public_content statement 排除题号？是的。好。\n\nuncertainties 空数组？root 可以不加，或空。schema可省略。无 uncertainties 不用输出？root 允许。可以省略 uncertainties 字段，减少。但响应 schema 的 root 不要求 uncertainties。好。\n\npublic_content 的 required 字段：completeness,privacy,figure,scopes,figure_detection。root_label_role 可选。要提供 source。好。\n\nchoices 中 target_ref \"/root/goals/0\"。\n\n完成。注意 JSON 对象 additionalProperties false，root 中只输出 definitions/facts/goals/label 等。可以。不要输出 label_role 在 root，不适用。root_label_role 在 public_content。好。\n\n检查 original_text 的最外层可能包含题号【变式2】。题目原文有“【变式 2】”？图片显示“【变式 2】”还是“【变式2】”？字间有空格吗？看起来“【变式 2】”可能一个空格。我们可以转录“【变式 2】”保留？仔细看图片：`【变式 2】` 其中“式”和“2”之间有空格？似乎“变式 2”有一个小空格。可以写“【变式 2】”。但题号分类 source。public exclude。original_text 保留。题面公式中 `2024x^3` 显示为 2024x^3，有上标。好。\n\n需要 original_text 中数学使用 LaTeX：`$f(x)=\\\\frac{2024x^3+2x^2+3x+6}{x^2+3}$`。JSON 字符串里的 `\\` 必须双。最终显示为 `\\\\frac`。注意在 final 中我作为 JSON 文本，需要写 `\\\\frac`（两个字符反斜杠f？）。实际上 JSON 解析时 `\\\\` 转为 `\\`，而 `\\f` 如果不转义则 form feed。所以必须 `\\\\frac`。同样 `$...$` 无问题。\n\npublic statement 也要 `\\\\frac`。好的。\n\n是否需要 original_text 的公式中集合花括号？没有。\n\n完成。"
+        }
+      }
+    ],
+    "created": 1794470942,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1932,
+      "prompt_tokens": 25837,
+      "total_tokens": 27769,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1668,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25600
+      },
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 237
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 12.304
+}

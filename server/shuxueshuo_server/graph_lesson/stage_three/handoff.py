@@ -107,6 +107,22 @@ def _validate_comparison_choice(choice):
         raise ValueError('handoff.invalid_original_choice')
 
 
+def _symmetry_expression_answer(route, answer):
+    """An extrema sum may close without inventing a whole function range."""
+    from ..shifted_odd_math import VERSION
+
+    result = route.get('result') or {}
+    model = result.get('symmetry_result') or {}
+    proof = model.get('proof') or {}
+    return (isinstance(answer, dict) and result.get('answer') == answer
+            and model.get('version') == VERSION and bool(model.get('extrema'))
+            and proof.get('status') == 'determined' and answer.get('status') == 'value'
+            and (answer.get('kind') == 'find_extrema_expression'
+                 or answer.get('kind') == 'derived_answer' and answer.get('request_kind') == 'expression')
+            and isinstance(answer.get('value'), dict) and 'exact' in answer['value']
+            and answer['value']['exact'] == proof.get('value'))
+
+
 def complete_route(store, checkpoint, *, route, verification, feasible_set, answer, commit_id,
                    consistency="consistent", original_choice=None, before_commit=None, after_commit=None):
     if verification.get("status") != "verified" or route.get("status") != "verified":
@@ -114,6 +130,7 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
     extremum = (isinstance(answer, dict) and 'extremum_result' in (route.get('result') or {})
                 and route['result'].get('answer') == answer and answer.get('kind') == 'derived_answer'
                 and answer.get('request_kind') == 'extremum')
+    symmetry_expression = _symmetry_expression_answer(route, answer)
     monotonicity = isinstance(answer, dict) and answer.get('kind') in ('find_monotonic_intervals', 'prove_monotonicity_on_interval', 'determine_monotonicity_on_interval')
     model = isinstance(answer, dict) and answer.get('kind') == 'find_equation'
     comparison = isinstance(answer, dict) and answer.get('kind') == 'compare_functions'
@@ -129,7 +146,8 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
                        and answer.get('status') == 'insufficient_information'
                        and bool(answer.get('candidates')) and 'formula_result' in (route.get('result') or {}))
     if (checkpoint["status"] != "verified" or answer is None
-            or (feasible_set is None and not (model or comparison or parity or parameter_value or evaluation or formula or candidate_range or graph or monotonicity or extremum))
+            or (feasible_set is None and not (model or comparison or parity or parameter_value or evaluation or formula or candidate_range or graph or monotonicity or extremum or symmetry_expression))
+            or (symmetry_expression and feasible_set is not None)
             or (parameter_value and (feasible_set is not None or answer.get('status') != 'complete'
                                      or 'parity_parameter_result' not in (route.get('result') or {})
                                      or route['result'].get('answer') != answer))

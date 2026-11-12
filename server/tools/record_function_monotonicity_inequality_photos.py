@@ -34,7 +34,7 @@ def emit(**value):
     print(json.dumps(value, ensure_ascii=False), flush=True)
 
 
-def main(*, cases=CASES, sources=SOURCES, request_prefix='t3-photo', continue_on_error=False):
+def main(*, cases=CASES, sources=SOURCES, source_files=None, request_prefix='t3-photo', continue_on_error=False):
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--cases', nargs='+', choices=list(cases), default=list(cases))
@@ -50,12 +50,16 @@ def main(*, cases=CASES, sources=SOURCES, request_prefix='t3-photo', continue_on
         pages = {}
         for key in args.cases:
             number, pixels = cases[key]
-            photo = Path(sources) / f'source-image-{number:02}.jpg'
+            photo = (Path(source_files[number]) if source_files is not None
+                     else Path(sources) / f'source-image-{number:02}.jpg')
             if number not in pages:
                 emit(stage='upload', source=photo.name)
                 started = time.monotonic()
-                uploaded = client.post('/api/search/pages', content=photo.read_bytes(), headers={'Content-Type': 'image/jpeg'})
-                save(out / f'upload-{number:02}.json', {'status_code': uploaded.status_code, 'body': uploaded.json(), 'elapsed_seconds': round(time.monotonic()-started, 3)})
+                media_type = 'image/png' if photo.suffix.lower() == '.png' else 'image/jpeg'
+                uploaded = client.post('/api/search/pages', content=photo.read_bytes(), headers={'Content-Type': media_type})
+                save(out / f'upload-{number:02}.json', {'status_code': uploaded.status_code, 'body': uploaded.json(),
+                     'source': str(photo.relative_to(REPO)), 'source_sha256': sha256(photo.read_bytes()).hexdigest(),
+                     'elapsed_seconds': round(time.monotonic()-started, 3)})
                 if uploaded.status_code != 200:
                     raise RuntimeError(f'Upload failed: {uploaded.status_code} {uploaded.text}')
                 pages[number] = uploaded.json()

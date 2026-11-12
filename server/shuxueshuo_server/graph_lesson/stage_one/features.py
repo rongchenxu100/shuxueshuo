@@ -50,6 +50,10 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('shifted_odd', ('goal',), 'shifted_odd',
+                ('function-parity#definition', 'function-graph-symmetry#center'), '利用奇函数与常数的关系求值',
+                version='function-symmetry/shifted-odd-v1', supported_structures=('offset_odd_application',),
+                computation_boundary='source affine identity, explicit arithmetic, parity owner and original goal; no target solving'),
     FeatureSpec('symmetry_relation', ('goal',), 'symmetry_relation',
                 ('function-graph-symmetry#axis', 'function-graph-symmetry#center'), '利用图像对称关系求值或求和',
                 version='function-symmetry/general-v1', supported_structures=('rational_reflections',),
@@ -577,6 +581,14 @@ def _scope_features(report, candidate, scope, ancestors, features):
         from ..parity_parameter_math import describe as parity_parameter_description
         from ..symmetry_relation_math import describe as symmetry_relation_description
         parity_entries = [{**src, 'ast': row['value']} for src, row in zip(sources, records, strict=True)]
+        from ..shifted_odd_math import describe as shifted_odd_description
+        if desc := shifted_odd_description(original, goal, target_ref, parity_entries, candidate=candidate):
+            add('goal', {'kind': goal['kind'], **({'object': original['object']} if 'object' in original else {})}, source_refs=[target_ref])
+            add('shifted_odd', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_shifted_odd_goal'}, source_refs=[target_ref])
+            continue
         if desc := symmetry_relation_description(original, goal, target_ref, parity_entries, candidate=candidate):
             add('goal', {'kind': goal['kind']}, source_refs=[target_ref])
             add('symmetry_relation', desc, source_refs=desc['source_refs'])

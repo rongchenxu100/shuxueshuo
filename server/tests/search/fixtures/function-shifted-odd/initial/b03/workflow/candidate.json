@@ -1,0 +1,40 @@
+{
+  "original_text": "【变式2】已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______.",
+  "root": {
+    "definitions": [
+      "f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)"
+    ],
+    "facts": [
+      "f(a)=14"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(-a)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______.",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

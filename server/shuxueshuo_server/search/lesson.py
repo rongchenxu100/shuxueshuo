@@ -415,6 +415,8 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get('shifted_odd', {}).get('structure_supported'):
+        return _shifted_odd_d1_rows(target, fragments, known, text)
     if known.get('symmetry_relation', {}).get('structure_supported'):
         return _general_symmetry_d1_rows(target, fragments, known, text)
     if known.get('parity_extension', {}).get('structure_supported'):
@@ -739,6 +741,31 @@ def _parity_order_d1_rows(target, fragments, desc, text):
            'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
     return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问的已知条件和目标是什么？',
             'feedback': feedback, 'summary': summary + correct + '。'}
+
+
+def _shifted_odd_d1_rows(target, fragments, known, text):
+    from ..graph_lesson.stage_three.shifted_odd_presentation import source_math
+    from ..graph_lesson.stage_three.symmetry_relation_presentation import target_math
+
+    if not any(row['fragment_kind'] == 'goal' for row in fragments):
+        return {'rows': [], 'summary': ''}
+    desc = known['shifted_odd']
+    asked = target_math(desc)
+    extrema = any(r['ast'][0] == '=' and r['ast'][2][0] == 'extremum' for r in desc['given_entries'])
+    correct = f'求最大值与最小值之和 ${asked}$' if extrema else f'求 ${asked}$ 的值'
+    feedback = ('最大值与最小值来自同一函数、同一输入范围，题目要的是它们的和。' if extrema
+                else f'题目所求是 ${asked}$，需要保留已知函数关系和函数值条件。')
+    wrong = ('分别求最大值与最小值', '只求最大值') if extrema else ('求函数的完整解析式', '求函数的定义域')
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in fragments]
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in fragments],
+           'knowledge_refs': ['function-parity#definition'], 'source_refs': desc['source_refs'],
+           'options': _shuffle(row_id, [_option(correct), *[_option(t, 'goal', feedback) for t in wrong]]),
+           'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    summary = '；'.join('$' + item + '$' for item in source_math(desc)) + '。' + correct + '。'
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问的已知条件和目标是什么？',
+            'feedback': feedback, 'summary': summary}
 
 
 def _general_symmetry_d1_rows(target, fragments, known, text):

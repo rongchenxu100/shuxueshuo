@@ -1,0 +1,22 @@
+[
+  {
+    "file": "upload-01.json",
+    "sha256": "33c616ff787caeda05ad1186930c7f4dbffae7f98e9d2e1718631d1d1ebb3257",
+    "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+    "source_sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+    "artifacts": {
+      "page-01/ocr.json": "02e738f73be66be90e1a7054064f5bdb9c346e0cb86d079c67c45457c9c77046",
+      "page-01/segments.json": "350681c2697a4409135d9872c8476ce2d56d0aae47147d649172a445c31db560"
+    }
+  },
+  {
+    "file": "upload-02.json",
+    "sha256": "12379f16268ce9243b462bbc9b7b7febec07e9b769fd826f99d1ae6ffc6f0881",
+    "source": "internal/senior-high/source-images/function-parity-t6-planning-20261112/source-page-01.png",
+    "source_sha256": "23d9fe6f39ccb2054ce82ed783968e47d2ee6d8f78272ab2dbf4c68fda9d6ec9",
+    "artifacts": {
+      "page-02/ocr.json": "ea507205c3debbbfec5a3c9726b51342c12478d6a1ca75deca460077a64ba7af",
+      "page-02/segments.json": "943d8021c987be57407c6061c7fe7266841dfa797a8e6a62de98b7e35b0c6c47"
+    }
+  }
+]

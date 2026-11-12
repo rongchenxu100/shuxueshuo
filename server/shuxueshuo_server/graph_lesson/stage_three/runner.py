@@ -80,6 +80,8 @@ def fingerprint():
         Path(__file__).parent / 'parity_inequality_presentation.py',
         Path(__file__).parent.parent / 'symmetry_value_math.py',
         Path(__file__).parent.parent / 'symmetry_linear.py',
+        Path(__file__).parent.parent / 'shifted_odd_math.py',
+        Path(__file__).parent.parent / 'shifted_odd_identity.py',
         Path(__file__).parent.parent / 'symmetry_relation_math.py',
         Path(__file__).parent.parent / 'function_symmetry_iteration.py',
         Path(__file__).parent / 'symmetry_runtime.py',

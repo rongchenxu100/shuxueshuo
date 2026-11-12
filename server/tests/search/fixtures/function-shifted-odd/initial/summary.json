@@ -1,0 +1,254 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "a16",
+      "search_id": "8b1fc2ddfd84",
+      "recognition_status": "reviewed",
+      "lesson_status": "unsupported",
+      "elapsed_seconds": 23.922,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 21.1,
+      "original_text": "16．若函数$f(x)$满足：$g(x)=f(x)+2$是$R$上的奇函数，且$f(1)=9$，则$f(-1)$的值为____．",
+      "root": {
+        "definitions": [
+          "g(x)=f(x)+2"
+        ],
+        "facts": [
+          "Dom(g)=ℝ",
+          "parity(g,odd)",
+          "f(1)=9"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(-1)"
+          }
+        ],
+        "uncertainties": []
+      }
+    },
+    {
+      "case": "b01",
+      "search_id": "de22561f8663",
+      "recognition_status": "reviewed",
+      "lesson_status": "unsupported",
+      "elapsed_seconds": 21.318,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 18.8,
+      "original_text": "类型VI：奇函数+常数结论的应用\n【例15】已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$ ______。",
+      "root": {
+        "definitions": [
+          "f(x)=g(x)+1"
+        ],
+        "facts": [
+          "parity(g,odd)",
+          "f(-2)=3"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(2)"
+          }
+        ]
+      }
+    },
+    {
+      "case": "b02",
+      "search_id": "fa37197e0912",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 25.261,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 15.389,
+      "original_text": "【变式 1】已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。",
+      "root": {
+        "definitions": [
+          "f(x)=a*x+b/x-2"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(2024)+f(-2024)"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-shifted-odd-application"
+      ],
+      "source_located": false,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
+              "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-4",
+              "latex": "-4"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 2,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b03",
+      "search_id": "345e27a861e5",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 22.223,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 12.532,
+      "original_text": "【变式2】已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______.",
+      "root": {
+        "definitions": [
+          "f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)"
+        ],
+        "facts": [
+          "f(a)=14"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(-a)"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-shifted-odd-application"
+      ],
+      "source_located": false,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-10",
+              "latex": "-10"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 2,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b04",
+      "search_id": "5f6077601a80",
+      "recognition_status": "reviewed",
+      "lesson_status": "unsupported",
+      "elapsed_seconds": 22.614,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 19.757,
+      "original_text": "【变式 3】当 $x \\in [-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+a x^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=\\_\\_\\_\\_$。",
+      "root": {
+        "label": "变式 3",
+        "definitions": [
+          "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+        ],
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_range",
+            "object": "f",
+            "input_domain": "[-1,1]",
+            "answer_request": {
+              "kind": "expression",
+              "bindings": [
+                {
+                  "symbol": "M",
+                  "quantity": "maximum"
+                },
+                {
+                  "symbol": "m",
+                  "quantity": "minimum"
+                }
+              ],
+              "expression": "M+m"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

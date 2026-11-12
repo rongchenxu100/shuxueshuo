@@ -1,0 +1,191 @@
+{
+  "status_code": 200,
+  "body": {
+    "page_id": "34c51004bccc",
+    "image_url": "/api/search/pages/34c51004bccc/image",
+    "preview_url": "/api/search/pages/34c51004bccc/preview",
+    "width": 1280,
+    "height": 1706,
+    "orientation": {
+      "status": "upright",
+      "rotation_degrees": 0,
+      "predicted_degrees": 0,
+      "confidence": 0.9251800179481506
+    },
+    "rotation_reference": "upload_after_exif",
+    "rotation_count": 0,
+    "mode": "numbered",
+    "regions": [
+      {
+        "number": 12,
+        "column": 0,
+        "box": [
+          0.06167,
+          0.0325,
+          0.905,
+          0.11937
+        ],
+        "crop": [
+          0.06167,
+          0.0325,
+          0.905,
+          0.11937
+        ],
+        "index": 1
+      },
+      {
+        "number": 13,
+        "column": 0,
+        "box": [
+          0.06583,
+          0.11937,
+          0.90333,
+          0.17313
+        ],
+        "crop": [
+          0.06583,
+          0.1025,
+          0.90333,
+          0.17313
+        ],
+        "index": 2
+      },
+      {
+        "number": 14,
+        "column": 0,
+        "box": [
+          0.06417,
+          0.17313,
+          0.90333,
+          0.25312
+        ],
+        "crop": [
+          0.06417,
+          0.15,
+          0.90333,
+          0.25312
+        ],
+        "index": 3
+      },
+      {
+        "number": 15,
+        "column": 0,
+        "box": [
+          0.07167,
+          0.25312,
+          0.90333,
+          0.31
+        ],
+        "crop": [
+          0.07167,
+          0.245,
+          0.90333,
+          0.31
+        ],
+        "index": 4
+      },
+      {
+        "number": 16,
+        "column": 0,
+        "box": [
+          0.07167,
+          0.31,
+          0.90333,
+          0.37062
+        ],
+        "crop": [
+          0.07167,
+          0.29688,
+          0.90333,
+          0.37062
+        ],
+        "index": 5
+      },
+      {
+        "number": 17,
+        "column": 0,
+        "box": [
+          0.0775,
+          0.37062,
+          0.90333,
+          0.43812
+        ],
+        "crop": [
+          0.0775,
+          0.35563,
+          0.90333,
+          0.43812
+        ],
+        "index": 6
+      },
+      {
+        "number": 18,
+        "column": 0,
+        "box": [
+          0.07417,
+          0.43812,
+          0.92083,
+          0.58313
+        ],
+        "crop": [
+          0.07417,
+          0.42,
+          0.92083,
+          0.58313
+        ],
+        "index": 7
+      },
+      {
+        "number": 20,
+        "column": 0,
+        "box": [
+          0.08417,
+          0.60313,
+          0.90333,
+          0.73938
+        ],
+        "crop": [
+          0.08417,
+          0.60313,
+          0.90333,
+          0.73938
+        ],
+        "index": 8
+      }
+    ],
+    "diagnostics": {
+      "angle_degrees": 0.0,
+      "median_line_height": 52.0,
+      "candidates": [
+        20,
+        18,
+        17,
+        16,
+        15,
+        14,
+        13,
+        12
+      ],
+      "chain": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        20
+      ],
+      "columns": 1
+    },
+    "latency_ms": {
+      "orientation": 31,
+      "layout": 134,
+      "detect": 1637,
+      "recognize_heads": 397
+    }
+  },
+  "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+  "source_sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+  "elapsed_seconds": 7.369
+}

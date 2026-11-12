@@ -1,0 +1,292 @@
+{
+  "search_id": "f9f17647e9b2",
+  "user_id": "14b6a63f-d500-4469-9585-669979403872",
+  "problem_id": null,
+  "statement": null,
+  "recognition_status": "failed",
+  "lesson_status": "not_started",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "70c0f2ef031a6b3362ba288698039b3f2063b8fc9a378aa2122e92eab8746f1c",
+      "width": 1050,
+      "height": 85,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/f9f17647e9b2/figures/original?version=aefb3be4e7e24243dd014cb7d0c8ba338003035df5b6ccb67ea3af2d08bf987f"
+      }
+    ],
+    "content_id": "aefb3be4e7e24243dd014cb7d0c8ba338003035df5b6ccb67ea3af2d08bf987f"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "47d956d611a2",
+    "box": [
+      0.08209538702111024,
+      0.5281359906213364,
+      0.9030492572322126,
+      0.5779601406799532
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1050,
+      85
+    ],
+    "bytes": 10083
+  },
+  "state": "done",
+  "status": "workflow.oscillation",
+  "outcome": "error",
+  "original_text": "【变式2】已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为______。",
+  "parts": [],
+  "root": {
+    "definitions": [
+      "f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)"
+    ],
+    "facts": [
+      "f(a)=14"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(-a)"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "kind": "wrong_public_content",
+      "source_excerpt": "【变式2】",
+      "message": "公开题干的 statement 混入了变式编号/来源标记【变式2】；该标记不属于题目本身的数学条件或所求，应在保留 original_text 原转录的同时从公开题干中移除。"
+    }
+  ],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "shifted_odd",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "symmetry_relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_extension",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "symmetry_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "fe7ac27775793906d700f6800300375aebc5a718a734ec6d81e7733122626a64",
+    "sent_image_sha256": [
+      "fe7ac27775793906d700f6800300375aebc5a718a734ec6d81e7733122626a64"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 28.659
+}

@@ -475,8 +475,11 @@ def revisions():
     for name in ('parity_parameter_math', 'parity_parameter_domain', 'parity_parameter_original',
                  'parity_parameter_radical', 'parity_parameter_joint', 'linear_parameter_family', 'parameter_domain',
                  'parity_extension_math', 'parity_compatibility', 'symmetry_value_math', 'parity_inequality_math', 'parity_order_math',
-                 'parity_sign_math', 'symmetry_linear', 'symmetry_relation_math', 'function_symmetry_iteration'):
+                 'parity_sign_math', 'symmetry_linear', 'shifted_odd_math', 'shifted_odd_identity', 'symmetry_relation_math', 'function_symmetry_iteration'):
         result[name] = hashlib.sha256((folder.parent / f'{name}.py').read_bytes()).hexdigest()
+    result['shifted_odd_surface'] = hashlib.sha256(
+        (folder.parent / 'stage_two/shifted_odd_surface.py').read_bytes()).hexdigest()
+    result['abstract_function_domain'] = hashlib.sha256((folder / 'abstract_function_domain.py').read_bytes()).hexdigest()
     result['symmetry_relation_surface'] = hashlib.sha256(
         (folder.parent / 'stage_two/symmetry_relation_surface.py').read_bytes()).hexdigest()
     result['function_parity'] = hashlib.sha256((folder.parent / 'function_parity.py').read_bytes()).hexdigest()
@@ -489,7 +492,7 @@ def revisions():
                  'parity_domain_presentation', 'parity_original_presentation', 'parity_joint_presentation',
                  'parity_parameter_graphs', 'parity_extension_runtime', 'parity_extension_presentation',
                  'parity_inequality_runtime', 'parity_inequality_presentation',
-                 'symmetry_runtime', 'symmetry_presentation', 'symmetry_relation_runtime', 'symmetry_relation_presentation'):
+                 'shifted_odd_runtime', 'shifted_odd_presentation', 'symmetry_runtime', 'symmetry_presentation', 'symmetry_relation_runtime', 'symmetry_relation_presentation'):
         result[name] = hashlib.sha256((folder / f'{name}.py').read_bytes()).hexdigest()
     result['function_graph'] = hashlib.sha256((folder.parent / 'function_graph.py').read_bytes()).hexdigest()
     result['function_formula'] = hashlib.sha256((folder.parent / 'function_formula.py').read_bytes()).hexdigest()

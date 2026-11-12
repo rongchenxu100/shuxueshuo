@@ -1,0 +1,150 @@
+{
+  "text": "{\"status\":\"confirmed\",\"findings\":[]}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 865,
+      "prompt_tokens": 10894,
+      "total_tokens": 11759,
+      "prompt_cache_hit_tokens": 10112,
+      "prompt_cache_miss_tokens": 782
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 36,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-review/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-cd3443f2-0561-4bc1-a2e7-80b08437cd3d",
+        "sha256": "582254913a77eed9078a15a0fda4d5c34dcd9b0512ad9301dbdc3283061fa93e",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 14577,
+        "expires_at": 1794557282,
+        "uploaded_at": 1794470882.8823318
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "582254913a77eed9078a15a0fda4d5c34dcd9b0512ad9301dbdc3283061fa93e",
+        "file_id": "file-api-cd3443f2-0561-4bc1-a2e7-80b08437cd3d",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 6600,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 865,
+          "prompt_tokens": 10894,
+          "total_tokens": 11759,
+          "completion_tokens_details": {
+            "reasoning_tokens": 854
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 10112
+          },
+          "prompt_cache_hit_tokens": 10112,
+          "prompt_cache_miss_tokens": 782
+        },
+        "raw_payload": {
+          "id": "6ecc6dfb-4c1d-42d1-b0bb-3ca473731960",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 865,
+            "prompt_tokens": 10894,
+            "total_tokens": 11759,
+            "completion_tokens_details": {
+              "reasoning_tokens": 854
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 10112
+            },
+            "prompt_cache_hit_tokens": 10112,
+            "prompt_cache_miss_tokens": 782
+          },
+          "created": 1794470896,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+                "reasoning_content": "我们需要判断 candidate 是否与原图一致。注意图片中有标题“类型VI：奇函数+常数结论的应用”，然后“【例15】已知 g(x) 为奇函数，f(x)=g(x)+1，且 f(-2)=3，则 f(2)= ______。”下面有解析手写/印刷？“所以 f(-2)+f(2)=2, 故 f(2)=2-f(-2)...” 可能是解析，不属于题设。需要检查 original_text 是否遗漏了标题/例15题号？original_text 只题干。来源/试卷题号可以保留在 original_text 但不写入公开字段。candidate original_text 去掉了【例15】和类型VI标题。这算 wrong_transcription 吗？original_text 保留原题转录；题号/标题属于来源，可以保留，但遗漏文字是否报告？说明：original_text 只用于展示。只有遗漏或改写了文字、公式时才报告 wrong_transcription。题号/标题是否必须保留？来源与完整性：只读本题题干及所属选项。相邻题目、印刷解析...不是题设，不写入 original_text、public_content 或 root。题号/标题“类型VI：...”和“【例15】”是来源/题型标签，不属于题干数学内容，可能不需要收录。original_text 可省略来源题号。候选 original_text 是完整题干，没遗漏数学。没有问题。\n\nRoot: definitions f(x)=g(x)+1; facts parity(g,odd), f(-2)=3; goal find_value f(2). 符号表示正确。g为奇函数应该 parity(g,odd)，完整定义域未给，没问题。f(x)=g(x)+1。f(-2)=3。求f(2)。这是直接求值，不需要关系式。find_value expression f(2)。正确。\n\nPublic_content: statement 完整题干，包含条件和所求。choices none 因为填空题，无选项。figure not_required。privacy separated：题干没有姓名等，虽然“例15”没在公开 statement 中，但 root label 不存在。可以 separated。completeness complete。figure_detection none。可确认。\n\n但注意原图底部似乎有解析文字，candidate 没收录，属于解析，不收录正确。\n\n图片顶部有“类型VI：奇函数+常数结论的应用”，是否可能属于题目来源/标题，不是题干。公开 statement 没包含，可以。original_text 没包含也可以？可能 original_text 应该转录整题题干，包括“【例15】”？但说明只题干及选项，题号不算。不过 original_text 可以保留来源题号。遗漏【例15】可能算转录遗漏？需要判断。题目图片包含“【例15】”，是题号/来源，不是数学条件。original_text 只用于展示，题号不是必须？\"原题转录\"通常包括“已知...”。若严格，original_text 可去掉题号。不报告。\n\n需要检查 root 中 fact f(-2)=3 是否需要函数定义域？不需要。\n\nfind_value expression 保留原调用，正确。\n\n没有量词等。\n\n最终 status confirmed findings []。\n\n但需要考虑：g为奇函数，f(x)=g(x)+1，求f(2)。这题用到奇函数性质 g(-2)=-g(2)。Root 没有额外 relations，但 facts 中包含 parity(g,odd) 足以表达。f(2) find_value。可以。\n\nfigure_detection status none 无图。图片只是文字和公式，没有几何图。正确。\n\npublic_content.scopes 只有一个 /root，对。statement 里末尾“则 $f(2)=$ ______。”保留填空线，可。\n\nprivacy=separated：虽然图片中有“例15”和类型标题，可能不算隐私但来源。root 没有 label。公开字段没来源。OK.\n\n选择模式 none。选项 []，因为填空题无选项。目标只有一个。正确。\n\n所以 confirmed。\n\n输出 JSON 顶层 status findings。无 findings。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 6633
+  },
+  "raw_payload": {
+    "id": "6ecc6dfb-4c1d-42d1-b0bb-3ca473731960",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要判断 candidate 是否与原图一致。注意图片中有标题“类型VI：奇函数+常数结论的应用”，然后“【例15】已知 g(x) 为奇函数，f(x)=g(x)+1，且 f(-2)=3，则 f(2)= ______。”下面有解析手写/印刷？“所以 f(-2)+f(2)=2, 故 f(2)=2-f(-2)...” 可能是解析，不属于题设。需要检查 original_text 是否遗漏了标题/例15题号？original_text 只题干。来源/试卷题号可以保留在 original_text 但不写入公开字段。candidate original_text 去掉了【例15】和类型VI标题。这算 wrong_transcription 吗？original_text 保留原题转录；题号/标题属于来源，可以保留，但遗漏文字是否报告？说明：original_text 只用于展示。只有遗漏或改写了文字、公式时才报告 wrong_transcription。题号/标题是否必须保留？来源与完整性：只读本题题干及所属选项。相邻题目、印刷解析...不是题设，不写入 original_text、public_content 或 root。题号/标题“类型VI：...”和“【例15】”是来源/题型标签，不属于题干数学内容，可能不需要收录。original_text 可省略来源题号。候选 original_text 是完整题干，没遗漏数学。没有问题。\n\nRoot: definitions f(x)=g(x)+1; facts parity(g,odd), f(-2)=3; goal find_value f(2). 符号表示正确。g为奇函数应该 parity(g,odd)，完整定义域未给，没问题。f(x)=g(x)+1。f(-2)=3。求f(2)。这是直接求值，不需要关系式。find_value expression f(2)。正确。\n\nPublic_content: statement 完整题干，包含条件和所求。choices none 因为填空题，无选项。figure not_required。privacy separated：题干没有姓名等，虽然“例15”没在公开 statement 中，但 root label 不存在。可以 separated。completeness complete。figure_detection none。可确认。\n\n但注意原图底部似乎有解析文字，candidate 没收录，属于解析，不收录正确。\n\n图片顶部有“类型VI：奇函数+常数结论的应用”，是否可能属于题目来源/标题，不是题干。公开 statement 没包含，可以。original_text 没包含也可以？可能 original_text 应该转录整题题干，包括“【例15】”？但说明只题干及选项，题号不算。不过 original_text 可以保留来源题号。遗漏【例15】可能算转录遗漏？需要判断。题目图片包含“【例15】”，是题号/来源，不是数学条件。original_text 只用于展示，题号不是必须？\"原题转录\"通常包括“已知...”。若严格，original_text 可去掉题号。不报告。\n\n需要检查 root 中 fact f(-2)=3 是否需要函数定义域？不需要。\n\nfind_value expression 保留原调用，正确。\n\n没有量词等。\n\n最终 status confirmed findings []。\n\n但需要考虑：g为奇函数，f(x)=g(x)+1，求f(2)。这题用到奇函数性质 g(-2)=-g(2)。Root 没有额外 relations，但 facts 中包含 parity(g,odd) 足以表达。f(2) find_value。可以。\n\nfigure_detection status none 无图。图片只是文字和公式，没有几何图。正确。\n\npublic_content.scopes 只有一个 /root，对。statement 里末尾“则 $f(2)=$ ______。”保留填空线，可。\n\nprivacy=separated：虽然图片中有“例15”和类型标题，可能不算隐私但来源。root 没有 label。公开字段没来源。OK.\n\n选择模式 none。选项 []，因为填空题无选项。目标只有一个。正确。\n\n所以 confirmed。\n\n输出 JSON 顶层 status findings。无 findings。"
+        }
+      }
+    ],
+    "created": 1794470896,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 865,
+      "prompt_tokens": 10894,
+      "total_tokens": 11759,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 854,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 10112
+      },
+      "prompt_cache_hit_tokens": 10112,
+      "prompt_cache_miss_tokens": 782
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 6.634
+}

@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=a*x+b/x-2\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1351,
+      "prompt_tokens": 25821,
+      "total_tokens": 27172,
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 349
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 531,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-ddf3e75b-3e7c-42fc-8cad-31ba7abd22be",
+        "sha256": "570f7587ec136dcd8cb9a45d299d70e877f5a417947cb81ed7d4c3f97980f3ae",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 8354,
+        "expires_at": 1794555949,
+        "uploaded_at": 1794469549.846487
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "570f7587ec136dcd8cb9a45d299d70e877f5a417947cb81ed7d4c3f97980f3ae",
+        "api_calls": 1,
+        "file_id": "file-api-ddf3e75b-3e7c-42fc-8cad-31ba7abd22be",
+        "expires_at": 1794555949,
+        "elapsed_ms": 330
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 9628,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1351,
+          "prompt_tokens": 25821,
+          "total_tokens": 27172,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1160
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25472
+          },
+          "prompt_cache_hit_tokens": 25472,
+          "prompt_cache_miss_tokens": 349
+        },
+        "raw_payload": {
+          "id": "d73d9390-df28-44bd-9d7b-91927a99ba37",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1351,
+            "prompt_tokens": 25821,
+            "total_tokens": 27172,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1160
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25472
+            },
+            "prompt_cache_hit_tokens": 25472,
+            "prompt_cache_miss_tokens": 349
+          },
+          "created": 1794469550,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=a*x+b/x-2\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取。图片内容：变式1 已知 f(x)=ax + b/x -2，则 f(2024)+f(-2024)=____。 b是参数？题干可能 b 为常数？图片只显示这一行，下面有部分文字“b为...常...”但被截。需要看是否包含条件 b 为正/常数？图片底部有手写? 看起来底部有文字“b为...常数, 故可...”，可能是解析的一部分，不是题干？需要判断。图中只有题目一行，底部可见模糊文字，可能是解析，不属于题干。完整题干就是【变式 1】已知 f(x)=ax + b/x -2，则 f(2024)+f(-2024)=______。b为参数/常数未说明。这题典型是奇函数部分抵消，结果为-4？ f(x)+f(-x)= -4。求 f(2024)+f(-2024) = -4。这里 b/x 是奇，ax 是奇，常数 -2 导致和 -4。题目可能已知f(x)=ax+b/x-2，则...。b可能是常数。不需要推导。\n\n需要 root: definitions f(x)=a*x+b/x-2. facts? 定义即函数。goal find_value expression f(2024)+f(-2024). 无小问。没有选项。original_text 完整转录。public_content scopes root statement. figure none.\n\n注意变量 b 是参数，a也是。不需要额外 facts。无 uncertainty? 图片底部残字可能不是题干，忽略。需不要报 unreadable? 如果题干清晰。可以不确定 b 是否为常数？题面“已知f(x)=...” b作为参数，没写范围。保留即可。不要把“b为正常数”补上。底部模糊文字可能是解析“b为...常数,故可用...”，不要写。无需 uncertainty。\n\noriginal_text 中公式 LaTeX，分数 b/x。使用 $f(x)=ax+\\frac{b}{x}-2$。保留“【变式 1】”。求 f(2024)+f(-2024)=______。根号等无。\n\nroot.label? 原文有【变式1】。这是题号/来源？属于变式题号，可能 source? 它标明来源或题号。root.label 可写“变式 1”，root_label_role=source? 因为“变式1”是题号，可能不是题意。可选省略label，避免分类。只写 definitions/goals 即可。但题目原文包含【变式1】。可以 root 不写 label。public_content 不包含来源题号。可以。\n\nuncertainties 空。\n\npublic_content.completeness complete; privacy separated? 图片只有题干，无个人信息；底部残字可能解析。可 separated。figure not_required, root_label_role省略。scopes [{scope_ref:\"/root\", statement:\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\", choices:[{target_ref:\"/root/goals/0\", status:\"none\", selection_mode:\"none\", options:[]}]}]. figure_detection status none regions [].\n\n需要 JSON 严格。original_text 字符串里反斜杠双写。LaTeX \\frac 需要 \\\\frac。注意 JSON 输出时实际文本需要两个反斜杠。我们输出 JSON，字符串中要写 \"\\\\frac\"。在最终消息里是 JSON 文本，正确。\n\ngoal find_value expression: \"f(2024)+f(-2024)\"。definitions [\"f(x)=a*x+b/x-2\"]。这里 b/x 在受控记法中分数用 /，乘法显式。ax 写成 a*x。常数 -2。表达式完整。需要定义 b? 题面没有。不定义参数。\n\nfacts 空可省略。goals 数组。\n\n要检查 math_expression_catalog: 函数定义 f(x)=a*x+b/x-2. 可以。目标 expression f(2024)+f(-2024). 求值。无 in_terms_of。\n\noriginal_text 保留中文和公式。不能写手写答案。没有手写答案，只有横线。\n\n图片底部有模糊文字“b为...常数, 故可用...”，不是题干，忽略。是否需要 uncertainty 说底部有解析残字？不必要，因为明确不是题干。题干完整。\n\n输出 only JSON. Need include required root. root can omit label. Each scope choices must have target_ref for each goal. public_content root statement not include \"【变式1】\" because题号来源。如果原题题干中【变式1】可能是来源题号，不应公开。我们可以不公开题号。original_text 可以保留？original_text 转录完整题干，包含题号？说明保留来源题号在 original_text 可以，不能放进公开字段。因此 original_text 写【变式1】...，public_content statement 不写【变式1】。root label 不写。completeness complete. privacy separated? 题号已在 original_text，但 public_content separated 要求题目正文与来源、题号明确分离；我们没放 public_content，所以可以 separated。OK.\n\nNeed root definitions. facts maybe not. Include children? no.\n\nJSON schema root properties only; avoid extra fields. uncertain empty? root may include uncertainties optional; no need.\n\nLet's craft final JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 10001
+  },
+  "raw_payload": {
+    "id": "d73d9390-df28-44bd-9d7b-91927a99ba37",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=a*x+b/x-2\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取。图片内容：变式1 已知 f(x)=ax + b/x -2，则 f(2024)+f(-2024)=____。 b是参数？题干可能 b 为常数？图片只显示这一行，下面有部分文字“b为...常...”但被截。需要看是否包含条件 b 为正/常数？图片底部有手写? 看起来底部有文字“b为...常数, 故可...”，可能是解析的一部分，不是题干？需要判断。图中只有题目一行，底部可见模糊文字，可能是解析，不属于题干。完整题干就是【变式 1】已知 f(x)=ax + b/x -2，则 f(2024)+f(-2024)=______。b为参数/常数未说明。这题典型是奇函数部分抵消，结果为-4？ f(x)+f(-x)= -4。求 f(2024)+f(-2024) = -4。这里 b/x 是奇，ax 是奇，常数 -2 导致和 -4。题目可能已知f(x)=ax+b/x-2，则...。b可能是常数。不需要推导。\n\n需要 root: definitions f(x)=a*x+b/x-2. facts? 定义即函数。goal find_value expression f(2024)+f(-2024). 无小问。没有选项。original_text 完整转录。public_content scopes root statement. figure none.\n\n注意变量 b 是参数，a也是。不需要额外 facts。无 uncertainty? 图片底部残字可能不是题干，忽略。需不要报 unreadable? 如果题干清晰。可以不确定 b 是否为常数？题面“已知f(x)=...” b作为参数，没写范围。保留即可。不要把“b为正常数”补上。底部模糊文字可能是解析“b为...常数,故可用...”，不要写。无需 uncertainty。\n\noriginal_text 中公式 LaTeX，分数 b/x。使用 $f(x)=ax+\\frac{b}{x}-2$。保留“【变式 1】”。求 f(2024)+f(-2024)=______。根号等无。\n\nroot.label? 原文有【变式1】。这是题号/来源？属于变式题号，可能 source? 它标明来源或题号。root.label 可写“变式 1”，root_label_role=source? 因为“变式1”是题号，可能不是题意。可选省略label，避免分类。只写 definitions/goals 即可。但题目原文包含【变式1】。可以 root 不写 label。public_content 不包含来源题号。可以。\n\nuncertainties 空。\n\npublic_content.completeness complete; privacy separated? 图片只有题干，无个人信息；底部残字可能解析。可 separated。figure not_required, root_label_role省略。scopes [{scope_ref:\"/root\", statement:\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\", choices:[{target_ref:\"/root/goals/0\", status:\"none\", selection_mode:\"none\", options:[]}]}]. figure_detection status none regions [].\n\n需要 JSON 严格。original_text 字符串里反斜杠双写。LaTeX \\frac 需要 \\\\frac。注意 JSON 输出时实际文本需要两个反斜杠。我们输出 JSON，字符串中要写 \"\\\\frac\"。在最终消息里是 JSON 文本，正确。\n\ngoal find_value expression: \"f(2024)+f(-2024)\"。definitions [\"f(x)=a*x+b/x-2\"]。这里 b/x 在受控记法中分数用 /，乘法显式。ax 写成 a*x。常数 -2。表达式完整。需要定义 b? 题面没有。不定义参数。\n\nfacts 空可省略。goals 数组。\n\n要检查 math_expression_catalog: 函数定义 f(x)=a*x+b/x-2. 可以。目标 expression f(2024)+f(-2024). 求值。无 in_terms_of。\n\noriginal_text 保留中文和公式。不能写手写答案。没有手写答案，只有横线。\n\n图片底部有模糊文字“b为...常数, 故可用...”，不是题干，忽略。是否需要 uncertainty 说底部有解析残字？不必要，因为明确不是题干。题干完整。\n\n输出 only JSON. Need include required root. root can omit label. Each scope choices must have target_ref for each goal. public_content root statement not include \"【变式1】\" because题号来源。如果原题题干中【变式1】可能是来源题号，不应公开。我们可以不公开题号。original_text 可以保留？original_text 转录完整题干，包含题号？说明保留来源题号在 original_text 可以，不能放进公开字段。因此 original_text 写【变式1】...，public_content statement 不写【变式1】。root label 不写。completeness complete. privacy separated? 题号已在 original_text，但 public_content separated 要求题目正文与来源、题号明确分离；我们没放 public_content，所以可以 separated。OK.\n\nNeed root definitions. facts maybe not. Include children? no.\n\nJSON schema root properties only; avoid extra fields. uncertain empty? root may include uncertainties optional; no need.\n\nLet's craft final JSON."
+        }
+      }
+    ],
+    "created": 1794469550,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1351,
+      "prompt_tokens": 25821,
+      "total_tokens": 27172,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1160,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25472
+      },
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 349
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 10.002
+}

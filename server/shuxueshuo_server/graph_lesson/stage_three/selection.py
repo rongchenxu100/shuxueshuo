@@ -329,6 +329,8 @@ def evaluate_goal(candidate, target_ref, features, primary):
             '只知道一侧的解析式：先在已知范围内解不等式，再用奇偶性得到对称范围内的解；'
             '$0$ 不在两侧范围内时单独检查，最后合并。'
             if chosen['admission'] == 'parity_inequality' else
+            '先分清哪个函数是奇函数，求相反输入的函数值之和，再还原到题目所求的函数。'
+            if chosen['admission'] == 'function_symmetry' and context.get('shifted_odd_goal') else
             '先根据题给的对称轴、对称中心或限定范围的等式变换输入，再结合已知函数值求值或分组求和。'
             if chosen['admission'] == 'function_symmetry' and context.get('symmetry_relation_goal') else
             '只求几个函数值或它们的组合：先用奇偶性把每个输入换成它的相反数，找出与已知条件的关系；'

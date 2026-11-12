@@ -1,0 +1,116 @@
+{
+  "pipeline": "text-then-figures/v1",
+  "output_contract": "search-problem-extraction/v1",
+  "status": "code_gap",
+  "source_reviewed": false,
+  "public_candidate": {
+    "original_text": "【变式3】当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$ ____．",
+    "root": {
+      "definitions": [
+        "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+      ],
+      "facts": [
+        "a为常数。"
+      ],
+      "goals": [
+        {
+          "kind": "find_extrema_expression",
+          "object": "f",
+          "extrema": [
+            {
+              "symbol": "M",
+              "kind": "maximum"
+            },
+            {
+              "symbol": "m",
+              "kind": "minimum"
+            }
+          ],
+          "expression": "M+m",
+          "input_domain": "[-1,1]"
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$ ____．",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "【变式3】当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$ ____．",
+    "root": {
+      "definitions": [
+        "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+      ],
+      "facts": [
+        "a为常数。"
+      ],
+      "goals": [
+        {
+          "kind": "find_extrema_expression",
+          "object": "f",
+          "extrema": [
+            {
+              "symbol": "M",
+              "kind": "maximum"
+            },
+            {
+              "symbol": "m",
+              "kind": "minimum"
+            }
+          ],
+          "expression": "M+m",
+          "input_domain": "[-1,1]"
+        }
+      ],
+      "uncertainties": []
+    }
+  },
+  "reviewed_candidate_revision": null,
+  "features": [],
+  "features_ok": false,
+  "feature_diagnostics": [
+    {
+      "code": "figure.pending_or_invalid_mathematics"
+    }
+  ],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [
+    {
+      "stage": "compile",
+      "code": "notation.unsupported_declaration",
+      "path": "/root/facts/0",
+      "source": "a为常数。",
+      "message": "notation.unsupported_declaration",
+      "action": "code_gap"
+    }
+  ],
+  "question_sha256": "5725f72504ffe4459bb398a5ee027f82f32d31ecb684c04d1f7981abe9fa55c9",
+  "sent_image_sha256": [
+    "5725f72504ffe4459bb398a5ee027f82f32d31ecb684c04d1f7981abe9fa55c9"
+  ],
+  "elapsed_seconds": 14.333,
+  "figure_attempts": [],
+  "stored_original_sha256": "2e71cefae39fb71ab95ae9b45c5d8bdd01a04d7ba3f8d27875d9206e24d51440"
+}

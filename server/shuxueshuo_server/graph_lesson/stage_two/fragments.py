@@ -621,6 +621,20 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         for index, item in enumerate(fragments, 1):
             item['id'] = f'{target_ref}:d1:{index}'
         return {'fragments': fragments, 'diagnostics': diagnostics}
+    if values.get('shifted_odd', {}).get('structure_supported'):
+        from .shifted_odd_surface import source_spans
+        spans = source_spans(candidate, target_ref, ranges, values['shifted_odd'])
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{
+                'code': 'd1.shifted_odd_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'shifted_odd'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['function-graph-symmetry#center']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
     if values.get('symmetry_relation', {}).get('structure_supported'):
         from .symmetry_relation_surface import source_spans
         spans = source_spans(candidate, target_ref, ranges, values['symmetry_relation'])

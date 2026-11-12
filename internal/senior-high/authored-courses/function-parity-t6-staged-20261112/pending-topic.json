@@ -1,0 +1,136 @@
+{
+  "contract": "authored-topic-staging/v1",
+  "topic": "function-parity",
+  "group": "shifted-odd",
+  "publish_state": "awaiting_unified_rebuild",
+  "note": "五道开发题的原图核对转录；不代表真实 OCR 或模型验收。公开课程待统一重建。",
+  "group_entry": {
+    "id": "shifted-odd",
+    "label": "奇函数＋常数结论的应用",
+    "type": "type-shifted-odd-application",
+    "groupBy": "method",
+    "description": "先找到奇函数与常数的关系，再求相反输入的函数值、配对和或最值之和。"
+  },
+  "pending": [
+    {
+      "id": "function-parity-a16",
+      "batch": "R0",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/a16.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a16",
+        "title": "从辅助函数还原函数值",
+        "page": "/topics/function-parity/q16/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/a16.json",
+        "evidence": "site/data/graph-walk/function-parity-a16.evidence.json"
+      },
+      "topic_entry": {
+        "label": "从辅助函数还原函数值",
+        "path": "/topics/function-parity/q16/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a16.json",
+        "types": [
+          "type-shifted-odd-application"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-b01",
+      "batch": "R0",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b01.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-b01",
+        "title": "由奇函数平移求值",
+        "page": "/topics/function-parity/q21/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b01.json",
+        "evidence": "site/data/graph-walk/function-parity-b01.evidence.json"
+      },
+      "topic_entry": {
+        "label": "由奇函数平移求值",
+        "path": "/topics/function-parity/q21/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-b01.json",
+        "types": [
+          "type-shifted-odd-application"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-b02",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b02.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-b02",
+        "title": "相反输入的函数值之和",
+        "page": "/topics/function-parity/q22/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b02.json",
+        "evidence": "site/data/graph-walk/function-parity-b02.evidence.json"
+      },
+      "topic_entry": {
+        "label": "相反输入的函数值之和",
+        "path": "/topics/function-parity/q22/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-b02.json",
+        "types": [
+          "type-shifted-odd-application"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-b03",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b03.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-b03",
+        "title": "拆分有理式求相反输入值",
+        "page": "/topics/function-parity/q23/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b03.json",
+        "evidence": "site/data/graph-walk/function-parity-b03.evidence.json"
+      },
+      "topic_entry": {
+        "label": "拆分有理式求相反输入值",
+        "path": "/topics/function-parity/q23/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-b03.json",
+        "types": [
+          "type-shifted-odd-application"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-b04",
+      "batch": "R4",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b04.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-b04",
+        "title": "对称区间上的最大值与最小值之和",
+        "page": "/topics/function-parity/q24/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b04.json",
+        "evidence": "site/data/graph-walk/function-parity-b04.evidence.json"
+      },
+      "topic_entry": {
+        "label": "对称区间上的最大值与最小值之和",
+        "path": "/topics/function-parity/q24/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-b04.json",
+        "types": [
+          "type-shifted-odd-application"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-shifted-odd-application",
+  "branches": [
+    {
+      "branch_id": "shifted-odd",
+      "checks": [
+        {
+          "id": "supported-shifted-odd",
+          "feature_id": "shifted_odd",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    }
+  ]
+}

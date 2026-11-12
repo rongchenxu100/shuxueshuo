@@ -1,6 +1,7 @@
 """Student extraction adds public-content review without changing graph contracts."""
 
 import json
+import re
 from dataclasses import replace
 from hashlib import sha256
 from pathlib import Path
@@ -157,7 +158,18 @@ class SearchStageOneContract(GraphStageOneContract):
                 raise ValueError("review.invalid_pointer")
             if kind == "wrong_transcription" and path != "/original_text":
                 raise ValueError("review.invalid_transcription_pointer")
-            pointer(candidate, path)
+            value = pointer(candidate, path)
+            # A source-only editorial label cannot be an offending substring of
+            # a public field which does not contain it. Reject the misplaced
+            # finding and request fresh source review; never mark it confirmed.
+            excerpt = finding.get("source_excerpt", "")
+            if (kind == "wrong_public_content" and path.endswith("/statement")
+                    and isinstance(value, str)
+                    and re.fullmatch(r"[【\[（(]?\s*(?:例题|例|变式(?:训练|练习)?|练习题|练习)\s*"
+                                     r"(?:[1-9][0-9]{0,2}|[一二三四五六七八九十]{1,3})\s*[】\]）)]?", excerpt.strip())):
+                normalize = lambda text: re.sub(r"[\s【】\[\]（）()]", "", text)
+                if normalize(excerpt) not in normalize(value):
+                    raise ValueError("review.source_label_not_at_public_pointer")
         return review
 
     def repair_diagnostics(self, current, proposed, diagnostics):

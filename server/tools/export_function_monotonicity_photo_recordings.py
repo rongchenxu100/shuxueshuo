@@ -54,7 +54,11 @@ def export(run, target, *, sources=REPO / 'internal/senior-high/source-images/fu
     for path in sorted(run.glob('upload-*.json')):
         shutil.copyfile(path, target / path.name)
         number = int(path.stem.split('-')[1])
-        source = Path(sources) / f'source-image-{number:02}.jpg'
+        upload_result = read(path)
+        source = (REPO / upload_result['source'] if upload_result.get('source')
+                  else Path(sources) / f'source-image-{number:02}.jpg')
+        if upload_result.get('source_sha256'):
+            assert sha256(source.read_bytes()).hexdigest() == upload_result['source_sha256']
         upload = {'file': path.name, 'sha256': sha256(path.read_bytes()).hexdigest(),
                   'source': str(source.relative_to(REPO)), 'source_sha256': sha256(source.read_bytes()).hexdigest()}
         page_id = read(path).get('body', {}).get('page_id')

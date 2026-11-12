@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=a*x+b/x-2\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1363,
+      "prompt_tokens": 25821,
+      "total_tokens": 27184,
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 221
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 531,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-96b41c4a-4b6a-44cd-b9b6-bfa5dc8eef25",
+        "sha256": "570f7587ec136dcd8cb9a45d299d70e877f5a417947cb81ed7d4c3f97980f3ae",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 8354,
+        "expires_at": 1794556568,
+        "uploaded_at": 1794470168.4113889
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "570f7587ec136dcd8cb9a45d299d70e877f5a417947cb81ed7d4c3f97980f3ae",
+        "api_calls": 1,
+        "file_id": "file-api-96b41c4a-4b6a-44cd-b9b6-bfa5dc8eef25",
+        "expires_at": 1794556568,
+        "elapsed_ms": 213
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 8332,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1363,
+          "prompt_tokens": 25821,
+          "total_tokens": 27184,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1172
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25600
+          },
+          "prompt_cache_hit_tokens": 25600,
+          "prompt_cache_miss_tokens": 221
+        },
+        "raw_payload": {
+          "id": "ae56af19-4531-4d37-bd12-16fadf063f30",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1363,
+            "prompt_tokens": 25821,
+            "total_tokens": 27184,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1172
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25600
+            },
+            "prompt_cache_hit_tokens": 25600,
+            "prompt_cache_miss_tokens": 221
+          },
+          "created": 1794470168,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=a*x+b/x-2\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题目。图片文字：左边有一行题号和条件：\n【变式 1】 已知 f(x)=a x + b/x - 2，则 f(2024)+f(-2024)= ______。\n注意可能有下方被截断文字，但题干完整。需要判断 a,b 是否有额外说明？图片中只显示这一行，下面有些模糊文字被截断，但可能属于解析，不是题干。题面只给 f(x)=a x + b/x - 2。求 f(2024)+f(-2024)。需要提取 root。目标 find_value.expression = f(2024)+f(-2024)。定义 f(x)=a*x + b/x - 2。注意题目中 b/x 是分式。没有给 a,b 范围？可能是常数。不补。没有小问。original_text 完整。public_content. 配图 none。需要避免补充推导，比如奇偶性。只转录。\n\n需要注意题干中“【变式 1】”可能属于来源题号还是题意？图片左侧【变式 1】可能是题集编号/来源，不是题目本身。public_content不能放来源题号。original_text 可以保留。root.label 若存在可能为“变式1”？但按规则可以省略 label。题干开头有【变式 1】，这属于来源或题号，建议不写入 root.label（或 label 可省略）。public_content.statement 不应含【变式1】。但是需要保留完整题干“已知...求...”。可以。\n\noriginal_text 用 LaTeX 表示公式：$f(x)=ax+\\frac{b}{x}-2$，$f(2024)+f(-2024)=\\underline{\\quad}$。注意分式。原题中是 \\( f(x)= a x + \\frac{b}{x} -2 \\)。转录保留。\n\nroot definitions: 应该函数定义 f(x)=a*x+b/x-2。数学目录：function_definition_and_reference。注意 a x 写 a*x，分数 b/x。definitions: [\"f(x)=a*x+b/x-2\"]。facts 可以为空？a,b为常数未明说，但无需。目标 find_value, expression: \"f(2024)+f(-2024)\"。没有 in_terms_of。input_domain 无。\n\nuncertainties：无。但是图片底部有截断文字，可能是解析，无影响。不报告。配图检测 none。public_content completeness complete, privacy separated? 图片中只有题目，没有姓名等；但【变式1】是来源标签，需要分离，可以从 public_content 排除。p=separated 可以吗？需要明确分离来源和题号。原图【变式1】明显是题集来源编号，已未放入公开字段。privacy=separated 应该可以。root_label_role 如果 root.label 不存在则不需要。我们可以省略 root.label。public_content scopes 1 个 /root。statement 为“已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。” 注意 public_content.statement 不含题号；公式用 $…$。choices: 目标无选项 status none, selection_mode none, options []。\n\nroot.goals [{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]。\n\npublic_content.figure not_required, figure_detection none.\n\nNeed ensure public_content scopes target_ref \"/root/goals/0\".\n\nOriginal_text 是否包含【变式1】？可以保留来源题号，但是题干阅读。题目说 original_text 可保留来源题号。那保留。填空处照印刷原样写横线。用 LaTeX \\underline{\\quad}? 原图是空白横线后有点。简化：$f(2024)+f(-2024)=\\underline{\\quad}$。末尾句号。注意原图公式后有一个点“.”。可写 $f(2024)+f(-2024)=\\underline{\\quad}$。 但为了完整原题，可以保留“______”。\n\nNeed \"不输出契约以外字段\" only original_text, root, public_content. Root includes definitions,facts,goals maybe. Use definitions.\n\nPotential issue: b/x 不加括号，b/x parse fine. f(x)=a*x+b/x-2.\n\nDo we need fact a,b are constants? no.\n\nNo uncertainty.\n\nNeed valid JSON escaping. Use string. Let's craft.\n\noriginal_text: \"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\"\n\nWait original_text with backslashes in JSON must be escaped: \"\\\\frac\". Good.\n\npublic_content statement: \"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\" Note no 题号.\n\nNo root.label. Could we include label? no.\n\nRoot definitions array. goals.\n\npublic_content scopes statement maximum. Good.\n\nfigure_detection status none regions [].\n\nNeed perhaps \"privacy\": \"separated\". Good.\n\ncompleteness complete.\n\nfigure not_required.\n\nroot no children. Facts maybe empty? schema optional. Include definitions and goals. Could include facts: []? Allowed? \"facts\" array optional. We can include []. Use only definitions goals. Fine.\n\nPotential root label? no.\n\nFinal JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 8587
+  },
+  "raw_payload": {
+    "id": "ae56af19-4531-4d37-bd12-16fadf063f30",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"root\":{\"definitions\":[\"f(x)=a*x+b/x-2\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题目。图片文字：左边有一行题号和条件：\n【变式 1】 已知 f(x)=a x + b/x - 2，则 f(2024)+f(-2024)= ______。\n注意可能有下方被截断文字，但题干完整。需要判断 a,b 是否有额外说明？图片中只显示这一行，下面有些模糊文字被截断，但可能属于解析，不是题干。题面只给 f(x)=a x + b/x - 2。求 f(2024)+f(-2024)。需要提取 root。目标 find_value.expression = f(2024)+f(-2024)。定义 f(x)=a*x + b/x - 2。注意题目中 b/x 是分式。没有给 a,b 范围？可能是常数。不补。没有小问。original_text 完整。public_content. 配图 none。需要避免补充推导，比如奇偶性。只转录。\n\n需要注意题干中“【变式 1】”可能属于来源题号还是题意？图片左侧【变式 1】可能是题集编号/来源，不是题目本身。public_content不能放来源题号。original_text 可以保留。root.label 若存在可能为“变式1”？但按规则可以省略 label。题干开头有【变式 1】，这属于来源或题号，建议不写入 root.label（或 label 可省略）。public_content.statement 不应含【变式1】。但是需要保留完整题干“已知...求...”。可以。\n\noriginal_text 用 LaTeX 表示公式：$f(x)=ax+\\frac{b}{x}-2$，$f(2024)+f(-2024)=\\underline{\\quad}$。注意分式。原题中是 \\( f(x)= a x + \\frac{b}{x} -2 \\)。转录保留。\n\nroot definitions: 应该函数定义 f(x)=a*x+b/x-2。数学目录：function_definition_and_reference。注意 a x 写 a*x，分数 b/x。definitions: [\"f(x)=a*x+b/x-2\"]。facts 可以为空？a,b为常数未明说，但无需。目标 find_value, expression: \"f(2024)+f(-2024)\"。没有 in_terms_of。input_domain 无。\n\nuncertainties：无。但是图片底部有截断文字，可能是解析，无影响。不报告。配图检测 none。public_content completeness complete, privacy separated? 图片中只有题目，没有姓名等；但【变式1】是来源标签，需要分离，可以从 public_content 排除。p=separated 可以吗？需要明确分离来源和题号。原图【变式1】明显是题集来源编号，已未放入公开字段。privacy=separated 应该可以。root_label_role 如果 root.label 不存在则不需要。我们可以省略 root.label。public_content scopes 1 个 /root。statement 为“已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。” 注意 public_content.statement 不含题号；公式用 $…$。choices: 目标无选项 status none, selection_mode none, options []。\n\nroot.goals [{\"kind\":\"find_value\",\"expression\":\"f(2024)+f(-2024)\"}]。\n\npublic_content.figure not_required, figure_detection none.\n\nNeed ensure public_content scopes target_ref \"/root/goals/0\".\n\nOriginal_text 是否包含【变式1】？可以保留来源题号，但是题干阅读。题目说 original_text 可保留来源题号。那保留。填空处照印刷原样写横线。用 LaTeX \\underline{\\quad}? 原图是空白横线后有点。简化：$f(2024)+f(-2024)=\\underline{\\quad}$。末尾句号。注意原图公式后有一个点“.”。可写 $f(2024)+f(-2024)=\\underline{\\quad}$。 但为了完整原题，可以保留“______”。\n\nNeed \"不输出契约以外字段\" only original_text, root, public_content. Root includes definitions,facts,goals maybe. Use definitions.\n\nPotential issue: b/x 不加括号，b/x parse fine. f(x)=a*x+b/x-2.\n\nDo we need fact a,b are constants? no.\n\nNo uncertainty.\n\nNeed valid JSON escaping. Use string. Let's craft.\n\noriginal_text: \"【变式 1】已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\"\n\nWait original_text with backslashes in JSON must be escaped: \"\\\\frac\". Good.\n\npublic_content statement: \"已知 $f(x)=ax+\\\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$ ______。\" Note no 题号.\n\nNo root.label. Could we include label? no.\n\nRoot definitions array. goals.\n\npublic_content scopes statement maximum. Good.\n\nfigure_detection status none regions [].\n\nNeed perhaps \"privacy\": \"separated\". Good.\n\ncompleteness complete.\n\nfigure not_required.\n\nroot no children. Facts maybe empty? schema optional. Include definitions and goals. Could include facts: []? Allowed? \"facts\" array optional. We can include []. Use only definitions goals. Fine.\n\nPotential root label? no.\n\nFinal JSON."
+        }
+      }
+    ],
+    "created": 1794470168,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1363,
+      "prompt_tokens": 25821,
+      "total_tokens": 27184,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1172,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25600
+      },
+      "prompt_cache_hit_tokens": 25600,
+      "prompt_cache_miss_tokens": 221
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 8.588
+}

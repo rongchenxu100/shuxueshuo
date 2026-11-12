@@ -1,0 +1,100 @@
+{
+  "search_id": "88ac46d6f830",
+  "user_id": "f1e00221-a53d-4081-8e86-f5eaffca1954",
+  "problem_id": null,
+  "statement": null,
+  "recognition_status": "failed",
+  "lesson_status": "not_started",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "2e71cefae39fb71ab95ae9b45c5d8bdd01a04d7ba3f8d27875d9206e24d51440",
+      "width": 1138,
+      "height": 132,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/88ac46d6f830/figures/original?version=d84db005fe26fddb978c805133f4547ff6d9d3208e9921215d064b197feb2548"
+      }
+    ],
+    "content_id": "d84db005fe26fddb978c805133f4547ff6d9d3208e9921215d064b197feb2548"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "fbfead3082f5",
+    "box": [
+      0.08131352619233777,
+      0.8112543962485346,
+      0.9710711493354183,
+      0.8886283704572099
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1138,
+      132
+    ],
+    "bytes": 14969
+  },
+  "state": "done",
+  "status": "code_gap",
+  "outcome": "unsupported",
+  "original_text": "【变式3】当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$ ____．",
+  "parts": [],
+  "root": {
+    "definitions": [
+      "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+    ],
+    "facts": [
+      "a为常数。"
+    ],
+    "goals": [
+      {
+        "kind": "find_extrema_expression",
+        "object": "f",
+        "extrema": [
+          {
+            "symbol": "M",
+            "kind": "maximum"
+          },
+          {
+            "symbol": "m",
+            "kind": "minimum"
+          }
+        ],
+        "expression": "M+m",
+        "input_domain": "[-1,1]"
+      }
+    ],
+    "uncertainties": []
+  },
+  "findings": [],
+  "features": [],
+  "image_check": {
+    "question_sha256": "5725f72504ffe4459bb398a5ee027f82f32d31ecb684c04d1f7981abe9fa55c9",
+    "sent_image_sha256": [
+      "5725f72504ffe4459bb398a5ee027f82f32d31ecb684c04d1f7981abe9fa55c9"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 14.333
+}

@@ -1,0 +1,42 @@
+{
+  "original_text": "16. 若函数$f(x)$满足：$g(x)=f(x)+2$是$R$上的奇函数，且$f(1)=9$，则$f(-1)$的值为____。",
+  "root": {
+    "definitions": [
+      "g(x)=f(x)+2"
+    ],
+    "facts": [
+      "parity(g,odd)",
+      "Dom(g)=ℝ",
+      "f(1)=9"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(-1)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "若函数$f(x)$满足：$g(x)=f(x)+2$是$R$上的奇函数，且$f(1)=9$，则$f(-1)$的值为____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

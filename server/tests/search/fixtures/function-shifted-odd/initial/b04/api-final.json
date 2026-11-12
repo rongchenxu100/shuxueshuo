@@ -1,0 +1,323 @@
+{
+  "search_id": "5f6077601a80",
+  "user_id": "6dbc159b-e107-4634-8fd9-07a3b24c3804",
+  "problem_id": "2b364805-97b7-4915-9c64-b4261030ee4c",
+  "statement": "当 $x∈[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+a x^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=\\_\\_\\_\\_$。",
+  "recognition_status": "reviewed",
+  "lesson_status": "unsupported",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "2e71cefae39fb71ab95ae9b45c5d8bdd01a04d7ba3f8d27875d9206e24d51440",
+      "width": 1138,
+      "height": 132,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/5f6077601a80/figures/original?version=d84db005fe26fddb978c805133f4547ff6d9d3208e9921215d064b197feb2548"
+      }
+    ],
+    "content_id": "d84db005fe26fddb978c805133f4547ff6d9d3208e9921215d064b197feb2548"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "718ae4b02fa1",
+    "box": [
+      0.08131352619233777,
+      0.8112543962485346,
+      0.9710711493354183,
+      0.8886283704572099
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1138,
+      132
+    ],
+    "bytes": 14969
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "【变式 3】当 $x \\in [-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+a x^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=\\_\\_\\_\\_$。",
+  "parts": [],
+  "root": {
+    "label": "变式 3",
+    "definitions": [
+      "f(x)=((x+1)^2+a*x^5)/(x^2+1)"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_range",
+        "object": "f",
+        "input_domain": "[-1,1]",
+        "answer_request": {
+          "kind": "expression",
+          "bindings": [
+            {
+              "symbol": "M",
+              "quantity": "maximum"
+            },
+            {
+              "symbol": "m",
+              "quantity": "minimum"
+            }
+          ],
+          "expression": "M+m"
+        }
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "shifted_odd",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "symmetry_relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_extension",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "symmetry_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "5725f72504ffe4459bb398a5ee027f82f32d31ecb684c04d1f7981abe9fa55c9",
+    "sent_image_sha256": [
+      "5725f72504ffe4459bb398a5ee027f82f32d31ecb684c04d1f7981abe9fa55c9"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 19.757,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "变式 3",
+        "status": "unsupported",
+        "primary": null,
+        "supported": [],
+        "d1": {
+          "rows": [],
+          "summary": ""
+        },
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "2c0a1ac8eab54e8fbb2ac39ad34a1510",
+      "lesson_version": "fa06c4d44fc735526d2c569d693eff8442062f930849ec4ef7a669b5b195c1fd",
+      "stream_id": "2c0a1ac8eab54e8fbb2ac39ad34a1510",
+      "snapshot_url": "/api/search/problems/5f6077601a80/lesson/2c0a1ac8eab54e8fbb2ac39ad34a1510/snapshot",
+      "events_url": "/api/search/problems/5f6077601a80/lesson/2c0a1ac8eab54e8fbb2ac39ad34a1510/events",
+      "websocket_url": "/api/search/problems/5f6077601a80/lesson/2c0a1ac8eab54e8fbb2ac39ad34a1510/ws"
+    }
+  }
+}

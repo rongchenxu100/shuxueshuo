@@ -1,0 +1,17 @@
+{
+  "source": "internal/senior-high/source-images/function-parity-t6-planning-20261112/source-page-01.png",
+  "source_sha256": "23d9fe6f39ccb2054ce82ed783968e47d2ee6d8f78272ab2dbf4c68fda9d6ec9",
+  "crop_pixels": [
+    105,
+    901,
+    1155,
+    986
+  ],
+  "box": [
+    0.08209538702111024,
+    0.5281359906213364,
+    0.9030492572322126,
+    0.5779601406799532
+  ],
+  "usage": "development_real_photo_not_holdout"
+}

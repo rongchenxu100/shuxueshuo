@@ -1,0 +1,33 @@
+{
+  "id": "type-shifted-odd-application",
+  "kind": "problem_type",
+  "status": "active",
+  "label": "奇函数＋常数结论的应用",
+  "summary": "先明确奇函数与原函数的关系，再求相反输入的值、配对和或最值之和。",
+  "source": "函数奇偶性 FP-T6",
+  "features": [
+    {
+      "cue": "已知奇函数与原函数相差常数，或显式函数可拆成奇函数与常数之和。"
+    }
+  ],
+  "knowledge": [
+    "function-graph-symmetry",
+    "function-parity"
+  ],
+  "methods": [
+    "method-function-symmetry"
+  ],
+  "rules": [],
+  "examples": [
+    {
+      "title": "从辅助函数还原",
+      "prompt": "$g=f+2$ 是奇函数，$f(1)=9$，求 $f(-1)$。",
+      "solution": [
+        "$f(1)+f(-1)=-4$。",
+        "$f(-1)=-13$。"
+      ],
+      "source": "函数奇偶性 FP-T6 机制例"
+    }
+  ],
+  "choice_hint": "先确定对称和值，再回答原函数的目标"
+}

@@ -100,6 +100,26 @@ def test_public_review_cannot_authorize_mathematical_or_other_public_changes():
     assert {item["path"] for item in failures} >= {"/root/facts/1", "/public_content/privacy"}
 
 
+def test_absent_source_label_finding_requires_fresh_review_not_a_noop_repair(tmp_path):
+    candidate = public_candidate()
+    report = correction('/public_content/scopes/0/statement')
+    report['findings'][0].update(source_excerpt='【变式2】', message='公开题干混入了变式编号。')
+    provider = Responses(candidate, report, CONFIRMED)
+    result = run(tmp_path, provider)
+    assert result['status'] == 'reviewed_candidate' and result['source_reviewed']
+    assert result['public_candidate'] == candidate
+    assert len(provider.requests) == 3
+    assert all(json.loads(request.prompt.user_prefix)['candidate'] == candidate
+               for request in provider.requests[1:])
+    assert json.loads(provider.requests[-1].prompt.user_prefix)['review_feedback']
+    # An actual label, even with different bracket/space typography, must still
+    # be repaired. Mathematical excerpts are never dismissed by this check.
+    candidate['public_content']['scopes'][0]['statement'] = '【变式 2】' + candidate['public_content']['scopes'][0]['statement']
+    assert SearchStageOneContract().validate_review(json.dumps(report), candidate) == report
+    report['findings'][0]['source_excerpt'] = '$x>0$'
+    assert SearchStageOneContract().validate_review(json.dumps(report), candidate) == report
+
+
 @pytest.mark.parametrize("path,kind", [("/root", "wrong_public_content"), ("/public_content", "wrong_scope"), ("/public_content", "wrong_transcription")])
 def test_review_field_authority_is_not_interchangeable(path, kind):
     review = correction(path)

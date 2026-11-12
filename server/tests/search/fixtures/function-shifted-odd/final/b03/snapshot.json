@@ -1,0 +1,637 @@
+{
+  "run_id": "5674688139ed49ceb88619d3f137c206",
+  "lesson_version": "1dadc638904e893b23a7865af86d22ccdd1b885af5fed1a2b7eada001993c9d5",
+  "input_sha256": "4982187d5cd41ccd72c166882b77fb83dc6290f549ddedede9f87c2d261d498d",
+  "stream_id": "5674688139ed49ceb88619d3f137c206",
+  "last_seq": 18,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "function_symmetry_rewrite",
+      "explanation": "$$\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\\\f(x)=\\left(-2 + \\frac{2024 x^{3} + 2 x^{2} + 3 x + 6}{x^{2} + 3}\\right)+2\\\\f(x)+f(-x)=4\\\\\\frac{f(x)+f(-x)}{2}=2\\end{gathered}$$",
+      "highlight": {
+        "caption": "求相反输入的函数值之和",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "原式与条件",
+            "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+          },
+          {
+            "label": "对称和值",
+            "math": "f(x)+f(-x)=4"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "1dadc638904e893b23a7865af86d22ccdd1b885af5fed1a2b7eada001993c9d5",
+      "local_check": "passed",
+      "math_step_sha256": "7ef6b8df94a862dba7e6df22ec31fc0fab77b816ad83fdd8a24655b697333ffc",
+      "method_ref": "method-function-symmetry#rewrite",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "6d61e394fe663db16a8805746f4392180b4fe6ba9b6d5f9ba104268104d95e8c",
+      "route_id": "function-symmetry",
+      "run_id": "5674688139ed49ceb88619d3f137c206",
+      "source_refs": [
+        "/steps/1/calls/0"
+      ],
+      "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
+      "target_ref": "/root/goals/0",
+      "title": "求相反输入的函数值之和",
+      "used_basis": []
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "function_symmetry_conclude",
+      "explanation": "$$\\begin{gathered}f(x)+f(-x)=4\\\\f(- a)=-10\\\\f(a)=14\\\\f(-a)=-10\\end{gathered}$$",
+      "highlight": {
+        "caption": "回答原题所求",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知条件",
+            "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+          },
+          {
+            "label": "结论",
+            "math": "f(-a)=-10"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "1dadc638904e893b23a7865af86d22ccdd1b885af5fed1a2b7eada001993c9d5",
+      "local_check": "passed",
+      "math_step_sha256": "4e8c6ff8ba9d2ccbdb93d98bbb5be02ecb763d49a886903c72a9f25c88884246",
+      "method_ref": "method-function-symmetry#conclude",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "6d61e394fe663db16a8805746f4392180b4fe6ba9b6d5f9ba104268104d95e8c",
+      "route_id": "function-symmetry",
+      "run_id": "5674688139ed49ceb88619d3f137c206",
+      "source_refs": [
+        "/steps/3/calls/0"
+      ],
+      "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
+      "target_ref": "/root/goals/0",
+      "title": "回答原题所求",
+      "used_basis": []
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "defined": true,
+        "domain": {
+          "expression": "Reals",
+          "latex": "\\mathbb{R}"
+        },
+        "expression": null,
+        "is_constant": null,
+        "kind": "find_value",
+        "result_type": "scalar_value",
+        "status": "complete",
+        "value": {
+          "expression": "-10",
+          "latex": "-10"
+        }
+      },
+      "available": true,
+      "feasible_set": null,
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "defined": true,
+        "domain": {
+          "expression": "Reals",
+          "latex": "\\mathbb{R}"
+        },
+        "expression": null,
+        "is_constant": null,
+        "kind": "find_value",
+        "result_type": "scalar_value",
+        "status": "complete",
+        "value": {
+          "expression": "-10",
+          "latex": "-10"
+        }
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": null,
+      "lesson_version": "1dadc638904e893b23a7865af86d22ccdd1b885af5fed1a2b7eada001993c9d5",
+      "math_steps": [
+        {
+          "math_step_sha256": "7ef6b8df94a862dba7e6df22ec31fc0fab77b816ad83fdd8a24655b697333ffc",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
+        },
+        {
+          "math_step_sha256": "4e8c6ff8ba9d2ccbdb93d98bbb5be02ecb763d49a886903c72a9f25c88884246",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
+        }
+      ],
+      "route_id": "function-symmetry",
+      "run_id": "5674688139ed49ceb88619d3f137c206",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "3db13f43720a2242a30b5b49892311fa962f53586f953f669d30cd2610078fc6",
+      "verified_route_sha256": "671282ef9e54eb869da2d4672b56017152c81d01ddf92a694452554202e51aaa"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {},
+        "id": "D3",
+        "interaction": {
+          "type": "read"
+        },
+        "query": {
+          "from": "type-shifted-odd-application",
+          "op": "methods"
+        },
+        "question": "先分清哪个函数是奇函数，求相反输入的函数值之和，再还原到题目所求的函数。",
+        "submit_label": "用对称关系法解题",
+        "title": "选择解题方法",
+        "verdicts": {}
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "direct",
+            "message": "开始解题",
+            "method": "method-function-symmetry",
+            "recommendation": "preferred",
+            "route_id": "function-symmetry",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "解题路线"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
+      "ordinal": 1,
+      "math_step_sha256": "7ef6b8df94a862dba7e6df22ec31fc0fab77b816ad83fdd8a24655b697333ffc",
+      "status": "interactive",
+      "interaction_id": "a9f0f562696757987afed393"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
+      "ordinal": 2,
+      "math_step_sha256": "4e8c6ff8ba9d2ccbdb93d98bbb5be02ecb763d49a886903c72a9f25c88884246",
+      "status": "interactive",
+      "interaction_id": "03e4086092752f54ade9b1ab"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "6d61e394fe663db16a8805746f4392180b4fe6ba9b6d5f9ba104268104d95e8c",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:function-symmetry:complete",
+      "last_seq": 17
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-function-symmetry",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            },
+            {
+              "public_ref": "skill-domain-symmetry",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-function-symmetry",
+          "step": "rewrite",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-function-symmetry-transform",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 3,
+          "method": "method-function-symmetry",
+          "step": "evaluate",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "method-function-evaluation",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 4,
+          "method": "method-function-symmetry",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "a9f0f562696757987afed393",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "0016ebf1636c5a9e613df72aacbd407b80c220b0b72e61badb66fb2acf485d76",
+      "lesson_version": "1dadc638904e893b23a7865af86d22ccdd1b885af5fed1a2b7eada001993c9d5",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "求相反输入的函数值之和",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式与条件",
+                "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+              },
+              {
+                "label": "对称和值",
+                "math": "f(x)+f(-x)=4"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "condition_number_lines": [
+            {
+              "bounds": [
+                -1.0,
+                1.0
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Reals"
+                },
+                "expression": "Reals",
+                "latex": "\\mathbb{R}"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-oo, oo)",
+                    "latex": "\\left(-\\infty, \\infty\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "原函数的对称定义域",
+              "points": [
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                }
+              ],
+              "ticks": [
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                }
+              ],
+              "variable": "x"
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "a9f0f562696757987afed393#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(x)+f(-x)=-4$",
+                "value": "o4"
+              },
+              {
+                "label": "$f(x)+f(-x)=3$",
+                "value": "o3"
+              },
+              {
+                "label": "$f(x)+f(-x)=5$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(x)+f(-x)=4$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "先明确奇函数，再将结论还原到所求的函数。",
+          "stem_board": {
+            "caption": "求相反输入的函数值之和",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式与条件",
+                "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+              },
+              {
+                "label": "对称和值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求相反输入的函数值之和"
+        }
+      ],
+      "route_id": "function-symmetry",
+      "run_id": "5674688139ed49ceb88619d3f137c206",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "7ef6b8df94a862dba7e6df22ec31fc0fab77b816ad83fdd8a24655b697333ffc",
+          "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "03e4086092752f54ade9b1ab",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "8fbf53c808af9f5c7aabdefe74ced5c4c60e26780c5ccc9431b4ee418eb8a2eb",
+      "lesson_version": "1dadc638904e893b23a7865af86d22ccdd1b885af5fed1a2b7eada001993c9d5",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "回答原题所求",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+              },
+              {
+                "label": "结论",
+                "math": "f(-a)=-10"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "condition_number_lines": [
+            {
+              "bounds": [
+                -1.0,
+                1.0
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Reals"
+                },
+                "expression": "Reals",
+                "latex": "\\mathbb{R}"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-oo, oo)",
+                    "latex": "\\left(-\\infty, \\infty\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "原函数的对称定义域",
+              "points": [
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                }
+              ],
+              "ticks": [
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                }
+              ],
+              "variable": "x"
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "03e4086092752f54ade9b1ab#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(-a)=-9$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(-a)=-10$",
+                "value": "o1"
+              },
+              {
+                "label": "$f(-a)=-11$",
+                "value": "o3"
+              },
+              {
+                "label": "$f(-a)=10$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "使用对称和值，检查每项的系数、出现次数及取值范围。",
+          "stem_board": {
+            "caption": "回答原题所求",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+              },
+              {
+                "label": "结论",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "回答原题所求"
+        }
+      ],
+      "route_id": "function-symmetry",
+      "run_id": "5674688139ed49ceb88619d3f137c206",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "4e8c6ff8ba9d2ccbdb93d98bbb5be02ecb763d49a886903c72a9f25c88884246",
+          "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

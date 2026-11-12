@@ -1,0 +1,38 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-b03",
+  "reviewer": "按原图印刷题意人工核对。忽略手写及教材解析；保留辅助函数、系数参数、原分母、符号输入和同域实际最值。非真实 OCR。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-t6-planning-20261112/source-page-01.png",
+      "sha256": "23d9fe6f39ccb2054ce82ed783968e47d2ee6d8f78272ab2dbf4c68fda9d6ec9",
+      "location": "FP-B03"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为____。",
+    "root": {
+      "definitions": [
+        "f(x)=(2024*x^3+2*x^2+3*x+6)/(x^2+3)"
+      ],
+      "facts": [
+        "f(a)=14"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(-a)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "goals": [
+      {
+        "type": "type-shifted-odd-application",
+        "value": "-10"
+      }
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}
