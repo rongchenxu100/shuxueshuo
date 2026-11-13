@@ -416,17 +416,17 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "b89f503a122c3549dc841f10#1",
+          "id": "38dcfcddebf1cd16f0b81acd#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$x<0\\text{ 时，}-x<0$",
-                "value": "o2"
-              },
-              {
                 "label": "$x<0\\text{ 时，}-x\\le 0$",
                 "value": "o3"
+              },
+              {
+                "label": "$x<0\\text{ 时，}-x<0$",
+                "value": "o2"
               },
               {
                 "label": "$x<0\\text{ 时，}-x>0$",
@@ -456,12 +456,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "825a01c78c76e8a1d935b803b3c64ceec3f85f0cf910fb3e1b1269e5317d13c2",
+              "math_step_sha256": "9d4678e618634dd3990a659bfb837972bfd5062c7b4274f77d8663961f92fea6",
               "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "b89f503a122c3549dc841f10",
+          "stream_interaction_id": "38dcfcddebf1cd16f0b81acd",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "把输入换到已知一侧",
@@ -497,14 +497,10 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "fcd25552291b5ef52cd484c2#1",
+          "id": "4abd78963db7259c8df6a900#1",
           "interaction": {
             "field": "answer",
             "options": [
-              {
-                "label": "$x<0\\text{ 时，}f(-x)=- x^{2} + x$",
-                "value": "o3"
-              },
               {
                 "label": "$x<0\\text{ 时，}f(-x)=x^{2} + x$",
                 "value": "o2"
@@ -516,6 +512,10 @@
               {
                 "label": "$x<0\\text{ 时，}f(-x)=x^{2} - x$",
                 "value": "o1"
+              },
+              {
+                "label": "$x<0\\text{ 时，}f(-x)=- x^{2} + x$",
+                "value": "o3"
               }
             ],
             "type": "choice"
@@ -541,12 +541,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "4fc03956f1dee4011ddae46bc2ad3d4af2142b7eb4cd57b79b17bac95cc96a37",
+              "math_step_sha256": "43585de83773d684babb039e11596e53600cac1e8204533c68f24aa7375bf920",
               "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "fcd25552291b5ef52cd484c2",
+          "stream_interaction_id": "4abd78963db7259c8df6a900",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "代入相反输入",
@@ -574,6 +574,68 @@
             ],
             "layout": "derivation"
           },
+          "completion_graph": {
+            "caption": "偶函数图像关于 $y$ 轴对称：$x<0$ 的一段由 $x\\ge 0$ 的一段沿 $y$ 轴翻折得到。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -2,
+                2,
+                -1,
+                7
+              ],
+              "description": "实线是函数图像，虚线作对照；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    1,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    1,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    null,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  0,
+                  "0"
+                ]
+              ]
+            }
+          },
           "expected_answer": {
             "one_of": [
               "o1"
@@ -582,10 +644,61 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "8707def8f7eb55cb96079e95#1",
+          "graph": {
+            "caption": "已知 $x\\ge 0$ 时的一段。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -2,
+                2,
+                -1,
+                7
+              ],
+              "description": "实线是函数图像，虚线作对照；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                0,
+                null
+              ],
+              "interval_closed": [
+                true,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    1,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "id": "d7da33543d607c68d70b7bed#1",
           "interaction": {
             "field": "answer",
             "options": [
+              {
+                "label": "$x<0\\text{ 时，}f(x)=x^{2} + x$",
+                "value": "o4"
+              },
               {
                 "label": "$x<0\\text{ 时，}f(x)=- x^{2} - x$",
                 "value": "o3"
@@ -597,10 +710,6 @@
               {
                 "label": "$x<0\\text{ 时，}f(x)=x^{2} - x$",
                 "value": "o1"
-              },
-              {
-                "label": "$x<0\\text{ 时，}f(x)=x^{2} + x$",
-                "value": "o4"
               }
             ],
             "type": "choice"
@@ -626,12 +735,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "f187285cf68c7b52fb5ef69bbc9ba5270a966cc3bc7480eac6c3232ce2447ca1",
+              "math_step_sha256": "f97ce5441c87edc76b87c68485c13bf66a65f7ecb244b62b76aabe67f9c12e66",
               "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "8707def8f7eb55cb96079e95",
+          "stream_interaction_id": "d7da33543d607c68d70b7bed",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "用奇偶性换回 f(x)",
@@ -659,11 +768,135 @@
             ],
             "layout": "derivation"
           },
+          "completion_graph": {
+            "caption": "偶函数图像关于 $y$ 轴对称：$x<0$ 的一段由 $x\\ge 0$ 的一段沿 $y$ 轴翻折得到。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -2,
+                2,
+                -1,
+                7
+              ],
+              "description": "实线是函数图像，虚线作对照；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    1,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    1,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    null,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  0,
+                  "0"
+                ]
+              ]
+            }
+          },
           "expected_answer": {},
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "498cee1b932a28a7570479a0#1",
+          "graph": {
+            "caption": "偶函数图像关于 $y$ 轴对称：$x<0$ 的一段由 $x\\ge 0$ 的一段沿 $y$ 轴翻折得到。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -2,
+                2,
+                -1,
+                7
+              ],
+              "description": "实线是函数图像，虚线作对照；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    1,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    1,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    null,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "id": "5131a6e18f6468bbc03c9664#1",
           "interaction": {
             "type": "read"
           },
@@ -682,12 +915,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "ead21941e9a35299b18e79649e195dcf7c0e0cf7cc1efd9e09c4cc10f05ed121",
+              "math_step_sha256": "16c97696e564856d134fba74f2ce658242ccb7623aff191d04ed464f6af92996",
               "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "498cee1b932a28a7570479a0",
+          "stream_interaction_id": "5131a6e18f6468bbc03c9664",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "写出带范围的结论",
@@ -822,35 +1055,35 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f",
+        "lesson_version": "c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4",
         "math_steps": [
           {
-            "math_step_sha256": "825a01c78c76e8a1d935b803b3c64ceec3f85f0cf910fb3e1b1269e5317d13c2",
+            "math_step_sha256": "9d4678e618634dd3990a659bfb837972bfd5062c7b4274f77d8663961f92fea6",
             "ordinal": 1,
             "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
           },
           {
-            "math_step_sha256": "4fc03956f1dee4011ddae46bc2ad3d4af2142b7eb4cd57b79b17bac95cc96a37",
+            "math_step_sha256": "43585de83773d684babb039e11596e53600cac1e8204533c68f24aa7375bf920",
             "ordinal": 2,
             "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
           },
           {
-            "math_step_sha256": "f187285cf68c7b52fb5ef69bbc9ba5270a966cc3bc7480eac6c3232ce2447ca1",
+            "math_step_sha256": "f97ce5441c87edc76b87c68485c13bf66a65f7ecb244b62b76aabe67f9c12e66",
             "ordinal": 3,
             "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
           },
           {
-            "math_step_sha256": "ead21941e9a35299b18e79649e195dcf7c0e0cf7cc1efd9e09c4cc10f05ed121",
+            "math_step_sha256": "16c97696e564856d134fba74f2ce658242ccb7623aff191d04ed464f6af92996",
             "ordinal": 4,
             "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "92289066488642eb9c401a624cc4e9c0",
+        "run_id": "1a57e18ab38e44d7b23967fa212c33e3",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "99dc7806bfa87260d94a226061346b0c6b6f68d18670bf03b267823d03f14b70",
-        "verified_route_sha256": "fe7402f7f999a44ba9dd261353c96ceae98bae159b49ebde1aba86eae62c87b7"
+        "task_id": "40c627a74b963f985a76980ff5d8aa3610d23ef17ef8b7cef77a03b47fd13753",
+        "verified_route_sha256": "291a20ff6458889d103748a9dd83c16a9fd6c27c8901166f14b153a97f7463fb"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -1158,11 +1391,11 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"4a114d59bc12499f63808c64c767067b6f6ce64459f687af8933f834146db672\",\"ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f\",\"92289066488642eb9c401a624cc4e9c0\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"4a114d59bc12499f63808c64c767067b6f6ce64459f687af8933f834146db672\",\"c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4\",\"1a57e18ab38e44d7b23967fa212c33e3\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "92289066488642eb9c401a624cc4e9c0",
-    "lesson_version": "ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f",
-    "stream_id": "92289066488642eb9c401a624cc4e9c0",
+    "run_id": "1a57e18ab38e44d7b23967fa212c33e3",
+    "lesson_version": "c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4",
+    "stream_id": "1a57e18ab38e44d7b23967fa212c33e3",
     "target_ref": "/root/goals/0",
     "base_bundle_version": "4a114d59bc12499f63808c64c767067b6f6ce64459f687af8933f834146db672",
     "d3": {
@@ -1217,15 +1450,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f",
+        "lesson_version": "c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4",
         "local_check": "passed",
-        "math_step_sha256": "825a01c78c76e8a1d935b803b3c64ceec3f85f0cf910fb3e1b1269e5317d13c2",
+        "math_step_sha256": "9d4678e618634dd3990a659bfb837972bfd5062c7b4274f77d8663961f92fea6",
         "method_ref": "method-parity-extension#map",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "febc81dcbde30dc9f0408cde3c30b439bb4f233e7365d04551f544f5924a3157",
         "route_id": "parity-extension",
-        "run_id": "92289066488642eb9c401a624cc4e9c0",
+        "run_id": "1a57e18ab38e44d7b23967fa212c33e3",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -1256,15 +1489,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f",
+        "lesson_version": "c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4",
         "local_check": "passed",
-        "math_step_sha256": "4fc03956f1dee4011ddae46bc2ad3d4af2142b7eb4cd57b79b17bac95cc96a37",
+        "math_step_sha256": "43585de83773d684babb039e11596e53600cac1e8204533c68f24aa7375bf920",
         "method_ref": "method-parity-extension#substitute",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "febc81dcbde30dc9f0408cde3c30b439bb4f233e7365d04551f544f5924a3157",
         "route_id": "parity-extension",
-        "run_id": "92289066488642eb9c401a624cc4e9c0",
+        "run_id": "1a57e18ab38e44d7b23967fa212c33e3",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -1297,15 +1530,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f",
+        "lesson_version": "c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4",
         "local_check": "passed",
-        "math_step_sha256": "f187285cf68c7b52fb5ef69bbc9ba5270a966cc3bc7480eac6c3232ce2447ca1",
+        "math_step_sha256": "f97ce5441c87edc76b87c68485c13bf66a65f7ecb244b62b76aabe67f9c12e66",
         "method_ref": "method-parity-extension#write-back",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "febc81dcbde30dc9f0408cde3c30b439bb4f233e7365d04551f544f5924a3157",
         "route_id": "parity-extension",
-        "run_id": "92289066488642eb9c401a624cc4e9c0",
+        "run_id": "1a57e18ab38e44d7b23967fa212c33e3",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1336,15 +1569,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f",
+        "lesson_version": "c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4",
         "local_check": "passed",
-        "math_step_sha256": "ead21941e9a35299b18e79649e195dcf7c0e0cf7cc1efd9e09c4cc10f05ed121",
+        "math_step_sha256": "16c97696e564856d134fba74f2ce658242ccb7623aff191d04ed464f6af92996",
         "method_ref": "method-parity-extension#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "febc81dcbde30dc9f0408cde3c30b439bb4f233e7365d04551f544f5924a3157",
         "route_id": "parity-extension",
-        "run_id": "92289066488642eb9c401a624cc4e9c0",
+        "run_id": "1a57e18ab38e44d7b23967fa212c33e3",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -1401,45 +1634,45 @@
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-001-parity_extension_map",
         "ordinal": 1,
-        "math_step_sha256": "825a01c78c76e8a1d935b803b3c64ceec3f85f0cf910fb3e1b1269e5317d13c2",
+        "math_step_sha256": "9d4678e618634dd3990a659bfb837972bfd5062c7b4274f77d8663961f92fea6",
         "status": "interactive",
-        "interaction_id": "b89f503a122c3549dc841f10"
+        "interaction_id": "38dcfcddebf1cd16f0b81acd"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute",
         "ordinal": 2,
-        "math_step_sha256": "4fc03956f1dee4011ddae46bc2ad3d4af2142b7eb4cd57b79b17bac95cc96a37",
+        "math_step_sha256": "43585de83773d684babb039e11596e53600cac1e8204533c68f24aa7375bf920",
         "status": "interactive",
-        "interaction_id": "fcd25552291b5ef52cd484c2"
+        "interaction_id": "4abd78963db7259c8df6a900"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back",
         "ordinal": 3,
-        "math_step_sha256": "f187285cf68c7b52fb5ef69bbc9ba5270a966cc3bc7480eac6c3232ce2447ca1",
+        "math_step_sha256": "f97ce5441c87edc76b87c68485c13bf66a65f7ecb244b62b76aabe67f9c12e66",
         "status": "interactive",
-        "interaction_id": "8707def8f7eb55cb96079e95"
+        "interaction_id": "d7da33543d607c68d70b7bed"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude",
         "ordinal": 4,
-        "math_step_sha256": "ead21941e9a35299b18e79649e195dcf7c0e0cf7cc1efd9e09c4cc10f05ed121",
+        "math_step_sha256": "16c97696e564856d134fba74f2ce658242ccb7623aff191d04ed464f6af92996",
         "status": "interactive",
-        "interaction_id": "498cee1b932a28a7570479a0"
+        "interaction_id": "5131a6e18f6468bbc03c9664"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "b89f503a122c3549dc841f10",
+        "interaction_id": "38dcfcddebf1cd16f0b81acd",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "f94e23d833c6880e993d61df729f7ad037628d83c894248d4a9b6157c6cbedd3",
-        "lesson_version": "ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f",
+        "interaction_sha256": "454394734712a8352e0630a53e30639c2f1ddb3c2f0c1bb4662cf240162ddada",
+        "lesson_version": "c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4",
         "parts": [
           {
             "completion_board": {
@@ -1692,17 +1925,17 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "b89f503a122c3549dc841f10#1",
+            "id": "38dcfcddebf1cd16f0b81acd#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$x<0\\text{ 时，}-x<0$",
-                  "value": "o2"
-                },
-                {
                   "label": "$x<0\\text{ 时，}-x\\le 0$",
                   "value": "o3"
+                },
+                {
+                  "label": "$x<0\\text{ 时，}-x<0$",
+                  "value": "o2"
                 },
                 {
                   "label": "$x<0\\text{ 时，}-x>0$",
@@ -1732,11 +1965,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "92289066488642eb9c401a624cc4e9c0",
+        "run_id": "1a57e18ab38e44d7b23967fa212c33e3",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "825a01c78c76e8a1d935b803b3c64ceec3f85f0cf910fb3e1b1269e5317d13c2",
+            "math_step_sha256": "9d4678e618634dd3990a659bfb837972bfd5062c7b4274f77d8663961f92fea6",
             "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
           }
         ],
@@ -1744,10 +1977,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "fcd25552291b5ef52cd484c2",
+        "interaction_id": "4abd78963db7259c8df6a900",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "19b5aa04d64aef898ee72338f83fe92e5a95579e8acd00b32c4e678041ad65c0",
-        "lesson_version": "ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f",
+        "interaction_sha256": "8b6ed09bb9c16bc3afc50e778a57c32da01473a9329905f74fbfcfdf73e71b71",
+        "lesson_version": "c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4",
         "parts": [
           {
             "completion_board": {
@@ -1773,14 +2006,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "fcd25552291b5ef52cd484c2#1",
+            "id": "4abd78963db7259c8df6a900#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$x<0\\text{ 时，}f(-x)=- x^{2} + x$",
-                  "value": "o3"
-                },
                 {
                   "label": "$x<0\\text{ 时，}f(-x)=x^{2} + x$",
                   "value": "o2"
@@ -1792,6 +2021,10 @@
                 {
                   "label": "$x<0\\text{ 时，}f(-x)=x^{2} - x$",
                   "value": "o1"
+                },
+                {
+                  "label": "$x<0\\text{ 时，}f(-x)=- x^{2} + x$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -1817,11 +2050,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "92289066488642eb9c401a624cc4e9c0",
+        "run_id": "1a57e18ab38e44d7b23967fa212c33e3",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "4fc03956f1dee4011ddae46bc2ad3d4af2142b7eb4cd57b79b17bac95cc96a37",
+            "math_step_sha256": "43585de83773d684babb039e11596e53600cac1e8204533c68f24aa7375bf920",
             "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
           }
         ],
@@ -1829,10 +2062,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "8707def8f7eb55cb96079e95",
+        "interaction_id": "d7da33543d607c68d70b7bed",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "1f12515d9479a1cbd399ffaf98e74302f8b9294f1e5ccfb20010dc0a1de71936",
-        "lesson_version": "ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f",
+        "interaction_sha256": "d3e6a9b54e1a3e73ec9821170d19b64efb46089a17cc0ce1191f1363e6662696",
+        "lesson_version": "c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4",
         "parts": [
           {
             "completion_board": {
@@ -1850,6 +2083,68 @@
               ],
               "layout": "derivation"
             },
+            "completion_graph": {
+              "caption": "偶函数图像关于 $y$ 轴对称：$x<0$ 的一段由 $x\\ge 0$ 的一段沿 $y$ 轴翻折得到。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2,
+                  2,
+                  -1,
+                  7
+                ],
+                "description": "实线是函数图像，虚线作对照；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      1,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      null,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0,
+                    "0"
+                  ]
+                ]
+              }
+            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1858,10 +2153,61 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "8707def8f7eb55cb96079e95#1",
+            "graph": {
+              "caption": "已知 $x\\ge 0$ 时的一段。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2,
+                  2,
+                  -1,
+                  7
+                ],
+                "description": "实线是函数图像，虚线作对照；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  0,
+                  null
+                ],
+                "interval_closed": [
+                  true,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      1,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "d7da33543d607c68d70b7bed#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$x<0\\text{ 时，}f(x)=x^{2} + x$",
+                  "value": "o4"
+                },
                 {
                   "label": "$x<0\\text{ 时，}f(x)=- x^{2} - x$",
                   "value": "o3"
@@ -1873,10 +2219,6 @@
                 {
                   "label": "$x<0\\text{ 时，}f(x)=x^{2} - x$",
                   "value": "o1"
-                },
-                {
-                  "label": "$x<0\\text{ 时，}f(x)=x^{2} + x$",
-                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -1902,11 +2244,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "92289066488642eb9c401a624cc4e9c0",
+        "run_id": "1a57e18ab38e44d7b23967fa212c33e3",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "f187285cf68c7b52fb5ef69bbc9ba5270a966cc3bc7480eac6c3232ce2447ca1",
+            "math_step_sha256": "f97ce5441c87edc76b87c68485c13bf66a65f7ecb244b62b76aabe67f9c12e66",
             "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
           }
         ],
@@ -1914,10 +2256,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "498cee1b932a28a7570479a0",
+        "interaction_id": "5131a6e18f6468bbc03c9664",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "481c1925cd5c40cedf3a23883fb83811e29e69fedcf841155593ef13e4c4e2cf",
-        "lesson_version": "ba21692c0abdc17735ac43c4a52d4452b9d0222838372bad3d144a61cfd69d6f",
+        "interaction_sha256": "73edcfa4534874dd09aff4fe6930108fe0fd0d5325a6341bd180f64cc0ce369e",
+        "lesson_version": "c142ae399c4860a15552205b7279d1ede3662eae7cf138e8a8d935aaf49c99e4",
         "parts": [
           {
             "completion_board": {
@@ -1935,11 +2277,135 @@
               ],
               "layout": "derivation"
             },
+            "completion_graph": {
+              "caption": "偶函数图像关于 $y$ 轴对称：$x<0$ 的一段由 $x\\ge 0$ 的一段沿 $y$ 轴翻折得到。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2,
+                  2,
+                  -1,
+                  7
+                ],
+                "description": "实线是函数图像，虚线作对照；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      1,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      null,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0,
+                    "0"
+                  ]
+                ]
+              }
+            },
             "expected_answer": {},
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "498cee1b932a28a7570479a0#1",
+            "graph": {
+              "caption": "偶函数图像关于 $y$ 轴对称：$x<0$ 的一段由 $x\\ge 0$ 的一段沿 $y$ 轴翻折得到。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2,
+                  2,
+                  -1,
+                  7
+                ],
+                "description": "实线是函数图像，虚线作对照；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      1,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      null,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "5131a6e18f6468bbc03c9664#1",
             "interaction": {
               "type": "read"
             },
@@ -1958,11 +2424,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "92289066488642eb9c401a624cc4e9c0",
+        "run_id": "1a57e18ab38e44d7b23967fa212c33e3",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "ead21941e9a35299b18e79649e195dcf7c0e0cf7cc1efd9e09c4cc10f05ed121",
+            "math_step_sha256": "16c97696e564856d134fba74f2ce658242ccb7623aff191d04ed464f6af92996",
             "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
           }
         ],

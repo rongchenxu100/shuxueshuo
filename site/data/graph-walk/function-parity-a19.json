@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "problemId": "function-parity-a19",
-  "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+  "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
   "problem": {
     "text": "已知 $f(x)$ 是奇函数，且在 $(0,+\\infty)$ 上是增函数，又 $f(2)=0$，则 $\\frac{f(x-1)}{x}<0$ 的解集为____．"
   },
@@ -174,6 +174,61 @@
             ],
             "layout": "derivation"
           },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                2
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                0,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    -2
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
           "expected_answer": {
             "one_of": [
               "o1"
@@ -182,7 +237,62 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "8556335779c187054f24b196#1",
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                2
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                0,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    -2
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "e5424cd0b0f34e3e51ba2a1f#1",
           "interaction": {
             "field": "answer",
             "options": [
@@ -191,12 +301,12 @@
                 "value": "o1"
               },
               {
-                "label": "$0<x<2\\text{ 时，}f(x)>0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0$",
-                "value": "o3"
-              },
-              {
                 "label": "$0<x<2\\text{ 时，}f(x)>0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)<0$",
                 "value": "o2"
+              },
+              {
+                "label": "$0<x<2\\text{ 时，}f(x)>0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0$",
+                "value": "o3"
               }
             ],
             "type": "choice"
@@ -222,12 +332,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "56c9b4f5db0cf6536c1ad700687f3206ecdd913ccb1ab116ffd87e7d03bfdc09",
+              "math_step_sha256": "2b0d89e20ff7bdccbf6c284085ac1266c665557a1c49abeefd0e998cae6ac6ab",
               "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_sign_known"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "242d77333ec5a037577579d5",
+          "stream_interaction_id": "8b7a3e629b260d94098bf369",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "确定已知区间上函数值的符号",
@@ -246,7 +356,7 @@
             "items": [
               {
                 "label": "已求出的结果",
-                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数}\\end{gathered}"
+                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
               },
               {
                 "label": "对称一侧的符号",
@@ -254,6 +364,76 @@
               }
             ],
             "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    -2
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "interval": [
+                    null,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
           },
           "expected_answer": {
             "one_of": [
@@ -263,10 +443,69 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "736f7b1cb890622a396763c8#1",
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                2
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                0,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    -2
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "2e89bbb80ab39079f0ba93cf#1",
           "interaction": {
             "field": "answer",
             "options": [
+              {
+                "label": "$-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0$",
+                "value": "o1"
+              },
               {
                 "label": "$-2<x<0\\text{ 时，}f(x)<0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)>0$",
                 "value": "o2"
@@ -274,10 +513,6 @@
               {
                 "label": "$-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)>0$",
                 "value": "o3"
-              },
-              {
-                "label": "$-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0$",
-                "value": "o1"
               }
             ],
             "type": "choice"
@@ -289,7 +524,7 @@
             "items": [
               {
                 "label": "已求出的结果",
-                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数}\\end{gathered}"
+                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
               },
               {
                 "label": "对称一侧的符号",
@@ -303,12 +538,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "7ab03fc8d3a459199bfcd517263850c95624cdd1f559f016b9d90f7dd8083a00",
+              "math_step_sha256": "cbb7a4a76108ef71970fbeae12112359aa20da1000141054f51e557e572edec8",
               "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_sign_mirror"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "3029c3d9d77ac29e268d8447",
+          "stream_interaction_id": "616b8764afc3ba0cf5566b38",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "用奇偶性得到另一侧的符号",
@@ -327,7 +562,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\\\\\frac{f(x-1)}{x}<0\\end{gathered}"
+                "math": "\\frac{f(x-1)}{x}<0"
               },
               {
                 "label": "等价条件",
@@ -335,6 +570,76 @@
               }
             ],
             "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    -2
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "interval": [
+                    null,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
           },
           "expected_answer": {
             "one_of": [
@@ -344,10 +649,84 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "fe1ca5e9c03d1840092780b8#1",
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    -2
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "interval": [
+                    null,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "655c5d13c6de4311c18a0ab0#1",
           "interaction": {
             "field": "answer",
             "options": [
+              {
+                "label": "$x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0$",
+                "value": "o1"
+              },
               {
                 "label": "$x>0\\text{ 且 }f(x - 1)>0\\text{，或 }x<0\\text{ 且 }f(x - 1)<0$",
                 "value": "o2"
@@ -355,10 +734,6 @@
               {
                 "label": "$x>0\\text{ 且 }f(x - 1)<0$",
                 "value": "o3"
-              },
-              {
-                "label": "$x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0$",
-                "value": "o1"
               }
             ],
             "type": "choice"
@@ -370,7 +745,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\\\\\frac{f(x-1)}{x}<0\\end{gathered}"
+                "math": "\\frac{f(x-1)}{x}<0"
               },
               {
                 "label": "等价条件",
@@ -384,12 +759,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "b5bca50a78dfbc1e8871499733ff907f219b9367b1394dd1a0309c2f661d95f0",
+              "math_step_sha256": "98a6ffe6f4f9c8802214c7277bc3d311ab00a1e546538957fbc5fa4e54bbb64e",
               "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_sign_solve"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "e33ff65c367126bfb1f3426a",
+          "stream_interaction_id": "fa4407be72427db3418bf5b7",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "结合分母列出符号条件",
@@ -403,12 +778,490 @@
         },
         {
           "completion_board": {
-            "caption": "解出各种情况，写出解集",
+            "caption": "情况一：$x>0$",
             "connector": "⇒",
             "items": [
               {
-                "label": "要同时满足",
-                "math": "\\begin{gathered}x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0\\\\0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\end{gathered}"
+                "label": "这一情况",
+                "math": "\\begin{gathered}x>0\\\\f(x - 1)<0\\end{gathered}"
+              },
+              {
+                "label": "这一情况的解",
+                "math": "1<x<3"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出；有色部分是 $f$ 的值小于 $0$ 的部分，输入 $x - 1$ 要落在其中。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "highlights": [
+                {
+                  "from": null,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": -2
+                },
+                {
+                  "from": 0,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 2
+                }
+              ],
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    -2
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "interval": [
+                    null,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    -2
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "interval": [
+                    null,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "4df3e7ba82310cdcdc931946#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x\\in \\left(-\\infty, -1\\right) \\cup \\left(1, 3\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$x\\in \\left(0, 1\\right) \\cup \\left(3, \\infty\\right)$",
+                "value": "o3"
+              },
+              {
+                "label": "$1<x<3$",
+                "value": "o1"
+              },
+              {
+                "label": "$-1<x<0$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "情况一：$x>0$ 且 $f(x - 1)<0$。对照 $f$ 的图像读出 $f$ 的值何时小于 $0$，这一情况下 $x$ 的范围是什么？",
+          "stem_board": {
+            "caption": "情况一：$x>0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "这一情况",
+                "math": "\\begin{gathered}x>0\\\\f(x - 1)<0\\end{gathered}"
+              },
+              {
+                "label": "这一情况的解",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "情况一：$x>0$",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "a372171dc636f63f9c6b72a18b7cbf64a68b3c3613f147cadb665ca4512c72c8",
+              "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "44e6ee44d63dde22b2920199",
+          "stream_part_index": 0,
+          "stream_part_count": 3,
+          "stream_group_title": "分两种情况讨论，写出解集",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：情况一：$x>0$"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "情况二：$x<0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "这一情况",
+                "math": "\\begin{gathered}x<0\\\\f(x - 1)>0\\end{gathered}"
+              },
+              {
+                "label": "这一情况的解",
+                "math": "-1<x<0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出；有色部分是 $f$ 的值大于 $0$ 的部分，输入 $x - 1$ 要落在其中。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "highlights": [
+                {
+                  "from": -2,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0
+                },
+                {
+                  "from": 2,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": null
+                }
+              ],
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    -2
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "interval": [
+                    null,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    -2
+                  ],
+                  "interval": [
+                    0,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "interval": [
+                    null,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "4df3e7ba82310cdcdc931946#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$-1<x<0$",
+                "value": "o1"
+              },
+              {
+                "label": "$1<x<3$",
+                "value": "o4"
+              },
+              {
+                "label": "$x<-1$",
+                "value": "o3"
+              },
+              {
+                "label": "$x\\in \\left(-1, 0\\right) \\cup \\left(0, 1\\right) \\cup \\left(3, \\infty\\right)$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "情况二：$x<0$ 且 $f(x - 1)>0$。对照 $f$ 的图像读出 $f$ 的值何时大于 $0$，这一情况下 $x$ 的范围是什么？",
+          "stem_board": {
+            "caption": "情况二：$x<0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "这一情况",
+                "math": "\\begin{gathered}x<0\\\\f(x - 1)>0\\end{gathered}"
+              },
+              {
+                "label": "这一情况的解",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "情况二：$x<0$",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "a372171dc636f63f9c6b72a18b7cbf64a68b3c3613f147cadb665ca4512c72c8",
+              "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "44e6ee44d63dde22b2920199",
+          "stream_part_index": 1,
+          "stream_part_count": 3,
+          "stream_group_title": "分两种情况讨论，写出解集",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：情况二：$x<0$"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "合并各种情况，写出解集",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "各情况的解",
+                "math": "\\begin{gathered}\\text{情况一：}1<x<3\\\\\\text{情况二：}-1<x<0\\end{gathered}"
               },
               {
                 "label": "解集",
@@ -425,37 +1278,37 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "eeab169dc103d3805af668de#1",
+          "id": "4df3e7ba82310cdcdc931946#3",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$x\\in \\left(-\\infty, -1\\right) \\cup \\left(1, 3\\right)$",
-                "value": "o3"
-              },
-              {
-                "label": "$x\\in \\left(-1, 0\\right) \\cup \\left(1, 3\\right)$",
-                "value": "o1"
+                "label": "$x\\in \\left(-\\infty, -1\\right] \\cup \\left(0, 1\\right) \\cup \\left[3, \\infty\\right)$",
+                "value": "o4"
               },
               {
                 "label": "$x\\in \\left(-\\infty, -1\\right) \\cup \\left(0, 1\\right) \\cup \\left(3, \\infty\\right)$",
                 "value": "o2"
               },
               {
-                "label": "$x\\in \\left(-\\infty, -1\\right] \\cup \\left(0, 1\\right) \\cup \\left[3, \\infty\\right)$",
-                "value": "o4"
+                "label": "$x\\in \\left(-1, 0\\right) \\cup \\left(1, 3\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$x\\in \\left(-\\infty, -1\\right) \\cup \\left(1, 3\\right)$",
+                "value": "o3"
               }
             ],
             "type": "choice"
           },
-          "question": "按符号条件解出 $x$，再合并。题目没有说明 $0$ 是否在定义域内，两种情况都要检查。不等式 $\\frac{f(x-1)}{x}<0$ 的解集是什么？",
+          "question": "把各种情况的解合并。还要单独看输入 $x - 1=0$：题目没有说明 $0$ 是否在定义域内，两种情况都要检查。不等式 $\\frac{f(x-1)}{x}<0$ 的解集是什么？",
           "stem_board": {
-            "caption": "解出各种情况，写出解集",
+            "caption": "合并各种情况，写出解集",
             "connector": "⇒",
             "items": [
               {
-                "label": "要同时满足",
-                "math": "\\begin{gathered}x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0\\\\0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\end{gathered}"
+                "label": "各情况的解",
+                "math": "\\begin{gathered}\\text{情况一：}1<x<3\\\\\\text{情况二：}-1<x<0\\end{gathered}"
               },
               {
                 "label": "解集",
@@ -465,25 +1318,25 @@
             "layout": "derivation"
           },
           "submit_label": "确认判断",
-          "title": "解出各种情况，写出解集",
+          "title": "合并各种情况，写出解集",
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "cb61b42399beccb46d85ee45aa23b4f248732329a7f673d07f6811b9ffaea9a6",
+              "math_step_sha256": "a372171dc636f63f9c6b72a18b7cbf64a68b3c3613f147cadb665ca4512c72c8",
               "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "931676d6964b0c244fd02799",
-          "stream_part_index": 0,
-          "stream_part_count": 1,
-          "stream_group_title": "解出各种情况，写出解集",
+          "stream_interaction_id": "44e6ee44d63dde22b2920199",
+          "stream_part_index": 2,
+          "stream_part_count": 3,
+          "stream_group_title": "分两种情况讨论，写出解集",
           "effects": {
             "nodes": [],
             "edges": [],
             "calls": [],
             "results": [],
-            "log": "完成判断：解出各种情况，写出解集"
+            "log": "完成判断：合并各种情况，写出解集"
           }
         }
       ],
@@ -549,35 +1402,35 @@
           "expression": "Union(Interval.open(-1, 0), Interval.open(1, 3))",
           "latex": "\\left(-1, 0\\right) \\cup \\left(1, 3\\right)"
         },
-        "lesson_version": "e31fceede6b9ffc50564e7253bec69342067a97146226e10d0e04517ea82f20e",
+        "lesson_version": "e597f03b8b9f98a3cd52c9bd1ee0b6126e6aca7928740c733471e4dbba452a7d",
         "math_steps": [
           {
-            "math_step_sha256": "56c9b4f5db0cf6536c1ad700687f3206ecdd913ccb1ab116ffd87e7d03bfdc09",
+            "math_step_sha256": "2b0d89e20ff7bdccbf6c284085ac1266c665557a1c49abeefd0e998cae6ac6ab",
             "ordinal": 1,
             "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_sign_known"
           },
           {
-            "math_step_sha256": "7ab03fc8d3a459199bfcd517263850c95624cdd1f559f016b9d90f7dd8083a00",
+            "math_step_sha256": "cbb7a4a76108ef71970fbeae12112359aa20da1000141054f51e557e572edec8",
             "ordinal": 2,
             "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_sign_mirror"
           },
           {
-            "math_step_sha256": "b5bca50a78dfbc1e8871499733ff907f219b9367b1394dd1a0309c2f661d95f0",
+            "math_step_sha256": "98a6ffe6f4f9c8802214c7277bc3d311ab00a1e546538957fbc5fa4e54bbb64e",
             "ordinal": 3,
             "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_sign_solve"
           },
           {
-            "math_step_sha256": "cb61b42399beccb46d85ee45aa23b4f248732329a7f673d07f6811b9ffaea9a6",
+            "math_step_sha256": "a372171dc636f63f9c6b72a18b7cbf64a68b3c3613f147cadb665ca4512c72c8",
             "ordinal": 4,
             "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "833edc63c0a94c2c968d4d63fabce0de",
+        "run_id": "167281f820d94b86ad107097d10f7613",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "8ad3a55a46d4309dd742a326b30862fa2d226581af5b4ba72497a540407251f8",
-        "verified_route_sha256": "c863ad6b37a4fb9bf4e5b773ca7cec934fd312e8f30618f3922e328c6c15cda8"
+        "task_id": "7214a3e89ae4fa244da42a4ff8885da3328209a735f1a18235b3f8c85d0cc2be",
+        "verified_route_sha256": "4390f852d6eaddd2297ce0d5cd404c37d9bfb69d57769ce499765f6da8ee3f2b"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -1051,13 +1904,13 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"693f549971e782993ac3967c005b1d06f9d235c4e273a305f79b6fc62a56a4b3\",\"eca6e2107167e47a2a19e95d030043383c61b4dc7c33d06878c1271fb1128d72\",\"c1031a4111d142d3ab8936f14f14722b\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"c9c630a3bf08aedcfb6697ae8d7609617c06953257b0d476849ccb68602cf45e\",\"3a70c33066066e5259edd7f4920ec0310159e313f11faeee96bc3b8716e6baa8\",\"ef354afdd94a4fa389f0c0fb73edf01b\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "833edc63c0a94c2c968d4d63fabce0de",
-    "lesson_version": "e31fceede6b9ffc50564e7253bec69342067a97146226e10d0e04517ea82f20e",
-    "stream_id": "833edc63c0a94c2c968d4d63fabce0de",
+    "run_id": "167281f820d94b86ad107097d10f7613",
+    "lesson_version": "e597f03b8b9f98a3cd52c9bd1ee0b6126e6aca7928740c733471e4dbba452a7d",
+    "stream_id": "167281f820d94b86ad107097d10f7613",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "3b15c7810e09521340f59b2b421b44c566b1ad03f0f3756ea5909cfb4c3eda40",
+    "base_bundle_version": "c9c630a3bf08aedcfb6697ae8d7609617c06953257b0d476849ccb68602cf45e",
     "d3": {
       "expected_answer": {},
       "id": "D3",
@@ -1110,15 +1963,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e31fceede6b9ffc50564e7253bec69342067a97146226e10d0e04517ea82f20e",
+        "lesson_version": "e597f03b8b9f98a3cd52c9bd1ee0b6126e6aca7928740c733471e4dbba452a7d",
         "local_check": "passed",
-        "math_step_sha256": "56c9b4f5db0cf6536c1ad700687f3206ecdd913ccb1ab116ffd87e7d03bfdc09",
+        "math_step_sha256": "2b0d89e20ff7bdccbf6c284085ac1266c665557a1c49abeefd0e998cae6ac6ab",
         "method_ref": "method-parity-inequality#sign-known",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "833edc63c0a94c2c968d4d63fabce0de",
+        "run_id": "167281f820d94b86ad107097d10f7613",
         "source_refs": [
           "/steps/6/calls/0"
         ],
@@ -1143,7 +1996,7 @@
           "items": [
             {
               "label": "已求出的结果",
-              "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数}\\end{gathered}"
+              "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
             },
             {
               "label": "对称一侧的符号",
@@ -1152,15 +2005,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e31fceede6b9ffc50564e7253bec69342067a97146226e10d0e04517ea82f20e",
+        "lesson_version": "e597f03b8b9f98a3cd52c9bd1ee0b6126e6aca7928740c733471e4dbba452a7d",
         "local_check": "passed",
-        "math_step_sha256": "7ab03fc8d3a459199bfcd517263850c95624cdd1f559f016b9d90f7dd8083a00",
+        "math_step_sha256": "cbb7a4a76108ef71970fbeae12112359aa20da1000141054f51e557e572edec8",
         "method_ref": "method-parity-inequality#sign-mirror",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "833edc63c0a94c2c968d4d63fabce0de",
+        "run_id": "167281f820d94b86ad107097d10f7613",
         "source_refs": [
           "/steps/7/calls/0"
         ],
@@ -1185,7 +2038,7 @@
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\\\\\frac{f(x-1)}{x}<0\\end{gathered}"
+              "math": "\\frac{f(x-1)}{x}<0"
             },
             {
               "label": "等价条件",
@@ -1194,15 +2047,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e31fceede6b9ffc50564e7253bec69342067a97146226e10d0e04517ea82f20e",
+        "lesson_version": "e597f03b8b9f98a3cd52c9bd1ee0b6126e6aca7928740c733471e4dbba452a7d",
         "local_check": "passed",
-        "math_step_sha256": "b5bca50a78dfbc1e8871499733ff907f219b9367b1394dd1a0309c2f661d95f0",
+        "math_step_sha256": "98a6ffe6f4f9c8802214c7277bc3d311ab00a1e546538957fbc5fa4e54bbb64e",
         "method_ref": "method-parity-inequality#sign-solve",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "833edc63c0a94c2c968d4d63fabce0de",
+        "run_id": "167281f820d94b86ad107097d10f7613",
         "source_refs": [
           "/steps/8/calls/0"
         ],
@@ -1221,14 +2074,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "parity_inequality_conclude",
-        "explanation": "$$\\begin{gathered}x>0,\\ f(x - 1)<0\\Rightarrow 1<x<3\\\\x<0,\\ f(x - 1)>0\\Rightarrow -1<x<0\\\\x - 1=0\\Rightarrow x=1:\\ 0\\notin D\\text{ 时 }f(0)\\text{ 无意义}\\text{；}0\\in D\\text{ 时 }f(0)=0\\text{，不是解}\\\\\\frac{f(x-1)}{x}<0\\text{ 的解集为 }\\left(-1, 0\\right) \\cup \\left(1, 3\\right)\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}\\text{情况一：}x>0\\text{ 且 }f(x - 1)<0\\\\\\text{由图像：}f(x - 1)<0\\Leftrightarrow x - 1\\in \\left(-\\infty, -2\\right) \\cup \\left(0, 2\\right)\\\\\\Leftrightarrow x\\in \\left(-\\infty, -1\\right) \\cup \\left(1, 3\\right)\\\\x\\in \\left(-\\infty, -1\\right) \\cup \\left(1, 3\\right)\\text{ 与 }x>0\\text{ 求交得 }1<x<3\\\\\\text{情况二：}x<0\\text{ 且 }f(x - 1)>0\\\\\\text{由图像：}f(x - 1)>0\\Leftrightarrow x - 1\\in \\left(-2, 0\\right) \\cup \\left(2, \\infty\\right)\\\\\\Leftrightarrow x\\in \\left(-1, 1\\right) \\cup \\left(3, \\infty\\right)\\\\x\\in \\left(-1, 1\\right) \\cup \\left(3, \\infty\\right)\\text{ 与 }x<0\\text{ 求交得 }-1<x<0\\\\\\text{合并两种情况：}\\left(1, 3\\right)\\cup \\left(-1, 0\\right)\\\\x - 1=0\\Rightarrow x=1:\\ 0\\notin D\\text{ 时 }f(0)\\text{ 无意义}\\text{；}0\\in D\\text{ 时 }f(0)=0\\text{，不是解}\\\\\\frac{f(x-1)}{x}<0\\text{ 的解集为 }\\left(-1, 0\\right) \\cup \\left(1, 3\\right)\\end{gathered}$$",
         "highlight": {
-          "caption": "解出各种情况，写出解集",
+          "caption": "分两种情况讨论，写出解集",
           "connector": "⇒",
           "items": [
             {
-              "label": "要同时满足",
-              "math": "\\begin{gathered}x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0\\\\0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\end{gathered}"
+              "label": "各情况的解",
+              "math": "\\begin{gathered}\\text{情况一：}1<x<3\\\\\\text{情况二：}-1<x<0\\end{gathered}"
             },
             {
               "label": "解集",
@@ -1237,15 +2090,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e31fceede6b9ffc50564e7253bec69342067a97146226e10d0e04517ea82f20e",
+        "lesson_version": "e597f03b8b9f98a3cd52c9bd1ee0b6126e6aca7928740c733471e4dbba452a7d",
         "local_check": "passed",
-        "math_step_sha256": "cb61b42399beccb46d85ee45aa23b4f248732329a7f673d07f6811b9ffaea9a6",
+        "math_step_sha256": "a372171dc636f63f9c6b72a18b7cbf64a68b3c3613f147cadb665ca4512c72c8",
         "method_ref": "method-parity-inequality#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "833edc63c0a94c2c968d4d63fabce0de",
+        "run_id": "167281f820d94b86ad107097d10f7613",
         "source_refs": [
           "/steps/9/calls/0",
           "/steps/9/skipped_calls/0",
@@ -1254,7 +2107,7 @@
         ],
         "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude",
         "target_ref": "/root/goals/0",
-        "title": "解出各种情况，写出解集",
+        "title": "分两种情况讨论，写出解集",
         "used_basis": []
       }
     ],
@@ -1313,45 +2166,45 @@
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_sign_known",
         "ordinal": 1,
-        "math_step_sha256": "56c9b4f5db0cf6536c1ad700687f3206ecdd913ccb1ab116ffd87e7d03bfdc09",
+        "math_step_sha256": "2b0d89e20ff7bdccbf6c284085ac1266c665557a1c49abeefd0e998cae6ac6ab",
         "status": "interactive",
-        "interaction_id": "242d77333ec5a037577579d5"
+        "interaction_id": "8b7a3e629b260d94098bf369"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_sign_mirror",
         "ordinal": 2,
-        "math_step_sha256": "7ab03fc8d3a459199bfcd517263850c95624cdd1f559f016b9d90f7dd8083a00",
+        "math_step_sha256": "cbb7a4a76108ef71970fbeae12112359aa20da1000141054f51e557e572edec8",
         "status": "interactive",
-        "interaction_id": "3029c3d9d77ac29e268d8447"
+        "interaction_id": "616b8764afc3ba0cf5566b38"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_sign_solve",
         "ordinal": 3,
-        "math_step_sha256": "b5bca50a78dfbc1e8871499733ff907f219b9367b1394dd1a0309c2f661d95f0",
+        "math_step_sha256": "98a6ffe6f4f9c8802214c7277bc3d311ab00a1e546538957fbc5fa4e54bbb64e",
         "status": "interactive",
-        "interaction_id": "e33ff65c367126bfb1f3426a"
+        "interaction_id": "fa4407be72427db3418bf5b7"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude",
         "ordinal": 4,
-        "math_step_sha256": "cb61b42399beccb46d85ee45aa23b4f248732329a7f673d07f6811b9ffaea9a6",
+        "math_step_sha256": "a372171dc636f63f9c6b72a18b7cbf64a68b3c3613f147cadb665ca4512c72c8",
         "status": "interactive",
-        "interaction_id": "931676d6964b0c244fd02799"
+        "interaction_id": "44e6ee44d63dde22b2920199"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "242d77333ec5a037577579d5",
+        "interaction_id": "8b7a3e629b260d94098bf369",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "c092f35076c7dac54796b60f23eaeb61c922f48394a2431f8756113d4db554af",
-        "lesson_version": "e31fceede6b9ffc50564e7253bec69342067a97146226e10d0e04517ea82f20e",
+        "interaction_sha256": "a9f0ef6455f8f08394a26cc44af7917df5640fa76fa1cdea4ce1e6f8d80af6b0",
+        "lesson_version": "e597f03b8b9f98a3cd52c9bd1ee0b6126e6aca7928740c733471e4dbba452a7d",
         "parts": [
           {
             "completion_board": {
@@ -1369,6 +2222,61 @@
               ],
               "layout": "derivation"
             },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  2
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  0,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      -2
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1377,7 +2285,62 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "242d77333ec5a037577579d5#1",
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  2
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  0,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      -2
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "8b7a3e629b260d94098bf369#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1417,11 +2380,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "833edc63c0a94c2c968d4d63fabce0de",
+        "run_id": "167281f820d94b86ad107097d10f7613",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "56c9b4f5db0cf6536c1ad700687f3206ecdd913ccb1ab116ffd87e7d03bfdc09",
+            "math_step_sha256": "2b0d89e20ff7bdccbf6c284085ac1266c665557a1c49abeefd0e998cae6ac6ab",
             "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_sign_known"
           }
         ],
@@ -1429,10 +2392,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "3029c3d9d77ac29e268d8447",
+        "interaction_id": "616b8764afc3ba0cf5566b38",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "70fefbcd66e53ddacca545e85be862eb252b2918ff4cb9d8657c3d6b3d9a8a28",
-        "lesson_version": "e31fceede6b9ffc50564e7253bec69342067a97146226e10d0e04517ea82f20e",
+        "interaction_sha256": "436252b673f90f6621bf75cb7644ed6d244a256fa64acf449031eb2f1cdd2567",
+        "lesson_version": "e597f03b8b9f98a3cd52c9bd1ee0b6126e6aca7928740c733471e4dbba452a7d",
         "parts": [
           {
             "completion_board": {
@@ -1441,7 +2404,7 @@
               "items": [
                 {
                   "label": "已求出的结果",
-                  "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
                 },
                 {
                   "label": "对称一侧的符号",
@@ -1449,6 +2412,76 @@
                 }
               ],
               "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      -2
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "interval": [
+                      null,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
             },
             "expected_answer": {
               "one_of": [
@@ -1458,7 +2491,62 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "3029c3d9d77ac29e268d8447#1",
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  2
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  0,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      -2
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "616b8764afc3ba0cf5566b38#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1484,7 +2572,7 @@
               "items": [
                 {
                   "label": "已求出的结果",
-                  "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
                 },
                 {
                   "label": "对称一侧的符号",
@@ -1498,11 +2586,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "833edc63c0a94c2c968d4d63fabce0de",
+        "run_id": "167281f820d94b86ad107097d10f7613",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "7ab03fc8d3a459199bfcd517263850c95624cdd1f559f016b9d90f7dd8083a00",
+            "math_step_sha256": "cbb7a4a76108ef71970fbeae12112359aa20da1000141054f51e557e572edec8",
             "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_sign_mirror"
           }
         ],
@@ -1510,10 +2598,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "e33ff65c367126bfb1f3426a",
+        "interaction_id": "fa4407be72427db3418bf5b7",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "ff6a4ae09621f57637cd5eb40140c90874ef34bc83a101ee33e6d1dfd8a39d34",
-        "lesson_version": "e31fceede6b9ffc50564e7253bec69342067a97146226e10d0e04517ea82f20e",
+        "interaction_sha256": "65765b753a911ec186586640ef17e66c65a5bc0a16e3cb06f6f1686f5e927c32",
+        "lesson_version": "e597f03b8b9f98a3cd52c9bd1ee0b6126e6aca7928740c733471e4dbba452a7d",
         "parts": [
           {
             "completion_board": {
@@ -1522,7 +2610,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\\\\\frac{f(x-1)}{x}<0\\end{gathered}"
+                  "math": "\\frac{f(x-1)}{x}<0"
                 },
                 {
                   "label": "等价条件",
@@ -1530,6 +2618,76 @@
                 }
               ],
               "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      -2
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "interval": [
+                      null,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
             },
             "expected_answer": {
               "one_of": [
@@ -1539,14 +2697,80 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "e33ff65c367126bfb1f3426a#1",
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      -2
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "interval": [
+                      null,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "fa4407be72427db3418bf5b7#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$x>0\\text{ 且 }f(x - 1)>0\\text{，或 }x<0\\text{ 且 }f(x - 1)<0$",
-                  "value": "o2"
-                },
                 {
                   "label": "$x>0\\text{ 且 }f(x - 1)<0$",
                   "value": "o3"
@@ -1554,6 +2778,10 @@
                 {
                   "label": "$x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0$",
                   "value": "o1"
+                },
+                {
+                  "label": "$x>0\\text{ 且 }f(x - 1)>0\\text{，或 }x<0\\text{ 且 }f(x - 1)<0$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1565,7 +2793,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\\\\\frac{f(x-1)}{x}<0\\end{gathered}"
+                  "math": "\\frac{f(x-1)}{x}<0"
                 },
                 {
                   "label": "等价条件",
@@ -1579,11 +2807,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "833edc63c0a94c2c968d4d63fabce0de",
+        "run_id": "167281f820d94b86ad107097d10f7613",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "b5bca50a78dfbc1e8871499733ff907f219b9367b1394dd1a0309c2f661d95f0",
+            "math_step_sha256": "98a6ffe6f4f9c8802214c7277bc3d311ab00a1e546538957fbc5fa4e54bbb64e",
             "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_sign_solve"
           }
         ],
@@ -1591,19 +2819,462 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "931676d6964b0c244fd02799",
+        "interaction_id": "44e6ee44d63dde22b2920199",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "2283b8ba499bfc50010c3d205ba55c8f4bfb3f96372e9e5562051126dc1228ea",
-        "lesson_version": "e31fceede6b9ffc50564e7253bec69342067a97146226e10d0e04517ea82f20e",
+        "interaction_sha256": "89ba102a92d2d8394ddc5613c378dadd4de295e6786c3a4c24fa1f3d196b290c",
+        "lesson_version": "e597f03b8b9f98a3cd52c9bd1ee0b6126e6aca7928740c733471e4dbba452a7d",
         "parts": [
           {
+            "card_group_title": "分两种情况讨论，写出解集",
             "completion_board": {
-              "caption": "解出各种情况，写出解集",
+              "caption": "情况一：$x>0$",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "要同时满足",
-                  "math": "\\begin{gathered}x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0\\\\0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\end{gathered}"
+                  "label": "这一情况",
+                  "math": "\\begin{gathered}x>0\\\\f(x - 1)<0\\end{gathered}"
+                },
+                {
+                  "label": "这一情况的解",
+                  "math": "1<x<3"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出；有色部分是 $f$ 的值小于 $0$ 的部分，输入 $x - 1$ 要落在其中。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "highlights": [
+                  {
+                    "from": null,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": -2
+                  },
+                  {
+                    "from": 0,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 2
+                  }
+                ],
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      -2
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "interval": [
+                      null,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      -2
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "interval": [
+                      null,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "44e6ee44d63dde22b2920199#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$x\\in \\left(-\\infty, -1\\right) \\cup \\left(1, 3\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$x\\in \\left(0, 1\\right) \\cup \\left(3, \\infty\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$-1<x<0$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$1<x<3$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "情况一：$x>0$ 且 $f(x - 1)<0$。对照 $f$ 的图像读出 $f$ 的值何时小于 $0$，这一情况下 $x$ 的范围是什么？",
+            "stem_board": {
+              "caption": "情况一：$x>0$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "这一情况",
+                  "math": "\\begin{gathered}x>0\\\\f(x - 1)<0\\end{gathered}"
+                },
+                {
+                  "label": "这一情况的解",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "情况一：$x>0$"
+          },
+          {
+            "card_group_title": "分两种情况讨论，写出解集",
+            "completion_board": {
+              "caption": "情况二：$x<0$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "这一情况",
+                  "math": "\\begin{gathered}x<0\\\\f(x - 1)>0\\end{gathered}"
+                },
+                {
+                  "label": "这一情况的解",
+                  "math": "-1<x<0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出；有色部分是 $f$ 的值大于 $0$ 的部分，输入 $x - 1$ 要落在其中。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "highlights": [
+                  {
+                    "from": -2,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 0
+                  },
+                  {
+                    "from": 2,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": null
+                  }
+                ],
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      -2
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "interval": [
+                      null,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；奇函数图像关于原点对称：$x<0$ 的一段由 $x>0$ 的一段绕原点旋转 $180^\\circ$ 得到；若 $0$ 在定义域内，则 $f(0)=0$，图中未画出。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      -2
+                    ],
+                    "interval": [
+                      0,
+                      null
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "interval": [
+                      null,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "44e6ee44d63dde22b2920199#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$x\\in \\left(-1, 0\\right) \\cup \\left(0, 1\\right) \\cup \\left(3, \\infty\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$1<x<3$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$x<-1$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$-1<x<0$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "情况二：$x<0$ 且 $f(x - 1)>0$。对照 $f$ 的图像读出 $f$ 的值何时大于 $0$，这一情况下 $x$ 的范围是什么？",
+            "stem_board": {
+              "caption": "情况二：$x<0$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "这一情况",
+                  "math": "\\begin{gathered}x<0\\\\f(x - 1)>0\\end{gathered}"
+                },
+                {
+                  "label": "这一情况的解",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "情况二：$x<0$"
+          },
+          {
+            "card_group_title": "分两种情况讨论，写出解集",
+            "completion_board": {
+              "caption": "合并各种情况，写出解集",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "各情况的解",
+                  "math": "\\begin{gathered}\\text{情况一：}1<x<3\\\\\\text{情况二：}-1<x<0\\end{gathered}"
                 },
                 {
                   "label": "解集",
@@ -1620,14 +3291,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "931676d6964b0c244fd02799#1",
+            "id": "44e6ee44d63dde22b2920199#3",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$x\\in \\left(-\\infty, -1\\right) \\cup \\left(0, 1\\right) \\cup \\left(3, \\infty\\right)$",
-                  "value": "o2"
-                },
                 {
                   "label": "$x\\in \\left(-\\infty, -1\\right) \\cup \\left(1, 3\\right)$",
                   "value": "o3"
@@ -1639,18 +3306,22 @@
                 {
                   "label": "$x\\in \\left(-\\infty, -1\\right] \\cup \\left(0, 1\\right) \\cup \\left[3, \\infty\\right)$",
                   "value": "o4"
+                },
+                {
+                  "label": "$x\\in \\left(-\\infty, -1\\right) \\cup \\left(0, 1\\right) \\cup \\left(3, \\infty\\right)$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
             },
-            "question": "按符号条件解出 $x$，再合并。题目没有说明 $0$ 是否在定义域内，两种情况都要检查。不等式 $\\frac{f(x-1)}{x}<0$ 的解集是什么？",
+            "question": "把各种情况的解合并。还要单独看输入 $x - 1=0$：题目没有说明 $0$ 是否在定义域内，两种情况都要检查。不等式 $\\frac{f(x-1)}{x}<0$ 的解集是什么？",
             "stem_board": {
-              "caption": "解出各种情况，写出解集",
+              "caption": "合并各种情况，写出解集",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "要同时满足",
-                  "math": "\\begin{gathered}x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0\\\\0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\end{gathered}"
+                  "label": "各情况的解",
+                  "math": "\\begin{gathered}\\text{情况一：}1<x<3\\\\\\text{情况二：}-1<x<0\\end{gathered}"
                 },
                 {
                   "label": "解集",
@@ -1660,15 +3331,15 @@
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "解出各种情况，写出解集"
+            "title": "合并各种情况，写出解集"
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "833edc63c0a94c2c968d4d63fabce0de",
+        "run_id": "167281f820d94b86ad107097d10f7613",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "cb61b42399beccb46d85ee45aa23b4f248732329a7f673d07f6811b9ffaea9a6",
+            "math_step_sha256": "a372171dc636f63f9c6b72a18b7cbf64a68b3c3613f147cadb665ca4512c72c8",
             "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
           }
         ],

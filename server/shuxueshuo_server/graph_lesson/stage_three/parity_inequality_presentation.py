@@ -3,15 +3,16 @@ from copy import deepcopy
 from hashlib import sha256
 
 import sympy as sp
+from sympy.printing.str import StrPrinter
 
 from .. import parity_order_math as order
 from ..function_parity import reflect_ast
 from ..parity_extension_math import reflect
 from ..parity_inequality_math import FLIP, OPS, _same, solve, symbols
 from ..stage_one.function_domain import expression_latex
-from .absolute_graph_presentation import choice_card, ends, segment
+from .absolute_graph_presentation import choice_card
 from .interaction_graph_contract import validate_graph
-from .interaction_graphs import short_label
+from .parity_half_graphs import example_graph, half_graph, intervals, symmetry_text, vertex_lines
 from .math_values import latex
 from .monotonicity_parameter_presentation import _lines
 from .parity_extension_presentation import _number_line, _printed, range_latex
@@ -68,9 +69,15 @@ def _source(d, model):
             'mirror_inequality': rf'{f}(-{x}){SYMBOL[model["mirror_operator"]]}{latex(model["mirror_threshold"])}'}
 
 
+def _parity(s):
+    f, x = s['f'], s['x']
+    return (r'\text{' + s['property'] + '：}' + rf'{f}({x})='
+            + ('-' if s['property'] == PROPERTY['odd'] else '') + rf'{f}(-{x})')
+
+
 def _given(s, model):
     return _lines([_when(model['rule_domain'], s['x']) + s['fx'] + '=' + s['rule'],
-                   r'\text{' + s['property'] + '}', s['inequality']])
+                   _parity(s), s['inequality']])
 
 
 def _known_view(d, model, s):
@@ -109,7 +116,7 @@ def _mirror_view(d, model, s):
     steps.append(_set(model['mirror_solution'], '-' + x) + r'\Rightarrow ' + _set(correct, x))
     question = (rf'${range_latex(M, x)}$ 时，$-{x}$ 落在已知范围内。题给 ${s["f"]}$ 是{s["property"]}，'
                 rf'${range_latex(M, x)}$ 时 ${s["inequality"]}$ 的解是什么？')
-    left = _lines([_when(K, x) + _set(model['known_solution'], x), r'\text{' + s['property'] + '}'])
+    left = _lines([_when(K, x) + _set(model['known_solution'], x), _parity(s)])
     return choice_card('用奇偶性得到另一侧的解', question, '已求出的结果', left, '对称范围内的解',
                        _when(M, x) + _set(correct, x), [_when(M, x) + _set(w, x) for w in wrong[:3]],
                        _lines(steps))
@@ -212,7 +219,7 @@ def _rewrite_view(d, model, s):
              [*_rewrite_steps(d, model, s), s['inequality'] + r'\Leftrightarrow ' + correct])
     question = (rf'题给 ${f}$ 是{s["property"]}。把不等式 ${s["inequality"]}$ 写成同一个函数两个值的比较，'
                 '是下面哪一个？')
-    left = _lines([r'\text{' + s['property'] + '}', s['inequality']])
+    left = _lines([_parity(s), s['inequality']])
     return choice_card('改写成两个函数值的比较', question, '已知条件', left, '等价的比较', correct, wrong, _lines(steps))
 
 
@@ -243,14 +250,18 @@ def _direction_view(d, model, s):
         rule = _printed(expression_latex(_display_ast(ext['rule_ast']), x), x)
         K, R = cert['known'], cert['reflected']
         given = _when(K, x) + rf'{f}({x})=' + rule
-        steps = [given + r'\text{，' + DIRECTION[cert['direction']] + '}',
-                 r'\text{奇函数在对称两侧单调方向相同}\Rightarrow ' + _when(R, x)
-                 + r'\text{' + DIRECTION[cert['direction']] + '}']
+        variable = sp.Symbol(x, real=True)
+        image = sp.expand(-cert['rule'].xreplace({variable: -variable}))
+        steps = [*vertex_lines(cert['rule'], variable, K, x, f),
+                 _when(R, x) + rf'{f}({x})=-{f}(-{x})=' + latex(image),
+                 r'\text{奇函数在对称两侧单调方向相同}\Rightarrow ' + rf'{f}\text{{ 在 }}{latex(R)}'
+                 + r'\text{ 上' + DIRECTION[cert['direction']] + '}']
         if cert['zero'] == 'forced_zero':
-            sign = '>' if cert['known_sign'] == 1 else '<'
-            steps.append(rf'{f}(0)=0,\ ' + _when(K, x) + rf'{f}({x}){sign}0')
+            above, below = ('>', '<') if cert['known_sign'] == 1 else ('<', '>')
+            steps.append(rf'{f}(0)=0\text{{，}}' + _when(K, x) + rf'{f}({x}){above}0\text{{，}}'
+                         + _when(R, x) + rf'{f}({x}){below}0\Rightarrow \text{{两段在 }}{x}=0\text{{ 处衔接}}')
         question = (rf'题给 ${f}$ 是{s["property"]}，${given}$。${f}$ 在定义域 ${dom}$ 上的单调性是什么？')
-        left = _lines([given, r'\text{' + s['property'] + r'，定义域 }' + dom])
+        left = _lines([given, _parity(s) + r'\text{，定义域 }' + dom])
     else:
         interval = cert['interval']
         statement = source['basis'].get('statement')
@@ -262,7 +273,7 @@ def _direction_view(d, model, s):
             steps.append(r'\text{奇函数在对称两侧单调方向相同}\Rightarrow ' + rf'{f}\text{{ 在 }}{latex(cert["reflected"])}'
                          + r'\text{ 上' + DIRECTION[cert['direction']] + '}')
         question = rf'题给 ${f}$ 是{s["property"]}，定义域为 ${dom}$，且 ${text}$。${f}$ 在 ${dom}$ 上的单调性是什么？'
-        left = _lines([text, r'\text{' + s['property'] + r'，定义域 }' + dom])
+        left = _lines([text, _parity(s) + r'\text{，定义域 }' + dom])
     if cert['kind'] != 'given':
         steps.append(r'\Rightarrow ' + answer)
     return choice_card('确定整个定义域上的单调方向', question, '已知条件', left, '单调性', answer, wrong, _lines(steps))
@@ -324,12 +335,19 @@ def _even_rewrite_view(d, model, s):
     correct = rf'{f}({_abs(a)}){SYMBOL[op]}{f}({_abs(w)})'
     wrong = [rf'{f}({_abs(a)}){SYMBOL[FLIP[op]]}{f}({_abs(w)})',
              rf'{f}({_abs(a)}){SYMBOL[op]}-{f}({_abs(w)})']
-    question = (rf'题给 ${f}$ 是{s["property"]}。把两个输入都换到非负一侧，不等式 ${s["inequality"]}$ '
-                '等价于下面哪一个？')
+    variable = model['variable']
+    signed = [e for e in (a, w) if sp.solveset(e < 0, variable, model['legal_set']) != sp.S.EmptySet]
+    head = rf'题给 ${f}$ 是{s["property"]}，在 $x\le 0$ 与 $x\ge 0$ 两部分上增减相反；'
+    if signed:
+        head += ('、'.join(f'${latex(e)}$' for e in signed) + rf' 可能为负，两个输入可能分属两部分，还不能直接去掉 ${f}$ 比较。'
+                 rf'偶函数满足 ${f}(u)={f}(|u|)$，可以把两个输入都变成非负数，放到同一个单调区间里。')
+    else:
+        head += rf'两个输入都非负，已在同一部分；用 ${f}(u)={f}(|u|)$ 写成统一形式。'
+    question = head + rf'不等式 ${s["inequality"]}$ 等价于下面哪一个？'
     proof = _lines([r'\text{偶函数 }' + rf'{f}(u)={f}(-u)={f}(|u|)',
                     s['inequality'] + r'\Leftrightarrow ' + correct])
-    return choice_card('把两个输入换到非负一侧', question, '已知条件',
-                       _lines([r'\text{' + s['property'] + '}', s['inequality']]), '等价的比较', correct, wrong, proof)
+    return choice_card('把两个输入都变成非负数', question, '已知条件',
+                       _lines([_parity(s) + rf'={f}(|{s["x"]}|)', s['inequality']]), '等价的比较', correct, wrong, proof)
 
 
 def _even_direction_view(d, model, s):
@@ -343,18 +361,17 @@ def _even_direction_view(d, model, s):
     if cert['kind'] == 'even_rule':
         rule = _printed(expression_latex(_display_ast(d['direction_source']['extension']['rule_ast']), x), x)
         given = _when(cert['known'], x) + rf'{f}({x})=' + rule
-        known = given + r'\text{，' + DIRECTION[cert['direction']] + '}'
+        steps = vertex_lines(cert['rule'], sp.Symbol(x, real=True), cert['known'], x, f)
     else:
         given = rf'{f}\text{{ 在 }}{latex(cert["interval"])}\text{{ 上{DIRECTION[cert["direction"]]}}}'
-        known = given
-    steps = [known]
+        steps = [given]
     if cert['positive_direction'] != cert['direction']:
         steps.append(r'\text{偶函数在对称两侧单调方向相反}\Rightarrow ' + answer)
     else:
         steps.append(r'\Rightarrow ' + answer)
     question = (rf'题给 ${f}$ 是{s["property"]}，定义域为 ${_domain_text(s["domain"], x)}$，且 ${given}$。'
                 rf'${f}$ 在非负一侧 ${half}$ 上的单调性是什么？')
-    left = _lines([given, r'\text{' + s['property'] + r'，定义域 }' + _domain_text(s['domain'], x)])
+    left = _lines([given, _parity(s) + r'\text{，定义域 }' + _domain_text(s['domain'], x)])
     return choice_card('确定非负一侧的单调方向', question, '已知条件', left, '单调性', answer, wrong, _lines(steps))
 
 
@@ -413,12 +430,15 @@ def _borrow_card(base, model, s):
     lines = []
     if base['domain_ast'][0] == 'interval':
         lo, hi = (_source_latex(end, x) for end in base['domain_ast'][3:5])
-        lines.append(rf'\left({lo}\right)+\left({hi}\right)=0')
+        sum_like = lambda t: any(c in t[1:] for c in '+-')
+        lo = rf'\left({lo}\right)' if sum_like(lo) else lo
+        hi = rf'\left({hi}\right)' if sum_like(hi) or hi.startswith('-') else hi
+        lines.append(lo + '+' + hi + '=0')
     lines += [shown, r'\text{定义域为 }' + latex(model['borrow']['output']['instantiated_domain'])]
     interval = model['certificate'].get('interval')
     if interval is not None:
         lines.append(r'\text{单调区间为 }' + latex(interval))
-    left = _lines([r'\text{' + s['property'] + '}', r'\text{定义域 }' + domain])
+    left = _lines([_parity(s), r'\text{定义域 }' + domain])
     return choice_card('先确定定义域中的参数', question, '已知条件', left, '参数', shown, wrong, _lines(lines))
 
 
@@ -433,7 +453,10 @@ def _order_views(d, phase):
               'conclude': _order_conclude_view})
     view = views[phase](instance, model, s)
     if d.get('parameter') and phase == 'rewrite':
-        return [_borrow_card(d, model, s), view]
+        views = [_borrow_card(d, model, s), view]
+        for item in views:
+            item['card_group_title'] = '先确定定义域中的参数，再' + view['title']
+        return views
     return [view]
 
 
@@ -529,7 +552,7 @@ def _sign_mirror_view(d, model, s):
     whole = sp.Union(*(p for p, _ in mirrored))
     question = (rf'题给 ${f}$ 是{s["property"]}。在对称一侧 ${latex(whole)}$ 上，${f}({x})$ 的符号是什么？')
     return choice_card('用奇偶性得到另一侧的符号', question, '已求出的结果',
-                       _lines([_sign_table(cert['known'], f, x), r'\text{' + s['property'] + '}']),
+                       _lines([_sign_table(cert['known'], f, x), _parity(s)]),
                        '对称一侧的符号', correct, wrong, _lines(steps))
 
 
@@ -590,10 +613,52 @@ def _sign_solve_view(d, model, s):
     proof = [*_restriction_lines(d, model['variable']), s['inequality'] + r'\Leftrightarrow ' + correct]
     if d['factor_kind'] == 'quotient':
         proof.append(r'\text{分母 }' + s['factor'] + r'\ne 0')
-    zero = 0 if all(row['zero_sign'] == 0 for row in model['cases']) else None
-    cells = sign.sign_cells(model['certificate'], zero)
-    left = _lines([_sign_table(cells, f, x), *_restriction_lines(d, model['variable']), s['inequality']])
+    table = []
+    if d['factor_kind'] is None:
+        zero = 0 if all(row['zero_sign'] == 0 for row in model['cases']) else None
+        table = [_sign_table(sign.sign_cells(model['certificate'], zero), f, x)]
+    left = _lines([*table, *_restriction_lines(d, model['variable']), s['inequality']])
     return choice_card(title, question, '已知条件', left, '等价条件', correct, wrong, _lines(proof))
+
+
+CASE = {1: '一', -1: '二'}
+SIGN_WORD = {'<': '小于 $0$', '<=': '不大于 $0$', '>': '大于 $0$', '>=': '不小于 $0$'}
+
+
+def _sign_case_view(d, model, s, t):
+    """One sign case of the factor, read off the graph of f: f(u) □ 0 ⇔ u ∈ U, then intersect with the factor sign."""
+    from .. import parity_sign_math as sign
+    f, x, op, variable = s['f'], s['x'], model['operator'], model['variable']
+    cert, row = model['certificate'], model['cases'][0]
+    rel = op if t == 1 else FLIP[op]
+    U = sp.Union(*(p for p, v in sign.sign_cells(cert, row['zero_sign']) if bool(OPS[rel](v, 0))))
+    part = _branch_solution(model, op, (t,))
+    pre = sign.preimage(model['input'], variable, U)
+    factor = s['factor'] + ('>0' if t == 1 else '<0')
+    value = rf'{f}({s["input"]}){SYMBOL[rel]}0'
+    wrong = _distinct(part, [pre & row['legal_set'], _branch_solution(model, FLIP[op], (t,)),
+                             _branch_solution(model, op, (-t,))])
+    where = _set(sign.factor_sets(model['factor'], variable, d['factor_kind'])[t], x)
+    restrictions = _restriction_lines(d, variable)
+    proof = [rf'\text{{情况{CASE[t]}：}}' + factor + r'\text{ 且 }' + value,
+             r'\text{由图像：}' + value + r'\Leftrightarrow ' + s['input'] + r'\in ' + latex(U),
+             r'\Leftrightarrow ' + _set(pre, x),
+             *([factor + r'\Leftrightarrow ' + where] if where != factor else []),
+             *restrictions,
+             _set(pre, x) + r'\text{ 与 }' + where + (r'\text{ 及上述条件}' if restrictions else '')
+             + r'\text{ 求交得 }' + _set(part, x)]
+    question = (rf'情况{CASE[t]}：${factor}$ 且 ${value}$。对照 ${f}$ 的图像读出 ${f}$ 的值何时{SIGN_WORD[rel]}，'
+                rf'这一情况下 ${x}$ 的范围是什么？')
+    view = choice_card(rf'情况{CASE[t]}：${factor}$', question, '这一情况', _lines([factor, value]),
+                       '这一情况的解', _set(part, x), [_set(w, x) for w in wrong[:3]], _lines(proof))
+    stem = _sign_graph(d, cert)
+    done = _sign_graph(d, cert, highlights=[r for r in intervals(U)],
+                       note=rf'；有色部分是 ${f}$ 的值{SIGN_WORD[rel]} 的部分，输入 ${s["input"]}$ 要落在其中')
+    if stem is not None:
+        view['graph'] = stem
+    if done is not None:
+        view['completion_graph'] = done
+    return view
 
 
 def _sign_conclude_view(d, model, s):
@@ -617,6 +682,10 @@ def _sign_conclude_view(d, model, s):
         head = (s['factor'] + ('>0' if t == 1 else '<0') + r',\ ') if d['factor_kind'] else ''
         rel = op if t == 1 else FLIP[op]
         lines.append(head + rf'{f}({s["input"]}){SYMBOL[rel]}0\Rightarrow ' + _set(part, x))
+    if d['factor_kind']:
+        found = [_branch_solution(model, op, (t,)) for t in kinds if t]
+        lines = [line for line in lines if line.startswith(s['factor'] + '=0')]
+        lines.insert(0, r'\text{合并两种情况：}' + r'\cup '.join(latex(p) for p in found if p != sp.S.EmptySet))
     origin = sign.preimage(u, variable, sp.FiniteSet(0)) & model['cases'][-1]['legal_set']
     covered = model['certificate']['interval'] | reflect(model['certificate']['interval'])
     open_zero = covered.contains(0) is not sp.true and origin != sp.S.EmptySet
@@ -630,9 +699,16 @@ def _sign_conclude_view(d, model, s):
         lines.append(rf'{s["input"]}=0\Rightarrow ' + _set(origin, x) + r':\ ' + r'\text{；}'.join(states) + verdict)
     lines.extend(_restriction_lines(d, variable))
     lines.append(s['inequality'] + r'\text{ 的解集为 }' + latex(S))
-    note = ('题目没有说明 $0$ 是否在定义域内，两种情况都要检查。'
-            if model['certificate']['domain_identity'] == 'zero_membership_open' and open_zero else '')
-    question = rf'按符号条件解出 ${x}$，再合并。{note}不等式 ${s["inequality"]}$ 的解集是什么？'
+    note = (rf'还要单独看输入 ${s["input"]}=0$：题目没有说明 $0$ 是否在定义域内，两种情况都要检查。'
+            if model['certificate']['domain_identity'] == 'zero_membership_open' and open_zero else
+            rf'还要单独看输入 ${s["input"]}=0$。' if open_zero else '')
+    if d['factor_kind']:
+        found = [rf'\text{{情况{CASE[t]}：}}' + _set(_branch_solution(model, op, (t,)), x) for t in kinds if t]
+        found += [s['factor'] + '=0' + r'\Rightarrow ' + _set(_branch_solution(model, op, (0,)), x)] if 0 in kinds else []
+        question = rf'把各种情况的解合并。{note}不等式 ${s["inequality"]}$ 的解集是什么？'
+        return choice_card('合并各种情况，写出解集', question, '各情况的解', _lines(found), '解集', _set(S, x),
+                           [_set(t, x) for t in wrong[:3]], _lines(lines))
+    question = rf'按符号条件解出 ${x}$。{note}不等式 ${s["inequality"]}$ 的解集是什么？'
     left = _lines([_conditions(d, s, op), _sign_table([*model['certificate']['known'],
                                                        *model['certificate']['mirrored']], f, x)])
     return choice_card('解出各种情况，写出解集', question, '要同时满足', left, '解集', _set(S, x),
@@ -645,7 +721,12 @@ def _sign_views(d, phase):
     s = _sign_source(d, model)
     views = {'sign_known': _sign_known_view, 'sign_mirror': _sign_mirror_view, 'sign_solve': _sign_solve_view,
              'conclude': _sign_conclude_view}
-    return [views[phase](d, model, s)]
+    cases = [_sign_case_view(d, model, s, t) for t in (1, -1)] if phase == 'conclude' and d['factor_kind'] else []
+    result = [*cases, views[phase](d, model, s)]
+    if cases:
+        for view in result:
+            view['card_group_title'] = '分两种情况讨论，写出解集'
+    return result
 
 
 def phase_views(values):
@@ -664,10 +745,14 @@ def phase_views(values):
 
 
 def presentation(values):
-    view = phase_views(decode_value(values))[0]
+    views = phase_views(decode_value(values))
+    grouped = views[0].get('card_group_title')
+    view = views[-1] if grouped else views[0]
+    title = grouped or view['title']
+    proof = _lines([v['proof'] for v in views]) if grouped else view['proof']
     left, right = view['derivation']['items']
-    return {'formula_title': view['title'], 'formula_explanation': '$$' + view['proof'] + '$$',
-            'derivation_caption': view['title'], 'derivation_left_label': left['label'],
+    return {'formula_title': title, 'formula_explanation': '$$' + proof + '$$',
+            'derivation_caption': title, 'derivation_left_label': left['label'],
             'derivation_left_math': left['math'], 'derivation_left_note': '',
             'derivation_right_label': right['label'], 'derivation_right_math': right['math']}
 
@@ -677,54 +762,155 @@ def _intervals(s):
     return [r for r in rows if isinstance(r, sp.Interval)]
 
 
-def _half_graph(d, model, mirror):
-    """The given half (and, for the mirror step, its symmetric image) against y = k."""
+def _half_graph(d, model, mirror, stem=False):
+    """The given half (and, for the mirror step, its symmetric image) against y = k.
+
+    A stem picture highlights only what earlier steps have already solved."""
     variable, rule, k = symbols(d), model['rule'], model['threshold']
     K, M = model['rule_domain'], model['mirrored_domain']
-    image = sp.expand(model['sign'] * rule.xreplace({variable: -variable}))
-    halves = [(rule, K), *([(image, M)] if mirror else [])]
     solved = [model['known_solution'], *([model['mirrored_solution']] if mirror else [])]
-    try:
-        segments = [segment(e, piece, variable) for e, r in halves for piece in _intervals(r)]
-    except (ValueError, sp.PolynomialError):
-        return None
-    if not segments:
-        return None
-    anchors = {sp.S.Zero, *(v for _, r in halves for v in (r.inf, r.sup) if v.is_finite),
-               *(v for s in solved for r in _intervals(s) for v in (r.inf, r.sup) if v.is_finite)}
-    low, high = float(min(anchors)) - 1, float(max(anchors)) + 1
-    if high - low < 4:
-        low, high = (low + high) / 2 - 2, (low + high) / 2 + 2
-    ys = [0.0, float(k)]
-    for e, r in halves:
-        a, b = max(low, float(r.inf)), min(high, float(r.sup))
-        ys += [float(e.subs(variable, a + (b - a) * j / 24)) for j in range(1, 24)] if a < b else []
-    pad = max(1.0, (max(ys) - min(ys)) * .12)
-    domain = sp.Union(*(r for _, r in halves))
-    # The plot envelope may span a hole; each segment retains its own endpoints.
-    interval = [float(v) if v.is_finite else None for v in (domain.inf, domain.sup)]
-    closed = [v.is_finite is True and domain.contains(v) is sp.true for v in (domain.inf, domain.sup)]
-    f, x = d['function'], d['variable']
-    params = {'segments': segments, 'bounds': [low, high, min(ys) - pad, max(ys) + pad],
-              'interval': interval, 'interval_closed': closed, 'points': [],
-              'xTicks': [[float(v), short_label(v)] for v in sorted(anchors)],
-              'level': float(k), 'yTicks': [[float(k), short_label(k)]], 'variable': x,
-              'title': f'{f}({x}) 与 y={short_label(k)}',
-              'description': '实线是函数图像，虚线是 y=k；有色曲线对应满足不等式的部分，空心端点不取。',
-              'highlights': [{'from': v[0], 'to': v[1], 'left_closed': c[0], 'right_closed': c[1]}
-                             for s in solved for r in _intervals(s) for v, c in [ends(r)]]}
+    shown = [] if stem and not mirror else solved[:1] if stem else solved
+    x = d['variable']
+    inequality = model_inequality(d, model)
+    level = rf'$y={latex(k)}$'
     if not mirror:
-        caption = (rf'已知 ${range_latex(K, x)}$ 时的图像；有色部分满足 ${model_inequality(d, model)}$。')
-    elif model['sign'] == -1:
-        caption = (rf'奇函数图像关于原点对称：${range_latex(M, x)}$ 的一段由 ${range_latex(K, x)}$ 的一段'
-                   '绕原点旋转 $180^\\circ$ 得到；有色部分是两侧各自满足不等式的部分。')
+        caption = (rf'已知 ${range_latex(K, x)}$ 时的图像；对照直线 {level}，看哪部分满足 ${inequality}$。' if stem else
+                   rf'已知 ${range_latex(K, x)}$ 时的图像；有色部分满足 ${inequality}$。')
     else:
-        caption = (rf'偶函数图像关于 $y$ 轴对称：${range_latex(M, x)}$ 的一段由 ${range_latex(K, x)}$ 的一段'
-                   '沿 $y$ 轴翻折得到；有色部分是两侧各自满足不等式的部分。')
-    try:
-        return validate_graph({'kind': 'piecewise_curve', 'params': params, 'caption': caption})
-    except ValueError:
+        caption = symmetry_text(model['sign'], K, M, x) + (
+            rf'；有色部分是已求出的解，对照直线 {level} 看另一侧。' if stem else '；有色部分是两侧各自满足不等式的部分。')
+    return half_graph(d['function'], variable, rule, K, M, model['sign'], caption, mirror=mirror,
+                      highlights=[r for s in shown for r in _intervals(s)], level=k,
+                      marks=[r for s in solved for r in _intervals(s)])
+
+
+class _PlainPrinter(StrPrinter):
+    def _print_Abs(self, expr):
+        return '|' + self._print(expr.args[0]) + '|'
+
+
+def _plain(e):
+    """SVG text cannot typeset LaTeX: 2*x - 1 → 2x-1, Abs(x) → |x|."""
+    return _PlainPrinter().doprint(e).replace('**', '^').replace('*', '').replace(' ', '')
+
+
+def _plain_interval(I):
+    ends = [('-∞' if I.inf == -sp.oo else _plain(I.inf)), ('+∞' if I.sup == sp.oo else _plain(I.sup))]
+    return ('(' if I.left_open else '[') + ', '.join(ends) + (')' if I.right_open else ']')
+
+
+def _trend_marks(pieces):
+    return [{'from': None if I.inf == -sp.oo else float(I.inf), 'to': None if I.sup == sp.oo else float(I.sup),
+             'left_closed': I.inf != -sp.oo and not I.left_open, 'right_closed': I.sup != sp.oo and not I.right_open,
+             'label': _plain_interval(I), 'trend': trend} for I, trend in pieces]
+
+
+def _inside(S, graph, parts):
+    """Sample inputs strictly inside S and the drawn window, at the given fractions of its width."""
+    low, high = graph['params']['bounds'][:2]
+    lo, hi = max(float(S.inf), low + .5), min(float(S.sup), high - .5)
+    return [round(lo + (hi - lo) * t, 2) for t in parts]
+
+
+def _compare_spots(a, w, conv, sign, region, graph):
+    """Where to draw a and w so that a conv w holds; a constant input keeps its true place or nothing is drawn."""
+    lo, hi = _inside(region, graph, [0, 1])
+    fixed = [None if e.free_symbols else float(abs(e) if sign == 1 else e) for e in (a, w)]
+    if any(v is not None and not lo < v < hi for v in fixed):
         return None
+    below = conv in ('<', '<=')
+    if fixed[0] is None and fixed[1] is None:
+        small, large = lo + (hi - lo) / 4, lo + 3 * (hi - lo) / 4
+        return [round(v, 2) for v in ((small, large) if below else (large, small))]
+    if fixed[0] is not None and fixed[1] is not None:
+        return fixed
+    v = fixed[0] if fixed[0] is not None else fixed[1]
+    under = below == (fixed[1] is not None)
+    other = round((lo + v) / 2 if under else (v + hi) / 2, 2)
+    return [v, other] if fixed[0] is not None else [other, v]
+
+
+def _decorate(graph, caption, **params):
+    graph = deepcopy(graph)
+    graph['params'].update(params)
+    graph['caption'] = graph['caption'].rstrip('。') + '；' + caption + '。'
+    return validate_graph(graph)
+
+
+def _attach_order_graphs(part, d, phase):
+    model = order.solve(d)
+    cert = model['certificate']
+    f, x = d['function'], d['variable']
+    sign = 1 if cert['kind'] in ('even_given', 'even_rule') else -1
+    known = cert.get('known', cert.get('interval'))
+    if cert['kind'] in ('given', 'given_half', 'even_given'):
+        draw = lambda mirror: example_graph(f, x, known, cert['direction'], sign, cert['reflected'], mirror=mirror)
+        stem, done = (draw(False) if phase == 'direction' else draw(True)), draw(True)
+    elif cert['kind'] in ('rule', 'even_rule'):
+        variable = sp.Symbol(x, real=True)
+        stem = done = half_graph(f, variable, cert['rule'], known, cert['reflected'], sign,
+                                 symmetry_text(sign, known, cert['reflected'], x) + '。',
+                                 zero=cert.get('zero') == 'forced_zero')
+    else:
+        return
+    if done is None:
+        return
+    if phase == 'direction':
+        other = cert['direction'] if sign == -1 else order._other(cert['direction'])
+        rest = cert['reflected'] if cert['reflected'] - known != sp.S.EmptySet else None
+        whole = [(known, cert['direction'])] + ([(rest, other)] if rest is not None else [])
+        done = _decorate(done, '箭头标出各段的增减', interval_marks=_trend_marks(whole))
+        if stem is not None:
+            shown = whole if stem['params']['segments'] == done['params']['segments'] else whole[:1]
+            stem = _decorate(stem, '箭头标出各段的增减', interval_marks=_trend_marks(shown))
+    elif phase == 'rewrite':
+        negative = cert['domain'] & sp.Interval(-sp.oo, 0)
+        u, = _inside(negative, done, [.4])
+        if sign == 1:
+            guides = [{'x': u, 'label': 'u', 'value_label': f'{f}(u)'},
+                      {'x': -u, 'label': '|u|', 'value_label': f'{f}(|u|)'}]
+            text = rf'虚线：$u$ 与 $|u|$ 关于 $y$ 轴对称，函数值相同，${f}(u)={f}(|u|)$'
+        else:
+            guides = [{'x': u, 'label': 'u', 'value_label': f'{f}(u)'},
+                      {'x': -u, 'label': '-u', 'value_label': f'{f}(-u)'}]
+            text = rf'虚线：$u$ 与 $-u$ 关于原点对称，函数值互为相反数，${f}(-u)=-{f}(u)$'
+        stem = done = _decorate(done, text, guides=guides)
+    elif phase == 'compare':
+        a, w, conv = model['left_input'], model['right_input'], model['converted_operator']
+        region = _nonnegative(model) if sign == 1 else cert['domain']
+        names = [('|' + _plain(e) + '|') if sign == 1 else _plain(e) for e in (a, w)]
+        spots = _compare_spots(a, w, conv, sign, region, done)
+        direction = DIRECTION[order.compare_direction(cert)]
+        rule = '输入大的函数值也大' if order.compare_direction(cert) == 'increasing' else '输入大的函数值反而小'
+        if spots is not None:
+            guides = [{'x': at, 'label': name, 'value_label': f'{f}({name})'} for at, name in zip(spots, names)]
+            done = _decorate(done, rf'虚线取两个示意输入：${f}$ 在 ${_domain_text(region, x)}$ 上{direction}，{rule}',
+                             guides=guides)
+    if stem is not None:
+        part['graph'] = stem
+    part['completion_graph'] = done
+
+
+def _sign_graph(d, cert, mirror=True, highlights=(), note=''):
+    I, z = cert['interval'], cert['zero']
+    mirrored = reflect(I) - I
+    sign = -1 if d['property'] == 'odd' else 1
+    lone = sign == -1 and z != 0 and (I | mirrored).contains(0) is not sp.true
+    note = ('；若 $0$ 在定义域内，则 $' + d['function'] + '(0)=0$，图中未画出' if lone else '') + note
+    return example_graph(d['function'], d['variable'], I, cert['direction'], sign, mirrored,
+                         mirror=mirror, zero=z, note=note, highlights=highlights)
+
+
+def _attach_sign_graphs(part, d, phase):
+    from .. import parity_sign_math as sign_math
+    cert = sign_math.solve(d)['certificate']
+    draw = lambda mirror: _sign_graph(d, cert, mirror)
+    stem = draw(phase == 'sign_solve')
+    done = draw(phase != 'sign_known')
+    if stem is not None:
+        part['graph'] = stem
+    if done is not None:
+        part['completion_graph'] = done
 
 
 def model_inequality(d, model):
@@ -735,13 +921,16 @@ def _attach_lines(part, values):
     model = solve(values['description'])
     x = values['description']['variable']
     phase = values['phase']
+    if values['description'].get('route') == 'order' and phase != 'conclude':
+        _attach_order_graphs(part, values['description'], phase)
+    if values['description'].get('route') == 'sign' and phase != 'conclude':
+        _attach_sign_graphs(part, values['description'], phase)
     if values['description'].get('route') in ('order', 'sign'):
-        if phase == 'conclude' and isinstance(model['solution'], sp.Interval):
-            part['completion_number_line'] = _number_line(x, r'\text{解集}', model['solution'])
         return
     graph = _half_graph(values['description'], model, phase == 'mirror') if phase in ('known', 'mirror') else None
     if graph is not None:
         part['completion_graph'] = graph
+        part['graph'] = _half_graph(values['description'], model, phase == 'mirror', stem=True)
     elif phase == 'known' and isinstance(model['known_solution'], sp.Interval):
         part['completion_number_line'] = _number_line(x, r'\text{已知范围内的解}', model['known_solution'])
     elif phase == 'mirror' and isinstance(model['mirrored_solution'], sp.Interval):
@@ -754,7 +943,9 @@ def compile_cards(seeds, interaction_id):
     seed, = seeds
     values = decode_value(seed['values'])
     parts = []
-    for index, view in enumerate(phase_views(values), 1):
+    views = phase_views(values)
+    lead = values['description'].get('route') in ('order', 'sign')
+    for index, view in enumerate(views, 1):
         board, interaction = deepcopy(view['derivation']), deepcopy(view['interaction'])
         if interaction['type'] == 'read':
             board = {'caption': view['title'], 'lines': board_lines(view['proof'])}
@@ -765,5 +956,7 @@ def compile_cards(seeds, interaction_id):
                       'interaction': interaction, 'expected_answer': view['expected_answer'],
                       'feedback': view['feedback'], 'submit_label': '继续' if interaction['type'] == 'read' else '确认判断',
                       'stem_board': board, 'completion_board': view['derivation']})
-        _attach_lines(parts[-1], values)
+        parts[-1].update({k: view[k] for k in ('graph', 'completion_graph', 'card_group_title') if k in view})
+        if not lead or index == len(views):
+            _attach_lines(parts[-1], values)
     return {'parts': parts, 'diagnostics': []}

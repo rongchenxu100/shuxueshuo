@@ -38,7 +38,7 @@
             "method-function-symmetry"
           ]
         },
-        "344d72bc45a60abbe31f9bc0#1": {
+        "d1224aadeab5c1911f42c71b#1": {
           "title": "把输入换成相反数",
           "position": 4,
           "refs": [
@@ -46,7 +46,7 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "c8c0f474544a7deaf0a67ef9#1": {
+        "ee8826be3ac0fd59c48db589#1": {
           "title": "求出所求的值",
           "position": 5,
           "refs": [
@@ -73,7 +73,7 @@
             "method-parity-extension"
           ]
         },
-        "ae496508c2170705e372d5bb#1": {
+        "ef30d3c1aed470c63f3d26a4#1": {
           "title": "把输入换到已知一侧",
           "position": 9,
           "refs": [
@@ -81,7 +81,7 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "f21da98e36ae06d1e98daecb#1": {
+        "5e0b76dae45d16a7f8325b76#1": {
           "title": "代入相反输入",
           "position": 10,
           "refs": [
@@ -90,7 +90,7 @@
             "skill-simplify"
           ]
         },
-        "7b3c60168d199ff81e6eb31a#1": {
+        "e7d9704149d4053254d1bcb1#1": {
           "title": "用奇偶性换回 f(x)",
           "position": 11,
           "refs": [
@@ -98,7 +98,7 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "eaff9cb5b93bba83f07c7249#1": {
+        "67abd70eca14949d534d3ff2#1": {
           "title": "检查零点并写出结论",
           "position": 12,
           "refs": [
@@ -108,6 +108,6 @@
       }
     }
   },
-  "page_contract_hash": "42212e89b4c3c8161fa1130d8c8c05f873f78bbf597a82a22e065a2a060a3f52",
-  "practice_version": "62f1cab5646d604dae39bb72e6a4cedf08f3b3e35753858fbf029c28a397ec2d"
+  "page_contract_hash": "2c37bc3b96d0873eb398fb0cb9f7282b6ee9d1bd5119feb780119ad6f58ad9e1",
+  "practice_version": "2e2797672aa591a6017fa3f13a8d7475ea8ebfe5453ba389594ddc618cdca308"
 }

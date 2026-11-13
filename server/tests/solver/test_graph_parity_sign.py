@@ -16,7 +16,8 @@ from tools.export_graph_walk_course import export_course
 
 A19 = (r'已知 $f(x)$ 是奇函数，且在 $(0,+\infty)$ 上是增函数，又 $f(2)=0$，'
        r'则 $\frac{f(x-1)}{x}<0$ 的解集为____．')
-SIGN_TITLES = ['确定已知区间上函数值的符号', '用奇偶性得到另一侧的符号', '结合分母列出符号条件', '解出各种情况，写出解集']
+SIGN_TITLES = ['确定已知区间上函数值的符号', '用奇偶性得到另一侧的符号', '结合分母列出符号条件',
+               '情况一：$x>0$', '情况二：$x<0$', '合并各种情况，写出解集']
 o = sp.Interval.open
 
 
@@ -140,7 +141,11 @@ def test_a19_end_to_end(tmp_path):
         labels = [option['label'] for option in part['interaction']['options']]
         assert len(labels) == len(set(labels)) >= 3
     assert '异号' not in parts[2]['question']
-    assert '$x\\in \\left(-1, 0\\right) \\cup \\left(1, 3\\right)$' in [o['label'] for o in parts[3]['interaction']['options']]
+    for part, expected in zip(parts[3:], ['$1<x<3$', '$-1<x<0$',
+                                         r'$x\in \left(-1, 0\right) \cup \left(1, 3\right)$'], strict=True):
+        correct = [o['label'] for o in part['interaction']['options']
+                   if o['value'] in part['expected_answer']['one_of']]
+        assert correct == [expected]
 
 
 @pytest.mark.stage_three_db

@@ -36,7 +36,7 @@
             "method-parity-inequality"
           ]
         },
-        "5af7befaf9de95a8d127451f#1": {
+        "a0a967261e87745dd1be905c#1": {
           "title": "先确定定义域中的参数",
           "position": 4,
           "refs": [
@@ -45,8 +45,8 @@
             "function-parity#definition"
           ]
         },
-        "5af7befaf9de95a8d127451f#2": {
-          "title": "把两个输入换到非负一侧",
+        "a0a967261e87745dd1be905c#2": {
+          "title": "把两个输入都变成非负数",
           "position": 5,
           "refs": [
             "method-parity-inequality#rewrite",
@@ -54,7 +54,7 @@
             "function-parity#definition"
           ]
         },
-        "02e6b6f0e31be282215c49a4#1": {
+        "683162376440cc79c066cd91#1": {
           "title": "确定非负一侧的单调方向",
           "position": 6,
           "refs": [
@@ -64,7 +64,7 @@
             "function-parity-graph#monotonicity"
           ]
         },
-        "4bc1eeed34627a776cdef0eb#1": {
+        "c818e71597d6541ad5fbd49e#1": {
           "title": "去掉函数符号比较输入",
           "position": 7,
           "refs": [
@@ -76,7 +76,7 @@
             "set-intersection-union#intersection"
           ]
         },
-        "30b3f316d856ac7d893614dc#1": {
+        "f57ffc35331c8868c836ce67#1": {
           "title": "合法输入求交，写出解集",
           "position": 8,
           "refs": [
@@ -86,6 +86,6 @@
       }
     }
   },
-  "page_contract_hash": "2713ac68d0f1ce163c7b98f203b42327bb42b52a239fddee3a9ad9fd7259f47e",
-  "practice_version": "074b8a1aeb32f79099172935289c564ca95152959dbcae6aabd8aaa036c2a811"
+  "page_contract_hash": "9277de75467090e833a543a89d064978f83fb5d1d58420964be33d579bba0ef5",
+  "practice_version": "58d0b7f36031f60b6ad6f3c94f849e13a2e160b13739156ef2e02973ee2c4ff4"
 }

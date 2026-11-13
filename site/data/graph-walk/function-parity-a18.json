@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "problemId": "function-parity-a18",
-  "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+  "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
   "problem": {
     "text": "已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为____．"
   },
@@ -165,7 +165,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}\\text{奇函数}\\\\f(1-2a)+f(a-3)>0\\end{gathered}"
+                "math": "\\begin{gathered}\\text{奇函数：}f(a)=-f(-a)\\\\f(1-2a)+f(a-3)>0\\end{gathered}"
               },
               {
                 "label": "等价的比较",
@@ -173,6 +173,73 @@
               }
             ],
             "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；虚线：$u$ 与 $-u$ 关于原点对称，函数值互为相反数，$f(-u)=-f(u)$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "guides": [
+                {
+                  "label": "u",
+                  "value_label": "f(u)",
+                  "x": -1.2
+                },
+                {
+                  "label": "-u",
+                  "value_label": "f(-u)",
+                  "x": 1.2
+                }
+              ],
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(a) 的图像",
+              "variable": "a",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
           },
           "expected_answer": {
             "one_of": [
@@ -182,13 +249,80 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "32fd68a0cb1c163220908af2#1",
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；虚线：$u$ 与 $-u$ 关于原点对称，函数值互为相反数，$f(-u)=-f(u)$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "guides": [
+                {
+                  "label": "u",
+                  "value_label": "f(u)",
+                  "x": -1.2
+                },
+                {
+                  "label": "-u",
+                  "value_label": "f(-u)",
+                  "x": 1.2
+                }
+              ],
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(a) 的图像",
+              "variable": "a",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "4736bd69d3aab6da051abeb5#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$f(1 - 2 a)>f(a - 3)$",
-                "value": "o2"
+                "label": "$f(1 - 2 a)>f(3 - a)$",
+                "value": "o1"
               },
               {
                 "label": "$f(2 a - 1)>f(3 - a)$",
@@ -199,8 +333,8 @@
                 "value": "o3"
               },
               {
-                "label": "$f(1 - 2 a)>f(3 - a)$",
-                "value": "o1"
+                "label": "$f(1 - 2 a)>f(a - 3)$",
+                "value": "o2"
               }
             ],
             "type": "choice"
@@ -212,7 +346,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}\\text{奇函数}\\\\f(1-2a)+f(a-3)>0\\end{gathered}"
+                "math": "\\begin{gathered}\\text{奇函数：}f(a)=-f(-a)\\\\f(1-2a)+f(a-3)>0\\end{gathered}"
               },
               {
                 "label": "等价的比较",
@@ -226,12 +360,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "c039b44bed74f1451d40d5cf1b4c19491e3c2998251ee56c67d6127fa30e23e5",
+              "math_step_sha256": "c10ef37ae1bd103fc2fa374b66c88400a9ebe2ff40ddd553a4bd26fe10bf3818",
               "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "c8e1dcace765479faff16303",
+          "stream_interaction_id": "852233ec1274f349e574cc05",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "改写成两个函数值的比较",
@@ -250,7 +384,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\\\\\text{奇函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+                "math": "\\begin{gathered}\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\\\\\text{奇函数：}f(a)=-f(-a)\\text{，定义域 }\\left[-2, 2\\right]\\end{gathered}"
               },
               {
                 "label": "单调性",
@@ -258,6 +392,71 @@
               }
             ],
             "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；箭头标出各段的增减。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [
+                {
+                  "from": -2,
+                  "label": "[-2, 2]",
+                  "left_closed": true,
+                  "right_closed": true,
+                  "to": 2,
+                  "trend": "decreasing"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(a) 的图像",
+              "variable": "a",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
           },
           "expected_answer": {
             "one_of": [
@@ -267,21 +466,86 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "056f705fa837ac287d839561#1",
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；箭头标出各段的增减。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [
+                {
+                  "from": -2,
+                  "label": "[-2, 2]",
+                  "left_closed": true,
+                  "right_closed": true,
+                  "to": 2,
+                  "trend": "decreasing"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(a) 的图像",
+              "variable": "a",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "4398d230cc24aca1c7d10184#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上不单调}$",
-                "value": "o3"
+                "label": "$f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上严格递减}$",
+                "value": "o1"
               },
               {
                 "label": "$f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上严格递增}$",
                 "value": "o2"
               },
               {
-                "label": "$f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上严格递减}$",
-                "value": "o1"
+                "label": "$f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上不单调}$",
+                "value": "o3"
               }
             ],
             "type": "choice"
@@ -293,7 +557,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\\\\\text{奇函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+                "math": "\\begin{gathered}\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\\\\\text{奇函数：}f(a)=-f(-a)\\text{，定义域 }\\left[-2, 2\\right]\\end{gathered}"
               },
               {
                 "label": "单调性",
@@ -307,12 +571,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "c2abc0f4356e765052dcf0e9e7886c638a3d8cf405711dcdbd1d57af2b836943",
+              "math_step_sha256": "7bc1dba244493fe79481a0bba100b0ce2f7886347fa469986c617597c2bf71a9",
               "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "b1f62f2822ba2a4b8aee5d1e",
+          "stream_interaction_id": "da6754ff22b076b0da27d0ca",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "确定整个定义域上的单调方向",
@@ -340,6 +604,73 @@
             ],
             "layout": "derivation"
           },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；虚线取两个示意输入：$f$ 在 $\\left[-2, 2\\right]$ 上严格递减，输入大的函数值反而小。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "guides": [
+                {
+                  "label": "1-2a",
+                  "value_label": "f(1-2a)",
+                  "x": -1
+                },
+                {
+                  "label": "3-a",
+                  "value_label": "f(3-a)",
+                  "x": 1
+                }
+              ],
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(a) 的图像",
+              "variable": "a",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
           "expected_answer": {
             "one_of": [
               "o1"
@@ -348,7 +679,62 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "353ed2692e84eda388e64b86#1",
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                3
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(a) 的图像",
+              "variable": "a",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "25959c9cc2ac39fa9da12108#1",
           "interaction": {
             "field": "answer",
             "options": [
@@ -388,12 +774,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "78412f4cb1f79eda2eea3e6189b2738fbd3fd9676b7a7247590660bb6d9aea9f",
+              "math_step_sha256": "c620f0866c987aad27dd1051403c79de32e7fffa763a7691f9e25e1676ae0bc3",
               "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "f5f0ee0ba2f792efbeed4c64",
+          "stream_interaction_id": "d4a66ad19cac5a15771c6ee2",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "去掉函数符号比较输入",
@@ -421,110 +807,6 @@
             ],
             "layout": "derivation"
           },
-          "completion_number_line": {
-            "bounds": [
-              -1,
-              2.5
-            ],
-            "exact_set": {
-              "exact": {
-                "$math": "Interval",
-                "args": [
-                  {
-                    "$math": "Integer",
-                    "value": "1"
-                  },
-                  {
-                    "$math": "Rational",
-                    "p": "3",
-                    "q": "2"
-                  },
-                  {
-                    "$math": "BooleanFalse"
-                  },
-                  {
-                    "$math": "BooleanFalse"
-                  }
-                ]
-              },
-              "expression": "Interval(1, 3/2)",
-              "latex": "\\left[1, \\frac{3}{2}\\right]"
-            },
-            "intervals": [
-              {
-                "exact": {
-                  "exact": {
-                    "$math": "Interval",
-                    "args": [
-                      {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      {
-                        "$math": "Rational",
-                        "p": "3",
-                        "q": "2"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      }
-                    ]
-                  },
-                  "expression": "Interval(1, 3/2)",
-                  "latex": "\\left[1, \\frac{3}{2}\\right]"
-                },
-                "left": 1,
-                "left_closed": true,
-                "right": 1.5,
-                "right_closed": true
-              }
-            ],
-            "label": "\\text{解集}",
-            "points": [],
-            "ticks": [
-              {
-                "at": 0,
-                "exact": {
-                  "exact": {
-                    "$math": "Integer",
-                    "value": "0"
-                  },
-                  "expression": "0",
-                  "latex": "0"
-                },
-                "label": "0"
-              },
-              {
-                "at": 1,
-                "exact": {
-                  "exact": {
-                    "$math": "Integer",
-                    "value": "1"
-                  },
-                  "expression": "1",
-                  "latex": "1"
-                },
-                "label": "1"
-              },
-              {
-                "at": 1.5,
-                "exact": {
-                  "exact": {
-                    "$math": "Rational",
-                    "p": "3",
-                    "q": "2"
-                  },
-                  "expression": "3/2",
-                  "latex": "\\frac{3}{2}"
-                },
-                "label": "3/2"
-              }
-            ],
-            "variable": "a"
-          },
           "expected_answer": {
             "one_of": [
               "o1"
@@ -533,10 +815,14 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "0504c36f3fafa208b0f80a63#1",
+          "id": "c3e3c0a03f50994e8e5e010a#1",
           "interaction": {
             "field": "answer",
             "options": [
+              {
+                "label": "$1\\le a\\le \\frac{3}{2}$",
+                "value": "o1"
+              },
               {
                 "label": "$a>-2$",
                 "value": "o2"
@@ -544,10 +830,6 @@
               {
                 "label": "$a\\in\\varnothing$",
                 "value": "o3"
-              },
-              {
-                "label": "$1\\le a\\le \\frac{3}{2}$",
-                "value": "o1"
               }
             ],
             "type": "choice"
@@ -573,12 +855,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "f234448fac4fbe1e856ccbc09542408f76ed166dfb29006c4fdd2596b1f624ff",
+              "math_step_sha256": "1438f3a0c22f47c917ce96a6924dee015ede9a6e691d31e15c7ab689016e2534",
               "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "e68888b2cef4f3490ab913a5",
+          "stream_interaction_id": "2645d0df711fc55e34666afa",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "合法输入求交，写出解集",
@@ -630,35 +912,35 @@
           "expression": "Interval(1, 3/2)",
           "latex": "\\left[1, \\frac{3}{2}\\right]"
         },
-        "lesson_version": "91f1f6440a4363c2ae6c4a5437e6446c41c27122c8eaf2170956e594f1e50b1e",
+        "lesson_version": "7b4e78858e5c6ac04ab982998bb2ba01373c68de2c0d0c4ec9945809e2f55abb",
         "math_steps": [
           {
-            "math_step_sha256": "c039b44bed74f1451d40d5cf1b4c19491e3c2998251ee56c67d6127fa30e23e5",
+            "math_step_sha256": "c10ef37ae1bd103fc2fa374b66c88400a9ebe2ff40ddd553a4bd26fe10bf3818",
             "ordinal": 1,
             "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite"
           },
           {
-            "math_step_sha256": "c2abc0f4356e765052dcf0e9e7886c638a3d8cf405711dcdbd1d57af2b836943",
+            "math_step_sha256": "7bc1dba244493fe79481a0bba100b0ce2f7886347fa469986c617597c2bf71a9",
             "ordinal": 2,
             "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction"
           },
           {
-            "math_step_sha256": "78412f4cb1f79eda2eea3e6189b2738fbd3fd9676b7a7247590660bb6d9aea9f",
+            "math_step_sha256": "c620f0866c987aad27dd1051403c79de32e7fffa763a7691f9e25e1676ae0bc3",
             "ordinal": 3,
             "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare"
           },
           {
-            "math_step_sha256": "f234448fac4fbe1e856ccbc09542408f76ed166dfb29006c4fdd2596b1f624ff",
+            "math_step_sha256": "1438f3a0c22f47c917ce96a6924dee015ede9a6e691d31e15c7ab689016e2534",
             "ordinal": 4,
             "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "fc40ca3399b14e74b85ea0e35260a541",
+        "run_id": "51e0ae1a664a4eee80b294144a371b5c",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "8069d198cd5925b9175bce4e24e815316344079df34a8f5c70018967ef5fecd3",
-        "verified_route_sha256": "186edb67b99966ad0dee6a0bfcf1db9b1817f51a08d43bdaa3bfb08b556708e9"
+        "task_id": "23a7cc1ef5789ea22290be574f9174901bbba67adec3763aeac9ec2a9cc62497",
+        "verified_route_sha256": "80fcf4030455526f1f4e155ba9ba0ee73b731e06ac9ec1deb3859e1cb701349b"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -1078,13 +1360,13 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"8e40430464c8bacf26d4864bda1cad369d128cfb309f5911e3df1b139d3d126f\",\"7813c9c0a4c944856ac5197a31402ca448f23c7974adf940113c521a8de0f61b\",\"73f524fb41b242b5a7e1fbfedae81d1e\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"599ca7a6a2a826efc65ac1f61f476c075424e04ec264ec6b7eae0d98bda6545f\",\"9dfce0958dc87a3020c794f791c5e8173b3fca39536a64d0dd4e1f08554314cd\",\"e4aee1b76f8640bc9b37ade837b18352\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "fc40ca3399b14e74b85ea0e35260a541",
-    "lesson_version": "91f1f6440a4363c2ae6c4a5437e6446c41c27122c8eaf2170956e594f1e50b1e",
-    "stream_id": "fc40ca3399b14e74b85ea0e35260a541",
+    "run_id": "51e0ae1a664a4eee80b294144a371b5c",
+    "lesson_version": "7b4e78858e5c6ac04ab982998bb2ba01373c68de2c0d0c4ec9945809e2f55abb",
+    "stream_id": "51e0ae1a664a4eee80b294144a371b5c",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "10e195ee182567633c5dc330b92ed63a1138f6e6142c3a67afa910a097e02453",
+    "base_bundle_version": "599ca7a6a2a826efc65ac1f61f476c075424e04ec264ec6b7eae0d98bda6545f",
     "d3": {
       "expected_answer": {},
       "id": "D3",
@@ -1128,7 +1410,7 @@
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}\\text{奇函数}\\\\f(1-2a)+f(a-3)>0\\end{gathered}"
+              "math": "\\begin{gathered}\\text{奇函数：}f(a)=-f(-a)\\\\f(1-2a)+f(a-3)>0\\end{gathered}"
             },
             {
               "label": "等价的比较",
@@ -1137,15 +1419,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "91f1f6440a4363c2ae6c4a5437e6446c41c27122c8eaf2170956e594f1e50b1e",
+        "lesson_version": "7b4e78858e5c6ac04ab982998bb2ba01373c68de2c0d0c4ec9945809e2f55abb",
         "local_check": "passed",
-        "math_step_sha256": "c039b44bed74f1451d40d5cf1b4c19491e3c2998251ee56c67d6127fa30e23e5",
+        "math_step_sha256": "c10ef37ae1bd103fc2fa374b66c88400a9ebe2ff40ddd553a4bd26fe10bf3818",
         "method_ref": "method-parity-inequality#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "fc40ca3399b14e74b85ea0e35260a541",
+        "run_id": "51e0ae1a664a4eee80b294144a371b5c",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1169,7 +1451,7 @@
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\\\\\text{奇函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+              "math": "\\begin{gathered}\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\\\\\text{奇函数：}f(a)=-f(-a)\\text{，定义域 }\\left[-2, 2\\right]\\end{gathered}"
             },
             {
               "label": "单调性",
@@ -1178,15 +1460,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "91f1f6440a4363c2ae6c4a5437e6446c41c27122c8eaf2170956e594f1e50b1e",
+        "lesson_version": "7b4e78858e5c6ac04ab982998bb2ba01373c68de2c0d0c4ec9945809e2f55abb",
         "local_check": "passed",
-        "math_step_sha256": "c2abc0f4356e765052dcf0e9e7886c638a3d8cf405711dcdbd1d57af2b836943",
+        "math_step_sha256": "7bc1dba244493fe79481a0bba100b0ce2f7886347fa469986c617597c2bf71a9",
         "method_ref": "method-parity-inequality#direction",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "fc40ca3399b14e74b85ea0e35260a541",
+        "run_id": "51e0ae1a664a4eee80b294144a371b5c",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -1220,15 +1502,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "91f1f6440a4363c2ae6c4a5437e6446c41c27122c8eaf2170956e594f1e50b1e",
+        "lesson_version": "7b4e78858e5c6ac04ab982998bb2ba01373c68de2c0d0c4ec9945809e2f55abb",
         "local_check": "passed",
-        "math_step_sha256": "78412f4cb1f79eda2eea3e6189b2738fbd3fd9676b7a7247590660bb6d9aea9f",
+        "math_step_sha256": "c620f0866c987aad27dd1051403c79de32e7fffa763a7691f9e25e1676ae0bc3",
         "method_ref": "method-parity-inequality#compare",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "fc40ca3399b14e74b85ea0e35260a541",
+        "run_id": "51e0ae1a664a4eee80b294144a371b5c",
         "source_refs": [
           "/steps/5/calls/0"
         ],
@@ -1264,15 +1546,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "91f1f6440a4363c2ae6c4a5437e6446c41c27122c8eaf2170956e594f1e50b1e",
+        "lesson_version": "7b4e78858e5c6ac04ab982998bb2ba01373c68de2c0d0c4ec9945809e2f55abb",
         "local_check": "passed",
-        "math_step_sha256": "f234448fac4fbe1e856ccbc09542408f76ed166dfb29006c4fdd2596b1f624ff",
+        "math_step_sha256": "1438f3a0c22f47c917ce96a6924dee015ede9a6e691d31e15c7ab689016e2534",
         "method_ref": "method-parity-inequality#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "fc40ca3399b14e74b85ea0e35260a541",
+        "run_id": "51e0ae1a664a4eee80b294144a371b5c",
         "source_refs": [
           "/steps/9/calls/0",
           "/steps/9/skipped_calls/0",
@@ -1340,45 +1622,45 @@
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "c039b44bed74f1451d40d5cf1b4c19491e3c2998251ee56c67d6127fa30e23e5",
+        "math_step_sha256": "c10ef37ae1bd103fc2fa374b66c88400a9ebe2ff40ddd553a4bd26fe10bf3818",
         "status": "interactive",
-        "interaction_id": "c8e1dcace765479faff16303"
+        "interaction_id": "852233ec1274f349e574cc05"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction",
         "ordinal": 2,
-        "math_step_sha256": "c2abc0f4356e765052dcf0e9e7886c638a3d8cf405711dcdbd1d57af2b836943",
+        "math_step_sha256": "7bc1dba244493fe79481a0bba100b0ce2f7886347fa469986c617597c2bf71a9",
         "status": "interactive",
-        "interaction_id": "b1f62f2822ba2a4b8aee5d1e"
+        "interaction_id": "da6754ff22b076b0da27d0ca"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare",
         "ordinal": 3,
-        "math_step_sha256": "78412f4cb1f79eda2eea3e6189b2738fbd3fd9676b7a7247590660bb6d9aea9f",
+        "math_step_sha256": "c620f0866c987aad27dd1051403c79de32e7fffa763a7691f9e25e1676ae0bc3",
         "status": "interactive",
-        "interaction_id": "f5f0ee0ba2f792efbeed4c64"
+        "interaction_id": "d4a66ad19cac5a15771c6ee2"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude",
         "ordinal": 4,
-        "math_step_sha256": "f234448fac4fbe1e856ccbc09542408f76ed166dfb29006c4fdd2596b1f624ff",
+        "math_step_sha256": "1438f3a0c22f47c917ce96a6924dee015ede9a6e691d31e15c7ab689016e2534",
         "status": "interactive",
-        "interaction_id": "e68888b2cef4f3490ab913a5"
+        "interaction_id": "2645d0df711fc55e34666afa"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "c8e1dcace765479faff16303",
+        "interaction_id": "852233ec1274f349e574cc05",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "fe308c637dfb86fa8a19aea1aa4492c3a1e6ad03f0ab4c3c95c7f58c2fc659d9",
-        "lesson_version": "91f1f6440a4363c2ae6c4a5437e6446c41c27122c8eaf2170956e594f1e50b1e",
+        "interaction_sha256": "8d9e8b41949366b52107b43f8d756428d68d77b8ffed348a2a60f90d82873c6b",
+        "lesson_version": "7b4e78858e5c6ac04ab982998bb2ba01373c68de2c0d0c4ec9945809e2f55abb",
         "parts": [
           {
             "completion_board": {
@@ -1387,7 +1669,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}\\text{奇函数}\\\\f(1-2a)+f(a-3)>0\\end{gathered}"
+                  "math": "\\begin{gathered}\\text{奇函数：}f(a)=-f(-a)\\\\f(1-2a)+f(a-3)>0\\end{gathered}"
                 },
                 {
                   "label": "等价的比较",
@@ -1395,6 +1677,73 @@
                 }
               ],
               "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；虚线：$u$ 与 $-u$ 关于原点对称，函数值互为相反数，$f(-u)=-f(u)$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "guides": [
+                  {
+                    "label": "u",
+                    "value_label": "f(u)",
+                    "x": -1.2
+                  },
+                  {
+                    "label": "-u",
+                    "value_label": "f(-u)",
+                    "x": 1.2
+                  }
+                ],
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(a) 的图像",
+                "variable": "a",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
             },
             "expected_answer": {
               "one_of": [
@@ -1404,7 +1753,74 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "c8e1dcace765479faff16303#1",
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；虚线：$u$ 与 $-u$ 关于原点对称，函数值互为相反数，$f(-u)=-f(u)$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "guides": [
+                  {
+                    "label": "u",
+                    "value_label": "f(u)",
+                    "x": -1.2
+                  },
+                  {
+                    "label": "-u",
+                    "value_label": "f(-u)",
+                    "x": 1.2
+                  }
+                ],
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(a) 的图像",
+                "variable": "a",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "852233ec1274f349e574cc05#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1413,16 +1829,16 @@
                   "value": "o3"
                 },
                 {
-                  "label": "$f(2 a - 1)>f(3 - a)$",
-                  "value": "o4"
+                  "label": "$f(1 - 2 a)>f(3 - a)$",
+                  "value": "o1"
                 },
                 {
                   "label": "$f(1 - 2 a)>f(a - 3)$",
                   "value": "o2"
                 },
                 {
-                  "label": "$f(1 - 2 a)>f(3 - a)$",
-                  "value": "o1"
+                  "label": "$f(2 a - 1)>f(3 - a)$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -1434,7 +1850,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}\\text{奇函数}\\\\f(1-2a)+f(a-3)>0\\end{gathered}"
+                  "math": "\\begin{gathered}\\text{奇函数：}f(a)=-f(-a)\\\\f(1-2a)+f(a-3)>0\\end{gathered}"
                 },
                 {
                   "label": "等价的比较",
@@ -1448,11 +1864,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "fc40ca3399b14e74b85ea0e35260a541",
+        "run_id": "51e0ae1a664a4eee80b294144a371b5c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "c039b44bed74f1451d40d5cf1b4c19491e3c2998251ee56c67d6127fa30e23e5",
+            "math_step_sha256": "c10ef37ae1bd103fc2fa374b66c88400a9ebe2ff40ddd553a4bd26fe10bf3818",
             "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite"
           }
         ],
@@ -1460,10 +1876,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "b1f62f2822ba2a4b8aee5d1e",
+        "interaction_id": "da6754ff22b076b0da27d0ca",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "2fb6538643c014c0987476dde969f2ba1a441bd132b26f8d34d888ef673300b1",
-        "lesson_version": "91f1f6440a4363c2ae6c4a5437e6446c41c27122c8eaf2170956e594f1e50b1e",
+        "interaction_sha256": "3a44e80329699ba0ab6cf4ff1f6572ffe3b44c3d7dcaa8d365d70e720758e1c3",
+        "lesson_version": "7b4e78858e5c6ac04ab982998bb2ba01373c68de2c0d0c4ec9945809e2f55abb",
         "parts": [
           {
             "completion_board": {
@@ -1472,7 +1888,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\\\\\text{奇函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+                  "math": "\\begin{gathered}\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\\\\\text{奇函数：}f(a)=-f(-a)\\text{，定义域 }\\left[-2, 2\\right]\\end{gathered}"
                 },
                 {
                   "label": "单调性",
@@ -1480,6 +1896,71 @@
                 }
               ],
               "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；箭头标出各段的增减。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "interval_marks": [
+                  {
+                    "from": -2,
+                    "label": "[-2, 2]",
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 2,
+                    "trend": "decreasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(a) 的图像",
+                "variable": "a",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
             },
             "expected_answer": {
               "one_of": [
@@ -1489,21 +1970,86 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "b1f62f2822ba2a4b8aee5d1e#1",
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；箭头标出各段的增减。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "interval_marks": [
+                  {
+                    "from": -2,
+                    "label": "[-2, 2]",
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 2,
+                    "trend": "decreasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(a) 的图像",
+                "variable": "a",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "da6754ff22b076b0da27d0ca#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上严格递增}$",
-                  "value": "o2"
+                  "label": "$f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上不单调}$",
+                  "value": "o3"
                 },
                 {
                   "label": "$f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上严格递减}$",
                   "value": "o1"
                 },
                 {
-                  "label": "$f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上不单调}$",
-                  "value": "o3"
+                  "label": "$f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上严格递增}$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1515,7 +2061,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\\\\\text{奇函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+                  "math": "\\begin{gathered}\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\\\\\text{奇函数：}f(a)=-f(-a)\\text{，定义域 }\\left[-2, 2\\right]\\end{gathered}"
                 },
                 {
                   "label": "单调性",
@@ -1529,11 +2075,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "fc40ca3399b14e74b85ea0e35260a541",
+        "run_id": "51e0ae1a664a4eee80b294144a371b5c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "c2abc0f4356e765052dcf0e9e7886c638a3d8cf405711dcdbd1d57af2b836943",
+            "math_step_sha256": "7bc1dba244493fe79481a0bba100b0ce2f7886347fa469986c617597c2bf71a9",
             "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction"
           }
         ],
@@ -1541,10 +2087,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "f5f0ee0ba2f792efbeed4c64",
+        "interaction_id": "d4a66ad19cac5a15771c6ee2",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "5748dc4b0c7437d23582f709dc15724ab31e5de65cc1532a685c755ce2487911",
-        "lesson_version": "91f1f6440a4363c2ae6c4a5437e6446c41c27122c8eaf2170956e594f1e50b1e",
+        "interaction_sha256": "8205de1ca27d42e88c9e78e6487b97ef5aa0566123a77e63158169ddd06d69c9",
+        "lesson_version": "7b4e78858e5c6ac04ab982998bb2ba01373c68de2c0d0c4ec9945809e2f55abb",
         "parts": [
           {
             "completion_board": {
@@ -1562,6 +2108,73 @@
               ],
               "layout": "derivation"
             },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；虚线取两个示意输入：$f$ 在 $\\left[-2, 2\\right]$ 上严格递减，输入大的函数值反而小。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "guides": [
+                  {
+                    "label": "1-2a",
+                    "value_label": "f(1-2a)",
+                    "x": -1
+                  },
+                  {
+                    "label": "3-a",
+                    "value_label": "f(3-a)",
+                    "x": 1
+                  }
+                ],
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(a) 的图像",
+                "variable": "a",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1570,14 +2183,65 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "f5f0ee0ba2f792efbeed4c64#1",
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  3
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(a) 的图像",
+                "variable": "a",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "d4a66ad19cac5a15771c6ee2#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$1 - 2 a>3 - a$",
-                  "value": "o2"
-                },
                 {
                   "label": "$1 - 2 a<3 - a$",
                   "value": "o1"
@@ -1585,6 +2249,10 @@
                 {
                   "label": "$1 - 2 a<a - 3$",
                   "value": "o3"
+                },
+                {
+                  "label": "$1 - 2 a>3 - a$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1610,11 +2278,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "fc40ca3399b14e74b85ea0e35260a541",
+        "run_id": "51e0ae1a664a4eee80b294144a371b5c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "78412f4cb1f79eda2eea3e6189b2738fbd3fd9676b7a7247590660bb6d9aea9f",
+            "math_step_sha256": "c620f0866c987aad27dd1051403c79de32e7fffa763a7691f9e25e1676ae0bc3",
             "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare"
           }
         ],
@@ -1622,10 +2290,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "e68888b2cef4f3490ab913a5",
+        "interaction_id": "2645d0df711fc55e34666afa",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "fa7497ef2635d5eb3757683e73c1795ec0b2f817e93bf15c9738145577aa8145",
-        "lesson_version": "91f1f6440a4363c2ae6c4a5437e6446c41c27122c8eaf2170956e594f1e50b1e",
+        "interaction_sha256": "03cbf859b399da51d3dcef2c0293a33c9b8ca56cd8d71b578c9bf52e763a13ae",
+        "lesson_version": "7b4e78858e5c6ac04ab982998bb2ba01373c68de2c0d0c4ec9945809e2f55abb",
         "parts": [
           {
             "completion_board": {
@@ -1643,110 +2311,6 @@
               ],
               "layout": "derivation"
             },
-            "completion_number_line": {
-              "bounds": [
-                -1,
-                2.5
-              ],
-              "exact_set": {
-                "exact": {
-                  "$math": "Interval",
-                  "args": [
-                    {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    {
-                      "$math": "Rational",
-                      "p": "3",
-                      "q": "2"
-                    },
-                    {
-                      "$math": "BooleanFalse"
-                    },
-                    {
-                      "$math": "BooleanFalse"
-                    }
-                  ]
-                },
-                "expression": "Interval(1, 3/2)",
-                "latex": "\\left[1, \\frac{3}{2}\\right]"
-              },
-              "intervals": [
-                {
-                  "exact": {
-                    "exact": {
-                      "$math": "Interval",
-                      "args": [
-                        {
-                          "$math": "Integer",
-                          "value": "1"
-                        },
-                        {
-                          "$math": "Rational",
-                          "p": "3",
-                          "q": "2"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        }
-                      ]
-                    },
-                    "expression": "Interval(1, 3/2)",
-                    "latex": "\\left[1, \\frac{3}{2}\\right]"
-                  },
-                  "left": 1,
-                  "left_closed": true,
-                  "right": 1.5,
-                  "right_closed": true
-                }
-              ],
-              "label": "\\text{解集}",
-              "points": [],
-              "ticks": [
-                {
-                  "at": 0,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "0"
-                    },
-                    "expression": "0",
-                    "latex": "0"
-                  },
-                  "label": "0"
-                },
-                {
-                  "at": 1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    "expression": "1",
-                    "latex": "1"
-                  },
-                  "label": "1"
-                },
-                {
-                  "at": 1.5,
-                  "exact": {
-                    "exact": {
-                      "$math": "Rational",
-                      "p": "3",
-                      "q": "2"
-                    },
-                    "expression": "3/2",
-                    "latex": "\\frac{3}{2}"
-                  },
-                  "label": "3/2"
-                }
-              ],
-              "variable": "a"
-            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1755,21 +2319,21 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "e68888b2cef4f3490ab913a5#1",
+            "id": "2645d0df711fc55e34666afa#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$a>-2$",
-                  "value": "o2"
+                  "label": "$1\\le a\\le \\frac{3}{2}$",
+                  "value": "o1"
                 },
                 {
                   "label": "$a\\in\\varnothing$",
                   "value": "o3"
                 },
                 {
-                  "label": "$1\\le a\\le \\frac{3}{2}$",
-                  "value": "o1"
+                  "label": "$a>-2$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1795,11 +2359,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "fc40ca3399b14e74b85ea0e35260a541",
+        "run_id": "51e0ae1a664a4eee80b294144a371b5c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "f234448fac4fbe1e856ccbc09542408f76ed166dfb29006c4fdd2596b1f624ff",
+            "math_step_sha256": "1438f3a0c22f47c917ce96a6924dee015ede9a6e691d31e15c7ab689016e2534",
             "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
           }
         ],

@@ -36,7 +36,7 @@
             "method-parity-inequality"
           ]
         },
-        "8556335779c187054f24b196#1": {
+        "e5424cd0b0f34e3e51ba2a1f#1": {
           "title": "确定已知区间上函数值的符号",
           "position": 4,
           "refs": [
@@ -46,7 +46,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "736f7b1cb890622a396763c8#1": {
+        "2e89bbb80ab39079f0ba93cf#1": {
           "title": "用奇偶性得到另一侧的符号",
           "position": 5,
           "refs": [
@@ -56,7 +56,7 @@
             "function-parity-graph#paired-values"
           ]
         },
-        "fe1ca5e9c03d1840092780b8#1": {
+        "655c5d13c6de4311c18a0ab0#1": {
           "title": "结合分母列出符号条件",
           "position": 6,
           "refs": [
@@ -67,9 +67,23 @@
             "rational-expression#meaning"
           ]
         },
-        "eeab169dc103d3805af668de#1": {
-          "title": "解出各种情况，写出解集",
+        "4df3e7ba82310cdcdc931946#1": {
+          "title": "情况一：$x>0$",
           "position": 7,
+          "refs": [
+            "method-parity-inequality#conclude"
+          ]
+        },
+        "4df3e7ba82310cdcdc931946#2": {
+          "title": "情况二：$x<0$",
+          "position": 8,
+          "refs": [
+            "method-parity-inequality#conclude"
+          ]
+        },
+        "4df3e7ba82310cdcdc931946#3": {
+          "title": "合并各种情况，写出解集",
+          "position": 9,
           "refs": [
             "method-parity-inequality#conclude"
           ]
@@ -77,6 +91,6 @@
       }
     }
   },
-  "page_contract_hash": "9f7903c360376e972b9c8ca24bcf2040a3b1e3819ed17d9d38f8c2f049d66b9a",
-  "practice_version": "d9d98c45f55f230c0befb0f277e43c556240d1a68741d3ad09390bbb5ef50bf5"
+  "page_contract_hash": "a2210f72fcee75e0c009d2ae2eb375207fce6da87b6619867c4a1714a553bdd2",
+  "practice_version": "b189f2af745d317b79abeb3ce7f33c3a362178ceb7ca18ae81147eda68483eae"
 }

@@ -36,7 +36,7 @@
             "method-parity-extension"
           ]
         },
-        "c19da1cbb9fc4bc4194eeb3a#1": {
+        "3d7915bd9642b5941c0cf8b0#1": {
           "title": "把输入换到已知一侧",
           "position": 4,
           "refs": [
@@ -44,7 +44,7 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "f5748207b9f5aca2f5732b28#1": {
+        "0197b1296893a2f80e7da4ef#1": {
           "title": "代入相反输入",
           "position": 5,
           "refs": [
@@ -53,7 +53,7 @@
             "skill-simplify"
           ]
         },
-        "91c63c134f4c88057dcc92d1#1": {
+        "78916782890b9f97662be438#1": {
           "title": "用奇偶性换回 f(x)",
           "position": 6,
           "refs": [
@@ -61,7 +61,7 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "31d6667be76b99db4403e5f6#1": {
+        "f2f54ee5261a2f122a02f43e#1": {
           "title": "拼接已知部分并写出结论",
           "position": 7,
           "refs": [
@@ -71,6 +71,6 @@
       }
     }
   },
-  "page_contract_hash": "43308ca3ee4e50326a5ab9d18e7c92ac0066067ec722bcefc6f18879407ee8b4",
-  "practice_version": "3db0a11b71756628bde2bafa44806e14ddecdb863c40ba0afe1993ba93dfcc7a"
+  "page_contract_hash": "0b240d604b22825eaecf0043c09d6a8aceda456bbe7ed76129446918a3592d48",
+  "practice_version": "fcecad36f05c79494b6f03837a5e52bfab351133d61594334a6fcdcca5adbe93"
 }

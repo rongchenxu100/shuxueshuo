@@ -2693,6 +2693,52 @@
             "$ref": "#/$defs/graphTick"
           }
         },
+        "axes": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "label"
+            ],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "guides": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "label"
+            ],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value_label": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
         "interval_marks": {
           "type": "array",
           "maxItems": 12,

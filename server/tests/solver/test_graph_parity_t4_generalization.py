@@ -81,8 +81,8 @@ def test_common_inputs_preserve_exact_solution_and_original_holes(value, expecte
     phases = (['rewrite', 'direction', 'compare', 'conclude'] if desc['route'] == 'order'
               else ['sign_known', 'sign_mirror', 'sign_solve', 'conclude'])
     for phase in phases:
-        view, = phase_views({'description': desc, 'phase': phase})
-        assert view['proof']
+        views = phase_views({'description': desc, 'phase': phase})
+        assert views and all(view['proof'] for view in views)
 
 
 def test_cancelled_denominator_is_still_visible_and_verified():
@@ -120,8 +120,9 @@ def test_zero_is_in_the_sign_answer_and_the_step_card():
 
 def test_product_zero_branch_appears_in_the_proof():
     desc = described(given(['Dom(f)=ℝ', 'parity(f,odd)', 'f(2)=0', 'x*f(x)<=0']))
-    view, = phase_views({'description': desc, 'phase': 'conclude'})
-    assert r'x=0\Rightarrow' in view['proof']
+    *cases, merged = phase_views({'description': desc, 'phase': 'conclude'})
+    assert [view['title'] for view in cases] == ['情况一：$x>0$', '情况二：$x<0$']
+    assert r'x=0\Rightarrow' in merged['proof']
 
 
 def test_tampered_intermediate_sign_table_or_order_set_is_rejected():

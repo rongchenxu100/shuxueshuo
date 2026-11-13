@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "problemId": "function-parity-a20",
-  "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+  "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
   "problem": {
     "text": "已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\le f(2x)$ 的解集为____．"
   },
@@ -57,7 +57,7 @@
         "edges": [],
         "calls": [],
         "results": [
-          "$f(x)$ 是定义在 $[\\left(-2\\right)b,b+1]$ 上的偶函数；$f$ 在 $[\\left(-2\\right)b,0]$ 上严格递增。求满足 $f(x-1)\\le f(2x)$ 的 $x$ 的取值范围。"
+          "$f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数；$f$ 在 $[-2b,0]$ 上严格递增。求满足 $f(x-1)\\le f(2x)$ 的 $x$ 的取值范围。"
         ],
         "log": "图谱查询：从 1 个知识线索反查，找到 6 个相关题型；最高覆盖 1/1。"
       }
@@ -165,7 +165,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}\\text{偶函数}\\\\\\text{定义域 }[\\left(-2\\right)b,b+1]\\end{gathered}"
+                "math": "\\begin{gathered}\\text{偶函数：}f(x)=f(-x)\\\\\\text{定义域 }[-2b,b+1]\\end{gathered}"
               },
               {
                 "label": "参数",
@@ -182,7 +182,7 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "5af7befaf9de95a8d127451f#1",
+          "id": "a0a967261e87745dd1be905c#1",
           "interaction": {
             "field": "answer",
             "options": [
@@ -201,14 +201,14 @@
             ],
             "type": "choice"
           },
-          "question": "$f$ 是偶函数，它的定义域 $[\\left(-2\\right)b,b+1]$ 必须关于原点对称。由此先确定定义域中的参数，$b$ 的值是多少？",
+          "question": "$f$ 是偶函数，它的定义域 $[-2b,b+1]$ 必须关于原点对称。由此先确定定义域中的参数，$b$ 的值是多少？",
           "stem_board": {
             "caption": "先确定定义域中的参数",
             "connector": "⇒",
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}\\text{偶函数}\\\\\\text{定义域 }[\\left(-2\\right)b,b+1]\\end{gathered}"
+                "math": "\\begin{gathered}\\text{偶函数：}f(x)=f(-x)\\\\\\text{定义域 }[-2b,b+1]\\end{gathered}"
               },
               {
                 "label": "参数",
@@ -222,15 +222,15 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "d73bd5ce9c1354e8e41185ecd7416a237a29517ba70c276284401389dd1e24f3",
+              "math_step_sha256": "cf96d7a9705604909c30ce54d231f6d157e9cbaaea38347a6d8810d0dc3e4e94",
               "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "09bd9d3243857c65008c51ea",
+          "stream_interaction_id": "b5144b3ca8a1e48c268d1ad7",
           "stream_part_index": 0,
           "stream_part_count": 2,
-          "stream_group_title": "先确定定义域中的参数",
+          "stream_group_title": "先确定定义域中的参数，再把两个输入都变成非负数",
           "effects": {
             "nodes": [],
             "edges": [],
@@ -241,12 +241,12 @@
         },
         {
           "completion_board": {
-            "caption": "把两个输入换到非负一侧",
+            "caption": "把两个输入都变成非负数",
             "connector": "⇒",
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}\\text{偶函数}\\\\f(x-1)\\le f(2x)\\end{gathered}"
+                "math": "\\begin{gathered}\\text{偶函数：}f(x)=f(-x)=f(|x|)\\\\f(x-1)\\le f(2x)\\end{gathered}"
               },
               {
                 "label": "等价的比较",
@@ -254,6 +254,88 @@
               }
             ],
             "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；偶函数图像关于 $y$ 轴对称：$0\\le x\\le 2$ 的一段由 $-2\\le x\\le 0$ 的一段沿 $y$ 轴翻折得到；虚线：$u$ 与 $|u|$ 关于 $y$ 轴对称，函数值相同，$f(u)=f(|u|)$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                1
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "guides": [
+                {
+                  "label": "u",
+                  "value_label": "f(u)",
+                  "x": -1.2
+                },
+                {
+                  "label": "|u|",
+                  "value_label": "f(|u|)",
+                  "x": 1.2
+                }
+              ],
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
           },
           "expected_answer": {
             "one_of": [
@@ -263,7 +345,89 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "5af7befaf9de95a8d127451f#2",
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；偶函数图像关于 $y$ 轴对称：$0\\le x\\le 2$ 的一段由 $-2\\le x\\le 0$ 的一段沿 $y$ 轴翻折得到；虚线：$u$ 与 $|u|$ 关于 $y$ 轴对称，函数值相同，$f(u)=f(|u|)$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                1
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "guides": [
+                {
+                  "label": "u",
+                  "value_label": "f(u)",
+                  "x": -1.2
+                },
+                {
+                  "label": "|u|",
+                  "value_label": "f(|u|)",
+                  "x": 1.2
+                }
+              ],
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "a0a967261e87745dd1be905c#2",
           "interaction": {
             "field": "answer",
             "options": [
@@ -282,14 +446,14 @@
             ],
             "type": "choice"
           },
-          "question": "题给 $f$ 是偶函数。把两个输入都换到非负一侧，不等式 $f(x-1)\\le f(2x)$ 等价于下面哪一个？",
+          "question": "题给 $f$ 是偶函数，在 $x\\le 0$ 与 $x\\ge 0$ 两部分上增减相反；$x - 1$、$2 x$ 可能为负，两个输入可能分属两部分，还不能直接去掉 $f$ 比较。偶函数满足 $f(u)=f(|u|)$，可以把两个输入都变成非负数，放到同一个单调区间里。不等式 $f(x-1)\\le f(2x)$ 等价于下面哪一个？",
           "stem_board": {
-            "caption": "把两个输入换到非负一侧",
+            "caption": "把两个输入都变成非负数",
             "connector": "⇒",
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}\\text{偶函数}\\\\f(x-1)\\le f(2x)\\end{gathered}"
+                "math": "\\begin{gathered}\\text{偶函数：}f(x)=f(-x)=f(|x|)\\\\f(x-1)\\le f(2x)\\end{gathered}"
               },
               {
                 "label": "等价的比较",
@@ -299,25 +463,25 @@
             "layout": "derivation"
           },
           "submit_label": "确认判断",
-          "title": "把两个输入换到非负一侧",
+          "title": "把两个输入都变成非负数",
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "d73bd5ce9c1354e8e41185ecd7416a237a29517ba70c276284401389dd1e24f3",
+              "math_step_sha256": "cf96d7a9705604909c30ce54d231f6d157e9cbaaea38347a6d8810d0dc3e4e94",
               "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "09bd9d3243857c65008c51ea",
+          "stream_interaction_id": "b5144b3ca8a1e48c268d1ad7",
           "stream_part_index": 1,
           "stream_part_count": 2,
-          "stream_group_title": "先确定定义域中的参数",
+          "stream_group_title": "先确定定义域中的参数，再把两个输入都变成非负数",
           "effects": {
             "nodes": [],
             "edges": [],
             "calls": [],
             "results": [],
-            "log": "完成判断：把两个输入换到非负一侧"
+            "log": "完成判断：把两个输入都变成非负数"
           }
         },
         {
@@ -327,7 +491,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+                "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数：}f(x)=f(-x)\\text{，定义域 }\\left[-2, 2\\right]\\end{gathered}"
               },
               {
                 "label": "单调性",
@@ -335,6 +499,94 @@
               }
             ],
             "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；偶函数图像关于 $y$ 轴对称：$0\\le x\\le 2$ 的一段由 $-2\\le x\\le 0$ 的一段沿 $y$ 轴翻折得到；箭头标出各段的增减。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                1
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [
+                {
+                  "from": -2,
+                  "label": "[-2, 0]",
+                  "left_closed": true,
+                  "right_closed": true,
+                  "to": 0,
+                  "trend": "increasing"
+                },
+                {
+                  "from": 0,
+                  "label": "[0, 2]",
+                  "left_closed": true,
+                  "right_closed": true,
+                  "to": 2,
+                  "trend": "decreasing"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
           },
           "expected_answer": {
             "one_of": [
@@ -344,10 +596,75 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "02e6b6f0e31be282215c49a4#1",
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；箭头标出各段的增减。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                1,
+                -3,
+                1
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [
+                {
+                  "from": -2,
+                  "label": "[-2, 0]",
+                  "left_closed": true,
+                  "right_closed": true,
+                  "to": 0,
+                  "trend": "increasing"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "id": "683162376440cc79c066cd91#1",
           "interaction": {
             "field": "answer",
             "options": [
+              {
+                "label": "$f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递增}$",
+                "value": "o2"
+              },
               {
                 "label": "$f\\text{ 在 }\\left[0, 2\\right]\\text{ 上不单调}$",
                 "value": "o3"
@@ -355,10 +672,6 @@
               {
                 "label": "$f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递减}$",
                 "value": "o1"
-              },
-              {
-                "label": "$f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递增}$",
-                "value": "o2"
               }
             ],
             "type": "choice"
@@ -370,7 +683,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+                "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数：}f(x)=f(-x)\\text{，定义域 }\\left[-2, 2\\right]\\end{gathered}"
               },
               {
                 "label": "单调性",
@@ -384,12 +697,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "3beaf8bf1778b9599daa9807a9220b9eaded9083ac3804ac645328fac1713307",
+              "math_step_sha256": "511706201e9040fb25b85733da98cd0f31d76ff7cfab9af37c2e1d43e6a6b442",
               "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "d689e7a4eeab4f4cbe1f237b",
+          "stream_interaction_id": "dd9583bdadd91f1e71c16e23",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "确定非负一侧的单调方向",
@@ -417,6 +730,88 @@
             ],
             "layout": "derivation"
           },
+          "completion_graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；偶函数图像关于 $y$ 轴对称：$0\\le x\\le 2$ 的一段由 $-2\\le x\\le 0$ 的一段沿 $y$ 轴翻折得到；虚线取两个示意输入：$f$ 在 $\\left[0, 2\\right]$ 上严格递减，输入大的函数值反而小。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                1
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "guides": [
+                {
+                  "label": "|x-1|",
+                  "value_label": "f(|x-1|)",
+                  "x": 1.5
+                },
+                {
+                  "label": "|2x|",
+                  "value_label": "f(|2x|)",
+                  "x": 0.5
+                }
+              ],
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
           "expected_answer": {
             "one_of": [
               "o1"
@@ -425,14 +820,80 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "4bc1eeed34627a776cdef0eb#1",
+          "graph": {
+            "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；偶函数图像关于 $y$ 轴对称：$0\\le x\\le 2$ 的一段由 $-2\\le x\\le 0$ 的一段沿 $y$ 轴翻折得到。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -3,
+                1
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                },
+                {
+                  "coefficients": [
+                    0,
+                    -1,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "c818e71597d6541ad5fbd49e#1",
           "interaction": {
             "field": "answer",
             "options": [
-              {
-                "label": "$\\left|x - 1\\right|\\le \\left|2 x\\right|$",
-                "value": "o2"
-              },
               {
                 "label": "$\\left|x - 1\\right|\\ge \\left|2 x\\right|$",
                 "value": "o1"
@@ -440,6 +901,10 @@
               {
                 "label": "$x - 1\\ge 2 x$",
                 "value": "o3"
+              },
+              {
+                "label": "$\\left|x - 1\\right|\\le \\left|2 x\\right|$",
+                "value": "o2"
               }
             ],
             "type": "choice"
@@ -465,12 +930,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "5336260346ee2cbe87571cb357a3f9449407442508f24998152fd5baa6f53725",
+              "math_step_sha256": "2f0dde71d0891e50037f2296c6a017dd86e3efa6536d4a71101d131b3b61a5a7",
               "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "d183a92817ef7438e99c19a8",
+          "stream_interaction_id": "9b48a4786820c87f8a86fe54",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "去掉函数符号比较输入",
@@ -498,110 +963,6 @@
             ],
             "layout": "derivation"
           },
-          "completion_number_line": {
-            "bounds": [
-              -2,
-              1.3333333333333333
-            ],
-            "exact_set": {
-              "exact": {
-                "$math": "Interval",
-                "args": [
-                  {
-                    "$math": "Integer",
-                    "value": "-1"
-                  },
-                  {
-                    "$math": "Rational",
-                    "p": "1",
-                    "q": "3"
-                  },
-                  {
-                    "$math": "BooleanFalse"
-                  },
-                  {
-                    "$math": "BooleanFalse"
-                  }
-                ]
-              },
-              "expression": "Interval(-1, 1/3)",
-              "latex": "\\left[-1, \\frac{1}{3}\\right]"
-            },
-            "intervals": [
-              {
-                "exact": {
-                  "exact": {
-                    "$math": "Interval",
-                    "args": [
-                      {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      {
-                        "$math": "Rational",
-                        "p": "1",
-                        "q": "3"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      }
-                    ]
-                  },
-                  "expression": "Interval(-1, 1/3)",
-                  "latex": "\\left[-1, \\frac{1}{3}\\right]"
-                },
-                "left": -1,
-                "left_closed": true,
-                "right": 0.3333333333333333,
-                "right_closed": true
-              }
-            ],
-            "label": "\\text{解集}",
-            "points": [],
-            "ticks": [
-              {
-                "at": -1,
-                "exact": {
-                  "exact": {
-                    "$math": "Integer",
-                    "value": "-1"
-                  },
-                  "expression": "-1",
-                  "latex": "-1"
-                },
-                "label": "-1"
-              },
-              {
-                "at": 0,
-                "exact": {
-                  "exact": {
-                    "$math": "Integer",
-                    "value": "0"
-                  },
-                  "expression": "0",
-                  "latex": "0"
-                },
-                "label": "0"
-              },
-              {
-                "at": 0.3333333333333333,
-                "exact": {
-                  "exact": {
-                    "$math": "Rational",
-                    "p": "1",
-                    "q": "3"
-                  },
-                  "expression": "1/3",
-                  "latex": "\\frac{1}{3}"
-                },
-                "label": "1/3"
-              }
-            ],
-            "variable": "x"
-          },
           "expected_answer": {
             "one_of": [
               "o1"
@@ -610,25 +971,25 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "30b3f316d856ac7d893614dc#1",
+          "id": "f57ffc35331c8868c836ce67#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$-1\\le x\\le \\frac{1}{3}$",
-                "value": "o1"
-              },
-              {
                 "label": "$x\\in \\left\\{-1\\right\\} \\cup \\left[\\frac{1}{3}, 1\\right]$",
                 "value": "o3"
+              },
+              {
+                "label": "$-1\\le x\\le 1$",
+                "value": "o2"
               },
               {
                 "label": "$\\frac{1}{3}<x\\le 1$",
                 "value": "o4"
               },
               {
-                "label": "$-1\\le x\\le 1$",
-                "value": "o2"
+                "label": "$-1\\le x\\le \\frac{1}{3}$",
+                "value": "o1"
               }
             ],
             "type": "choice"
@@ -654,12 +1015,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "3f95728539254b277ab952a7f226c32ab3913b992ac406416f099b6d86150052",
+              "math_step_sha256": "89f40ccc3ca1bd4adff6d3122069b548f8804d0369bdfc45bd8f38927062624a",
               "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "f5d596f6f99e7262a0ec0899",
+          "stream_interaction_id": "b2171b310b6e237895f66fdb",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "合法输入求交，写出解集",
@@ -711,35 +1072,35 @@
           "expression": "Interval(-1, 1/3)",
           "latex": "\\left[-1, \\frac{1}{3}\\right]"
         },
-        "lesson_version": "441cc2ff626b8c21b03adb19b74ea78a63e8aade007fee44084ce8712b0ff347",
+        "lesson_version": "d9162bb25072d539af1136ebb5b53055df1f5cbd00d5569138a0c266b9923003",
         "math_steps": [
           {
-            "math_step_sha256": "d73bd5ce9c1354e8e41185ecd7416a237a29517ba70c276284401389dd1e24f3",
+            "math_step_sha256": "cf96d7a9705604909c30ce54d231f6d157e9cbaaea38347a6d8810d0dc3e4e94",
             "ordinal": 1,
             "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite"
           },
           {
-            "math_step_sha256": "3beaf8bf1778b9599daa9807a9220b9eaded9083ac3804ac645328fac1713307",
+            "math_step_sha256": "511706201e9040fb25b85733da98cd0f31d76ff7cfab9af37c2e1d43e6a6b442",
             "ordinal": 2,
             "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction"
           },
           {
-            "math_step_sha256": "5336260346ee2cbe87571cb357a3f9449407442508f24998152fd5baa6f53725",
+            "math_step_sha256": "2f0dde71d0891e50037f2296c6a017dd86e3efa6536d4a71101d131b3b61a5a7",
             "ordinal": 3,
             "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare"
           },
           {
-            "math_step_sha256": "3f95728539254b277ab952a7f226c32ab3913b992ac406416f099b6d86150052",
+            "math_step_sha256": "89f40ccc3ca1bd4adff6d3122069b548f8804d0369bdfc45bd8f38927062624a",
             "ordinal": 4,
             "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "b32ca968e43c4206a182caebfe0aa7e7",
+        "run_id": "07bd776ee4ac45489824e180a5502ffd",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "26baf9b6ce4e9042791ac6ced14ddaa8a12312d1012b2a663d070e8ecc0d57a6",
-        "verified_route_sha256": "c4afc27b06c00515d117d004eba49252041c1a40f73da71555db360eaa81a77b"
+        "task_id": "c0a6c45de656a0dade8e556aea22364b6515c3fec215ca8f36a733ec190febb9",
+        "verified_route_sha256": "7dcbcfcfb5b056dcba50dfab6b00a2ba32a0df0a44b2041721ada05aba852eb8"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -1206,13 +1567,13 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"187042111c499a31269a43c5ffae375b0c72b30f8613ade4c68fd7dccde23323\",\"32dd50e0bf044042da85ece2f208b2dfbd9d8d4e5dd400089c5dd76f3a3a6298\",\"4b4ca56af3b74817a23f776e571e30b4\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"eeb504ec8781ade13fc69f6704cad098177862e628179793c531feee76ad0d45\",\"4f7faa2193fa977d32d32f0b9b894449b64a4b61ace8c08da3f3c173ffe1ae66\",\"94e7d3b568f74112bdad709cd457449e\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "b32ca968e43c4206a182caebfe0aa7e7",
-    "lesson_version": "441cc2ff626b8c21b03adb19b74ea78a63e8aade007fee44084ce8712b0ff347",
-    "stream_id": "b32ca968e43c4206a182caebfe0aa7e7",
+    "run_id": "07bd776ee4ac45489824e180a5502ffd",
+    "lesson_version": "d9162bb25072d539af1136ebb5b53055df1f5cbd00d5569138a0c266b9923003",
+    "stream_id": "07bd776ee4ac45489824e180a5502ffd",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "641c22bc3cd3581644ab4a50a70f4d4a6201659a71b2c82801c9c36c1075f935",
+    "base_bundle_version": "eeb504ec8781ade13fc69f6704cad098177862e628179793c531feee76ad0d45",
     "d3": {
       "expected_answer": {},
       "id": "D3",
@@ -1249,37 +1610,37 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "parity_inequality_rewrite",
-        "explanation": "$$\\begin{gathered}\\left(\\left(-2\\right)b\\right)+\\left(b+1\\right)=0\\\\b=1\\\\\\text{定义域为 }\\left[-2, 2\\right]\\\\\\text{单调区间为 }\\left[-2, 0\\right]\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}-2b+\\left(b+1\\right)=0\\\\b=1\\\\\\text{定义域为 }\\left[-2, 2\\right]\\\\\\text{单调区间为 }\\left[-2, 0\\right]\\\\\\text{偶函数 }f(u)=f(-u)=f(|u|)\\\\f(x-1)\\le f(2x)\\Leftrightarrow f(\\left|x - 1\\right|)\\le f(\\left|2 x\\right|)\\end{gathered}$$",
         "highlight": {
-          "caption": "先确定定义域中的参数",
+          "caption": "先确定定义域中的参数，再把两个输入都变成非负数",
           "connector": "⇒",
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}\\text{偶函数}\\\\\\text{定义域 }[\\left(-2\\right)b,b+1]\\end{gathered}"
+              "math": "\\begin{gathered}\\text{偶函数：}f(x)=f(-x)=f(|x|)\\\\f(x-1)\\le f(2x)\\end{gathered}"
             },
             {
-              "label": "参数",
-              "math": "b=1"
+              "label": "等价的比较",
+              "math": "f(\\left|x - 1\\right|)\\le f(\\left|2 x\\right|)"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "441cc2ff626b8c21b03adb19b74ea78a63e8aade007fee44084ce8712b0ff347",
+        "lesson_version": "d9162bb25072d539af1136ebb5b53055df1f5cbd00d5569138a0c266b9923003",
         "local_check": "passed",
-        "math_step_sha256": "d73bd5ce9c1354e8e41185ecd7416a237a29517ba70c276284401389dd1e24f3",
+        "math_step_sha256": "cf96d7a9705604909c30ce54d231f6d157e9cbaaea38347a6d8810d0dc3e4e94",
         "method_ref": "method-parity-inequality#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "2ce1d548b0ad07e03186c0c678a96c28fd408360d2daa278bf770c73d127092d",
         "route_id": "parity-inequality",
-        "run_id": "b32ca968e43c4206a182caebfe0aa7e7",
+        "run_id": "07bd776ee4ac45489824e180a5502ffd",
         "source_refs": [
           "/steps/3/calls/0"
         ],
         "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite",
         "target_ref": "/root/goals/0",
-        "title": "先确定定义域中的参数",
+        "title": "先确定定义域中的参数，再把两个输入都变成非负数",
         "used_basis": [
           "function-parity#definition"
         ]
@@ -1297,7 +1658,7 @@
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+              "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数：}f(x)=f(-x)\\text{，定义域 }\\left[-2, 2\\right]\\end{gathered}"
             },
             {
               "label": "单调性",
@@ -1306,15 +1667,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "441cc2ff626b8c21b03adb19b74ea78a63e8aade007fee44084ce8712b0ff347",
+        "lesson_version": "d9162bb25072d539af1136ebb5b53055df1f5cbd00d5569138a0c266b9923003",
         "local_check": "passed",
-        "math_step_sha256": "3beaf8bf1778b9599daa9807a9220b9eaded9083ac3804ac645328fac1713307",
+        "math_step_sha256": "511706201e9040fb25b85733da98cd0f31d76ff7cfab9af37c2e1d43e6a6b442",
         "method_ref": "method-parity-inequality#direction",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "2ce1d548b0ad07e03186c0c678a96c28fd408360d2daa278bf770c73d127092d",
         "route_id": "parity-inequality",
-        "run_id": "b32ca968e43c4206a182caebfe0aa7e7",
+        "run_id": "07bd776ee4ac45489824e180a5502ffd",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -1348,15 +1709,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "441cc2ff626b8c21b03adb19b74ea78a63e8aade007fee44084ce8712b0ff347",
+        "lesson_version": "d9162bb25072d539af1136ebb5b53055df1f5cbd00d5569138a0c266b9923003",
         "local_check": "passed",
-        "math_step_sha256": "5336260346ee2cbe87571cb357a3f9449407442508f24998152fd5baa6f53725",
+        "math_step_sha256": "2f0dde71d0891e50037f2296c6a017dd86e3efa6536d4a71101d131b3b61a5a7",
         "method_ref": "method-parity-inequality#compare",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "2ce1d548b0ad07e03186c0c678a96c28fd408360d2daa278bf770c73d127092d",
         "route_id": "parity-inequality",
-        "run_id": "b32ca968e43c4206a182caebfe0aa7e7",
+        "run_id": "07bd776ee4ac45489824e180a5502ffd",
         "source_refs": [
           "/steps/5/calls/0"
         ],
@@ -1392,15 +1753,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "441cc2ff626b8c21b03adb19b74ea78a63e8aade007fee44084ce8712b0ff347",
+        "lesson_version": "d9162bb25072d539af1136ebb5b53055df1f5cbd00d5569138a0c266b9923003",
         "local_check": "passed",
-        "math_step_sha256": "3f95728539254b277ab952a7f226c32ab3913b992ac406416f099b6d86150052",
+        "math_step_sha256": "89f40ccc3ca1bd4adff6d3122069b548f8804d0369bdfc45bd8f38927062624a",
         "method_ref": "method-parity-inequality#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "2ce1d548b0ad07e03186c0c678a96c28fd408360d2daa278bf770c73d127092d",
         "route_id": "parity-inequality",
-        "run_id": "b32ca968e43c4206a182caebfe0aa7e7",
+        "run_id": "07bd776ee4ac45489824e180a5502ffd",
         "source_refs": [
           "/steps/9/calls/0",
           "/steps/9/skipped_calls/0",
@@ -1468,54 +1829,55 @@
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "d73bd5ce9c1354e8e41185ecd7416a237a29517ba70c276284401389dd1e24f3",
+        "math_step_sha256": "cf96d7a9705604909c30ce54d231f6d157e9cbaaea38347a6d8810d0dc3e4e94",
         "status": "interactive",
-        "interaction_id": "09bd9d3243857c65008c51ea"
+        "interaction_id": "b5144b3ca8a1e48c268d1ad7"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction",
         "ordinal": 2,
-        "math_step_sha256": "3beaf8bf1778b9599daa9807a9220b9eaded9083ac3804ac645328fac1713307",
+        "math_step_sha256": "511706201e9040fb25b85733da98cd0f31d76ff7cfab9af37c2e1d43e6a6b442",
         "status": "interactive",
-        "interaction_id": "d689e7a4eeab4f4cbe1f237b"
+        "interaction_id": "dd9583bdadd91f1e71c16e23"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare",
         "ordinal": 3,
-        "math_step_sha256": "5336260346ee2cbe87571cb357a3f9449407442508f24998152fd5baa6f53725",
+        "math_step_sha256": "2f0dde71d0891e50037f2296c6a017dd86e3efa6536d4a71101d131b3b61a5a7",
         "status": "interactive",
-        "interaction_id": "d183a92817ef7438e99c19a8"
+        "interaction_id": "9b48a4786820c87f8a86fe54"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude",
         "ordinal": 4,
-        "math_step_sha256": "3f95728539254b277ab952a7f226c32ab3913b992ac406416f099b6d86150052",
+        "math_step_sha256": "89f40ccc3ca1bd4adff6d3122069b548f8804d0369bdfc45bd8f38927062624a",
         "status": "interactive",
-        "interaction_id": "f5d596f6f99e7262a0ec0899"
+        "interaction_id": "b2171b310b6e237895f66fdb"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "09bd9d3243857c65008c51ea",
+        "interaction_id": "b5144b3ca8a1e48c268d1ad7",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "592b00ba728e9163b022c2b07a766c20415abe20b4e896e8d25e6f22a66ef287",
-        "lesson_version": "441cc2ff626b8c21b03adb19b74ea78a63e8aade007fee44084ce8712b0ff347",
+        "interaction_sha256": "0097a24eab7427e3574ca6867058cf1ffa600ffb972aa00acd95c9748f78da78",
+        "lesson_version": "d9162bb25072d539af1136ebb5b53055df1f5cbd00d5569138a0c266b9923003",
         "parts": [
           {
+            "card_group_title": "先确定定义域中的参数，再把两个输入都变成非负数",
             "completion_board": {
               "caption": "先确定定义域中的参数",
               "connector": "⇒",
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}\\text{偶函数}\\\\\\text{定义域 }[\\left(-2\\right)b,b+1]\\end{gathered}"
+                  "math": "\\begin{gathered}\\text{偶函数：}f(x)=f(-x)\\\\\\text{定义域 }[-2b,b+1]\\end{gathered}"
                 },
                 {
                   "label": "参数",
@@ -1532,7 +1894,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "09bd9d3243857c65008c51ea#1",
+            "id": "b5144b3ca8a1e48c268d1ad7#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1551,14 +1913,14 @@
               ],
               "type": "choice"
             },
-            "question": "$f$ 是偶函数，它的定义域 $[\\left(-2\\right)b,b+1]$ 必须关于原点对称。由此先确定定义域中的参数，$b$ 的值是多少？",
+            "question": "$f$ 是偶函数，它的定义域 $[-2b,b+1]$ 必须关于原点对称。由此先确定定义域中的参数，$b$ 的值是多少？",
             "stem_board": {
               "caption": "先确定定义域中的参数",
               "connector": "⇒",
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}\\text{偶函数}\\\\\\text{定义域 }[\\left(-2\\right)b,b+1]\\end{gathered}"
+                  "math": "\\begin{gathered}\\text{偶函数：}f(x)=f(-x)\\\\\\text{定义域 }[-2b,b+1]\\end{gathered}"
                 },
                 {
                   "label": "参数",
@@ -1571,13 +1933,14 @@
             "title": "先确定定义域中的参数"
           },
           {
+            "card_group_title": "先确定定义域中的参数，再把两个输入都变成非负数",
             "completion_board": {
-              "caption": "把两个输入换到非负一侧",
+              "caption": "把两个输入都变成非负数",
               "connector": "⇒",
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}\\text{偶函数}\\\\f(x-1)\\le f(2x)\\end{gathered}"
+                  "math": "\\begin{gathered}\\text{偶函数：}f(x)=f(-x)=f(|x|)\\\\f(x-1)\\le f(2x)\\end{gathered}"
                 },
                 {
                   "label": "等价的比较",
@@ -1585,6 +1948,88 @@
                 }
               ],
               "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；偶函数图像关于 $y$ 轴对称：$0\\le x\\le 2$ 的一段由 $-2\\le x\\le 0$ 的一段沿 $y$ 轴翻折得到；虚线：$u$ 与 $|u|$ 关于 $y$ 轴对称，函数值相同，$f(u)=f(|u|)$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  1
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "guides": [
+                  {
+                    "label": "u",
+                    "value_label": "f(u)",
+                    "x": -1.2
+                  },
+                  {
+                    "label": "|u|",
+                    "value_label": "f(|u|)",
+                    "x": 1.2
+                  }
+                ],
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
             },
             "expected_answer": {
               "one_of": [
@@ -1594,14 +2039,92 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "09bd9d3243857c65008c51ea#2",
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；偶函数图像关于 $y$ 轴对称：$0\\le x\\le 2$ 的一段由 $-2\\le x\\le 0$ 的一段沿 $y$ 轴翻折得到；虚线：$u$ 与 $|u|$ 关于 $y$ 轴对称，函数值相同，$f(u)=f(|u|)$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  1
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "guides": [
+                  {
+                    "label": "u",
+                    "value_label": "f(u)",
+                    "x": -1.2
+                  },
+                  {
+                    "label": "|u|",
+                    "value_label": "f(|u|)",
+                    "x": 1.2
+                  }
+                ],
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "b5144b3ca8a1e48c268d1ad7#2",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$f(\\left|x - 1\\right|)\\le -f(\\left|2 x\\right|)$",
-                  "value": "o3"
-                },
                 {
                   "label": "$f(\\left|x - 1\\right|)\\ge f(\\left|2 x\\right|)$",
                   "value": "o2"
@@ -1609,18 +2132,22 @@
                 {
                   "label": "$f(\\left|x - 1\\right|)\\le f(\\left|2 x\\right|)$",
                   "value": "o1"
+                },
+                {
+                  "label": "$f(\\left|x - 1\\right|)\\le -f(\\left|2 x\\right|)$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
             },
-            "question": "题给 $f$ 是偶函数。把两个输入都换到非负一侧，不等式 $f(x-1)\\le f(2x)$ 等价于下面哪一个？",
+            "question": "题给 $f$ 是偶函数，在 $x\\le 0$ 与 $x\\ge 0$ 两部分上增减相反；$x - 1$、$2 x$ 可能为负，两个输入可能分属两部分，还不能直接去掉 $f$ 比较。偶函数满足 $f(u)=f(|u|)$，可以把两个输入都变成非负数，放到同一个单调区间里。不等式 $f(x-1)\\le f(2x)$ 等价于下面哪一个？",
             "stem_board": {
-              "caption": "把两个输入换到非负一侧",
+              "caption": "把两个输入都变成非负数",
               "connector": "⇒",
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}\\text{偶函数}\\\\f(x-1)\\le f(2x)\\end{gathered}"
+                  "math": "\\begin{gathered}\\text{偶函数：}f(x)=f(-x)=f(|x|)\\\\f(x-1)\\le f(2x)\\end{gathered}"
                 },
                 {
                   "label": "等价的比较",
@@ -1630,15 +2157,15 @@
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "把两个输入换到非负一侧"
+            "title": "把两个输入都变成非负数"
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "b32ca968e43c4206a182caebfe0aa7e7",
+        "run_id": "07bd776ee4ac45489824e180a5502ffd",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d73bd5ce9c1354e8e41185ecd7416a237a29517ba70c276284401389dd1e24f3",
+            "math_step_sha256": "cf96d7a9705604909c30ce54d231f6d157e9cbaaea38347a6d8810d0dc3e4e94",
             "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite"
           }
         ],
@@ -1646,10 +2173,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "d689e7a4eeab4f4cbe1f237b",
+        "interaction_id": "dd9583bdadd91f1e71c16e23",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "622b27f3dc250936adeeca1cc644e2c73e4fe72860c118e3c4185f61c1ab5cfa",
-        "lesson_version": "441cc2ff626b8c21b03adb19b74ea78a63e8aade007fee44084ce8712b0ff347",
+        "interaction_sha256": "c376e04e36a00bfce291d1c8acc6dceb74de495e14eaf5351978f57d3d8652fc",
+        "lesson_version": "d9162bb25072d539af1136ebb5b53055df1f5cbd00d5569138a0c266b9923003",
         "parts": [
           {
             "completion_board": {
@@ -1658,7 +2185,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+                  "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数：}f(x)=f(-x)\\text{，定义域 }\\left[-2, 2\\right]\\end{gathered}"
                 },
                 {
                   "label": "单调性",
@@ -1666,6 +2193,94 @@
                 }
               ],
               "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；偶函数图像关于 $y$ 轴对称：$0\\le x\\le 2$ 的一段由 $-2\\le x\\le 0$ 的一段沿 $y$ 轴翻折得到；箭头标出各段的增减。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  1
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "interval_marks": [
+                  {
+                    "from": -2,
+                    "label": "[-2, 0]",
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 0,
+                    "trend": "increasing"
+                  },
+                  {
+                    "from": 0,
+                    "label": "[0, 2]",
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 2,
+                    "trend": "decreasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
             },
             "expected_answer": {
               "one_of": [
@@ -1675,7 +2290,68 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "d689e7a4eeab4f4cbe1f237b#1",
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；箭头标出各段的增减。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  1,
+                  -3,
+                  1
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "interval_marks": [
+                  {
+                    "from": -2,
+                    "label": "[-2, 0]",
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 0,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "dd9583bdadd91f1e71c16e23#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1701,7 +2377,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+                  "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数：}f(x)=f(-x)\\text{，定义域 }\\left[-2, 2\\right]\\end{gathered}"
                 },
                 {
                   "label": "单调性",
@@ -1715,11 +2391,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "b32ca968e43c4206a182caebfe0aa7e7",
+        "run_id": "07bd776ee4ac45489824e180a5502ffd",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "3beaf8bf1778b9599daa9807a9220b9eaded9083ac3804ac645328fac1713307",
+            "math_step_sha256": "511706201e9040fb25b85733da98cd0f31d76ff7cfab9af37c2e1d43e6a6b442",
             "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction"
           }
         ],
@@ -1727,10 +2403,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "d183a92817ef7438e99c19a8",
+        "interaction_id": "9b48a4786820c87f8a86fe54",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "7419c7c8a5a4b38cff35870652fc312542c8b2f59688c6d6648a118391caec1f",
-        "lesson_version": "441cc2ff626b8c21b03adb19b74ea78a63e8aade007fee44084ce8712b0ff347",
+        "interaction_sha256": "ebdd252b514ff59dadabf5022bcbbd0c5b119404bca1e7582c298cbe482de5b7",
+        "lesson_version": "d9162bb25072d539af1136ebb5b53055df1f5cbd00d5569138a0c266b9923003",
         "parts": [
           {
             "completion_board": {
@@ -1748,6 +2424,88 @@
               ],
               "layout": "derivation"
             },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；偶函数图像关于 $y$ 轴对称：$0\\le x\\le 2$ 的一段由 $-2\\le x\\le 0$ 的一段沿 $y$ 轴翻折得到；虚线取两个示意输入：$f$ 在 $\\left[0, 2\\right]$ 上严格递减，输入大的函数值反而小。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  1
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "guides": [
+                  {
+                    "label": "|x-1|",
+                    "value_label": "f(|x-1|)",
+                    "x": 1.5
+                  },
+                  {
+                    "label": "|2x|",
+                    "value_label": "f(|2x|)",
+                    "x": 0.5
+                  }
+                ],
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1756,14 +2514,80 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "d183a92817ef7438e99c19a8#1",
+            "graph": {
+              "caption": "示意图：取一个满足题设的一次函数，只用来看增减与对称，不代表 $f$ 的解析式；偶函数图像关于 $y$ 轴对称：$0\\le x\\le 2$ 的一段由 $-2\\le x\\le 0$ 的一段沿 $y$ 轴翻折得到。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -3,
+                  1
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "9b48a4786820c87f8a86fe54#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$\\left|x - 1\\right|\\le \\left|2 x\\right|$",
-                  "value": "o2"
-                },
                 {
                   "label": "$\\left|x - 1\\right|\\ge \\left|2 x\\right|$",
                   "value": "o1"
@@ -1771,6 +2595,10 @@
                 {
                   "label": "$x - 1\\ge 2 x$",
                   "value": "o3"
+                },
+                {
+                  "label": "$\\left|x - 1\\right|\\le \\left|2 x\\right|$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1796,11 +2624,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "b32ca968e43c4206a182caebfe0aa7e7",
+        "run_id": "07bd776ee4ac45489824e180a5502ffd",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "5336260346ee2cbe87571cb357a3f9449407442508f24998152fd5baa6f53725",
+            "math_step_sha256": "2f0dde71d0891e50037f2296c6a017dd86e3efa6536d4a71101d131b3b61a5a7",
             "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare"
           }
         ],
@@ -1808,10 +2636,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "f5d596f6f99e7262a0ec0899",
+        "interaction_id": "b2171b310b6e237895f66fdb",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "b36b73df11682569ba08de71163ed2eaf9c9266e2fc1079c66f409bcc03f087e",
-        "lesson_version": "441cc2ff626b8c21b03adb19b74ea78a63e8aade007fee44084ce8712b0ff347",
+        "interaction_sha256": "51dd1da4c931eb4ab53bf1df6cb12bcac317455bed6927c72fc6a43561883390",
+        "lesson_version": "d9162bb25072d539af1136ebb5b53055df1f5cbd00d5569138a0c266b9923003",
         "parts": [
           {
             "completion_board": {
@@ -1829,110 +2657,6 @@
               ],
               "layout": "derivation"
             },
-            "completion_number_line": {
-              "bounds": [
-                -2,
-                1.3333333333333333
-              ],
-              "exact_set": {
-                "exact": {
-                  "$math": "Interval",
-                  "args": [
-                    {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    {
-                      "$math": "Rational",
-                      "p": "1",
-                      "q": "3"
-                    },
-                    {
-                      "$math": "BooleanFalse"
-                    },
-                    {
-                      "$math": "BooleanFalse"
-                    }
-                  ]
-                },
-                "expression": "Interval(-1, 1/3)",
-                "latex": "\\left[-1, \\frac{1}{3}\\right]"
-              },
-              "intervals": [
-                {
-                  "exact": {
-                    "exact": {
-                      "$math": "Interval",
-                      "args": [
-                        {
-                          "$math": "Integer",
-                          "value": "-1"
-                        },
-                        {
-                          "$math": "Rational",
-                          "p": "1",
-                          "q": "3"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        }
-                      ]
-                    },
-                    "expression": "Interval(-1, 1/3)",
-                    "latex": "\\left[-1, \\frac{1}{3}\\right]"
-                  },
-                  "left": -1,
-                  "left_closed": true,
-                  "right": 0.3333333333333333,
-                  "right_closed": true
-                }
-              ],
-              "label": "\\text{解集}",
-              "points": [],
-              "ticks": [
-                {
-                  "at": -1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    "expression": "-1",
-                    "latex": "-1"
-                  },
-                  "label": "-1"
-                },
-                {
-                  "at": 0,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "0"
-                    },
-                    "expression": "0",
-                    "latex": "0"
-                  },
-                  "label": "0"
-                },
-                {
-                  "at": 0.3333333333333333,
-                  "exact": {
-                    "exact": {
-                      "$math": "Rational",
-                      "p": "1",
-                      "q": "3"
-                    },
-                    "expression": "1/3",
-                    "latex": "\\frac{1}{3}"
-                  },
-                  "label": "1/3"
-                }
-              ],
-              "variable": "x"
-            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1941,7 +2665,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "f5d596f6f99e7262a0ec0899#1",
+            "id": "b2171b310b6e237895f66fdb#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1950,12 +2674,12 @@
                   "value": "o4"
                 },
                 {
-                  "label": "$x\\in \\left\\{-1\\right\\} \\cup \\left[\\frac{1}{3}, 1\\right]$",
-                  "value": "o3"
-                },
-                {
                   "label": "$-1\\le x\\le 1$",
                   "value": "o2"
+                },
+                {
+                  "label": "$x\\in \\left\\{-1\\right\\} \\cup \\left[\\frac{1}{3}, 1\\right]$",
+                  "value": "o3"
                 },
                 {
                   "label": "$-1\\le x\\le \\frac{1}{3}$",
@@ -1985,11 +2709,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "b32ca968e43c4206a182caebfe0aa7e7",
+        "run_id": "07bd776ee4ac45489824e180a5502ffd",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "3f95728539254b277ab952a7f226c32ab3913b992ac406416f099b6d86150052",
+            "math_step_sha256": "89f40ccc3ca1bd4adff6d3122069b548f8804d0369bdfc45bd8f38927062624a",
             "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
           }
         ],

@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "4626d13d862e4c2b8403b954f1afed85",
-    "lesson_version": "87ced543c10e6853feb64f3d21f9d1747bbaab520c0270bb7e8da008696b6800",
-    "input_sha256": "d9d76be69f837d5f5a3887d31235ee9a794cda5f792afadc2dc6344c4d01a95b",
-    "checkpoint_sha256": "4c9b2c32bfcc32f35275be2699dd197250e4c89fa94978b0bf033dd0578fcc75",
-    "result_sha256": "7562cc7406c1094b4c99aad57216fe97cb38699401fd723c797be6114d90028c",
+    "run_id": "25bb796f56154b639733010520d4c4ee",
+    "lesson_version": "11e82e78711d9727ab0cf7e368374e09a440de1d9c66dc4a3b1a99118f4413dd",
+    "input_sha256": "2e0a7b4064718d40b0994dbe487cf06c311ded03a756b4e08ed78dce9f49fc32",
+    "checkpoint_sha256": "39bd62715474710d5325b86b38eeaf4cc2bc43e0196b4b667af3f9240b53153d",
+    "result_sha256": "2e63f17feb89464773856c53c1bd08018bfa1af347eaf9c68d46dfe4fd32974d",
     "stage_one_sha256": "d29980ceccd09799a41f907fb2fa29391626aead5eef646be2bb9137af1dbf68",
-    "stage_two_sha256": "07c35f20a2f487668d37bbd93e302b5621d8d80b5dc580e35dc64d2cfd09d4c8",
+    "stage_two_sha256": "f8021cb4344caf050eb8a278cba9badd7bdc74767d71d176d8631a7b4a86c0b7",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "317e72d9f641cfbc456c72106d67a62c6806b356a63a3cf027dd82c14883513f",
-    "teaching_revision": "d5121276e47302a4dae15347302bc2300dd1e529805bdbc8955ede3839bce8e5"
+    "teaching_revision": "2cd1cf987ae8465a26321838c7c0df859f5612258a20e6a5921007a991201905"
   },
   "lesson": {
     "status": "completed",
@@ -499,10 +499,10 @@
     ]
   },
   "stream": {
-    "run_id": "4626d13d862e4c2b8403b954f1afed85",
-    "lesson_version": "87ced543c10e6853feb64f3d21f9d1747bbaab520c0270bb7e8da008696b6800",
-    "input_sha256": "d9d76be69f837d5f5a3887d31235ee9a794cda5f792afadc2dc6344c4d01a95b",
-    "stream_id": "4626d13d862e4c2b8403b954f1afed85",
+    "run_id": "25bb796f56154b639733010520d4c4ee",
+    "lesson_version": "11e82e78711d9727ab0cf7e368374e09a440de1d9c66dc4a3b1a99118f4413dd",
+    "input_sha256": "2e0a7b4064718d40b0994dbe487cf06c311ded03a756b4e08ed78dce9f49fc32",
+    "stream_id": "25bb796f56154b639733010520d4c4ee",
     "last_seq": 19,
     "minimum_seq": 1,
     "math_steps": [
@@ -519,7 +519,7 @@
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}-3x\\\\\\text{偶函数}\\\\f(x)\\le 0\\end{gathered}"
+              "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}-3x\\\\\\text{偶函数：}f(x)=f(-x)\\\\f(x)\\le 0\\end{gathered}"
             },
             {
               "label": "已知范围内的解",
@@ -528,15 +528,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "87ced543c10e6853feb64f3d21f9d1747bbaab520c0270bb7e8da008696b6800",
+        "lesson_version": "11e82e78711d9727ab0cf7e368374e09a440de1d9c66dc4a3b1a99118f4413dd",
         "local_check": "passed",
-        "math_step_sha256": "b71e9e0bf870dd55f4b4b83851b97dd1e2a150e4007579e9954255e294f2652a",
+        "math_step_sha256": "3d3b5a705eb27356bcc007f5ae33fd72b92b73f266a8e554e6566d7816a60852",
         "method_ref": "method-parity-inequality#given-side",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "ac2cfb7a85676b885c4cb0a2364cd9a6ed400076704dd0371b0c7db714eb0f31",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "4626d13d862e4c2b8403b954f1afed85",
+        "run_id": "25bb796f56154b639733010520d4c4ee",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -562,7 +562,7 @@
           "items": [
             {
               "label": "已求出的结果",
-              "math": "\\begin{gathered}x\\ge 0\\text{ 时，}0\\le x\\le 3\\\\\\text{偶函数}\\end{gathered}"
+              "math": "\\begin{gathered}x\\ge 0\\text{ 时，}0\\le x\\le 3\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
             },
             {
               "label": "对称范围内的解",
@@ -571,15 +571,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "87ced543c10e6853feb64f3d21f9d1747bbaab520c0270bb7e8da008696b6800",
+        "lesson_version": "11e82e78711d9727ab0cf7e368374e09a440de1d9c66dc4a3b1a99118f4413dd",
         "local_check": "passed",
-        "math_step_sha256": "d24e6d140e822408812a02de6457991c1ca9dd9fb7b3512ac9035cb3773ff801",
+        "math_step_sha256": "c578227b4af7491bb9edc66525bd9dec5bb3e59046a8b2a3dd42d0f8d5e5760a",
         "method_ref": "method-parity-inequality#mirror",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "ac2cfb7a85676b885c4cb0a2364cd9a6ed400076704dd0371b0c7db714eb0f31",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "4626d13d862e4c2b8403b954f1afed85",
+        "run_id": "25bb796f56154b639733010520d4c4ee",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -614,15 +614,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "87ced543c10e6853feb64f3d21f9d1747bbaab520c0270bb7e8da008696b6800",
+        "lesson_version": "11e82e78711d9727ab0cf7e368374e09a440de1d9c66dc4a3b1a99118f4413dd",
         "local_check": "passed",
-        "math_step_sha256": "d7f5ada61da7bad0d2763f99e11eb03a7e7f3747d942d1e07b15ef0d0421efd0",
+        "math_step_sha256": "5a22baa5a82838295c371e83948233da44ffe47ea88d98e9ed3c080d48f20211",
         "method_ref": "method-parity-inequality#conclude",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "ac2cfb7a85676b885c4cb0a2364cd9a6ed400076704dd0371b0c7db714eb0f31",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "4626d13d862e4c2b8403b954f1afed85",
+        "run_id": "25bb796f56154b639733010520d4c4ee",
         "source_refs": [
           "/steps/9/calls/0",
           "/steps/9/skipped_calls/0",
@@ -707,30 +707,30 @@
           "expression": "Interval(-3, 3)",
           "latex": "\\left[-3, 3\\right]"
         },
-        "lesson_version": "87ced543c10e6853feb64f3d21f9d1747bbaab520c0270bb7e8da008696b6800",
+        "lesson_version": "11e82e78711d9727ab0cf7e368374e09a440de1d9c66dc4a3b1a99118f4413dd",
         "math_steps": [
           {
-            "math_step_sha256": "b71e9e0bf870dd55f4b4b83851b97dd1e2a150e4007579e9954255e294f2652a",
+            "math_step_sha256": "3d3b5a705eb27356bcc007f5ae33fd72b92b73f266a8e554e6566d7816a60852",
             "ordinal": 1,
             "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_known"
           },
           {
-            "math_step_sha256": "d24e6d140e822408812a02de6457991c1ca9dd9fb7b3512ac9035cb3773ff801",
+            "math_step_sha256": "c578227b4af7491bb9edc66525bd9dec5bb3e59046a8b2a3dd42d0f8d5e5760a",
             "ordinal": 2,
             "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_mirror"
           },
           {
-            "math_step_sha256": "d7f5ada61da7bad0d2763f99e11eb03a7e7f3747d942d1e07b15ef0d0421efd0",
+            "math_step_sha256": "5a22baa5a82838295c371e83948233da44ffe47ea88d98e9ed3c080d48f20211",
             "ordinal": 3,
             "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_conclude"
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "4626d13d862e4c2b8403b954f1afed85",
+        "run_id": "25bb796f56154b639733010520d4c4ee",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "c80f829ec039c3ae998cca9a3664db6172683e5fd9680857b93a4db9d3b787fe",
-        "verified_route_sha256": "ce6b78bbe71993add47bd664792c40cab1de4583380cc956c22d856426ec8157"
+        "task_id": "3f22c35a9917c56bda9207607fe3c4deb4b8bc823f6d34ffd293003cc576907e",
+        "verified_route_sha256": "3d7c098b78289a4fe013d59c9f67cac0427fae4d0f190b650eac0905d87abd47"
       }
     ],
     "qa": [],
@@ -780,31 +780,31 @@
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_known",
         "ordinal": 1,
-        "math_step_sha256": "b71e9e0bf870dd55f4b4b83851b97dd1e2a150e4007579e9954255e294f2652a",
+        "math_step_sha256": "3d3b5a705eb27356bcc007f5ae33fd72b92b73f266a8e554e6566d7816a60852",
         "status": "interactive",
-        "interaction_id": "afb200b7b361b582993b0683"
+        "interaction_id": "c07cf2fdc4a67e740f0382b6"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_mirror",
         "ordinal": 2,
-        "math_step_sha256": "d24e6d140e822408812a02de6457991c1ca9dd9fb7b3512ac9035cb3773ff801",
+        "math_step_sha256": "c578227b4af7491bb9edc66525bd9dec5bb3e59046a8b2a3dd42d0f8d5e5760a",
         "status": "interactive",
-        "interaction_id": "190c9af486d3cd2f09e3b1ba"
+        "interaction_id": "155d9accfe536845cb7d0645"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_conclude",
         "ordinal": 3,
-        "math_step_sha256": "d7f5ada61da7bad0d2763f99e11eb03a7e7f3747d942d1e07b15ef0d0421efd0",
+        "math_step_sha256": "5a22baa5a82838295c371e83948233da44ffe47ea88d98e9ed3c080d48f20211",
         "status": "interactive",
-        "interaction_id": "10187871d22e99ed1787d3bf"
+        "interaction_id": "8fa74f045945ff632805de4d"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "ac2cfb7a85676b885c4cb0a2364cd9a6ed400076704dd0371b0c7db714eb0f31",
+    "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -812,7 +812,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:parity-inequality:complete",
-        "last_seq": 18
+        "last_seq": 19
       }
     ],
     "trajectories": [
@@ -949,10 +949,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "afb200b7b361b582993b0683",
+        "interaction_id": "c07cf2fdc4a67e740f0382b6",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "cf44a686ef65ca5db0c78700b22c2078cba649cc8abb868d3745113b81f623ca",
-        "lesson_version": "87ced543c10e6853feb64f3d21f9d1747bbaab520c0270bb7e8da008696b6800",
+        "interaction_sha256": "3a8bc1643136a52c51a463d2248ab0644d036dbe87a5f6352eb4fed3a54a60b4",
+        "lesson_version": "11e82e78711d9727ab0cf7e368374e09a440de1d9c66dc4a3b1a99118f4413dd",
         "parts": [
           {
             "completion_board": {
@@ -961,7 +961,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}-3x\\\\\\text{偶函数}\\\\f(x)\\le 0\\end{gathered}"
+                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}-3x\\\\\\text{偶函数：}f(x)=f(-x)\\\\f(x)\\le 0\\end{gathered}"
                 },
                 {
                   "label": "已知范围内的解",
@@ -978,9 +978,9 @@
                   -1.0,
                   4.0,
                   -3.25,
-                  4.194444444444446
+                  5.0
                 ],
-                "description": "实线是函数图像，虚线是 y=k；有色曲线对应满足不等式的部分，空心端点不取。",
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
                 "highlights": [
                   {
                     "from": 0.0,
@@ -1016,7 +1016,7 @@
                     ]
                   }
                 ],
-                "title": "f(x) 与 y=0",
+                "title": "f(x) 的图像",
                 "variable": "x",
                 "xTicks": [
                   [
@@ -1044,7 +1044,65 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "afb200b7b361b582993b0683#1",
+            "graph": {
+              "caption": "已知 $x\\ge 0$ 时的图像；对照直线 $y=0$，看哪部分满足 $f(x)\\le 0$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.0,
+                  4.0,
+                  -3.25,
+                  5.0
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  0.0,
+                  null
+                ],
+                "interval_closed": [
+                  true,
+                  false
+                ],
+                "level": 0.0,
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -3.0,
+                      0.0
+                    ],
+                    "interval": [
+                      0.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ],
+                "yTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "c07cf2fdc4a67e740f0382b6#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1053,12 +1111,12 @@
                   "value": "o1"
                 },
                 {
-                  "label": "$x\\ge 0\\text{ 时，}x>3$",
-                  "value": "o3"
-                },
-                {
                   "label": "$x\\ge 0\\text{ 时，}x\\in \\left\\{0\\right\\} \\cup \\left[3, \\infty\\right)$",
                   "value": "o2"
+                },
+                {
+                  "label": "$x\\ge 0\\text{ 时，}x>3$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -1070,7 +1128,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}-3x\\\\\\text{偶函数}\\\\f(x)\\le 0\\end{gathered}"
+                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}-3x\\\\\\text{偶函数：}f(x)=f(-x)\\\\f(x)\\le 0\\end{gathered}"
                 },
                 {
                   "label": "已知范围内的解",
@@ -1084,11 +1142,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "4626d13d862e4c2b8403b954f1afed85",
+        "run_id": "25bb796f56154b639733010520d4c4ee",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "b71e9e0bf870dd55f4b4b83851b97dd1e2a150e4007579e9954255e294f2652a",
+            "math_step_sha256": "3d3b5a705eb27356bcc007f5ae33fd72b92b73f266a8e554e6566d7816a60852",
             "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_known"
           }
         ],
@@ -1096,10 +1154,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "190c9af486d3cd2f09e3b1ba",
+        "interaction_id": "155d9accfe536845cb7d0645",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "78ae8540e05fb3d2e42149a3a2c9878ddbb9ba628f5298a279c5b7b3100f6750",
-        "lesson_version": "87ced543c10e6853feb64f3d21f9d1747bbaab520c0270bb7e8da008696b6800",
+        "interaction_sha256": "5aadcac973a7f649b53957c7026d9348e12cb8fe1cd3ffaf8a85e30de9576119",
+        "lesson_version": "11e82e78711d9727ab0cf7e368374e09a440de1d9c66dc4a3b1a99118f4413dd",
         "parts": [
           {
             "completion_board": {
@@ -1108,7 +1166,7 @@
               "items": [
                 {
                   "label": "已求出的结果",
-                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}0\\le x\\le 3\\\\\\text{偶函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}0\\le x\\le 3\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
                 },
                 {
                   "label": "对称范围内的解",
@@ -1125,9 +1183,9 @@
                   -4.0,
                   4.0,
                   -3.25,
-                  4.194444444444446
+                  5.0
                 ],
-                "description": "实线是函数图像，虚线是 y=k；有色曲线对应满足不等式的部分，空心端点不取。",
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
                 "highlights": [
                   {
                     "from": 0.0,
@@ -1184,7 +1242,7 @@
                     ]
                   }
                 ],
-                "title": "f(x) 与 y=0",
+                "title": "f(x) 的图像",
                 "variable": "x",
                 "xTicks": [
                   [
@@ -1216,7 +1274,92 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "190c9af486d3cd2f09e3b1ba#1",
+            "graph": {
+              "caption": "偶函数图像关于 $y$ 轴对称：$x<0$ 的一段由 $x\\ge 0$ 的一段沿 $y$ 轴翻折得到；有色部分是已求出的解，对照直线 $y=0$ 看另一侧。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  4.0,
+                  -3.25,
+                  5.0
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "highlights": [
+                  {
+                    "from": 0.0,
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 3.0
+                  }
+                ],
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "level": 0.0,
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -3.0,
+                      0.0
+                    ],
+                    "interval": [
+                      0.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      3.0,
+                      0.0
+                    ],
+                    "interval": [
+                      null,
+                      0.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -3.0,
+                    "-3"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ],
+                "yTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "155d9accfe536845cb7d0645#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1225,16 +1368,16 @@
                   "value": "o2"
                 },
                 {
-                  "label": "$x<0\\text{ 时，}-3\\le x<0$",
-                  "value": "o1"
+                  "label": "$x<0\\text{ 时，}x<-3$",
+                  "value": "o4"
                 },
                 {
                   "label": "$x<0\\text{ 时，}x\\le -3$",
                   "value": "o3"
                 },
                 {
-                  "label": "$x<0\\text{ 时，}x<-3$",
-                  "value": "o4"
+                  "label": "$x<0\\text{ 时，}-3\\le x<0$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1246,7 +1389,7 @@
               "items": [
                 {
                   "label": "已求出的结果",
-                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}0\\le x\\le 3\\\\\\text{偶函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}0\\le x\\le 3\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
                 },
                 {
                   "label": "对称范围内的解",
@@ -1260,11 +1403,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "4626d13d862e4c2b8403b954f1afed85",
+        "run_id": "25bb796f56154b639733010520d4c4ee",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d24e6d140e822408812a02de6457991c1ca9dd9fb7b3512ac9035cb3773ff801",
+            "math_step_sha256": "c578227b4af7491bb9edc66525bd9dec5bb3e59046a8b2a3dd42d0f8d5e5760a",
             "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_mirror"
           }
         ],
@@ -1272,10 +1415,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "10187871d22e99ed1787d3bf",
+        "interaction_id": "8fa74f045945ff632805de4d",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "6efe206ad15b45b901229018f4cf35dceafe9f8a89334b1d30125a6ca5906482",
-        "lesson_version": "87ced543c10e6853feb64f3d21f9d1747bbaab520c0270bb7e8da008696b6800",
+        "interaction_sha256": "e084a0c545497baf48c4c3f6a90c4c1b1a3684c251a4522ded2d37c23e8ef9fe",
+        "lesson_version": "11e82e78711d9727ab0cf7e368374e09a440de1d9c66dc4a3b1a99118f4413dd",
         "parts": [
           {
             "completion_board": {
@@ -1402,7 +1545,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "10187871d22e99ed1787d3bf#1",
+            "id": "8fa74f045945ff632805de4d#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1411,12 +1554,12 @@
                   "value": "o1"
                 },
                 {
-                  "label": "$0\\le x\\le 3$",
-                  "value": "o2"
-                },
-                {
                   "label": "$-3\\le x<0$",
                   "value": "o3"
+                },
+                {
+                  "label": "$0\\le x\\le 3$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1442,11 +1585,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "4626d13d862e4c2b8403b954f1afed85",
+        "run_id": "25bb796f56154b639733010520d4c4ee",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d7f5ada61da7bad0d2763f99e11eb03a7e7f3747d942d1e07b15ef0d0421efd0",
+            "math_step_sha256": "5a22baa5a82838295c371e83948233da44ffe47ea88d98e9ed3c080d48f20211",
             "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_conclude"
           }
         ],

@@ -58,7 +58,7 @@ if (answer.kind === 'goal_group') assert.ok(summary.items.every(item => item.sum
 else assert.ok(summary.formula);
 const katex = createRequire(import.meta.url)('../../../site/assets/practice/vendor/katex-0.18.9/katex.min.js');
 let rendered = 0;
-let numberLines = 0;
+let numberLines = 0, pictures = 0;
 const context = vm.createContext({window: {}});
 vm.runInContext(await fs.readFile(new URL('../../../site/assets/practice/components.js', import.meta.url), 'utf8'), context);
 const components = context.window.PracticeComponents;
@@ -75,6 +75,12 @@ function visit(value) {
       assert.match(svg, /^<svg/);
       assert.doesNotMatch(svg, /NaN|Infinity/);
     }
+    if ((key === 'graph' || key === 'completion_graph') && item?.kind) {
+      assert.ok(components.validateGraph(item));
+      const svg = components.graph({...item, uid: `checked-graph-${pictures++}`});
+      assert.match(svg, /^<svg/);
+      assert.doesNotMatch(svg, /NaN|Infinity/);
+    }
     if (key === 'math' && typeof item === 'string') render(item);
     else if (typeof item === 'string') for (const match of item.matchAll(/\$\$([\s\S]*?)\$\$|\$([^$]+)\$/g)) render(match[1] ?? match[2]);
     else visit(item);
@@ -83,5 +89,5 @@ function visit(value) {
 visit(bundle);
 for (const formula of answer.kind === 'goal_group' ? summary.items.map(item => item.summary.formula) : [summary.formula]) render(formula);
 assert.ok(rendered > 8);
-if (process.argv[5] === 'number-lines') assert.ok(numberLines > 0);
-console.log(JSON.stringify({targets, decisions: replay.actions.length, formulas: rendered, numberLines, summary}));
+if (process.argv[5] === 'number-lines') assert.ok(numberLines + pictures > 0);
+console.log(JSON.stringify({targets, decisions: replay.actions.length, formulas: rendered, numberLines, pictures, summary}));

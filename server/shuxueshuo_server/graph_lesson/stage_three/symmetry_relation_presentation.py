@@ -2,14 +2,26 @@
 import sympy as sp
 
 from ...problem_understanding.notation_parser import parse
+from ..function_symmetry_iteration import Orbit
 from ..parity_extension_math import ARGUMENT, _replace
-from ..symmetry_relation_math import _substitute, domain_set, image, solve
+from ..symmetry_relation_math import X, _equation, _substitute, domain_set, image, rational, solve
 from .absolute_graph_presentation import choice_card
 from .domain_visuals import exact_math
+from .interaction_graph_contract import validate_graph
 from .interaction_graphs import _pieces, short_label
 from .math_values import latex
 from .monotonicity_parameter_presentation import _lines
 from .symmetry_presentation import _source_latex
+
+
+# The renderer accepts at most eight segments; bound the work before merging
+# collinear samples, including when a tiny period crosses a large plot window.
+MAX_EXAMPLE_SAMPLES = 64
+
+
+def _plain(e):
+    """SVG text cannot typeset LaTeX: 2 - x → 2-x."""
+    return sp.sstr(e).replace('*', '').replace(' ', '')
 
 
 def _value(f, x, a=1, b=0):
@@ -43,6 +55,164 @@ def _read(title, question, given, answer, proof):
     view = choice_card(title, question, '已知条件', _lines(given), '关系', answer, [], _lines(proof))
     view.update(interaction={'type': 'read'}, expected_answer={})
     return view
+
+
+def _example(d, m):
+    """A zigzag f meeting every given condition: linear on the base interval, extended by the two reflections.
+
+    Returns (f, breakpoints, step) or None when the relations do not close into a translation
+    or a printed value cannot be met by one linear base piece."""
+    ext = m['extension']
+    if ext['kind'] != 'dihedral':
+        return None
+    orbit = Orbit(m['edges'], m['domain'])
+    a, b = ext['base_interval'].start, ext['base_interval'].end
+    known = {q: v for q, v in zip((a, b), ext['fixed_values']) if v is not None}
+    equations = [_equation(r['ast'], [d['function']], X) for r in d['value_equations']]
+    for terms, rhs in equations:
+        if len(terms) == 1:
+            ((_, q), k), = terms.items()
+            r = orbit.reduce(rational(q))
+            value = (rhs/k - r['offset'])/r['factor']
+            if known.setdefault(r['base'], value) != value:
+                return None
+    if not known:
+        known[a] = sp.S.Zero
+    xs = sorted(known)
+    known.setdefault(a, known[xs[0]] - (xs[0]-a))
+    known.setdefault(b, known[xs[-1]] + (b-xs[-1]))
+    xs = sorted(known)
+
+    def base(t):
+        for lo, hi in zip(xs, xs[1:]):
+            if lo <= t <= hi:
+                return known[lo] + (known[hi]-known[lo])*(t-lo)/(hi-lo)
+        raise ValueError('symmetry.example_outside_base')
+
+    def f(t):
+        r = orbit.reduce(sp.nsimplify(t))
+        return r['factor']*base(r['base']) + r['offset']
+    for terms, rhs in equations:
+        if sum(k*f(q) for (_, q), k in terms.items()) != rhs:
+            return None
+    return f, xs, ext['step']
+
+
+def _edge_text(e, f):
+    """(short name, how the pair's values relate) for f(2a-x) = sign·f(x) + offset."""
+    a, c = e['a'], e['offset']
+    if e['sign'] == 1:
+        return rf'关于直线 $x={latex(a)}$ 对称', '函数值相同'
+    name = '关于原点对称' if a == 0 and c == 0 else rf'关于点 $({latex(a)},{latex(c/2)})$ 对称'
+    return name, '函数值互为相反数' if c == 0 else rf'两个函数值的和为 ${latex(c)}$'
+
+
+def _marks(e):
+    if e['sign'] == 1:
+        return {'axes': [{'x': float(e['a']), 'label': 'x=' + short_label(e['a'])}]}
+    return {'points': [{'x': float(e['a']), 'label': '对称中心', 'place': 'below-right'}]}
+
+
+def _example_graph(d, m, example, caption, guides=(), edges=(), span=(), level=False):
+    f_ex, xs, step = example
+    a = xs[0]
+    anchors = [g[0] for g in guides] + [e['a'] for e in edges] + [a, *span]
+    lo, hi = sp.floor(min(anchors)) - 1, sp.ceiling(max(anchors)) + 1
+    if hi - lo < 2*step:
+        hi = lo + 2*step
+    spans, samples = [], 2
+    for base in sorted({t for q in xs for t in (q, 2*a - q)}):
+        first, last = int(sp.ceiling((lo-base)/step)), int(sp.floor((hi-base)/step))
+        samples += max(0, last-first+1)
+        if samples > MAX_EXAMPLE_SAMPLES:
+            return None
+        spans.append((base, first, last))
+    cuts = {lo, hi}
+    for base, first, last in spans:
+        cuts.update(base + k*step for k in range(first, last+1))
+    cuts = sorted(cuts)
+    values = [f_ex(t) for t in cuts]
+    pieces = []
+    for (x0, y0), (x1, y1) in zip(zip(cuts, values), zip(cuts[1:], values[1:])):
+        slope = (y1-y0)/(x1-x0)
+        if pieces and pieces[-1][2] == slope:
+            pieces[-1][1] = x1
+        else:
+            pieces.append([x0, x1, slope, y0 - slope*x0])
+    if len(pieces) > 8:
+        return None
+    ys = [float(v) for v in values] + [0.0]
+    pad = max(1.0, (max(ys) - min(ys))*.15)
+    params = {'segments': [{'coefficients': [0, float(k), float(c)], 'interval': [float(p), float(q)],
+                            'interval_closed': [True, True]} for p, q, k, c in pieces],
+              'bounds': [float(lo), float(hi), min(ys) - pad, max(ys) + pad],
+              'interval': [float(lo), float(hi)], 'interval_closed': [True, True], 'points': [],
+              'xTicks': [[float(v), short_label(v)] for v in sorted({sp.S.Zero, *(e['a'] for e in edges)})],
+              'variable': 'x', 'title': f'{d["function"]}(x) 的示意图像',
+              'description': '折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。'}
+    for e in edges:
+        for key, value in _marks(e).items():
+            if key == 'points' and len(guides) > 2:
+                value = [{k: v for k, v in p.items() if k not in ('label', 'place')} for p in value]
+            params[key] = params.get(key, []) + value
+    if guides:
+        params['guides'] = [{'x': float(g[0]), 'label': g[1],
+                             'value_label': g[2] if len(g) > 2 else f'{d["function"]}({g[1]})'} for g in guides]
+    if level:
+        params['level'] = float(f_ex(guides[0][0]))
+    caption = (rf'示意图：取一个满足题设的折线函数（在 ${latex(sp.Interval(*xs[::len(xs)-1]))}$ 上是一次函数，'
+               '再按对称关系延拓），只用来看对称，不代表 $' + d['function'] + '$ 的解析式；' + caption + '。')
+    try:
+        return validate_graph({'kind': 'piecewise_curve', 'params': params, 'caption': caption})
+    except ValueError:
+        return None
+
+
+def _period_lines(f, x, ext):
+    """A period is claimed only after f(x+T)=f(x) is written out."""
+    p, c = ext['step'], ext['offset']
+    if ext['period'] is None:
+        return []
+    if ext['sign'] == 1:
+        return [f+'('+latex(x+p)+')='+f+r'(x)\Rightarrow \text{周期为 }'+latex(p)]
+    tail = '' if c == 0 else ('+' if c > 0 else '')+latex(c)
+    return [f+'('+latex(x+2*p)+')='+_value(f, x+p, -1, c)
+            + r'=-\left('+_value(f, x, -1, c)+r'\right)'+tail+'='+f+'(x)',
+            r'\Rightarrow \text{周期为 }'+latex(2*p)]
+
+
+def _period_walk(d, m, example, law):
+    """f(x+p) = c - f(x) used twice, drawn as a point walked x → x+p → x+2p back to its own height."""
+    if example is None:
+        return []
+    f, ext = d['function'], m['extension']
+    p, c = ext['step'], ext['offset']
+    a, b = ext['base_interval'].start, ext['base_interval'].end
+    x, t = sp.Symbol('x', real=True), (a + b)/2
+    flip = '-m' if c == 0 else _plain(c) + '-m'
+    at = [(t + k*p, _plain(x + k*p), v) for k, v in enumerate(['m', flip, 'm'])]
+    there = lambda k, v: f+'('+latex(x + k*p)+')='+v
+    flip_tex = '-m' if c == 0 else latex(c) + '-m'
+    group = '再用一次关系，看出周期'
+    shown = rf'在示意图上取横坐标为 $x$ 的点（取 $x={latex(t)}$），记 ${f}(x)=m$'
+    graphs = [_example_graph(d, m, example, caption, at[:n], span=[at[-1][0]], level=n == 3)
+              for n, caption in [(1, shown), (2, rf'由 ${law}$，横坐标为 ${latex(x + p)}$ 的点函数值是 ${flip_tex}$'),
+                                 (3, rf'横坐标为 $x$ 与 ${latex(x + 2*p)}$ 的两点一样高（水平虚线），'
+                                     rf'即 ${f}({latex(x + 2*p)})={f}(x)$；对每个 $x$ 都成立，所以周期为 ${latex(2*p)}$')]]
+    if None in graphs:
+        return []
+    wrong1 = [v for v in dict.fromkeys(['m', '0', '-2m', '-m']) if v != flip_tex]
+    wrong2 = [v for v in dict.fromkeys(['-m', flip_tex, '0', '2m']) if v != 'm']
+    cards = [choice_card(rf'从 $x$ 走到 ${latex(x + p)}$', shown + rf'。由 ${law}$，横坐标为 ${latex(x + p)}$ 的点函数值是多少？',
+                         '已知条件', _lines([law]), '函数值', there(1, flip_tex), [there(1, v) for v in wrong1[:3]],
+                         _lines([there(1, _value(f, x, -1, c)) + '=' + flip_tex])),
+             choice_card(rf'从 ${latex(x + p)}$ 再走到 ${latex(x + 2*p)}$',
+                         rf'把 ${law}$ 中的 $x$ 换成 ${latex(x + p)}$ 再用一次，横坐标为 ${latex(x + 2*p)}$ 的点函数值是多少？',
+                         '已知条件', _lines([law, there(1, flip_tex)]), '函数值', there(2, 'm'),
+                         [there(2, v) for v in wrong2[:3]], _lines(_period_lines(f, x, ext)))]
+    for card, (stem, done) in zip(cards, zip(graphs, graphs[1:])):
+        card.update(graph=stem, completion_graph=done, card_group='period', card_group_title=group)
+    return cards
 
 
 def _pair_lines(e, u):
@@ -134,6 +304,18 @@ def phase_views(values):
     laws = [_relation(e, f) for e in m['edges']]
     if phase == 'rewrite':
         views = []
+        example = _example(d, m)
+        x = sp.Symbol('x', real=True)
+        ext = m['extension']
+        span = [e['a'] for e in m['edges']]
+        for e in m['edges']:
+            inputs = [r['input'] for r in m['maps'] if e['scope'].contains(r['input']) is sp.true]
+            if inputs:
+                u = next((q for q in inputs if q != e['a']), inputs[0])
+                span += [u, 2*e['a']-u]
+        if ext['kind'] == 'dihedral':
+            lo, hi = ext['base_interval'].start, ext['base_interval'].end
+            span += [lo - (hi-lo)/2, (lo+hi)/2 + ext['step']]
         for e in m['edges']:
             inputs = [r['input'] for r in m['maps'] if e['scope'].contains(r['input']) is sp.true]
             if not inputs:
@@ -144,20 +326,43 @@ def phase_views(values):
             pair = rf'{latex(u)}\mapsto {latex(v)}'
             proof = [rf'{latex(2*e["a"])}-({latex(u)})={latex(v)}', _relation(e, f),
                      f+'('+latex(v)+')='+_value(f, u, e['sign'], e['offset'])]
-            view = choice_card('找出配对的输入', rf'这条对称关系把输入 $x$ 变为 ${latex(2*e["a"])}-x$。'
-                               rf'输入为 ${latex(u)}$ 时，配对的输入是多少？', '已知条件', _lines(source),
+            name, change = _edge_text(e, f)
+            paired = ('-x' if e['a'] == 0 else latex(2*e['a']) + '-x')
+            question = (rf'图像{name}：输入 $x$ 与 ${paired}$ 的中点是 ${latex(e["a"])}$，{change}。'
+                        rf'输入为 ${latex(u)}$ 时，配对的输入是多少？')
+            view = choice_card(f'利用{name}找配对的输入', question, '已知条件', _lines(source),
                                '输入配对', pair, [rf'{latex(u)}\mapsto {latex(q)}' for q in wrong[:3]], _lines(proof))
-            view['condition_number_lines'] = _pair_lines(e, u)
+            stem = done = None
+            if example is not None:
+                stem = _example_graph(d, m, example, rf'图像{name}', [(u, short_label(u))], [e], span)
+                done = _example_graph(d, m, example, rf'${latex(u)}$ 与 ${latex(v)}$ 的中点是 ${latex(e["a"])}$，{change}',
+                                      [(u, short_label(u)), (v, short_label(v))], [e], span)
+            if stem is not None and done is not None:
+                view['graph'], view['completion_graph'] = stem, done
+            else:
+                view['condition_number_lines'] = _pair_lines(e, u)
             views.append(view)
-        if m['extension']['kind'] == 'dihedral':
-            ext, x = m['extension'], sp.Symbol('x', real=True)
+        if ext['kind'] == 'dihedral':
             a, b = ext['base_interval'].start, ext['base_interval'].end
             input_path = ('x'+r'\xrightarrow{\text{第一次对称}}'+latex(2*a-x)
                           + r'\xrightarrow{\text{第二次对称}}'+latex(x+2*(b-a)))
             law = f+'('+latex(x+ext['step'])+')='+_value(f, x, ext['sign'], ext['offset'])
-            views.append(_read('连续使用两次对称关系', '按顺序使用两条关系，同时记录输入的变化和函数值的变化。',
-                               [*laws, input_path], law, [input_path, *laws, law,
-                               *([r'\text{一个周期为 }'+latex(ext['period'])] if ext['period'] is not None else [])]))
+            period = _period_lines(f, x, ext)
+            walk = _period_walk(d, m, example, law) if ext['sign'] == -1 and ext['period'] is not None else []
+            view = _read('连续使用两次对称关系', '按顺序使用两条关系，同时记录输入的变化和函数值的变化。',
+                         [*laws, input_path], law, [input_path, *laws, law, *([] if walk else period)])
+            first = next(e for e in m['edges'] if e['a'] == a)
+            second = next(e for e in m['edges'] if e['a'] == b)
+            if example is not None:
+                t = (a + b)/2
+                steps = [(t, 'x'), (2*a - t, _plain(2*a - x)), (t + ext['step'], _plain(x + ext['step']))]
+                (n1, c1), (n2, c2) = _edge_text(first, f), _edge_text(second, f)
+                text = (rf'取 $x={latex(t)}$：先{n1}，到 ${latex(2*a - t)}$，{c1}；'
+                        rf'再{n2}，到 ${latex(t + ext["step"])}$，{c2}；所以 ${law}$')
+                graph = _example_graph(d, m, example, text, steps, [first, second], span)
+                if graph is not None:
+                    view['graph'] = graph
+            views += [view, *walk]
         return views or [_read('写出对称关系', '先明确关系适用的范围。', source, _lines(laws), laws)]
     target, proof = target_math(d), m['proof']
     rewritten = []

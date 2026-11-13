@@ -56,8 +56,9 @@ def _source_latex(ast, x):
             right = rf'\left({right}\right)'
         return _source_latex(ast[1], x) + op + right
     if op == '*':
-        parts = [rf'\left({_source_latex(a, x)}\right)' if a[0] in ('+', '-', 'neg') else _source_latex(a, x)
-                 for a in ast[1:]]
+        parts = [rf'\left({_source_latex(a, x)}\right)'
+                 if a[0] in ('+', '-') or a[0] == 'neg' and (i or a[1][0] in ('+', '-')) else _source_latex(a, x)
+                 for i, a in enumerate(ast[1:])]
         return parts[0] + (r'\cdot ' if ast[2][0] in ('number', 'neg') else '') + parts[1]
     if op == '/':
         return rf'\frac{{{_source_latex(ast[1], x)}}}{{{_source_latex(ast[2], x)}}}'
@@ -520,6 +521,7 @@ def compile_cards(seeds, interaction_id):
                       'interaction': interaction, 'expected_answer': view['expected_answer'],
                       'feedback': view['feedback'], 'submit_label': '继续' if interaction['type'] == 'read' else '确认判断',
                       'stem_board': board, 'completion_board': view['derivation']})
-        if view.get('condition_number_lines'):
-            parts[-1]['condition_number_lines'] = deepcopy(view['condition_number_lines'])
+        for key in ('condition_number_lines', 'graph', 'completion_graph', 'card_group', 'card_group_title'):
+            if view.get(key):
+                parts[-1][key] = deepcopy(view[key])
     return {'parts': parts, 'diagnostics': []}

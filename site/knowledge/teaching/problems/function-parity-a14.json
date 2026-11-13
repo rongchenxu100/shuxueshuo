@@ -36,23 +36,23 @@
             "method-function-symmetry"
           ]
         },
-        "249893c57b642f06aae05b17#1": {
-          "title": "找出配对的输入",
+        "9dd0a9bd031b2cbedb9a96f1#1": {
+          "title": "利用关于原点对称找配对的输入",
           "position": 4,
           "refs": [
             "method-function-symmetry#rewrite",
             "skill-function-symmetry-transform"
           ]
         },
-        "249893c57b642f06aae05b17#2": {
-          "title": "找出配对的输入",
+        "9dd0a9bd031b2cbedb9a96f1#2": {
+          "title": "利用关于直线 $x=\\frac{1}{2}$ 对称找配对的输入",
           "position": 5,
           "refs": [
             "method-function-symmetry#rewrite",
             "skill-function-symmetry-transform"
           ]
         },
-        "249893c57b642f06aae05b17#3": {
+        "9dd0a9bd031b2cbedb9a96f1#3": {
           "title": "连续使用两次对称关系",
           "position": 6,
           "refs": [
@@ -60,9 +60,25 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "1e3d0e3f104864cee02b196c#1": {
-          "title": "求出所求的值",
+        "9dd0a9bd031b2cbedb9a96f1#4": {
+          "title": "从 $x$ 走到 $x + 1$",
           "position": 7,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "9dd0a9bd031b2cbedb9a96f1#5": {
+          "title": "从 $x + 1$ 再走到 $x + 2$",
+          "position": 8,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "32dc7da497b0c2991ee04c38#1": {
+          "title": "求出所求的值",
+          "position": 9,
           "refs": [
             "method-function-symmetry#conclude"
           ]
@@ -70,6 +86,6 @@
       }
     }
   },
-  "page_contract_hash": "684bc910001daf258c1562f04055a04effa7ece24630bcf08cce46e6a42a8386",
-  "practice_version": "62bdc3e2e57d824de94f11ebdc931da71be954ff18842fd796803f036d93463d"
+  "page_contract_hash": "26fc2e8b6dbfc8549ef413013f0b009851fe52475b9e41d8d3489875205b0720",
+  "practice_version": "51042e1bc03fa739745946f552675ebe18b0cf56487d022bb998507004a52b81"
 }

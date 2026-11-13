@@ -305,7 +305,28 @@ def presentation(values):
             'derivation_right_label': right['label'], 'derivation_right_math': right['math']}
 
 
+def _attach_graphs(part, values):
+    """Write-back and conclusion: the known piece and its parity image; the stem of write-back shows only the known piece."""
+    from .parity_half_graphs import half_graph, symmetry_text
+    d, phase = values['description'], values['phase']
+    if phase in ('map', 'substitute') or d.get('local_rules') or d['property'] == 'both':
+        return
+    s, variable = _source(d), symbols(d)
+    rule = rule_expression(d['rule_ast'], variable)
+    K, M, x = s['known'], s['mirrored'], s['x']
+    symmetry = symmetry_text(s['sign'], K, M, x)
+    zero = solve(d)['zero_status'] == 'forced_zero'
+    done = half_graph(s['f'], variable, rule, K, M, s['sign'], symmetry + '。', zero=zero)
+    stem = (half_graph(s['f'], variable, rule, K, M, s['sign'], rf'已知 ${range_latex(K, x)}$ 时的一段。', mirror=False)
+            if phase == 'write_back' else done)
+    if stem is not None:
+        part['graph'] = stem
+    if done is not None:
+        part['completion_graph'] = done
+
+
 def _attach_lines(part, values):
+    _attach_graphs(part, values)
     if values['phase'] != 'map':
         return
     s = _source(values['description'])

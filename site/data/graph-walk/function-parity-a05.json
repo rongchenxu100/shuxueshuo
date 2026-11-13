@@ -461,7 +461,7 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "71a9516d0b57acda332e3d8e#1",
+          "id": "e80f81f0ead43ebb9f8c2a6c#1",
           "interaction": {
             "field": "answer",
             "options": [
@@ -497,12 +497,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "8f052df06997896c4943b3c7062a552594f2028ed04561770c5cba7239903387",
+              "math_step_sha256": "0fcefd139f0091706573255384810e1a6583c5e1fecf8aa59e4b41d41f82d9bc",
               "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "71a9516d0b57acda332e3d8e",
+          "stream_interaction_id": "a05e87b3ba2d0aac4b634323",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "把输入换到已知一侧",
@@ -539,25 +539,25 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "9e8fa397de1402c056e0bd04#1",
+          "id": "895f69dd7ec4252fcc89dc46#1",
           "interaction": {
             "field": "answer",
             "options": [
-              {
-                "label": "$-2<x<0\\text{ 时，}f(-x)=x^{2} + 2 x$",
-                "value": "o2"
-              },
               {
                 "label": "$-2<x<0\\text{ 时，}f(-x)=- x^{2} - 2 x$",
                 "value": "o4"
               },
               {
-                "label": "$-2<x<0\\text{ 时，}f(-x)=- x^{2} + 2 x$",
-                "value": "o3"
+                "label": "$-2<x<0\\text{ 时，}f(-x)=x^{2} + 2 x$",
+                "value": "o2"
               },
               {
                 "label": "$-2<x<0\\text{ 时，}f(-x)=x^{2} - 2 x$",
                 "value": "o1"
+              },
+              {
+                "label": "$-2<x<0\\text{ 时，}f(-x)=- x^{2} + 2 x$",
+                "value": "o3"
               }
             ],
             "type": "choice"
@@ -583,12 +583,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "0da24948714d1f443f56ef6fb1a1536c118229fed8f242cb44cfb3d23c215489",
+              "math_step_sha256": "dee25c346bee9b8db0c972929042729da9762cb0fcf33a182d16bbeda8d2cc28",
               "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "9e8fa397de1402c056e0bd04",
+          "stream_interaction_id": "d63dd09e1a13c944a496e725",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "代入相反输入",
@@ -617,6 +617,76 @@
             ],
             "layout": "derivation"
           },
+          "completion_graph": {
+            "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -9.92,
+                9.92
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    -1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
           "expected_answer": {
             "one_of": [
               "o1"
@@ -625,7 +695,58 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "9a13b4c7da9e716d3814350e#1",
+          "graph": {
+            "caption": "已知 $0<x<2$ 时的一段。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -1,
+                3,
+                -1,
+                9
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                0,
+                2
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "ae3ff28578032a714edde199#1",
           "interaction": {
             "field": "answer",
             "options": [
@@ -669,12 +790,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "0328583a59ad0af92e567571858cd130f7dad4cf6c3906fc55fbca0281a8bfa3",
+              "math_step_sha256": "9442a4f7afd4e968ddbc72fe859ada192fcb35150cde4ab69e0dc93d44b02f48",
               "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "9a13b4c7da9e716d3814350e",
+          "stream_interaction_id": "fcf2a82a35e92ceb3f9bb69a",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "用奇偶性换回 f(x)",
@@ -703,11 +824,151 @@
             ],
             "layout": "derivation"
           },
+          "completion_graph": {
+            "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -9.92,
+                9.92
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    -1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
           "expected_answer": {},
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "bbf0afc92da6ce705c422bce#1",
+          "graph": {
+            "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -9.92,
+                9.92
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    -1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "8e6f0f9ba6fc49322eb64266#1",
           "interaction": {
             "type": "read"
           },
@@ -726,12 +987,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "5ab8f83464baa887dab874bca20184003b852d6fe88b2981e114f7aad43ab4c6",
+              "math_step_sha256": "89b1d5808217f61cef164aa7daba87a050cb97f78cab84821e781ed98c132f36",
               "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "bbf0afc92da6ce705c422bce",
+          "stream_interaction_id": "72688e880b685f284849641d",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "写出带范围的结论",
@@ -899,7 +1160,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}\\text{奇函数}\\\\f(x-1)+f(x)<0\\end{gathered}"
+                "math": "\\begin{gathered}\\text{奇函数：}f(x)=-f(-x)\\\\f(x-1)+f(x)<0\\end{gathered}"
               },
               {
                 "label": "等价的比较",
@@ -907,6 +1168,88 @@
               }
             ],
             "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到；虚线：$u$ 与 $-u$ 关于原点对称，函数值互为相反数，$f(-u)=-f(u)$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -9.92,
+                9.92
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "guides": [
+                {
+                  "label": "u",
+                  "value_label": "f(u)",
+                  "x": -1.2
+                },
+                {
+                  "label": "-u",
+                  "value_label": "f(-u)",
+                  "x": 1.2
+                }
+              ],
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    -1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
           },
           "expected_answer": {
             "one_of": [
@@ -916,25 +1259,107 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "d55ee3931a67d17c54df82d2#1",
+          "graph": {
+            "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到；虚线：$u$ 与 $-u$ 关于原点对称，函数值互为相反数，$f(-u)=-f(u)$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -9.92,
+                9.92
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "guides": [
+                {
+                  "label": "u",
+                  "value_label": "f(u)",
+                  "x": -1.2
+                },
+                {
+                  "label": "-u",
+                  "value_label": "f(-u)",
+                  "x": 1.2
+                }
+              ],
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    -1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "2bf9d2340e2eb2e8673c24d1#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$f(x - 1)>f(- x)$",
-                "value": "o3"
+                "label": "$f(x - 1)<f(x)$",
+                "value": "o2"
               },
               {
-                "label": "$f(x - 1)<f(- x)$",
-                "value": "o1"
+                "label": "$f(x - 1)>f(- x)$",
+                "value": "o3"
               },
               {
                 "label": "$f(- x + 1)<f(- x)$",
                 "value": "o4"
               },
               {
-                "label": "$f(x - 1)<f(x)$",
-                "value": "o2"
+                "label": "$f(x - 1)<f(- x)$",
+                "value": "o1"
               }
             ],
             "type": "choice"
@@ -946,7 +1371,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}\\text{奇函数}\\\\f(x-1)+f(x)<0\\end{gathered}"
+                "math": "\\begin{gathered}\\text{奇函数：}f(x)=-f(-x)\\\\f(x-1)+f(x)<0\\end{gathered}"
               },
               {
                 "label": "等价的比较",
@@ -960,12 +1385,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "f805aa636b8c359060b34270ec973969d9fc09f213aa92624c428caab09fd389",
+              "math_step_sha256": "3e22812b1207242baa4e5185f89b7b57f3194eb70ebc91d92dde4544e0e0bc4d",
               "step_id": "cbd98ea750-parity-inequality-001-parity_inequality_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "d55ee3931a67d17c54df82d2",
+          "stream_interaction_id": "9011ea8db308dff103aa4e68",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "改写成两个函数值的比较",
@@ -986,7 +1411,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\\\\\text{奇函数，定义域 }\\left(-2, 2\\right)\\end{gathered}"
+                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\\\\\text{奇函数：}f(x)=-f(-x)\\text{，定义域 }\\left(-2, 2\\right)\\end{gathered}"
               },
               {
                 "label": "单调性",
@@ -994,6 +1419,94 @@
               }
             ],
             "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到；箭头标出各段的增减。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -9.92,
+                9.92
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "interval_marks": [
+                {
+                  "from": 0,
+                  "label": "(0, 2)",
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 2,
+                  "trend": "increasing"
+                },
+                {
+                  "from": -2,
+                  "label": "(-2, 0)",
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0,
+                  "trend": "increasing"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    -1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
           },
           "expected_answer": {
             "one_of": [
@@ -1003,7 +1516,95 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "a4828e043122ad7bdea0c746#1",
+          "graph": {
+            "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到；箭头标出各段的增减。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -9.92,
+                9.92
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "interval_marks": [
+                {
+                  "from": 0,
+                  "label": "(0, 2)",
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 2,
+                  "trend": "increasing"
+                },
+                {
+                  "from": -2,
+                  "label": "(-2, 0)",
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0,
+                  "trend": "increasing"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    -1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "478164fbcba961305d162aa5#1",
           "interaction": {
             "field": "answer",
             "options": [
@@ -1012,12 +1613,12 @@
                 "value": "o1"
               },
               {
-                "label": "$f\\text{ 在 }\\left(-2, 2\\right)\\text{ 上严格递减}$",
-                "value": "o2"
-              },
-              {
                 "label": "$f\\text{ 在 }\\left(-2, 2\\right)\\text{ 上不单调}$",
                 "value": "o3"
+              },
+              {
+                "label": "$f\\text{ 在 }\\left(-2, 2\\right)\\text{ 上严格递减}$",
+                "value": "o2"
               }
             ],
             "type": "choice"
@@ -1029,7 +1630,7 @@
             "items": [
               {
                 "label": "已知条件",
-                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\\\\\text{奇函数，定义域 }\\left(-2, 2\\right)\\end{gathered}"
+                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\\\\\text{奇函数：}f(x)=-f(-x)\\text{，定义域 }\\left(-2, 2\\right)\\end{gathered}"
               },
               {
                 "label": "单调性",
@@ -1043,12 +1644,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "6270109ea10a87b6a6ab9e215477c4cb5efe10b753afc04c333dd155f8cb17a5",
+              "math_step_sha256": "33c8e20348142f4c1792e45fb17d5b7ed7b45eec2ff6b0e344ee1bb78fcd1d3e",
               "step_id": "cbd98ea750-parity-inequality-002-parity_inequality_direction"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "a4828e043122ad7bdea0c746",
+          "stream_interaction_id": "a16e6ba9f61e2d8c4955658f",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "确定整个定义域上的单调方向",
@@ -1078,6 +1679,88 @@
             ],
             "layout": "derivation"
           },
+          "completion_graph": {
+            "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到；虚线取两个示意输入：$f$ 在 $\\left(-2, 2\\right)$ 上严格递增，输入大的函数值也大。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -9.92,
+                9.92
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "guides": [
+                {
+                  "label": "x-1",
+                  "value_label": "f(x-1)",
+                  "x": -1
+                },
+                {
+                  "label": "-x",
+                  "value_label": "f(-x)",
+                  "x": 1
+                }
+              ],
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    -1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
           "expected_answer": {
             "one_of": [
               "o1"
@@ -1086,10 +1769,84 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "ef8b80241deb708bf07f3229#1",
+          "graph": {
+            "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3,
+                3,
+                -9.92,
+                9.92
+              ],
+              "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+              "interval": [
+                -2,
+                2
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    0,
+                    2
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ]
+                },
+                {
+                  "coefficients": [
+                    -1,
+                    2,
+                    0
+                  ],
+                  "interval": [
+                    -2,
+                    0
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ]
+                }
+              ],
+              "title": "f(x) 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2,
+                  "-2"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  2,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "2bcec618dcd63904ebfe5047#1",
           "interaction": {
             "field": "answer",
             "options": [
+              {
+                "label": "$x - 1>- x$",
+                "value": "o2"
+              },
               {
                 "label": "$x - 1<- x$",
                 "value": "o1"
@@ -1097,10 +1854,6 @@
               {
                 "label": "$x - 1<x$",
                 "value": "o3"
-              },
-              {
-                "label": "$x - 1>- x$",
-                "value": "o2"
               }
             ],
             "type": "choice"
@@ -1126,12 +1879,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "284c64cba2f0a8c1ba5787b896fdf836a57a12b94bbd2326172fa5d75d64856c",
+              "math_step_sha256": "9adb5554087baadd4db9bb1f2246ad3bc545d3c46b40c3d80976c24f73397332",
               "step_id": "cbd98ea750-parity-inequality-003-parity_inequality_compare"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "ef8b80241deb708bf07f3229",
+          "stream_interaction_id": "338030388ce5c0d56b0a4cf4",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "去掉函数符号比较输入",
@@ -1161,110 +1914,6 @@
             ],
             "layout": "derivation"
           },
-          "completion_number_line": {
-            "bounds": [
-              -2,
-              1.5
-            ],
-            "exact_set": {
-              "exact": {
-                "$math": "Interval",
-                "args": [
-                  {
-                    "$math": "Integer",
-                    "value": "-1"
-                  },
-                  {
-                    "$math": "Rational",
-                    "p": "1",
-                    "q": "2"
-                  },
-                  {
-                    "$math": "BooleanTrue"
-                  },
-                  {
-                    "$math": "BooleanTrue"
-                  }
-                ]
-              },
-              "expression": "Interval.open(-1, 1/2)",
-              "latex": "\\left(-1, \\frac{1}{2}\\right)"
-            },
-            "intervals": [
-              {
-                "exact": {
-                  "exact": {
-                    "$math": "Interval",
-                    "args": [
-                      {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      {
-                        "$math": "Rational",
-                        "p": "1",
-                        "q": "2"
-                      },
-                      {
-                        "$math": "BooleanTrue"
-                      },
-                      {
-                        "$math": "BooleanTrue"
-                      }
-                    ]
-                  },
-                  "expression": "Interval.open(-1, 1/2)",
-                  "latex": "\\left(-1, \\frac{1}{2}\\right)"
-                },
-                "left": -1,
-                "left_closed": false,
-                "right": 0.5,
-                "right_closed": false
-              }
-            ],
-            "label": "\\text{解集}",
-            "points": [],
-            "ticks": [
-              {
-                "at": -1,
-                "exact": {
-                  "exact": {
-                    "$math": "Integer",
-                    "value": "-1"
-                  },
-                  "expression": "-1",
-                  "latex": "-1"
-                },
-                "label": "-1"
-              },
-              {
-                "at": 0,
-                "exact": {
-                  "exact": {
-                    "$math": "Integer",
-                    "value": "0"
-                  },
-                  "expression": "0",
-                  "latex": "0"
-                },
-                "label": "0"
-              },
-              {
-                "at": 0.5,
-                "exact": {
-                  "exact": {
-                    "$math": "Rational",
-                    "p": "1",
-                    "q": "2"
-                  },
-                  "expression": "1/2",
-                  "latex": "\\frac{1}{2}"
-                },
-                "label": "1/2"
-              }
-            ],
-            "variable": "x"
-          },
           "expected_answer": {
             "one_of": [
               "o1"
@@ -1273,21 +1922,21 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "967f11a3175027fee0f5be0c#1",
+          "id": "283cbbaf95cf7964d433a393#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$\\frac{1}{2}<x<2$",
-                "value": "o4"
+                "label": "$-1<x<2$",
+                "value": "o3"
               },
               {
                 "label": "$x<\\frac{1}{2}$",
                 "value": "o2"
               },
               {
-                "label": "$-1<x<2$",
-                "value": "o3"
+                "label": "$\\frac{1}{2}<x<2$",
+                "value": "o4"
               },
               {
                 "label": "$-1<x<\\frac{1}{2}$",
@@ -1317,12 +1966,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "1e8f4ebdc3f2814d016441fddfe76c610d785dd4557acd8d89aec2c504c52322",
+              "math_step_sha256": "159bc668d26637a3c77cffea434234f6397888a6ec10301bc281cb708fe97ccf",
               "step_id": "cbd98ea750-parity-inequality-004-parity_inequality_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "967f11a3175027fee0f5be0c",
+          "stream_interaction_id": "a18d4772f2a8bfc720dcbae2",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "合法输入求交，写出解集",
@@ -1345,8 +1994,8 @@
         "status": "verified",
         "available": true,
         "composition": "sequential_goals",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "target_ref": "/root/goals/0",
         "target_refs": [
           "/root/goals/0",
@@ -1671,35 +2320,35 @@
           "available": true,
           "contract": "graph-stage-four-handoff/v1",
           "feasible_set": null,
-          "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+          "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
           "math_steps": [
             {
-              "math_step_sha256": "8f052df06997896c4943b3c7062a552594f2028ed04561770c5cba7239903387",
+              "math_step_sha256": "0fcefd139f0091706573255384810e1a6583c5e1fecf8aa59e4b41d41f82d9bc",
               "ordinal": 1,
               "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
             },
             {
-              "math_step_sha256": "0da24948714d1f443f56ef6fb1a1536c118229fed8f242cb44cfb3d23c215489",
+              "math_step_sha256": "dee25c346bee9b8db0c972929042729da9762cb0fcf33a182d16bbeda8d2cc28",
               "ordinal": 2,
               "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
             },
             {
-              "math_step_sha256": "0328583a59ad0af92e567571858cd130f7dad4cf6c3906fc55fbca0281a8bfa3",
+              "math_step_sha256": "9442a4f7afd4e968ddbc72fe859ada192fcb35150cde4ab69e0dc93d44b02f48",
               "ordinal": 3,
               "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
             },
             {
-              "math_step_sha256": "5ab8f83464baa887dab874bca20184003b852d6fe88b2981e114f7aad43ab4c6",
+              "math_step_sha256": "89b1d5808217f61cef164aa7daba87a050cb97f78cab84821e781ed98c132f36",
               "ordinal": 4,
               "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
             }
           ],
           "route_id": "parity-extension",
-          "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+          "run_id": "7e4eac53cde148c78da06eb9104a19cb",
           "status": "verified",
           "target_ref": "/root/goals/0",
-          "task_id": "8d63e9b5d61f658afb536c62da6ca071d7e30eff16affc54ce4e9eb814e81a58",
-          "verified_route_sha256": "2e6ea4ffa768688678d567f8a89c0a94ba7d84f20d3fd8cd2e38b6ee6ab147b2",
+          "task_id": "23078f612e6377fa20aea180b78a3539bddb3b23dbd539a54b49dfa25ae95a69",
+          "verified_route_sha256": "16f1a1bbc420e5bad04dbde41b3f8805b58cc97b60f63b23065ac48fda6d071d",
           "title": "补全另一侧解析式"
         },
         {
@@ -1737,35 +2386,35 @@
             "expression": "Interval.open(-1, 1/2)",
             "latex": "\\left(-1, \\frac{1}{2}\\right)"
           },
-          "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+          "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
           "math_steps": [
             {
-              "math_step_sha256": "f805aa636b8c359060b34270ec973969d9fc09f213aa92624c428caab09fd389",
+              "math_step_sha256": "3e22812b1207242baa4e5185f89b7b57f3194eb70ebc91d92dde4544e0e0bc4d",
               "ordinal": 1,
               "step_id": "cbd98ea750-parity-inequality-001-parity_inequality_rewrite"
             },
             {
-              "math_step_sha256": "6270109ea10a87b6a6ab9e215477c4cb5efe10b753afc04c333dd155f8cb17a5",
+              "math_step_sha256": "33c8e20348142f4c1792e45fb17d5b7ed7b45eec2ff6b0e344ee1bb78fcd1d3e",
               "ordinal": 2,
               "step_id": "cbd98ea750-parity-inequality-002-parity_inequality_direction"
             },
             {
-              "math_step_sha256": "284c64cba2f0a8c1ba5787b896fdf836a57a12b94bbd2326172fa5d75d64856c",
+              "math_step_sha256": "9adb5554087baadd4db9bb1f2246ad3bc545d3c46b40c3d80976c24f73397332",
               "ordinal": 3,
               "step_id": "cbd98ea750-parity-inequality-003-parity_inequality_compare"
             },
             {
-              "math_step_sha256": "1e8f4ebdc3f2814d016441fddfe76c610d785dd4557acd8d89aec2c504c52322",
+              "math_step_sha256": "159bc668d26637a3c77cffea434234f6397888a6ec10301bc281cb708fe97ccf",
               "ordinal": 4,
               "step_id": "cbd98ea750-parity-inequality-004-parity_inequality_conclude"
             }
           ],
           "route_id": "parity-inequality",
-          "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+          "run_id": "7e4eac53cde148c78da06eb9104a19cb",
           "status": "verified",
           "target_ref": "/root/goals/1",
-          "task_id": "9975f7cfd654d0ff86ee0854ffe1debd861149d7de28c4ac255a600cf3e7c4ce",
-          "verified_route_sha256": "6b1b3cfa8a6a4bdf97b2503b6ee5864c91c8ea17f7717abfc23ca864df536ee6",
+          "task_id": "00fcc0f4a79e87f30fa48a18aa953844e41c8308116429f70798793524e524b9",
+          "verified_route_sha256": "75584333ebabc5624b2cae2e270e56925eaf9533e5339a6a063beb2aee66f57f",
           "title": "解不等式"
         }
       ]
@@ -2383,11 +3032,11 @@
       }
     ]
   },
-  "bundleVersion": "abe624546b14d9c58b0a2a339c8a7153528800557bd23fe284a330b2c8016e89",
+  "bundleVersion": "6ffe4618d5993964807ac7d587ff4314f5014748d79f8b3625c47629a1551843",
   "stream": {
-    "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
-    "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
-    "stream_id": "2ad64eb35b194673bc23417a4e5ecf24",
+    "run_id": "7e4eac53cde148c78da06eb9104a19cb",
+    "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
+    "stream_id": "7e4eac53cde148c78da06eb9104a19cb",
     "target_ref": "/root/goals/0",
     "base_bundle_version": "0b3cf2154b90313850987ce05e1d9e685c0b709b03aeeeb9699dac1af3306664",
     "d3": {
@@ -2442,15 +3091,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "local_check": "passed",
-        "math_step_sha256": "8f052df06997896c4943b3c7062a552594f2028ed04561770c5cba7239903387",
+        "math_step_sha256": "0fcefd139f0091706573255384810e1a6583c5e1fecf8aa59e4b41d41f82d9bc",
         "method_ref": "method-parity-extension#map",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-extension",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -2481,15 +3130,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "local_check": "passed",
-        "math_step_sha256": "0da24948714d1f443f56ef6fb1a1536c118229fed8f242cb44cfb3d23c215489",
+        "math_step_sha256": "dee25c346bee9b8db0c972929042729da9762cb0fcf33a182d16bbeda8d2cc28",
         "method_ref": "method-parity-extension#substitute",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-extension",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -2522,15 +3171,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "local_check": "passed",
-        "math_step_sha256": "0328583a59ad0af92e567571858cd130f7dad4cf6c3906fc55fbca0281a8bfa3",
+        "math_step_sha256": "9442a4f7afd4e968ddbc72fe859ada192fcb35150cde4ab69e0dc93d44b02f48",
         "method_ref": "method-parity-extension#write-back",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-extension",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -2561,15 +3210,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "local_check": "passed",
-        "math_step_sha256": "5ab8f83464baa887dab874bca20184003b852d6fe88b2981e114f7aad43ab4c6",
+        "math_step_sha256": "89b1d5808217f61cef164aa7daba87a050cb97f78cab84821e781ed98c132f36",
         "method_ref": "method-parity-extension#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-extension",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -2591,7 +3240,7 @@
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}\\text{奇函数}\\\\f(x-1)+f(x)<0\\end{gathered}"
+              "math": "\\begin{gathered}\\text{奇函数：}f(x)=-f(-x)\\\\f(x-1)+f(x)<0\\end{gathered}"
             },
             {
               "label": "等价的比较",
@@ -2600,15 +3249,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "local_check": "passed",
-        "math_step_sha256": "f805aa636b8c359060b34270ec973969d9fc09f213aa92624c428caab09fd389",
+        "math_step_sha256": "3e22812b1207242baa4e5185f89b7b57f3194eb70ebc91d92dde4544e0e0bc4d",
         "method_ref": "method-parity-inequality#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -2625,14 +3274,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "parity_inequality_direction",
-        "explanation": "$$\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\text{，严格递增}\\\\\\text{奇函数在对称两侧单调方向相同}\\Rightarrow -2<x<0\\text{ 时，}\\text{严格递增}\\\\f(0)=0,\\ 0<x<2\\text{ 时，}f(x)>0\\\\\\Rightarrow f\\text{ 在 }\\left(-2, 2\\right)\\text{ 上严格递增}\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}x^{2} + 2 x=\\left(x + 1\\right)^{2}-1\\\\\\text{对称轴 }x=-1\\text{，开口向上，在 }\\left[-1, \\infty\\right)\\text{ 上}\\text{严格递增}\\\\\\left(0, 2\\right)\\subseteq \\left[-1, \\infty\\right)\\Rightarrow f\\text{ 在 }\\left(0, 2\\right)\\text{ 上}\\text{严格递增}\\\\-2<x<0\\text{ 时，}f(x)=-f(-x)=- x^{2} + 2 x\\\\\\text{奇函数在对称两侧单调方向相同}\\Rightarrow f\\text{ 在 }\\left(-2, 0\\right)\\text{ 上严格递增}\\\\f(0)=0\\text{，}0<x<2\\text{ 时，}f(x)>0\\text{，}-2<x<0\\text{ 时，}f(x)<0\\Rightarrow \\text{两段在 }x=0\\text{ 处衔接}\\\\\\Rightarrow f\\text{ 在 }\\left(-2, 2\\right)\\text{ 上严格递增}\\end{gathered}$$",
         "highlight": {
           "caption": "确定整个定义域上的单调方向",
           "connector": "⇒",
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\\\\\text{奇函数，定义域 }\\left(-2, 2\\right)\\end{gathered}"
+              "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\\\\\text{奇函数：}f(x)=-f(-x)\\text{，定义域 }\\left(-2, 2\\right)\\end{gathered}"
             },
             {
               "label": "单调性",
@@ -2641,15 +3290,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "local_check": "passed",
-        "math_step_sha256": "6270109ea10a87b6a6ab9e215477c4cb5efe10b753afc04c333dd155f8cb17a5",
+        "math_step_sha256": "33c8e20348142f4c1792e45fb17d5b7ed7b45eec2ff6b0e344ee1bb78fcd1d3e",
         "method_ref": "method-parity-inequality#direction",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -2686,15 +3335,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "local_check": "passed",
-        "math_step_sha256": "284c64cba2f0a8c1ba5787b896fdf836a57a12b94bbd2326172fa5d75d64856c",
+        "math_step_sha256": "9adb5554087baadd4db9bb1f2246ad3bc545d3c46b40c3d80976c24f73397332",
         "method_ref": "method-parity-inequality#compare",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "source_refs": [
           "/steps/5/calls/0"
         ],
@@ -2730,15 +3379,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "local_check": "passed",
-        "math_step_sha256": "1e8f4ebdc3f2814d016441fddfe76c610d785dd4557acd8d89aec2c504c52322",
+        "math_step_sha256": "159bc668d26637a3c77cffea434234f6397888a6ec10301bc281cb708fe97ccf",
         "method_ref": "method-parity-inequality#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
+        "revisions_ref": "0123e78e7de8bee31cef8de1b209989041ae50cad493c8b843bad60309929440",
         "route_id": "parity-inequality",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "source_refs": [
           "/steps/9/calls/0",
           "/steps/9/skipped_calls/0",
@@ -2847,81 +3496,81 @@
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-001-parity_extension_map",
         "ordinal": 1,
-        "math_step_sha256": "8f052df06997896c4943b3c7062a552594f2028ed04561770c5cba7239903387",
+        "math_step_sha256": "0fcefd139f0091706573255384810e1a6583c5e1fecf8aa59e4b41d41f82d9bc",
         "status": "interactive",
-        "interaction_id": "71a9516d0b57acda332e3d8e"
+        "interaction_id": "a05e87b3ba2d0aac4b634323"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute",
         "ordinal": 2,
-        "math_step_sha256": "0da24948714d1f443f56ef6fb1a1536c118229fed8f242cb44cfb3d23c215489",
+        "math_step_sha256": "dee25c346bee9b8db0c972929042729da9762cb0fcf33a182d16bbeda8d2cc28",
         "status": "interactive",
-        "interaction_id": "9e8fa397de1402c056e0bd04"
+        "interaction_id": "d63dd09e1a13c944a496e725"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back",
         "ordinal": 3,
-        "math_step_sha256": "0328583a59ad0af92e567571858cd130f7dad4cf6c3906fc55fbca0281a8bfa3",
+        "math_step_sha256": "9442a4f7afd4e968ddbc72fe859ada192fcb35150cde4ab69e0dc93d44b02f48",
         "status": "interactive",
-        "interaction_id": "9a13b4c7da9e716d3814350e"
+        "interaction_id": "fcf2a82a35e92ceb3f9bb69a"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude",
         "ordinal": 4,
-        "math_step_sha256": "5ab8f83464baa887dab874bca20184003b852d6fe88b2981e114f7aad43ab4c6",
+        "math_step_sha256": "89b1d5808217f61cef164aa7daba87a050cb97f78cab84821e781ed98c132f36",
         "status": "interactive",
-        "interaction_id": "bbf0afc92da6ce705c422bce"
+        "interaction_id": "72688e880b685f284849641d"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-inequality",
         "step_id": "cbd98ea750-parity-inequality-001-parity_inequality_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "f805aa636b8c359060b34270ec973969d9fc09f213aa92624c428caab09fd389",
+        "math_step_sha256": "3e22812b1207242baa4e5185f89b7b57f3194eb70ebc91d92dde4544e0e0bc4d",
         "status": "interactive",
-        "interaction_id": "d55ee3931a67d17c54df82d2"
+        "interaction_id": "9011ea8db308dff103aa4e68"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-inequality",
         "step_id": "cbd98ea750-parity-inequality-002-parity_inequality_direction",
         "ordinal": 2,
-        "math_step_sha256": "6270109ea10a87b6a6ab9e215477c4cb5efe10b753afc04c333dd155f8cb17a5",
+        "math_step_sha256": "33c8e20348142f4c1792e45fb17d5b7ed7b45eec2ff6b0e344ee1bb78fcd1d3e",
         "status": "interactive",
-        "interaction_id": "a4828e043122ad7bdea0c746"
+        "interaction_id": "a16e6ba9f61e2d8c4955658f"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-inequality",
         "step_id": "cbd98ea750-parity-inequality-003-parity_inequality_compare",
         "ordinal": 3,
-        "math_step_sha256": "284c64cba2f0a8c1ba5787b896fdf836a57a12b94bbd2326172fa5d75d64856c",
+        "math_step_sha256": "9adb5554087baadd4db9bb1f2246ad3bc545d3c46b40c3d80976c24f73397332",
         "status": "interactive",
-        "interaction_id": "ef8b80241deb708bf07f3229"
+        "interaction_id": "338030388ce5c0d56b0a4cf4"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-inequality",
         "step_id": "cbd98ea750-parity-inequality-004-parity_inequality_conclude",
         "ordinal": 4,
-        "math_step_sha256": "1e8f4ebdc3f2814d016441fddfe76c610d785dd4557acd8d89aec2c504c52322",
+        "math_step_sha256": "159bc668d26637a3c77cffea434234f6397888a6ec10301bc281cb708fe97ccf",
         "status": "interactive",
-        "interaction_id": "967f11a3175027fee0f5be0c"
+        "interaction_id": "a18d4772f2a8bfc720dcbae2"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "71a9516d0b57acda332e3d8e",
+        "interaction_id": "a05e87b3ba2d0aac4b634323",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "c2103c78af44d1f1eadfcf9a094a92f47f05c483bbfa32afc23d44902b4ad12a",
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "interaction_sha256": "7a447817f20403f9bb7e29f1f0bb2243b809173ba49df2402331b6e14669bc44",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "parts": [
           {
             "completion_board": {
@@ -3216,17 +3865,17 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "71a9516d0b57acda332e3d8e#1",
+            "id": "a05e87b3ba2d0aac4b634323#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$-2<x<0\\text{ 时，}0<-x<2$",
-                  "value": "o1"
-                },
-                {
                   "label": "$-2<x<0\\text{ 时，}-2<-x<0$",
                   "value": "o2"
+                },
+                {
+                  "label": "$-2<x<0\\text{ 时，}0<-x<2$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -3252,11 +3901,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "8f052df06997896c4943b3c7062a552594f2028ed04561770c5cba7239903387",
+            "math_step_sha256": "0fcefd139f0091706573255384810e1a6583c5e1fecf8aa59e4b41d41f82d9bc",
             "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
           }
         ],
@@ -3264,10 +3913,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "9e8fa397de1402c056e0bd04",
+        "interaction_id": "d63dd09e1a13c944a496e725",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "f41d132f7c63da465b5a6726b8a95af26906d67f4d8e33ebcf9ba60ee7df9b80",
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "interaction_sha256": "ab93b8638272b78dba09037c9d11aff9d544c400bf2b805565167137fd435a93",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "parts": [
           {
             "completion_board": {
@@ -3293,25 +3942,25 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "9e8fa397de1402c056e0bd04#1",
+            "id": "d63dd09e1a13c944a496e725#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$-2<x<0\\text{ 时，}f(-x)=x^{2} + 2 x$",
-                  "value": "o2"
-                },
-                {
-                  "label": "$-2<x<0\\text{ 时，}f(-x)=- x^{2} - 2 x$",
-                  "value": "o4"
+                  "label": "$-2<x<0\\text{ 时，}f(-x)=x^{2} - 2 x$",
+                  "value": "o1"
                 },
                 {
                   "label": "$-2<x<0\\text{ 时，}f(-x)=- x^{2} + 2 x$",
                   "value": "o3"
                 },
                 {
-                  "label": "$-2<x<0\\text{ 时，}f(-x)=x^{2} - 2 x$",
-                  "value": "o1"
+                  "label": "$-2<x<0\\text{ 时，}f(-x)=- x^{2} - 2 x$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$-2<x<0\\text{ 时，}f(-x)=x^{2} + 2 x$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -3337,11 +3986,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "0da24948714d1f443f56ef6fb1a1536c118229fed8f242cb44cfb3d23c215489",
+            "math_step_sha256": "dee25c346bee9b8db0c972929042729da9762cb0fcf33a182d16bbeda8d2cc28",
             "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
           }
         ],
@@ -3349,10 +3998,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "9a13b4c7da9e716d3814350e",
+        "interaction_id": "fcf2a82a35e92ceb3f9bb69a",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "2e16a2a3a24cbe6294d2e3617b721124abb03f670a2928d903ab131bd2f46543",
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "interaction_sha256": "78523e7dc7027a6f9413c5d2e6baa7ac62781dcd56c9671a8cc8d1614a14aa8f",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "parts": [
           {
             "completion_board": {
@@ -3370,6 +4019,76 @@
               ],
               "layout": "derivation"
             },
+            "completion_graph": {
+              "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -9.92,
+                  9.92
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -3378,25 +4097,76 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "9a13b4c7da9e716d3814350e#1",
+            "graph": {
+              "caption": "已知 $0<x<2$ 时的一段。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1,
+                  3,
+                  -1,
+                  9
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  0,
+                  2
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "fcf2a82a35e92ceb3f9bb69a#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$-2<x<0\\text{ 时，}f(x)=x^{2} + 2 x$",
-                  "value": "o4"
-                },
-                {
-                  "label": "$-2<x<0\\text{ 时，}f(x)=- x^{2} + 2 x$",
-                  "value": "o1"
-                },
                 {
                   "label": "$-2<x<0\\text{ 时，}f(x)=x^{2} - 2 x$",
                   "value": "o2"
                 },
                 {
+                  "label": "$-2<x<0\\text{ 时，}f(x)=x^{2} + 2 x$",
+                  "value": "o4"
+                },
+                {
                   "label": "$-2<x<0\\text{ 时，}f(x)=- x^{2} - 2 x$",
                   "value": "o3"
+                },
+                {
+                  "label": "$-2<x<0\\text{ 时，}f(x)=- x^{2} + 2 x$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -3422,11 +4192,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "0328583a59ad0af92e567571858cd130f7dad4cf6c3906fc55fbca0281a8bfa3",
+            "math_step_sha256": "9442a4f7afd4e968ddbc72fe859ada192fcb35150cde4ab69e0dc93d44b02f48",
             "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
           }
         ],
@@ -3434,10 +4204,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "bbf0afc92da6ce705c422bce",
+        "interaction_id": "72688e880b685f284849641d",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "fe06e78c94ea4a4f38ed1747f96bebbdb8d9340a7707325816ceea9799a230a5",
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "interaction_sha256": "e40c67af8db6260b039a39b70adf206611553df40aebb402fe6284fd682ae143",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "parts": [
           {
             "completion_board": {
@@ -3455,11 +4225,151 @@
               ],
               "layout": "derivation"
             },
+            "completion_graph": {
+              "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -9.92,
+                  9.92
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
             "expected_answer": {},
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "bbf0afc92da6ce705c422bce#1",
+            "graph": {
+              "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -9.92,
+                  9.92
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "72688e880b685f284849641d#1",
             "interaction": {
               "type": "read"
             },
@@ -3478,11 +4388,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "5ab8f83464baa887dab874bca20184003b852d6fe88b2981e114f7aad43ab4c6",
+            "math_step_sha256": "89b1d5808217f61cef164aa7daba87a050cb97f78cab84821e781ed98c132f36",
             "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
           }
         ],
@@ -3490,10 +4400,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "d55ee3931a67d17c54df82d2",
+        "interaction_id": "9011ea8db308dff103aa4e68",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "89ccfcb7bb7531eee8329b7208d84ea36d59017e7af726f902f2087043068cff",
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "interaction_sha256": "161b1be83d741084136b12dc6f7b023b094dc31e04c52f702f150214a45cd8d3",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "parts": [
           {
             "completion_board": {
@@ -3502,7 +4412,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}\\text{奇函数}\\\\f(x-1)+f(x)<0\\end{gathered}"
+                  "math": "\\begin{gathered}\\text{奇函数：}f(x)=-f(-x)\\\\f(x-1)+f(x)<0\\end{gathered}"
                 },
                 {
                   "label": "等价的比较",
@@ -3510,6 +4420,88 @@
                 }
               ],
               "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到；虚线：$u$ 与 $-u$ 关于原点对称，函数值互为相反数，$f(-u)=-f(u)$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -9.92,
+                  9.92
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "guides": [
+                  {
+                    "label": "u",
+                    "value_label": "f(u)",
+                    "x": -1.2
+                  },
+                  {
+                    "label": "-u",
+                    "value_label": "f(-u)",
+                    "x": 1.2
+                  }
+                ],
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
             },
             "expected_answer": {
               "one_of": [
@@ -3519,10 +4511,96 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "d55ee3931a67d17c54df82d2#1",
+            "graph": {
+              "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到；虚线：$u$ 与 $-u$ 关于原点对称，函数值互为相反数，$f(-u)=-f(u)$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -9.92,
+                  9.92
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "guides": [
+                  {
+                    "label": "u",
+                    "value_label": "f(u)",
+                    "x": -1.2
+                  },
+                  {
+                    "label": "-u",
+                    "value_label": "f(-u)",
+                    "x": 1.2
+                  }
+                ],
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "9011ea8db308dff103aa4e68#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$f(x - 1)<f(x)$",
+                  "value": "o2"
+                },
                 {
                   "label": "$f(x - 1)>f(- x)$",
                   "value": "o3"
@@ -3534,10 +4612,6 @@
                 {
                   "label": "$f(- x + 1)<f(- x)$",
                   "value": "o4"
-                },
-                {
-                  "label": "$f(x - 1)<f(x)$",
-                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -3549,7 +4623,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}\\text{奇函数}\\\\f(x-1)+f(x)<0\\end{gathered}"
+                  "math": "\\begin{gathered}\\text{奇函数：}f(x)=-f(-x)\\\\f(x-1)+f(x)<0\\end{gathered}"
                 },
                 {
                   "label": "等价的比较",
@@ -3563,11 +4637,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "f805aa636b8c359060b34270ec973969d9fc09f213aa92624c428caab09fd389",
+            "math_step_sha256": "3e22812b1207242baa4e5185f89b7b57f3194eb70ebc91d92dde4544e0e0bc4d",
             "step_id": "cbd98ea750-parity-inequality-001-parity_inequality_rewrite"
           }
         ],
@@ -3575,10 +4649,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "a4828e043122ad7bdea0c746",
+        "interaction_id": "a16e6ba9f61e2d8c4955658f",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "ab5bda35c060fe5085479a70e80087cacdf43793bfd198f4b81759d912195693",
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "interaction_sha256": "e9ae812868480bd5978a553cc79dee9318feab132ff13129468b00e5c6ea3cd9",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "parts": [
           {
             "completion_board": {
@@ -3587,7 +4661,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\\\\\text{奇函数，定义域 }\\left(-2, 2\\right)\\end{gathered}"
+                  "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\\\\\text{奇函数：}f(x)=-f(-x)\\text{，定义域 }\\left(-2, 2\\right)\\end{gathered}"
                 },
                 {
                   "label": "单调性",
@@ -3595,6 +4669,94 @@
                 }
               ],
               "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到；箭头标出各段的增减。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -9.92,
+                  9.92
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": 0,
+                    "label": "(0, 2)",
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 2,
+                    "trend": "increasing"
+                  },
+                  {
+                    "from": -2,
+                    "label": "(-2, 0)",
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 0,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
             },
             "expected_answer": {
               "one_of": [
@@ -3604,10 +4766,102 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "a4828e043122ad7bdea0c746#1",
+            "graph": {
+              "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到；箭头标出各段的增减。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -9.92,
+                  9.92
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": 0,
+                    "label": "(0, 2)",
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 2,
+                    "trend": "increasing"
+                  },
+                  {
+                    "from": -2,
+                    "label": "(-2, 0)",
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 0,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "a16e6ba9f61e2d8c4955658f#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$f\\text{ 在 }\\left(-2, 2\\right)\\text{ 上不单调}$",
+                  "value": "o3"
+                },
                 {
                   "label": "$f\\text{ 在 }\\left(-2, 2\\right)\\text{ 上严格递增}$",
                   "value": "o1"
@@ -3615,10 +4869,6 @@
                 {
                   "label": "$f\\text{ 在 }\\left(-2, 2\\right)\\text{ 上严格递减}$",
                   "value": "o2"
-                },
-                {
-                  "label": "$f\\text{ 在 }\\left(-2, 2\\right)\\text{ 上不单调}$",
-                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -3630,7 +4880,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\\\\\text{奇函数，定义域 }\\left(-2, 2\\right)\\end{gathered}"
+                  "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)=x^{2}+2x\\\\\\text{奇函数：}f(x)=-f(-x)\\text{，定义域 }\\left(-2, 2\\right)\\end{gathered}"
                 },
                 {
                   "label": "单调性",
@@ -3644,11 +4894,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "6270109ea10a87b6a6ab9e215477c4cb5efe10b753afc04c333dd155f8cb17a5",
+            "math_step_sha256": "33c8e20348142f4c1792e45fb17d5b7ed7b45eec2ff6b0e344ee1bb78fcd1d3e",
             "step_id": "cbd98ea750-parity-inequality-002-parity_inequality_direction"
           }
         ],
@@ -3656,10 +4906,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "ef8b80241deb708bf07f3229",
+        "interaction_id": "338030388ce5c0d56b0a4cf4",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "cb1b5600f028bdec8121201a6519c5091e3f85247813abc3f89e88e9d35327da",
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "interaction_sha256": "b01f92e8f8321065f003615ffed0b226961513574d61d0968005637a06a21099",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "parts": [
           {
             "completion_board": {
@@ -3677,6 +4927,88 @@
               ],
               "layout": "derivation"
             },
+            "completion_graph": {
+              "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到；虚线取两个示意输入：$f$ 在 $\\left(-2, 2\\right)$ 上严格递增，输入大的函数值也大。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -9.92,
+                  9.92
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "guides": [
+                  {
+                    "label": "x-1",
+                    "value_label": "f(x-1)",
+                    "x": -1
+                  },
+                  {
+                    "label": "-x",
+                    "value_label": "f(-x)",
+                    "x": 1
+                  }
+                ],
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -3685,7 +5017,77 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "ef8b80241deb708bf07f3229#1",
+            "graph": {
+              "caption": "奇函数图像关于原点对称：$-2<x<0$ 的一段由 $0<x<2$ 的一段绕原点旋转 $180^\\circ$ 得到。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3,
+                  3,
+                  -9.92,
+                  9.92
+                ],
+                "description": "实线是函数图像；有色曲线是需要关注的部分，空心端点不取。",
+                "interval": [
+                  -2,
+                  2
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      0,
+                      2
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1,
+                      2,
+                      0
+                    ],
+                    "interval": [
+                      -2,
+                      0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -2,
+                    "-2"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    2,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "338030388ce5c0d56b0a4cf4#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -3725,11 +5127,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "284c64cba2f0a8c1ba5787b896fdf836a57a12b94bbd2326172fa5d75d64856c",
+            "math_step_sha256": "9adb5554087baadd4db9bb1f2246ad3bc545d3c46b40c3d80976c24f73397332",
             "step_id": "cbd98ea750-parity-inequality-003-parity_inequality_compare"
           }
         ],
@@ -3737,10 +5139,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "967f11a3175027fee0f5be0c",
+        "interaction_id": "a18d4772f2a8bfc720dcbae2",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "409a1d12a454d8708d6fdf49f7e61c2734669317222ef73a87f7510936a5face",
-        "lesson_version": "393ce822d00c169ae1f56a716972b5b9c9f8cdb8aca77a658dcb85590aa1939d",
+        "interaction_sha256": "e3141b85a3889bfa5637fc18d5d81c2a7ef530a083dd21f97e4ff18636ff4ae4",
+        "lesson_version": "26dfb962d6ba43a0d685d802dbed66a2120bd901c03def40a27ba01d73703f2a",
         "parts": [
           {
             "completion_board": {
@@ -3758,110 +5160,6 @@
               ],
               "layout": "derivation"
             },
-            "completion_number_line": {
-              "bounds": [
-                -2,
-                1.5
-              ],
-              "exact_set": {
-                "exact": {
-                  "$math": "Interval",
-                  "args": [
-                    {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    {
-                      "$math": "Rational",
-                      "p": "1",
-                      "q": "2"
-                    },
-                    {
-                      "$math": "BooleanTrue"
-                    },
-                    {
-                      "$math": "BooleanTrue"
-                    }
-                  ]
-                },
-                "expression": "Interval.open(-1, 1/2)",
-                "latex": "\\left(-1, \\frac{1}{2}\\right)"
-              },
-              "intervals": [
-                {
-                  "exact": {
-                    "exact": {
-                      "$math": "Interval",
-                      "args": [
-                        {
-                          "$math": "Integer",
-                          "value": "-1"
-                        },
-                        {
-                          "$math": "Rational",
-                          "p": "1",
-                          "q": "2"
-                        },
-                        {
-                          "$math": "BooleanTrue"
-                        },
-                        {
-                          "$math": "BooleanTrue"
-                        }
-                      ]
-                    },
-                    "expression": "Interval.open(-1, 1/2)",
-                    "latex": "\\left(-1, \\frac{1}{2}\\right)"
-                  },
-                  "left": -1,
-                  "left_closed": false,
-                  "right": 0.5,
-                  "right_closed": false
-                }
-              ],
-              "label": "\\text{解集}",
-              "points": [],
-              "ticks": [
-                {
-                  "at": -1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    "expression": "-1",
-                    "latex": "-1"
-                  },
-                  "label": "-1"
-                },
-                {
-                  "at": 0,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "0"
-                    },
-                    "expression": "0",
-                    "latex": "0"
-                  },
-                  "label": "0"
-                },
-                {
-                  "at": 0.5,
-                  "exact": {
-                    "exact": {
-                      "$math": "Rational",
-                      "p": "1",
-                      "q": "2"
-                    },
-                    "expression": "1/2",
-                    "latex": "\\frac{1}{2}"
-                  },
-                  "label": "1/2"
-                }
-              ],
-              "variable": "x"
-            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -3870,25 +5168,25 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "967f11a3175027fee0f5be0c#1",
+            "id": "a18d4772f2a8bfc720dcbae2#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\frac{1}{2}<x<2$",
-                  "value": "o4"
+                  "label": "$-1<x<\\frac{1}{2}$",
+                  "value": "o1"
                 },
                 {
                   "label": "$x<\\frac{1}{2}$",
                   "value": "o2"
                 },
                 {
-                  "label": "$-1<x<2$",
-                  "value": "o3"
+                  "label": "$\\frac{1}{2}<x<2$",
+                  "value": "o4"
                 },
                 {
-                  "label": "$-1<x<\\frac{1}{2}$",
-                  "value": "o1"
+                  "label": "$-1<x<2$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -3914,11 +5212,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "2ad64eb35b194673bc23417a4e5ecf24",
+        "run_id": "7e4eac53cde148c78da06eb9104a19cb",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "1e8f4ebdc3f2814d016441fddfe76c610d785dd4557acd8d89aec2c504c52322",
+            "math_step_sha256": "159bc668d26637a3c77cffea434234f6397888a6ec10301bc281cb708fe97ccf",
             "step_id": "cbd98ea750-parity-inequality-004-parity_inequality_conclude"
           }
         ],

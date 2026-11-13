@@ -809,7 +809,7 @@
                 "method-parity-extension"
               ]
             },
-            "c19da1cbb9fc4bc4194eeb3a#1": {
+            "3d7915bd9642b5941c0cf8b0#1": {
               "title": "把输入换到已知一侧",
               "position": 4,
               "refs": [
@@ -817,7 +817,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "f5748207b9f5aca2f5732b28#1": {
+            "0197b1296893a2f80e7da4ef#1": {
               "title": "代入相反输入",
               "position": 5,
               "refs": [
@@ -826,7 +826,7 @@
                 "skill-simplify"
               ]
             },
-            "91c63c134f4c88057dcc92d1#1": {
+            "78916782890b9f97662be438#1": {
               "title": "用奇偶性换回 f(x)",
               "position": 6,
               "refs": [
@@ -834,7 +834,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "31d6667be76b99db4403e5f6#1": {
+            "f2f54ee5261a2f122a02f43e#1": {
               "title": "拼接已知部分并写出结论",
               "position": 7,
               "refs": [
@@ -881,7 +881,7 @@
                 "method-parity-extension"
               ]
             },
-            "b89f503a122c3549dc841f10#1": {
+            "38dcfcddebf1cd16f0b81acd#1": {
               "title": "把输入换到已知一侧",
               "position": 4,
               "refs": [
@@ -889,7 +889,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "fcd25552291b5ef52cd484c2#1": {
+            "4abd78963db7259c8df6a900#1": {
               "title": "代入相反输入",
               "position": 5,
               "refs": [
@@ -898,7 +898,7 @@
                 "skill-simplify"
               ]
             },
-            "8707def8f7eb55cb96079e95#1": {
+            "d7da33543d607c68d70b7bed#1": {
               "title": "用奇偶性换回 f(x)",
               "position": 6,
               "refs": [
@@ -906,7 +906,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "498cee1b932a28a7570479a0#1": {
+            "5131a6e18f6468bbc03c9664#1": {
               "title": "写出带范围的结论",
               "position": 7,
               "refs": [
@@ -953,7 +953,7 @@
                 "method-parity-extension"
               ]
             },
-            "e0ee85d541778d6e764c3b7c#1": {
+            "f3b17adb5efffb7c91f0ed83#1": {
               "title": "把输入换到已知一侧",
               "position": 4,
               "refs": [
@@ -961,7 +961,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "a8216bac3c257abe5585fe32#1": {
+            "ef7ef3cd465b6240859fdaa7#1": {
               "title": "代入相反输入",
               "position": 5,
               "refs": [
@@ -970,7 +970,7 @@
                 "skill-simplify"
               ]
             },
-            "09ba52b418fd0c9b5f2bc1cc#1": {
+            "9a26e82fba71f12fd7c6b40b#1": {
               "title": "用奇偶性换回 f(x)",
               "position": 6,
               "refs": [
@@ -978,7 +978,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "e009c4a0a6002c38dbf93b53#1": {
+            "b0fa0d8caac930afb8441ddb#1": {
               "title": "写出带范围的结论",
               "position": 7,
               "refs": [
@@ -1027,7 +1027,7 @@
                 "method-function-symmetry"
               ]
             },
-            "344d72bc45a60abbe31f9bc0#1": {
+            "d1224aadeab5c1911f42c71b#1": {
               "title": "把输入换成相反数",
               "position": 4,
               "refs": [
@@ -1035,7 +1035,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "c8c0f474544a7deaf0a67ef9#1": {
+            "ee8826be3ac0fd59c48db589#1": {
               "title": "求出所求的值",
               "position": 5,
               "refs": [
@@ -1062,7 +1062,7 @@
                 "method-parity-extension"
               ]
             },
-            "ae496508c2170705e372d5bb#1": {
+            "ef30d3c1aed470c63f3d26a4#1": {
               "title": "把输入换到已知一侧",
               "position": 9,
               "refs": [
@@ -1070,7 +1070,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "f21da98e36ae06d1e98daecb#1": {
+            "5e0b76dae45d16a7f8325b76#1": {
               "title": "代入相反输入",
               "position": 10,
               "refs": [
@@ -1079,7 +1079,7 @@
                 "skill-simplify"
               ]
             },
-            "7b3c60168d199ff81e6eb31a#1": {
+            "e7d9704149d4053254d1bcb1#1": {
               "title": "用奇偶性换回 f(x)",
               "position": 11,
               "refs": [
@@ -1087,7 +1087,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "eaff9cb5b93bba83f07c7249#1": {
+            "67abd70eca14949d534d3ff2#1": {
               "title": "检查零点并写出结论",
               "position": 12,
               "refs": [
@@ -1417,7 +1417,7 @@
                 "method-parity-inequality"
               ]
             },
-            "afb200b7b361b582993b0683#1": {
+            "f4a4f47db1068a110af051c2#1": {
               "title": "先在已知范围内解不等式",
               "position": 4,
               "refs": [
@@ -1428,7 +1428,7 @@
                 "set-intersection-union#intersection"
               ]
             },
-            "190c9af486d3cd2f09e3b1ba#1": {
+            "829ddd00d08470537fb1d6ff#1": {
               "title": "用奇偶性得到另一侧的解",
               "position": 5,
               "refs": [
@@ -1439,7 +1439,7 @@
                 "set-intersection-union#intersection"
               ]
             },
-            "10187871d22e99ed1787d3bf#1": {
+            "33830d259f5c78f0e0ce5490#1": {
               "title": "合并各部分，写出解集",
               "position": 6,
               "refs": [
@@ -1488,7 +1488,7 @@
                 "method-parity-extension"
               ]
             },
-            "71a9516d0b57acda332e3d8e#1": {
+            "e80f81f0ead43ebb9f8c2a6c#1": {
               "title": "把输入换到已知一侧",
               "position": 4,
               "refs": [
@@ -1496,7 +1496,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "9e8fa397de1402c056e0bd04#1": {
+            "895f69dd7ec4252fcc89dc46#1": {
               "title": "代入相反输入",
               "position": 5,
               "refs": [
@@ -1505,7 +1505,7 @@
                 "skill-simplify"
               ]
             },
-            "9a13b4c7da9e716d3814350e#1": {
+            "ae3ff28578032a714edde199#1": {
               "title": "用奇偶性换回 f(x)",
               "position": 6,
               "refs": [
@@ -1513,7 +1513,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "bbf0afc92da6ce705c422bce#1": {
+            "8e6f0f9ba6fc49322eb64266#1": {
               "title": "写出带范围的结论",
               "position": 7,
               "refs": [
@@ -1540,7 +1540,7 @@
                 "method-parity-inequality"
               ]
             },
-            "d55ee3931a67d17c54df82d2#1": {
+            "2bf9d2340e2eb2e8673c24d1#1": {
               "title": "改写成两个函数值的比较",
               "position": 11,
               "refs": [
@@ -1549,7 +1549,7 @@
                 "function-parity#definition"
               ]
             },
-            "a4828e043122ad7bdea0c746#1": {
+            "478164fbcba961305d162aa5#1": {
               "title": "确定整个定义域上的单调方向",
               "position": 12,
               "refs": [
@@ -1562,7 +1562,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "ef8b80241deb708bf07f3229#1": {
+            "2bcec618dcd63904ebfe5047#1": {
               "title": "去掉函数符号比较输入",
               "position": 13,
               "refs": [
@@ -1574,7 +1574,7 @@
                 "set-intersection-union#intersection"
               ]
             },
-            "967f11a3175027fee0f5be0c#1": {
+            "283cbbaf95cf7964d433a393#1": {
               "title": "合法输入求交，写出解集",
               "position": 14,
               "refs": [
@@ -1623,7 +1623,7 @@
                 "method-parity-extension"
               ]
             },
-            "c66c0fe61abdd13cc4d4e6a8#1": {
+            "6ce3fcaee3057c0151fec60a#1": {
               "title": "把输入换到已知一侧",
               "position": 4,
               "refs": [
@@ -1631,7 +1631,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "4a0668d8ae73c4ce92f56fb9#1": {
+            "c14cf33d9b5ac7cace8aaaa1#1": {
               "title": "代入相反输入",
               "position": 5,
               "refs": [
@@ -1640,7 +1640,7 @@
                 "skill-simplify"
               ]
             },
-            "c384b1afe9c6571dec942e2a#1": {
+            "8205ede28bdfd0beccf7fc57#1": {
               "title": "用奇偶性换回 f(x)",
               "position": 6,
               "refs": [
@@ -1648,7 +1648,7 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "76173085d6bd3f0ba0ce4a0e#1": {
+            "3b506c28e9cc5431a28c0c13#1": {
               "title": "写出带范围的结论",
               "position": 7,
               "refs": [
@@ -1675,7 +1675,7 @@
                 "method-parity-inequality"
               ]
             },
-            "b168def8cf2c741ede471d66#1": {
+            "1149857daa9e18708df5b94c#1": {
               "title": "改写成两个函数值的比较",
               "position": 11,
               "refs": [
@@ -1684,7 +1684,7 @@
                 "function-parity#definition"
               ]
             },
-            "383d15d2c4b8424d4320db28#1": {
+            "7435aa5464d5b6f329b53746#1": {
               "title": "确定整个定义域上的单调方向",
               "position": 12,
               "refs": [
@@ -1697,7 +1697,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "3250d633e6c5121c82b5ba22#1": {
+            "d97e1b08130b8941b118da7b#1": {
               "title": "去掉函数符号比较输入",
               "position": 13,
               "refs": [
@@ -1709,7 +1709,7 @@
                 "set-intersection-union#intersection"
               ]
             },
-            "5d06a3eb73760e2a61fc3c8d#1": {
+            "7268633d92f40da44d472914#1": {
               "title": "合法输入求交，写出解集",
               "position": 14,
               "refs": [
@@ -1756,7 +1756,7 @@
                 "method-parity-inequality"
               ]
             },
-            "32fd68a0cb1c163220908af2#1": {
+            "4736bd69d3aab6da051abeb5#1": {
               "title": "改写成两个函数值的比较",
               "position": 4,
               "refs": [
@@ -1765,7 +1765,7 @@
                 "function-parity#definition"
               ]
             },
-            "056f705fa837ac287d839561#1": {
+            "4398d230cc24aca1c7d10184#1": {
               "title": "确定整个定义域上的单调方向",
               "position": 5,
               "refs": [
@@ -1775,7 +1775,7 @@
                 "function-monotonicity#difference-quotient"
               ]
             },
-            "353ed2692e84eda388e64b86#1": {
+            "25959c9cc2ac39fa9da12108#1": {
               "title": "去掉函数符号比较输入",
               "position": 6,
               "refs": [
@@ -1787,7 +1787,7 @@
                 "set-intersection-union#intersection"
               ]
             },
-            "0504c36f3fafa208b0f80a63#1": {
+            "c3e3c0a03f50994e8e5e010a#1": {
               "title": "合法输入求交，写出解集",
               "position": 7,
               "refs": [
@@ -1834,7 +1834,7 @@
                 "method-parity-inequality"
               ]
             },
-            "5af7befaf9de95a8d127451f#1": {
+            "a0a967261e87745dd1be905c#1": {
               "title": "先确定定义域中的参数",
               "position": 4,
               "refs": [
@@ -1843,8 +1843,8 @@
                 "function-parity#definition"
               ]
             },
-            "5af7befaf9de95a8d127451f#2": {
-              "title": "把两个输入换到非负一侧",
+            "a0a967261e87745dd1be905c#2": {
+              "title": "把两个输入都变成非负数",
               "position": 5,
               "refs": [
                 "method-parity-inequality#rewrite",
@@ -1852,7 +1852,7 @@
                 "function-parity#definition"
               ]
             },
-            "02e6b6f0e31be282215c49a4#1": {
+            "683162376440cc79c066cd91#1": {
               "title": "确定非负一侧的单调方向",
               "position": 6,
               "refs": [
@@ -1862,7 +1862,7 @@
                 "function-parity-graph#monotonicity"
               ]
             },
-            "4bc1eeed34627a776cdef0eb#1": {
+            "c818e71597d6541ad5fbd49e#1": {
               "title": "去掉函数符号比较输入",
               "position": 7,
               "refs": [
@@ -1874,7 +1874,7 @@
                 "set-intersection-union#intersection"
               ]
             },
-            "30b3f316d856ac7d893614dc#1": {
+            "f57ffc35331c8868c836ce67#1": {
               "title": "合法输入求交，写出解集",
               "position": 8,
               "refs": [
@@ -1921,7 +1921,7 @@
                 "method-parity-inequality"
               ]
             },
-            "8556335779c187054f24b196#1": {
+            "e5424cd0b0f34e3e51ba2a1f#1": {
               "title": "确定已知区间上函数值的符号",
               "position": 4,
               "refs": [
@@ -1931,7 +1931,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "736f7b1cb890622a396763c8#1": {
+            "2e89bbb80ab39079f0ba93cf#1": {
               "title": "用奇偶性得到另一侧的符号",
               "position": 5,
               "refs": [
@@ -1941,7 +1941,7 @@
                 "function-parity-graph#paired-values"
               ]
             },
-            "fe1ca5e9c03d1840092780b8#1": {
+            "655c5d13c6de4311c18a0ab0#1": {
               "title": "结合分母列出符号条件",
               "position": 6,
               "refs": [
@@ -1952,9 +1952,23 @@
                 "rational-expression#meaning"
               ]
             },
-            "eeab169dc103d3805af668de#1": {
-              "title": "解出各种情况，写出解集",
+            "4df3e7ba82310cdcdc931946#1": {
+              "title": "情况一：$x>0$",
               "position": 7,
+              "refs": [
+                "method-parity-inequality#conclude"
+              ]
+            },
+            "4df3e7ba82310cdcdc931946#2": {
+              "title": "情况二：$x<0$",
+              "position": 8,
+              "refs": [
+                "method-parity-inequality#conclude"
+              ]
+            },
+            "4df3e7ba82310cdcdc931946#3": {
+              "title": "合并各种情况，写出解集",
+              "position": 9,
               "refs": [
                 "method-parity-inequality#conclude"
               ]
@@ -1999,23 +2013,23 @@
                 "method-function-symmetry"
               ]
             },
-            "242e4c2a5df665d5e3271bac#1": {
-              "title": "找出配对的输入",
+            "27a119244306408a304fe91d#1": {
+              "title": "利用关于原点对称找配对的输入",
               "position": 4,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "242e4c2a5df665d5e3271bac#2": {
-              "title": "找出配对的输入",
+            "27a119244306408a304fe91d#2": {
+              "title": "利用关于直线 $x=1$ 对称找配对的输入",
               "position": 5,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "242e4c2a5df665d5e3271bac#3": {
+            "27a119244306408a304fe91d#3": {
               "title": "连续使用两次对称关系",
               "position": 6,
               "refs": [
@@ -2023,54 +2037,86 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "5d72945c92cbd6e0d0fc71d1#1": {
-              "title": "求出所求的值",
+            "27a119244306408a304fe91d#4": {
+              "title": "从 $x$ 走到 $x + 2$",
               "position": 7,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "27a119244306408a304fe91d#5": {
+              "title": "从 $x + 2$ 再走到 $x + 4$",
+              "position": 8,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "2c2fad7056f73246006fff92#1": {
+              "title": "求出所求的值",
+              "position": 9,
               "refs": [
                 "method-function-symmetry#conclude"
               ]
             },
             "goal-2-D1": {
               "title": "求前 54 项之和",
-              "position": 8,
+              "position": 10,
               "refs": [
                 "function-graph-symmetry"
               ]
             },
-            "02658af8eae76ada249a94fd#1": {
-              "title": "找出配对的输入",
-              "position": 9,
-              "refs": [
-                "method-function-symmetry#rewrite",
-                "skill-function-symmetry-transform"
-              ]
-            },
-            "02658af8eae76ada249a94fd#2": {
-              "title": "找出配对的输入",
-              "position": 10,
-              "refs": [
-                "method-function-symmetry#rewrite",
-                "skill-function-symmetry-transform"
-              ]
-            },
-            "02658af8eae76ada249a94fd#3": {
-              "title": "连续使用两次对称关系",
+            "5ca554a26c93bb7e3f2e967c#1": {
+              "title": "利用关于原点对称找配对的输入",
               "position": 11,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "c87d103ddedcadc5d02d43da#1": {
-              "title": "分组并保留余项",
+            "5ca554a26c93bb7e3f2e967c#2": {
+              "title": "利用关于直线 $x=1$ 对称找配对的输入",
               "position": 12,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "5ca554a26c93bb7e3f2e967c#3": {
+              "title": "连续使用两次对称关系",
+              "position": 13,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "5ca554a26c93bb7e3f2e967c#4": {
+              "title": "从 $x$ 走到 $x + 2$",
+              "position": 14,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "5ca554a26c93bb7e3f2e967c#5": {
+              "title": "从 $x + 2$ 再走到 $x + 4$",
+              "position": 15,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "489535da7e7b04c18f03fab2#1": {
+              "title": "分组并保留余项",
+              "position": 16,
               "refs": [
                 "method-function-symmetry#conclude"
               ]
             },
-            "c87d103ddedcadc5d02d43da#2": {
+            "489535da7e7b04c18f03fab2#2": {
               "title": "求出函数值之和",
-              "position": 13,
+              "position": 17,
               "refs": [
                 "method-function-symmetry#conclude"
               ]
@@ -2115,23 +2161,23 @@
                 "method-function-symmetry"
               ]
             },
-            "249893c57b642f06aae05b17#1": {
-              "title": "找出配对的输入",
+            "9dd0a9bd031b2cbedb9a96f1#1": {
+              "title": "利用关于原点对称找配对的输入",
               "position": 4,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "249893c57b642f06aae05b17#2": {
-              "title": "找出配对的输入",
+            "9dd0a9bd031b2cbedb9a96f1#2": {
+              "title": "利用关于直线 $x=\\frac{1}{2}$ 对称找配对的输入",
               "position": 5,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "249893c57b642f06aae05b17#3": {
+            "9dd0a9bd031b2cbedb9a96f1#3": {
               "title": "连续使用两次对称关系",
               "position": 6,
               "refs": [
@@ -2139,9 +2185,25 @@
                 "skill-function-symmetry-transform"
               ]
             },
-            "1e3d0e3f104864cee02b196c#1": {
-              "title": "求出所求的值",
+            "9dd0a9bd031b2cbedb9a96f1#4": {
+              "title": "从 $x$ 走到 $x + 1$",
               "position": 7,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "9dd0a9bd031b2cbedb9a96f1#5": {
+              "title": "从 $x + 1$ 再走到 $x + 2$",
+              "position": 8,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "32dc7da497b0c2991ee04c38#1": {
+              "title": "求出所求的值",
+              "position": 9,
               "refs": [
                 "method-function-symmetry#conclude"
               ]

@@ -648,7 +648,7 @@
       </g>
     </svg>`;
   }
-  function piecewiseCurveGraph({segments, reference = [], highlights = [], interval_marks = [], bounds, interval, xTicks, yTicks = [], level, variable, title, description, uid, points}) {
+  function piecewiseCurveGraph({segments, reference = [], highlights = [], interval_marks = [], guides = [], axes = [], bounds, interval, xTicks, yTicks = [], level, variable, title, description, uid, points}) {
     const [xmin, xmax, ymin, ymax] = bounds, id = escape(uid);
     const x = v => 48 + (v - xmin) / (xmax - xmin) * 270;
     const y = v => 222 - (v - ymin) / (ymax - ymin) * 174;
@@ -733,6 +733,20 @@
         <text class="piecewise-interval-label" x="${Math.max(78, Math.min(288, cx))}" y="${rail + 16}" text-anchor="middle" fill="${mark.color}" font-size="12">${escape(mark.label)}</text>
       </g>`;
     };
+    // A guide drops dashed lines from a sample input to the curve and across to the y-axis, so two
+    // values compare by height. Its value label sits in the quadrant left free by the curve and the guide lines.
+    const guided = guides.map(g => ({...g, s: segmentAt(g.x)})).filter(g => g.s).map(g => {
+      const px = x(g.x), py = y(value(g.s, g.x)), below = py > y(0);
+      const rising = value(g.s, g.x + 1e-6) > value(g.s, g.x - 1e-6);
+      const right = below === rising;
+      return {...g, px, py, below, right};
+    });
+    const guideLines = guided.map(g => `<path class="piecewise-guide" d="M${g.px} ${y(0)}V${g.py}H${x(0)}" fill="none" stroke="#a04c36" stroke-width="1.4" stroke-dasharray="4 3"/><circle cx="${g.px}" cy="${g.py}" r="4" fill="#a04c36"/>`).join('');
+    const guideLabels = guided.map(g => `<text x="${g.px}" y="${g.below ? y(0) - 7 : y(0) + 34}" text-anchor="middle" fill="#a04c36">${escape(g.label)}</text>` +
+      (g.value_label ? `<text x="${g.px + (g.right ? 6 : -6)}" y="${g.py + (g.below ? 17 : -9)}" text-anchor="${g.right ? 'start' : 'end'}" fill="#a04c36">${escape(g.value_label)}</text>` : '')).join('');
+    // A symmetry axis x = a: a dashed vertical line across the plot, labelled at the top.
+    const axisLines = axes.filter(a => a.x > xmin && a.x < xmax).map(a => `<path class="piecewise-axis" d="M${x(a.x)} 48V222" stroke="#5b6fb0" stroke-width="1.5" stroke-dasharray="6 4"/>`).join('');
+    const axisLabels = axes.filter(a => a.x > xmin && a.x < xmax).map(a => `<text x="${x(a.x) + 5}" y="60" fill="#5b6fb0" font-size="12">${escape(a.label)}</text>`).join('');
     const height = marks.length ? 276 + (marks.length - 1) * 27 : 270;
     const arrowId = `${id}-point-arrow`;
     return `<svg viewBox="0 0 360 ${height}" role="img" aria-labelledby="${id}-title ${id}-description">
@@ -750,7 +764,9 @@
       <path d="m325 ${y(0)-4} 5 4-5 4M${x(0)-4} 40l4-5 4 5" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
       <g clip-path="url(#${id}-clip)">
         ${reference.map(s => curve(s, 'piecewise-reference', '#899e98', 1.8, 'stroke-dasharray="5 4"')).join('')}
+        ${axisLines}
         ${segments.map(s => curve(s, 'piecewise-segment', '#07847d', 2.8)).join('')}
+        ${guideLines}
         ${marks.filter(m => m.trend === 'pending').map(m => segments.map(s => curve(s, 'piecewise-active-curve', m.color, 4, '', m.left, m.right)).join('')).join('')}
         ${Number.isFinite(level) ? `<path class="piecewise-level" d="M48 ${y(level)}H318" stroke="#b6782c" stroke-width="1.5" stroke-dasharray="5 4"/>` : ''}
         ${highlights.map(h => segments.map(s => curve(s, 'piecewise-highlight', '#b65c42', 4.5, '', h.from ?? xmin, h.to ?? xmax)).join('')).join('')}
@@ -762,6 +778,8 @@
         ${yTicks.map(([v, label]) => `<text x="320" y="${y(v)-7}" text-anchor="end">y = ${escape(label)}</text>`).join('')}
         ${pointLabels(points.filter(p => segmentAt(p.x)), x, v => y(value(segmentAt(v), v)), {leaders: true, marker: arrowId, lift: 1.35})}
         ${marks.map(annotation).join('')}
+        ${guideLabels}
+        ${axisLabels}
         <text x="335" y="${y(0)+5}" font-style="italic">${escape(variable)}</text>
         <text x="${x(0)-8}" y="28" text-anchor="end" font-style="italic">y</text>
       </g>
@@ -863,7 +881,10 @@
         optional(p, 'interval_marks', v => array(v, m => object(m) && interval([m.from, m.to]) &&
           boolean(m.left_closed) && boolean(m.right_closed) && string(m.label) && m.label.length > 0 &&
           (m.from !== null || !m.left_closed) && (m.to !== null || !m.right_closed) &&
-          ['pending', 'increasing', 'decreasing', 'constant'].includes(m.trend)) && v.length <= 12);
+          ['pending', 'increasing', 'decreasing', 'constant'].includes(m.trend)) && v.length <= 12) &&
+        optional(p, 'guides', v => array(v, g => object(g) && Number.isFinite(g.x) && string(g.label) && g.label.length > 0 &&
+          optional(g, 'value_label', string)) && v.length <= 4) &&
+        optional(p, 'axes', v => array(v, a => object(a) && Number.isFinite(a.x) && string(a.label) && a.label.length > 0) && v.length <= 2);
     }
     if (spec.kind === 'linear') return Number.isFinite(p.slope) && Number.isFinite(p.intercept);
     if (spec.kind === 'absolute_affine') return Number.isFinite(p.a) && p.a !== 0 &&

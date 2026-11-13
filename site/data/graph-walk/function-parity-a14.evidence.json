@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "6b52b7f84a8047ecbb8ce694fac29c6d",
-    "lesson_version": "778f13f1bcad0fa34d79d68b85d95412254e614e24071d8a13675168ae454a57",
-    "input_sha256": "edccb4596bd643cafabd72cab080d4a8ec804791937e169733ec579ac6d7a973",
-    "checkpoint_sha256": "6211980786677c71299d5c49ec6ecd477d83a5f77fbfba6480dbdf99f54f7af0",
-    "result_sha256": "b8628c7bf0d837039ae220ceb732e1e5d4ec207441482dc1b4ee71883bd18f3a",
+    "run_id": "acf5f34390df4879a8c083a6811ce65a",
+    "lesson_version": "0db4b43174bb0d055c6445e8513a8f4ae5b1f04188d53fc55980ac67ac218c9d",
+    "input_sha256": "a2f181377a2a704d90876a0325157eede49c72fec03036ab50538f4a932270c3",
+    "checkpoint_sha256": "058ffb68a2fdd19c8f7afaf4a69704d2174ddb8bf0a22223c1a086666bcb8237",
+    "result_sha256": "055f35819b38d7d320c227df343c5cedee8a6494152ecc234bbf2bb1faec2354",
     "stage_one_sha256": "3a4164b943c678672255f6911ff9de9c26e1cc8052ef73b5905d3917fd8c03b3",
-    "stage_two_sha256": "fec46db596747ce09474380511082203343ab0a017ea633bdda5da7e8dddb0f8",
+    "stage_two_sha256": "b8d01eb2c546d4677c1e542b397668774deaadf4f771a7b58457d2b3be5e0942",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "8b48676331917ccea1b062530f9ca595abff09a2ffd150f23f5b53579b12c792",
-    "teaching_revision": "b4ffa779f0ad42f6a703380afe08d586ba3e5ee58f69bc84dfd97322c31cdab5"
+    "teaching_revision": "21fa7844bba2e1f031cb0346a86d24da47c409d661bf15049cdd220508816d2a"
   },
   "lesson": {
     "status": "completed",
@@ -128,7 +128,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-parity-a14//root/goals/0",
-            "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+            "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
             "problem": {
               "text": "设 $f(x)$ 是定义在 $R$ 上的奇函数，且 $y=f(x)$ 的图像关于直线 $x=\\frac12$ 对称，则 $f(1)+f(2)+f(3)+f(4)+f(5)=$____。"
             },
@@ -368,12 +368,12 @@
                 }
               ]
             },
-            "bundleVersion": "30b0c0220ddffe9f2d1b2caed4f27a5f176030796537ac0d5f30ec2959ee3cdd"
+            "bundleVersion": "48a2318e662717dcf7cab809ed3e4fbe0d5c2660d28d080fa3b3f33de37346af"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-parity-a14//root/goals/0",
-            "bundleVersion": "30b0c0220ddffe9f2d1b2caed4f27a5f176030796537ac0d5f30ec2959ee3cdd",
+            "bundleVersion": "48a2318e662717dcf7cab809ed3e4fbe0d5c2660d28d080fa3b3f33de37346af",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -394,10 +394,10 @@
     ]
   },
   "stream": {
-    "run_id": "6b52b7f84a8047ecbb8ce694fac29c6d",
-    "lesson_version": "778f13f1bcad0fa34d79d68b85d95412254e614e24071d8a13675168ae454a57",
-    "input_sha256": "edccb4596bd643cafabd72cab080d4a8ec804791937e169733ec579ac6d7a973",
-    "stream_id": "6b52b7f84a8047ecbb8ce694fac29c6d",
+    "run_id": "acf5f34390df4879a8c083a6811ce65a",
+    "lesson_version": "0db4b43174bb0d055c6445e8513a8f4ae5b1f04188d53fc55980ac67ac218c9d",
+    "input_sha256": "a2f181377a2a704d90876a0325157eede49c72fec03036ab50538f4a932270c3",
+    "stream_id": "acf5f34390df4879a8c083a6811ce65a",
     "last_seq": 18,
     "minimum_seq": 1,
     "math_steps": [
@@ -407,37 +407,37 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_rewrite",
-        "explanation": "$$\\begin{gathered}x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 1\\\\f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x + 1)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(x + 1)=-f(x)\\\\\\text{一个周期为 }2\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}f(x + 2)=-f(x + 1)=-\\left(-f(x)\\right)=f(x)\\\\\\Rightarrow \\text{周期为 }2\\end{gathered}$$",
         "highlight": {
-          "caption": "连续使用两次对称关系",
+          "caption": "从 $x + 1$ 再走到 $x + 2$",
           "connector": "⇒",
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x + 1)=f(x)\\quad(x\\in \\mathbb{R})\\\\x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 1\\end{gathered}"
+              "math": "\\begin{gathered}f(x + 1)=-f(x)\\\\f(x + 1)=-m\\end{gathered}"
             },
             {
-              "label": "关系",
-              "math": "f(x + 1)=-f(x)"
+              "label": "函数值",
+              "math": "f(x + 2)=m"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "778f13f1bcad0fa34d79d68b85d95412254e614e24071d8a13675168ae454a57",
+        "lesson_version": "0db4b43174bb0d055c6445e8513a8f4ae5b1f04188d53fc55980ac67ac218c9d",
         "local_check": "passed",
-        "math_step_sha256": "25aec85a9e5ec2acaeb0b6c84afd279bbf9923711ae37e066e51f5ae0aaba455",
+        "math_step_sha256": "c7091b40631801fddf7f455219407c6bfc08d3c041533ae864e2409959ef4309",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "b1ee955a21c6a91e4ba7d3ad5cfd495948c6b4882b6d286b4900614b5180debf",
         "route_id": "function-symmetry",
-        "run_id": "6b52b7f84a8047ecbb8ce694fac29c6d",
+        "run_id": "acf5f34390df4879a8c083a6811ce65a",
         "source_refs": [
           "/steps/1/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "target_ref": "/root/goals/0",
-        "title": "连续使用两次对称关系",
+        "title": "从 $x + 1$ 再走到 $x + 2$",
         "used_basis": []
       },
       {
@@ -462,15 +462,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "778f13f1bcad0fa34d79d68b85d95412254e614e24071d8a13675168ae454a57",
+        "lesson_version": "0db4b43174bb0d055c6445e8513a8f4ae5b1f04188d53fc55980ac67ac218c9d",
         "local_check": "passed",
-        "math_step_sha256": "1951c5e74e90f558bca4741bf50f5f6918a5936b24142df36655a0bf0ac64cc0",
+        "math_step_sha256": "8e2923c3ed7722ecb527f860592674d13174324b5094545e7b5ac3df346cd7b0",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "b1ee955a21c6a91e4ba7d3ad5cfd495948c6b4882b6d286b4900614b5180debf",
         "route_id": "function-symmetry",
-        "run_id": "6b52b7f84a8047ecbb8ce694fac29c6d",
+        "run_id": "acf5f34390df4879a8c083a6811ce65a",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -524,25 +524,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "778f13f1bcad0fa34d79d68b85d95412254e614e24071d8a13675168ae454a57",
+        "lesson_version": "0db4b43174bb0d055c6445e8513a8f4ae5b1f04188d53fc55980ac67ac218c9d",
         "math_steps": [
           {
-            "math_step_sha256": "25aec85a9e5ec2acaeb0b6c84afd279bbf9923711ae37e066e51f5ae0aaba455",
+            "math_step_sha256": "c7091b40631801fddf7f455219407c6bfc08d3c041533ae864e2409959ef4309",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "1951c5e74e90f558bca4741bf50f5f6918a5936b24142df36655a0bf0ac64cc0",
+            "math_step_sha256": "8e2923c3ed7722ecb527f860592674d13174324b5094545e7b5ac3df346cd7b0",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "6b52b7f84a8047ecbb8ce694fac29c6d",
+        "run_id": "acf5f34390df4879a8c083a6811ce65a",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "57917dc9058c172a3ed4f2593c8cd933737b445bbe3ff31dbdba2203cb282562",
-        "verified_route_sha256": "509d7f9dadc32f35e99ab6ae5fe780b7cb569ad1f398644ce8fb5c0930e9e837"
+        "task_id": "21c1b393727ed5b7c4ea32093eddf0160591b33fe338040522002cab4b5f6cd1",
+        "verified_route_sha256": "abb1c89e7638423437bbbb1cbcc51794db9d8dfb294c0fef320db1d4b00de621"
       }
     ],
     "qa": [],
@@ -592,22 +592,22 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "25aec85a9e5ec2acaeb0b6c84afd279bbf9923711ae37e066e51f5ae0aaba455",
+        "math_step_sha256": "c7091b40631801fddf7f455219407c6bfc08d3c041533ae864e2409959ef4309",
         "status": "interactive",
-        "interaction_id": "ddae9395f32d8a092255fbc3"
+        "interaction_id": "9dd0a9bd031b2cbedb9a96f1"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "1951c5e74e90f558bca4741bf50f5f6918a5936b24142df36655a0bf0ac64cc0",
+        "math_step_sha256": "8e2923c3ed7722ecb527f860592674d13174324b5094545e7b5ac3df346cd7b0",
         "status": "interactive",
-        "interaction_id": "1b91a53c912650f4b966f992"
+        "interaction_id": "32dc7da497b0c2991ee04c38"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+    "revisions_ref": "b1ee955a21c6a91e4ba7d3ad5cfd495948c6b4882b6d286b4900614b5180debf",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -712,14 +712,14 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "ddae9395f32d8a092255fbc3",
+        "interaction_id": "9dd0a9bd031b2cbedb9a96f1",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "72052686f61c3a143705bd68a117b5e5795e208dac7e7db01ee1dab378baaf13",
-        "lesson_version": "778f13f1bcad0fa34d79d68b85d95412254e614e24071d8a13675168ae454a57",
+        "interaction_sha256": "3c588558ca79e22e5f16593d13e161dc56fccfb8194bf3e8195537850cf90bea",
+        "lesson_version": "0db4b43174bb0d055c6445e8513a8f4ae5b1f04188d53fc55980ac67ac218c9d",
         "parts": [
           {
             "completion_board": {
-              "caption": "找出配对的输入",
+              "caption": "利用关于原点对称找配对的输入",
               "connector": "⇒",
               "items": [
                 {
@@ -733,200 +733,146 @@
               ],
               "layout": "derivation"
             },
-            "condition_number_lines": [
-              {
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, \\frac{1}{2}\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$1$ 与 $-1$ 的中点是 $0$，函数值互为相反数。",
+              "kind": "piecewise_curve",
+              "params": {
                 "bounds": [
                   -2.0,
-                  2.0
+                  3.0,
+                  -1.5,
+                  1.5
                 ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Reals"
-                  },
-                  "expression": "Reals",
-                  "latex": "\\mathbb{R}"
-                },
-                "intervals": [
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "guides": [
                   {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-oo, oo)",
-                      "latex": "\\left(-\\infty, \\infty\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "原输入范围\\quad x=1",
-                "points": [
-                  {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
+                    "label": "1",
+                    "value_label": "f(1)",
+                    "x": 1.0
                   },
                   {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
+                    "label": "-1",
+                    "value_label": "f(-1)",
+                    "x": -1.0
                   }
                 ],
-                "variable": "x"
-              },
-              {
-                "bounds": [
+                "interval": [
                   -2.0,
-                  2.0
+                  3.0
                 ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Reals"
-                  },
-                  "expression": "Reals",
-                  "latex": "\\mathbb{R}"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-oo, oo)",
-                      "latex": "\\left(-\\infty, \\infty\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
+                "interval_closed": [
+                  true,
+                  true
                 ],
-                "label": "配对后的范围\\quad x=-1",
                 "points": [
                   {
-                    "at": -1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
+                    "label": "对称中心",
+                    "place": "below-right",
+                    "x": 0.0
                   }
                 ],
-                "ticks": [
+                "segments": [
                   {
-                    "at": -1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
+                    "coefficients": [
+                      0,
+                      1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      -2.0,
+                      -1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
                   },
                   {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.5,
+                      -0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
                   },
                   {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -0.5,
+                      0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.5,
+                      1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      1.5,
+                      2.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      3.0
+                    ],
+                    "interval": [
+                      2.5,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
                   }
                 ],
-                "variable": "x"
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
               }
-            ],
+            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -935,7 +881,142 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "ddae9395f32d8a092255fbc3#1",
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, \\frac{1}{2}\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于原点对称。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  3.0,
+                  -1.5,
+                  1.5
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "guides": [
+                  {
+                    "label": "1",
+                    "value_label": "f(1)",
+                    "x": 1.0
+                  }
+                ],
+                "interval": [
+                  -2.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "对称中心",
+                    "place": "below-right",
+                    "x": 0.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      -2.0,
+                      -1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.5,
+                      -0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -0.5,
+                      0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.5,
+                      1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      1.5,
+                      2.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      3.0
+                    ],
+                    "interval": [
+                      2.5,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "9dd0a9bd031b2cbedb9a96f1#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -944,19 +1025,19 @@
                   "value": "o3"
                 },
                 {
-                  "label": "$1\\mapsto -1$",
-                  "value": "o1"
-                },
-                {
                   "label": "$1\\mapsto 1$",
                   "value": "o2"
+                },
+                {
+                  "label": "$1\\mapsto -1$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
             },
-            "question": "这条对称关系把输入 $x$ 变为 $0-x$。输入为 $1$ 时，配对的输入是多少？",
+            "question": "图像关于原点对称：输入 $x$ 与 $-x$ 的中点是 $0$，函数值互为相反数。输入为 $1$ 时，配对的输入是多少？",
             "stem_board": {
-              "caption": "找出配对的输入",
+              "caption": "利用关于原点对称找配对的输入",
               "connector": "⇒",
               "items": [
                 {
@@ -971,11 +1052,11 @@
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "找出配对的输入"
+            "title": "利用关于原点对称找配对的输入"
           },
           {
             "completion_board": {
-              "caption": "找出配对的输入",
+              "caption": "利用关于直线 $x=\\frac{1}{2}$ 对称找配对的输入",
               "connector": "⇒",
               "items": [
                 {
@@ -989,202 +1070,150 @@
               ],
               "layout": "derivation"
             },
-            "condition_number_lines": [
-              {
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, \\frac{1}{2}\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$1$ 与 $0$ 的中点是 $\\frac{1}{2}$，函数值相同。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1/2",
+                    "x": 0.5
+                  }
+                ],
                 "bounds": [
-                  -1.0,
-                  2.0
+                  -2.0,
+                  3.0,
+                  -1.5,
+                  1.5
                 ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Reals"
-                  },
-                  "expression": "Reals",
-                  "latex": "\\mathbb{R}"
-                },
-                "intervals": [
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "guides": [
                   {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-oo, oo)",
-                      "latex": "\\left(-\\infty, \\infty\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "原输入范围\\quad x=1",
-                "points": [
-                  {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
+                    "label": "1",
+                    "value_label": "f(1)",
+                    "x": 1.0
                   },
                   {
-                    "at": 0.5,
-                    "exact": {
-                      "exact": {
-                        "$math": "Rational",
-                        "p": "1",
-                        "q": "2"
-                      },
-                      "expression": "1/2",
-                      "latex": "\\frac{1}{2}"
-                    },
-                    "label": "1/2"
-                  },
-                  {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
+                    "label": "0",
+                    "value_label": "f(0)",
+                    "x": 0.0
                   }
                 ],
-                "variable": "x"
-              },
-              {
-                "bounds": [
-                  -1.0,
-                  2.0
+                "interval": [
+                  -2.0,
+                  3.0
                 ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Reals"
-                  },
-                  "expression": "Reals",
-                  "latex": "\\mathbb{R}"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-oo, oo)",
-                      "latex": "\\left(-\\infty, \\infty\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
+                "interval_closed": [
+                  true,
+                  true
                 ],
-                "label": "配对后的范围\\quad x=0",
-                "points": [
+                "points": [],
+                "segments": [
                   {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
+                    "coefficients": [
+                      0,
+                      1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      -2.0,
+                      -1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
                   },
                   {
-                    "at": 0.5,
-                    "exact": {
-                      "exact": {
-                        "$math": "Rational",
-                        "p": "1",
-                        "q": "2"
-                      },
-                      "expression": "1/2",
-                      "latex": "\\frac{1}{2}"
-                    },
-                    "label": "1/2"
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.5,
+                      -0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
                   },
                   {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -0.5,
+                      0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.5,
+                      1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      1.5,
+                      2.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      3.0
+                    ],
+                    "interval": [
+                      2.5,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
                   }
                 ],
-                "variable": "x"
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    0.5,
+                    "1/2"
+                  ]
+                ]
               }
-            ],
+            },
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1193,18 +1222,149 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "ddae9395f32d8a092255fbc3#2",
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, \\frac{1}{2}\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于直线 $x=\\frac{1}{2}$ 对称。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1/2",
+                    "x": 0.5
+                  }
+                ],
+                "bounds": [
+                  -2.0,
+                  3.0,
+                  -1.5,
+                  1.5
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "guides": [
+                  {
+                    "label": "1",
+                    "value_label": "f(1)",
+                    "x": 1.0
+                  }
+                ],
+                "interval": [
+                  -2.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      -2.0,
+                      -1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.5,
+                      -0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -0.5,
+                      0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.5,
+                      1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      1.5,
+                      2.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      3.0
+                    ],
+                    "interval": [
+                      2.5,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    0.5,
+                    "1/2"
+                  ]
+                ]
+              }
+            },
+            "id": "9dd0a9bd031b2cbedb9a96f1#2",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$1\\mapsto -1$",
-                  "value": "o3"
-                },
-                {
-                  "label": "$1\\mapsto 0$",
-                  "value": "o1"
-                },
                 {
                   "label": "$1\\mapsto - \\frac{1}{2}$",
                   "value": "o4"
@@ -1212,13 +1372,21 @@
                 {
                   "label": "$1\\mapsto 1$",
                   "value": "o2"
+                },
+                {
+                  "label": "$1\\mapsto 0$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$1\\mapsto -1$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
             },
-            "question": "这条对称关系把输入 $x$ 变为 $1-x$。输入为 $1$ 时，配对的输入是多少？",
+            "question": "图像关于直线 $x=\\frac{1}{2}$ 对称：输入 $x$ 与 $1-x$ 的中点是 $\\frac{1}{2}$，函数值相同。输入为 $1$ 时，配对的输入是多少？",
             "stem_board": {
-              "caption": "找出配对的输入",
+              "caption": "利用关于直线 $x=\\frac{1}{2}$ 对称找配对的输入",
               "connector": "⇒",
               "items": [
                 {
@@ -1233,7 +1401,7 @@
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "找出配对的输入"
+            "title": "利用关于直线 $x=\\frac{1}{2}$ 对称找配对的输入"
           },
           {
             "completion_board": {
@@ -1255,7 +1423,160 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "ddae9395f32d8a092255fbc3#3",
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, \\frac{1}{2}\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；取 $x=\\frac{1}{4}$：先关于原点对称，到 $- \\frac{1}{4}$，函数值互为相反数；再关于直线 $x=\\frac{1}{2}$ 对称，到 $\\frac{5}{4}$，函数值相同；所以 $f(x + 1)=-f(x)$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1/2",
+                    "x": 0.5
+                  }
+                ],
+                "bounds": [
+                  -2.0,
+                  3.0,
+                  -1.5,
+                  1.5
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "guides": [
+                  {
+                    "label": "x",
+                    "value_label": "f(x)",
+                    "x": 0.25
+                  },
+                  {
+                    "label": "-x",
+                    "value_label": "f(-x)",
+                    "x": -0.25
+                  },
+                  {
+                    "label": "x+1",
+                    "value_label": "f(x+1)",
+                    "x": 1.25
+                  }
+                ],
+                "interval": [
+                  -2.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      -2.0,
+                      -1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.5,
+                      -0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -0.5,
+                      0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.5,
+                      1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      1.5,
+                      2.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      3.0
+                    ],
+                    "interval": [
+                      2.5,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    0.5,
+                    "1/2"
+                  ]
+                ]
+              }
+            },
+            "id": "9dd0a9bd031b2cbedb9a96f1#3",
             "interaction": {
               "type": "read"
             },
@@ -1266,20 +1587,692 @@
                 "$$x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 1$$",
                 "$$f(- x)=-f(x)\\quad(x\\in \\mathbb{R})$$",
                 "$$f(- x + 1)=f(x)\\quad(x\\in \\mathbb{R})$$",
-                "$$f(x + 1)=-f(x)$$",
-                "$$\\text{一个周期为 }2$$"
+                "$$f(x + 1)=-f(x)$$"
               ]
             },
             "submit_label": "继续",
             "title": "连续使用两次对称关系"
+          },
+          {
+            "card_group": "period",
+            "card_group_title": "再用一次关系，看出周期",
+            "completion_board": {
+              "caption": "从 $x$ 走到 $x + 1$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知条件",
+                  "math": "f(x + 1)=-f(x)"
+                },
+                {
+                  "label": "函数值",
+                  "math": "f(x + 1)=-m"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, \\frac{1}{2}\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；由 $f(x + 1)=-f(x)$，横坐标为 $x + 1$ 的点函数值是 $-m$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.0,
+                  4.0,
+                  -1.5,
+                  1.5
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "guides": [
+                  {
+                    "label": "x",
+                    "value_label": "m",
+                    "x": 0.25
+                  },
+                  {
+                    "label": "x+1",
+                    "value_label": "-m",
+                    "x": 1.25
+                  }
+                ],
+                "interval": [
+                  -1.0,
+                  4.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      -0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -0.5,
+                      0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.5,
+                      1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      1.5,
+                      2.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      3.0
+                    ],
+                    "interval": [
+                      2.5,
+                      3.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.5,
+                      4.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, \\frac{1}{2}\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；在示意图上取横坐标为 $x$ 的点（取 $x=\\frac{1}{4}$），记 $f(x)=m$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.0,
+                  4.0,
+                  -1.5,
+                  1.5
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "guides": [
+                  {
+                    "label": "x",
+                    "value_label": "m",
+                    "x": 0.25
+                  }
+                ],
+                "interval": [
+                  -1.0,
+                  4.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      -0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -0.5,
+                      0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.5,
+                      1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      1.5,
+                      2.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      3.0
+                    ],
+                    "interval": [
+                      2.5,
+                      3.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.5,
+                      4.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "9dd0a9bd031b2cbedb9a96f1#4",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x + 1)=-m$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(x + 1)=0$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(x + 1)=-2m$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$f(x + 1)=m$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "在示意图上取横坐标为 $x$ 的点（取 $x=\\frac{1}{4}$），记 $f(x)=m$。由 $f(x + 1)=-f(x)$，横坐标为 $x + 1$ 的点函数值是多少？",
+            "stem_board": {
+              "caption": "从 $x$ 走到 $x + 1$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知条件",
+                  "math": "f(x + 1)=-f(x)"
+                },
+                {
+                  "label": "函数值",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "从 $x$ 走到 $x + 1$"
+          },
+          {
+            "card_group": "period",
+            "card_group_title": "再用一次关系，看出周期",
+            "completion_board": {
+              "caption": "从 $x + 1$ 再走到 $x + 2$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知条件",
+                  "math": "\\begin{gathered}f(x + 1)=-f(x)\\\\f(x + 1)=-m\\end{gathered}"
+                },
+                {
+                  "label": "函数值",
+                  "math": "f(x + 2)=m"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, \\frac{1}{2}\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；横坐标为 $x$ 与 $x + 2$ 的两点一样高（水平虚线），即 $f(x + 2)=f(x)$；对每个 $x$ 都成立，所以周期为 $2$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.0,
+                  4.0,
+                  -1.5,
+                  1.5
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "guides": [
+                  {
+                    "label": "x",
+                    "value_label": "m",
+                    "x": 0.25
+                  },
+                  {
+                    "label": "x+1",
+                    "value_label": "-m",
+                    "x": 1.25
+                  },
+                  {
+                    "label": "x+2",
+                    "value_label": "m",
+                    "x": 2.25
+                  }
+                ],
+                "interval": [
+                  -1.0,
+                  4.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "level": 0.25,
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      -0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -0.5,
+                      0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.5,
+                      1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      1.5,
+                      2.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      3.0
+                    ],
+                    "interval": [
+                      2.5,
+                      3.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.5,
+                      4.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, \\frac{1}{2}\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；由 $f(x + 1)=-f(x)$，横坐标为 $x + 1$ 的点函数值是 $-m$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.0,
+                  4.0,
+                  -1.5,
+                  1.5
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "guides": [
+                  {
+                    "label": "x",
+                    "value_label": "m",
+                    "x": 0.25
+                  },
+                  {
+                    "label": "x+1",
+                    "value_label": "-m",
+                    "x": 1.25
+                  }
+                ],
+                "interval": [
+                  -1.0,
+                  4.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      -0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -0.5,
+                      0.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.5,
+                      1.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      1.5,
+                      2.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      3.0
+                    ],
+                    "interval": [
+                      2.5,
+                      3.5
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.5,
+                      4.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "9dd0a9bd031b2cbedb9a96f1#5",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x + 2)=2m$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$f(x + 2)=-m$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x + 2)=m$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(x + 2)=0$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把 $f(x + 1)=-f(x)$ 中的 $x$ 换成 $x + 1$ 再用一次，横坐标为 $x + 2$ 的点函数值是多少？",
+            "stem_board": {
+              "caption": "从 $x + 1$ 再走到 $x + 2$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知条件",
+                  "math": "\\begin{gathered}f(x + 1)=-f(x)\\\\f(x + 1)=-m\\end{gathered}"
+                },
+                {
+                  "label": "函数值",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "从 $x + 1$ 再走到 $x + 2$"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "6b52b7f84a8047ecbb8ce694fac29c6d",
+        "run_id": "acf5f34390df4879a8c083a6811ce65a",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "25aec85a9e5ec2acaeb0b6c84afd279bbf9923711ae37e066e51f5ae0aaba455",
+            "math_step_sha256": "c7091b40631801fddf7f455219407c6bfc08d3c041533ae864e2409959ef4309",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -1287,10 +2280,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "1b91a53c912650f4b966f992",
+        "interaction_id": "32dc7da497b0c2991ee04c38",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "130b8c63e0c2da79a981c2941b847914e0e61364bd01ec88fb297cf0ea7f08ca",
-        "lesson_version": "778f13f1bcad0fa34d79d68b85d95412254e614e24071d8a13675168ae454a57",
+        "interaction_sha256": "e2a2e161ca7c5cbafdeb375dfb9702afcb744aa13e96edb92fd134651ea575d9",
+        "lesson_version": "0db4b43174bb0d055c6445e8513a8f4ae5b1f04188d53fc55980ac67ac218c9d",
         "parts": [
           {
             "completion_board": {
@@ -1316,14 +2309,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "1b91a53c912650f4b966f992#1",
+            "id": "32dc7da497b0c2991ee04c38#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$f(1)+f(2)+f(3)+f(4)+f(5)=-1$",
-                  "value": "o3"
-                },
                 {
                   "label": "$f(1)+f(2)+f(3)+f(4)+f(5)=0$",
                   "value": "o1"
@@ -1331,6 +2320,10 @@
                 {
                   "label": "$f(1)+f(2)+f(3)+f(4)+f(5)=1$",
                   "value": "o2"
+                },
+                {
+                  "label": "$f(1)+f(2)+f(3)+f(4)+f(5)=-1$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -1356,11 +2349,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "6b52b7f84a8047ecbb8ce694fac29c6d",
+        "run_id": "acf5f34390df4879a8c083a6811ce65a",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "1951c5e74e90f558bca4741bf50f5f6918a5936b24142df36655a0bf0ac64cc0",
+            "math_step_sha256": "8e2923c3ed7722ecb527f860592674d13174324b5094545e7b5ac3df346cd7b0",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],

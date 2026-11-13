@@ -36,7 +36,7 @@
             "method-parity-inequality"
           ]
         },
-        "32fd68a0cb1c163220908af2#1": {
+        "4736bd69d3aab6da051abeb5#1": {
           "title": "改写成两个函数值的比较",
           "position": 4,
           "refs": [
@@ -45,7 +45,7 @@
             "function-parity#definition"
           ]
         },
-        "056f705fa837ac287d839561#1": {
+        "4398d230cc24aca1c7d10184#1": {
           "title": "确定整个定义域上的单调方向",
           "position": 5,
           "refs": [
@@ -55,7 +55,7 @@
             "function-monotonicity#difference-quotient"
           ]
         },
-        "353ed2692e84eda388e64b86#1": {
+        "25959c9cc2ac39fa9da12108#1": {
           "title": "去掉函数符号比较输入",
           "position": 6,
           "refs": [
@@ -67,7 +67,7 @@
             "set-intersection-union#intersection"
           ]
         },
-        "0504c36f3fafa208b0f80a63#1": {
+        "c3e3c0a03f50994e8e5e010a#1": {
           "title": "合法输入求交，写出解集",
           "position": 7,
           "refs": [
@@ -77,6 +77,6 @@
       }
     }
   },
-  "page_contract_hash": "1c97e6e5b50b290de3404c43e7bd9e0bb5dc754d7c60dea1500fb50b5f8d8f6b",
-  "practice_version": "8dfac9a003108d1afd61b0053f814e9d8fa4fa9a1c21eb27a5e62f90ea351349"
+  "page_contract_hash": "628a3fa26e645af685f05bc541c92ea2446ad90aaef5696bc7eb950375770678",
+  "practice_version": "bfaab8b8793ed81e2cc6706c70342d40d621dff27784111d1c163ca5e7658ff3"
 }
