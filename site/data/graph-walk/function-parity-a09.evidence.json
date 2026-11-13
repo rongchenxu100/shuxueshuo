@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "3179a0948b7340c9a689667cee75c11b",
-    "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
-    "input_sha256": "30c41486b42127f9601d7d96fafce5ac77ce8279d3f437df11df4ddc961d6950",
-    "checkpoint_sha256": "b76b8799c3ba57a6f5021e3d25838c96bb9f9dab2796acf467c1b58e3fd77f67",
-    "result_sha256": "92c2ad779b33fba852a952b8c55192aa2b5d03818a55ade9c68e812a2a122b24",
+    "run_id": "cf46319d601c47deace89f040f97505d",
+    "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
+    "input_sha256": "d6bc395428d210522d12b9908af53d730adac51342360a02271d0a8c205a39dc",
+    "checkpoint_sha256": "4e89483935d7baae4b3c994057879a39b07a7dfea561c5e487b78b0ba5f94199",
+    "result_sha256": "1e906f538235a3cad255079ebf284f8df3f4723881c3b8e7c4890acea49b239a",
     "stage_one_sha256": "8b7a769d0d3f97dc9641f9c01928c08dbfc1600453059d4ea76d7e6b8b0966bb",
-    "stage_two_sha256": "c1b4e3640603541b8ddef3e15fc40f291a04cd5b90ebbedbee0363dac2931efc",
+    "stage_two_sha256": "82556c9dc37eefea643d9c70a0c5bca01fa3b0ed49888e560116b80885352bd5",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "fc35d1e34e5f9b678261cdf6fa776e12dfa45a115221151c8e0cad2fbf79e188",
-    "teaching_revision": "b4ffa779f0ad42f6a703380afe08d586ba3e5ee58f69bc84dfd97322c31cdab5"
+    "teaching_revision": "0875fd7b5b46d5d1613e1a0176a9d0998b4cd696d93c1a8bea82586f72a82eaa"
   },
   "lesson": {
     "status": "completed",
@@ -127,7 +127,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-parity-a09//root/goals/0",
-            "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+            "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
             "problem": {
               "text": "设 $f(x)$ 是定义在 $(-\\infty,+\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$____；当 $x\\le 0$ 时，$f(x)=$____．"
             },
@@ -505,12 +505,12 @@
                 }
               ]
             },
-            "bundleVersion": "15a013c9b44c2d11416d1e580b4c0e461a220acd80a5141e0438d6e5c7c12c6a"
+            "bundleVersion": "554421480fbc883c08b955e328ed11fcb1c3c84cd11314e2667fef708761b0da"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-parity-a09//root/goals/0",
-            "bundleVersion": "15a013c9b44c2d11416d1e580b4c0e461a220acd80a5141e0438d6e5c7c12c6a",
+            "bundleVersion": "554421480fbc883c08b955e328ed11fcb1c3c84cd11314e2667fef708761b0da",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -654,7 +654,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-parity-a09//root/goals/1",
-            "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+            "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
             "problem": {
               "text": "设 $f(x)$ 是定义在 $(-\\infty,+\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$____；当 $x\\le 0$ 时，$f(x)=$____．"
             },
@@ -972,12 +972,12 @@
                 }
               ]
             },
-            "bundleVersion": "35f204a50f02a4a394adb62ab2987295767f168e8bcb7dbe1ef0198b1d068b8a"
+            "bundleVersion": "011df63533a348a06cb7b3010986acdcb45baae626bdf934161eeea539e0e152"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-parity-a09//root/goals/1",
-            "bundleVersion": "35f204a50f02a4a394adb62ab2987295767f168e8bcb7dbe1ef0198b1d068b8a",
+            "bundleVersion": "011df63533a348a06cb7b3010986acdcb45baae626bdf934161eeea539e0e152",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -998,10 +998,10 @@
     ]
   },
   "stream": {
-    "run_id": "3179a0948b7340c9a689667cee75c11b",
-    "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
-    "input_sha256": "30c41486b42127f9601d7d96fafce5ac77ce8279d3f437df11df4ddc961d6950",
-    "stream_id": "3179a0948b7340c9a689667cee75c11b",
+    "run_id": "cf46319d601c47deace89f040f97505d",
+    "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
+    "input_sha256": "d6bc395428d210522d12b9908af53d730adac51342360a02271d0a8c205a39dc",
+    "stream_id": "cf46319d601c47deace89f040f97505d",
     "last_seq": 38,
     "minimum_seq": 1,
     "math_steps": [
@@ -1027,15 +1027,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "local_check": "passed",
-        "math_step_sha256": "b23df906516d0e89e36b95b3d116b6e880f162c8f8fcd93d0050f619ac0e5b9a",
+        "math_step_sha256": "e861d579a478dddfa63614d26844e9f3b74c070fa8e355292332d75410fb91a9",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "9787439a58c0a8b7f406ec6a0c0315a780d90966daf5bebec20fe18308419b24",
         "route_id": "function-symmetry",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -1066,15 +1066,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "local_check": "passed",
-        "math_step_sha256": "6052551077d74781fd9c40e700b516949f5bd90667a755a10c6baa901eda91e6",
+        "math_step_sha256": "6789bf4693db1c5939bea8e555116db5ec47023b527ef10aede5f2bd91c95dda",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "9787439a58c0a8b7f406ec6a0c0315a780d90966daf5bebec20fe18308419b24",
         "route_id": "function-symmetry",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1096,24 +1096,24 @@
           "items": [
             {
               "label": "已知与所求",
-              "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数}\\end{gathered}"
+              "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
             },
             {
-              "label": "-x\\text{ 的范围}",
+              "label": "$-x$ 的范围",
               "math": "x<0\\text{ 时，}-x>0"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "local_check": "passed",
-        "math_step_sha256": "76268c5bda9ed012a4b50a325f063a7bfbe8a5a7989392629baed6b43c73fe02",
+        "math_step_sha256": "7f2277f81cb6057e9bca30584a884471235f15cbc2cab55fd8c4778f2881712c",
         "method_ref": "method-parity-extension#map",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "9787439a58c0a8b7f406ec6a0c0315a780d90966daf5bebec20fe18308419b24",
         "route_id": "parity-extension",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -1138,21 +1138,21 @@
               "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=2x^{2}-x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
             },
             {
-              "label": "f(-x)",
+              "label": "$f(-x)$",
               "math": "x<0\\text{ 时，}f(-x)=2 x^{2} + x"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "local_check": "passed",
-        "math_step_sha256": "cbfc6bda00099a43ee34d63ed73565f2ef0050febdc76ebc4dbd7ccb0f25b1e8",
+        "math_step_sha256": "f69ac71f1179bf5e19d956a475746332a52f63cbc21bce63f8fc1f0b877f709d",
         "method_ref": "method-parity-extension#substitute",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "9787439a58c0a8b7f406ec6a0c0315a780d90966daf5bebec20fe18308419b24",
         "route_id": "parity-extension",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -1176,24 +1176,24 @@
           "items": [
             {
               "label": "已求出的式子",
-              "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=2 x^{2} + x\\\\\\text{奇函数}\\end{gathered}"
+              "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=2 x^{2} + x\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
             },
             {
-              "label": "f(x)",
+              "label": "$f(x)$",
               "math": "x<0\\text{ 时，}f(x)=- 2 x^{2} - x"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "local_check": "passed",
-        "math_step_sha256": "dc82a9fd78fedfd14c2733b329bd4eb7079ef1a099bb46b44748cfd10557800e",
+        "math_step_sha256": "215096a99ed5f7e6731ff171c6f5d6f71c1455ef1f3ea23530c387bf62c09c0e",
         "method_ref": "method-parity-extension#write-back",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "9787439a58c0a8b7f406ec6a0c0315a780d90966daf5bebec20fe18308419b24",
         "route_id": "parity-extension",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1215,7 +1215,7 @@
           "items": [
             {
               "label": "已求出的式子",
-              "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=- 2 x^{2} - x\\\\x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数}\\end{gathered}"
+              "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=- 2 x^{2} - x\\\\x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数：}f(0)=0\\end{gathered}"
             },
             {
               "label": "结论",
@@ -1224,15 +1224,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "local_check": "passed",
-        "math_step_sha256": "cbfc862b71a64baae12aa3916a863aae99e41d98f98c26c32727a5cc8d1ead9d",
+        "math_step_sha256": "badb734630989ed639a74b134bfa23d70b646ff732232dc660b949fb59620ebd",
         "method_ref": "method-parity-extension#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "9787439a58c0a8b7f406ec6a0c0315a780d90966daf5bebec20fe18308419b24",
         "route_id": "parity-extension",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -1414,25 +1414,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "math_steps": [
           {
-            "math_step_sha256": "b23df906516d0e89e36b95b3d116b6e880f162c8f8fcd93d0050f619ac0e5b9a",
+            "math_step_sha256": "e861d579a478dddfa63614d26844e9f3b74c070fa8e355292332d75410fb91a9",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "6052551077d74781fd9c40e700b516949f5bd90667a755a10c6baa901eda91e6",
+            "math_step_sha256": "6789bf4693db1c5939bea8e555116db5ec47023b527ef10aede5f2bd91c95dda",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "5a0ad69f99f576e9126682bfb53e89c9e4a6fda04450a3f5586b66479cb1088a",
-        "verified_route_sha256": "8ee37660f3dc0f554b679b64053b53936d1f799cae41234e92a8866236aeb344"
+        "task_id": "ac451f3b8e692dc3a65cb78a305c51fb9d72f672cd63aea56d3ad0600d221efe",
+        "verified_route_sha256": "690711f3bae6df4e934a8a0aa4d1df0f0de0106b2fe309c51f8978cc61bdf3ec"
       },
       {
         "answer": {
@@ -1561,35 +1561,35 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "math_steps": [
           {
-            "math_step_sha256": "76268c5bda9ed012a4b50a325f063a7bfbe8a5a7989392629baed6b43c73fe02",
+            "math_step_sha256": "7f2277f81cb6057e9bca30584a884471235f15cbc2cab55fd8c4778f2881712c",
             "ordinal": 1,
             "step_id": "cbd98ea750-parity-extension-001-parity_extension_map"
           },
           {
-            "math_step_sha256": "cbfc6bda00099a43ee34d63ed73565f2ef0050febdc76ebc4dbd7ccb0f25b1e8",
+            "math_step_sha256": "f69ac71f1179bf5e19d956a475746332a52f63cbc21bce63f8fc1f0b877f709d",
             "ordinal": 2,
             "step_id": "cbd98ea750-parity-extension-002-parity_extension_substitute"
           },
           {
-            "math_step_sha256": "dc82a9fd78fedfd14c2733b329bd4eb7079ef1a099bb46b44748cfd10557800e",
+            "math_step_sha256": "215096a99ed5f7e6731ff171c6f5d6f71c1455ef1f3ea23530c387bf62c09c0e",
             "ordinal": 3,
             "step_id": "cbd98ea750-parity-extension-003-parity_extension_write_back"
           },
           {
-            "math_step_sha256": "cbfc862b71a64baae12aa3916a863aae99e41d98f98c26c32727a5cc8d1ead9d",
+            "math_step_sha256": "badb734630989ed639a74b134bfa23d70b646ff732232dc660b949fb59620ebd",
             "ordinal": 4,
             "step_id": "cbd98ea750-parity-extension-004-parity_extension_conclude"
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "status": "pending",
         "target_ref": "/root/goals/1",
-        "task_id": "d3f57c8dab63f8a0983a7f94a6e3e1d8198bdea883d6d5575ec3d85722bd331f",
-        "verified_route_sha256": "c86fb380a39c9f88a741fbd6eac5e1225de7cb887208c96a97b578db33b4e989"
+        "task_id": "8757854f47a409450da16c6f1e3c13f8066a4f0cbad9889bded84308e339241e",
+        "verified_route_sha256": "2196b3bd3a26b805e3030bdc28765481d9eb7801f0c10b944a6d0d684675dc9c"
       }
     ],
     "qa": [],
@@ -1676,58 +1676,58 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "b23df906516d0e89e36b95b3d116b6e880f162c8f8fcd93d0050f619ac0e5b9a",
+        "math_step_sha256": "e861d579a478dddfa63614d26844e9f3b74c070fa8e355292332d75410fb91a9",
         "status": "interactive",
-        "interaction_id": "72028c52ae2696e5b8067759"
+        "interaction_id": "deac6a5784f89054d34228e4"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "6052551077d74781fd9c40e700b516949f5bd90667a755a10c6baa901eda91e6",
+        "math_step_sha256": "6789bf4693db1c5939bea8e555116db5ec47023b527ef10aede5f2bd91c95dda",
         "status": "interactive",
-        "interaction_id": "f4e3666951264a75da0f5027"
+        "interaction_id": "505257564702aae58f99a319"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-extension",
         "step_id": "cbd98ea750-parity-extension-001-parity_extension_map",
         "ordinal": 1,
-        "math_step_sha256": "76268c5bda9ed012a4b50a325f063a7bfbe8a5a7989392629baed6b43c73fe02",
+        "math_step_sha256": "7f2277f81cb6057e9bca30584a884471235f15cbc2cab55fd8c4778f2881712c",
         "status": "interactive",
-        "interaction_id": "5b9f79737859c0ea33bc1b84"
+        "interaction_id": "99de77901f8be5e98370c07f"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-extension",
         "step_id": "cbd98ea750-parity-extension-002-parity_extension_substitute",
         "ordinal": 2,
-        "math_step_sha256": "cbfc6bda00099a43ee34d63ed73565f2ef0050febdc76ebc4dbd7ccb0f25b1e8",
+        "math_step_sha256": "f69ac71f1179bf5e19d956a475746332a52f63cbc21bce63f8fc1f0b877f709d",
         "status": "interactive",
-        "interaction_id": "5c5f9c2525f3340464ae5284"
+        "interaction_id": "c4ecb6e160a3d741c74d74c8"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-extension",
         "step_id": "cbd98ea750-parity-extension-003-parity_extension_write_back",
         "ordinal": 3,
-        "math_step_sha256": "dc82a9fd78fedfd14c2733b329bd4eb7079ef1a099bb46b44748cfd10557800e",
+        "math_step_sha256": "215096a99ed5f7e6731ff171c6f5d6f71c1455ef1f3ea23530c387bf62c09c0e",
         "status": "interactive",
-        "interaction_id": "12e055ef7b9575322e1aafa5"
+        "interaction_id": "95a3b98939223df5392af941"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-extension",
         "step_id": "cbd98ea750-parity-extension-004-parity_extension_conclude",
         "ordinal": 4,
-        "math_step_sha256": "cbfc862b71a64baae12aa3916a863aae99e41d98f98c26c32727a5cc8d1ead9d",
+        "math_step_sha256": "badb734630989ed639a74b134bfa23d70b646ff732232dc660b949fb59620ebd",
         "status": "interactive",
-        "interaction_id": "09cdc8e23e39d1c292bb381f"
+        "interaction_id": "1a44fc29a5f31f6d41c9c010"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+    "revisions_ref": "9787439a58c0a8b7f406ec6a0c0315a780d90966daf5bebec20fe18308419b24",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -1735,7 +1735,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:function-symmetry:complete",
-        "last_seq": 15
+        "last_seq": 17
       },
       {
         "target_ref": "/root/goals/1",
@@ -1931,10 +1931,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "72028c52ae2696e5b8067759",
+        "interaction_id": "deac6a5784f89054d34228e4",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "8bf7a18baadfc2fa00864b45b27a36d5cf897aa0a6cad784749760e67c27f8cf",
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "interaction_sha256": "5803afbaf51d446dba9a18c060db99ab32c437c6714892266b6ecfa4f9b953e4",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "parts": [
           {
             "completion_board": {
@@ -1960,7 +1960,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "72028c52ae2696e5b8067759#1",
+            "id": "deac6a5784f89054d34228e4#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1996,11 +1996,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "b23df906516d0e89e36b95b3d116b6e880f162c8f8fcd93d0050f619ac0e5b9a",
+            "math_step_sha256": "e861d579a478dddfa63614d26844e9f3b74c070fa8e355292332d75410fb91a9",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -2008,10 +2008,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "f4e3666951264a75da0f5027",
+        "interaction_id": "505257564702aae58f99a319",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "e40f745039d7760907c50e3fbe8aa30449b81a3ac11540791f201be0f59af96c",
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "interaction_sha256": "79cf34477d23571f4a11ecc6331cd2ab83b30649df3358daf2433219abbb5805",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "parts": [
           {
             "completion_board": {
@@ -2037,14 +2037,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "f4e3666951264a75da0f5027#1",
+            "id": "505257564702aae58f99a319#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$f(-3)\\text{ 不能唯一确定}$",
-                  "value": "o3"
-                },
                 {
                   "label": "$f(-3)=-15$",
                   "value": "o1"
@@ -2052,6 +2048,10 @@
                 {
                   "label": "$f(-3)=15$",
                   "value": "o2"
+                },
+                {
+                  "label": "$f(-3)\\text{ 不能唯一确定}$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -2077,11 +2077,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "6052551077d74781fd9c40e700b516949f5bd90667a755a10c6baa901eda91e6",
+            "math_step_sha256": "6789bf4693db1c5939bea8e555116db5ec47023b527ef10aede5f2bd91c95dda",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
@@ -2089,10 +2089,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "5b9f79737859c0ea33bc1b84",
+        "interaction_id": "99de77901f8be5e98370c07f",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "d034f05f26f338bee771b46ec257fce74b59d1d1f00cc6c28d7dc31a41e3791f",
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "interaction_sha256": "3abfa069fdacacd277b72a2fdd695ad3c7576bb787113aabe578545a6bf380bd",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "parts": [
           {
             "completion_board": {
@@ -2101,10 +2101,10 @@
               "items": [
                 {
                   "label": "已知与所求",
-                  "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
                 },
                 {
-                  "label": "-x\\text{ 的范围}",
+                  "label": "$-x$ 的范围",
                   "math": "x<0\\text{ 时，}-x>0"
                 }
               ],
@@ -2345,17 +2345,17 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "5b9f79737859c0ea33bc1b84#1",
+            "id": "99de77901f8be5e98370c07f#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$x<0\\text{ 时，}-x>0$",
-                  "value": "o1"
-                },
-                {
                   "label": "$x<0\\text{ 时，}-x<0$",
                   "value": "o2"
+                },
+                {
+                  "label": "$x<0\\text{ 时，}-x>0$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -2367,10 +2367,10 @@
               "items": [
                 {
                   "label": "已知与所求",
-                  "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
                 },
                 {
-                  "label": "-x\\text{ 的范围}",
+                  "label": "$-x$ 的范围",
                   "math": null
                 }
               ],
@@ -2381,11 +2381,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "76268c5bda9ed012a4b50a325f063a7bfbe8a5a7989392629baed6b43c73fe02",
+            "math_step_sha256": "7f2277f81cb6057e9bca30584a884471235f15cbc2cab55fd8c4778f2881712c",
             "step_id": "cbd98ea750-parity-extension-001-parity_extension_map"
           }
         ],
@@ -2393,10 +2393,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "5c5f9c2525f3340464ae5284",
+        "interaction_id": "c4ecb6e160a3d741c74d74c8",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "239b3cbfacc1577245c137cc395a604ed8f125053e6e11b61dd14efc3e916e9d",
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "interaction_sha256": "cbf47090468dadd7ecf1a0d4227d17538e063307ab4e2672f02faf63329cb437",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "parts": [
           {
             "completion_board": {
@@ -2408,7 +2408,7 @@
                   "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=2x^{2}-x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
                 },
                 {
-                  "label": "f(-x)",
+                  "label": "$f(-x)$",
                   "math": "x<0\\text{ 时，}f(-x)=2 x^{2} + x"
                 }
               ],
@@ -2422,17 +2422,17 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "5c5f9c2525f3340464ae5284#1",
+            "id": "c4ecb6e160a3d741c74d74c8#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$x<0\\text{ 时，}f(-x)=- 2 x^{2} + x$",
-                  "value": "o4"
-                },
-                {
                   "label": "$x<0\\text{ 时，}f(-x)=2 x^{2} + x$",
                   "value": "o1"
+                },
+                {
+                  "label": "$x<0\\text{ 时，}f(-x)=- 2 x^{2} + x$",
+                  "value": "o4"
                 },
                 {
                   "label": "$x<0\\text{ 时，}f(-x)=- 2 x^{2} - x$",
@@ -2455,7 +2455,7 @@
                   "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=2x^{2}-x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
                 },
                 {
-                  "label": "f(-x)",
+                  "label": "$f(-x)$",
                   "math": null
                 }
               ],
@@ -2466,11 +2466,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "cbfc6bda00099a43ee34d63ed73565f2ef0050febdc76ebc4dbd7ccb0f25b1e8",
+            "math_step_sha256": "f69ac71f1179bf5e19d956a475746332a52f63cbc21bce63f8fc1f0b877f709d",
             "step_id": "cbd98ea750-parity-extension-002-parity_extension_substitute"
           }
         ],
@@ -2478,10 +2478,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "12e055ef7b9575322e1aafa5",
+        "interaction_id": "95a3b98939223df5392af941",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "9e6aaf647891c01e7419385c2a0a44a4f7edb130185f2f4aa71fe58605ba9361",
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "interaction_sha256": "523dfefd3585adf6c1cdd903578b44fd5d36b686bf11b46aab6c904912359950",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "parts": [
           {
             "completion_board": {
@@ -2490,10 +2490,10 @@
               "items": [
                 {
                   "label": "已求出的式子",
-                  "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=2 x^{2} + x\\\\\\text{奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=2 x^{2} + x\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
                 },
                 {
-                  "label": "f(x)",
+                  "label": "$f(x)$",
                   "math": "x<0\\text{ 时，}f(x)=- 2 x^{2} - x"
                 }
               ],
@@ -2507,21 +2507,21 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "12e055ef7b9575322e1aafa5#1",
+            "id": "95a3b98939223df5392af941#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$x<0\\text{ 时，}f(x)=- 2 x^{2} - x$",
-                  "value": "o1"
+                  "label": "$x<0\\text{ 时，}f(x)=2 x^{2} - x$",
+                  "value": "o3"
                 },
                 {
                   "label": "$x<0\\text{ 时，}f(x)=2 x^{2} + x$",
                   "value": "o2"
                 },
                 {
-                  "label": "$x<0\\text{ 时，}f(x)=2 x^{2} - x$",
-                  "value": "o3"
+                  "label": "$x<0\\text{ 时，}f(x)=- 2 x^{2} - x$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -2533,10 +2533,10 @@
               "items": [
                 {
                   "label": "已求出的式子",
-                  "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=2 x^{2} + x\\\\\\text{奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=2 x^{2} + x\\\\\\text{奇函数：}f(x)=-f(-x)\\end{gathered}"
                 },
                 {
-                  "label": "f(x)",
+                  "label": "$f(x)$",
                   "math": null
                 }
               ],
@@ -2547,11 +2547,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "dc82a9fd78fedfd14c2733b329bd4eb7079ef1a099bb46b44748cfd10557800e",
+            "math_step_sha256": "215096a99ed5f7e6731ff171c6f5d6f71c1455ef1f3ea23530c387bf62c09c0e",
             "step_id": "cbd98ea750-parity-extension-003-parity_extension_write_back"
           }
         ],
@@ -2559,10 +2559,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "09cdc8e23e39d1c292bb381f",
+        "interaction_id": "1a44fc29a5f31f6d41c9c010",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "65a7e1553b5975e476dfd9de3754d2b7febf3aa6aaf143a87589e12fb275e719",
-        "lesson_version": "ed75cd0c8063d5962834973ff3d6adf77d9e456aa5cc6e7c9921abd64853e56b",
+        "interaction_sha256": "5d9d4a23ff8c7af1474c78800e8f0dd50b880b8f059af137a64eb8d264caa214",
+        "lesson_version": "c21c68c274b8467fcae0cbc2542615e1fc062491cc1fad355aa9cb692678c531",
         "parts": [
           {
             "completion_board": {
@@ -2571,7 +2571,7 @@
               "items": [
                 {
                   "label": "已求出的式子",
-                  "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=- 2 x^{2} - x\\\\x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=- 2 x^{2} - x\\\\x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数：}f(0)=0\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -2588,7 +2588,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "09cdc8e23e39d1c292bb381f#1",
+            "id": "1a44fc29a5f31f6d41c9c010#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -2614,7 +2614,7 @@
               "items": [
                 {
                   "label": "已求出的式子",
-                  "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=- 2 x^{2} - x\\\\x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=- 2 x^{2} - x\\\\x>0\\text{ 时，}f(x)=2x^{2}-x\\\\\\text{奇函数：}f(0)=0\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -2628,11 +2628,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "3179a0948b7340c9a689667cee75c11b",
+        "run_id": "cf46319d601c47deace89f040f97505d",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "cbfc862b71a64baae12aa3916a863aae99e41d98f98c26c32727a5cc8d1ead9d",
+            "math_step_sha256": "badb734630989ed639a74b134bfa23d70b646ff732232dc660b949fb59620ebd",
             "step_id": "cbd98ea750-parity-extension-004-parity_extension_conclude"
           }
         ],

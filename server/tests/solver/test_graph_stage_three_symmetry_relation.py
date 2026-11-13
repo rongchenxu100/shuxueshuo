@@ -90,7 +90,7 @@ def test_general_symmetry_pipeline(build, answer, tmp_path):
         (tmp_path/'evidence.json').write_text(json.dumps(evidence, ensure_ascii=False))
         (tmp_path/'source.json').write_text(json.dumps(course_source, ensure_ascii=False))
         rendered = subprocess.run(['node', str(ROOT/'tools/tests/fixtures/parity-parameter-course-check.mjs'),
-                                   str(tmp_path/'evidence.json'), str(tmp_path/'source.json'), 'function-symmetry'],
+                                   str(tmp_path/'evidence.json'), str(tmp_path/'source.json'), 'function-symmetry', 'number-lines'],
                                   capture_output=True, text=True, check=False)
         assert rendered.returncode == 0, rendered.stdout+rendered.stderr
     assert runner.resume_sample(output)['goals'][0]['answer'] == goal['answer']

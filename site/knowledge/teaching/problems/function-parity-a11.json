@@ -38,7 +38,7 @@
             "method-parity-extension"
           ]
         },
-        "e2194fc2df40d8a83ec4a376#1": {
+        "c66c0fe61abdd13cc4d4e6a8#1": {
           "title": "把输入换到已知一侧",
           "position": 4,
           "refs": [
@@ -46,7 +46,7 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "175d31f51a3b41b425411894#1": {
+        "4a0668d8ae73c4ce92f56fb9#1": {
           "title": "代入相反输入",
           "position": 5,
           "refs": [
@@ -55,7 +55,7 @@
             "skill-simplify"
           ]
         },
-        "7147a8babf2258356c6b0daa#1": {
+        "c384b1afe9c6571dec942e2a#1": {
           "title": "用奇偶性换回 f(x)",
           "position": 6,
           "refs": [
@@ -63,7 +63,7 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "b33e0706e8ff8e1372f3533d#1": {
+        "76173085d6bd3f0ba0ce4a0e#1": {
           "title": "写出带范围的结论",
           "position": 7,
           "refs": [
@@ -90,7 +90,7 @@
             "method-parity-inequality"
           ]
         },
-        "b83ed3330aa5a42227decf67#1": {
+        "b168def8cf2c741ede471d66#1": {
           "title": "改写成两个函数值的比较",
           "position": 11,
           "refs": [
@@ -99,7 +99,7 @@
             "function-parity#definition"
           ]
         },
-        "2d44beca99a4ee9aaa28c6d8#1": {
+        "383d15d2c4b8424d4320db28#1": {
           "title": "确定整个定义域上的单调方向",
           "position": 12,
           "refs": [
@@ -112,7 +112,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "5d83ff43eecc63cc52f4cdb6#1": {
+        "3250d633e6c5121c82b5ba22#1": {
           "title": "去掉函数符号比较输入",
           "position": 13,
           "refs": [
@@ -124,7 +124,7 @@
             "set-intersection-union#intersection"
           ]
         },
-        "1c16e74dbb8f8e3213d743ef#1": {
+        "5d06a3eb73760e2a61fc3c8d#1": {
           "title": "合法输入求交，写出解集",
           "position": 14,
           "refs": [
@@ -134,6 +134,6 @@
       }
     }
   },
-  "page_contract_hash": "fe002041fd2a979aea3ed8698a958ead08bf5e5171bf87f0e8aac773b434696b",
-  "practice_version": "157d712e0da8acace20a7c669243b8442c1f5bf9af990e5ccd8d1e9be205f947"
+  "page_contract_hash": "280af1150445112cd941548f706d65cf0d7b2c551be94056d164143d481537e4",
+  "practice_version": "2a8c902edf2ec61ae13b4949d75d38bf17ff096ff28a3fe231109a3631ab7481"
 }

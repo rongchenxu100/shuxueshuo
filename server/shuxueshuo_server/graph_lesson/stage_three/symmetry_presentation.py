@@ -177,7 +177,8 @@ def _given_rows(s):
     rows = [] if s['rule'] is None else [_when(s['printed_known'], s['x']) + rf"{s['f']}({s['x']})=" + s['rule']]
     rows += [*s['equations'], *((_when(i['range'], s['x']) if i['range'] is not None else '') + i['text']
                                for i in s['identities'])]
-    return [*rows, *(rf'{F}\text{{ 是{word}}}' for F, word in s['parities'])]
+    return [*rows, *(rf'{F}\text{{ 是{word}}}' + (rf'\text{{，}}{F}(0)=0' if F in s.get('zero', ()) else '')
+                     for F, word in s['parities'])]
 
 
 def _rewrite_lines(model, s):
@@ -233,7 +234,7 @@ def _evaluation_lines(model, s):
 def _combine_line(model, s):
     """Rewritten target → known values filled in → the given combinations → the value."""
     terms, constant = _rewritten(model)
-    chain = [s['target'], _combination(terms, constant)]
+    chain = [s['target'], *([] if s.get('instance') is None else [s['instance']]), _combination(terms, constant)]
     known = _known_values(model)
     rest = [(c, k) for c, k in terms if c not in known]
     filled = constant + sum((k * known[c] for c, k in terms if c in known), sp.S.Zero)
@@ -302,7 +303,7 @@ def _identity_card(model, s):
                    if any((F, c) not in keys for (F, c) in rows[i][2])), None)
     if chosen is None:
         return None, []
-    index, _printed, reduced = chosen
+    index, printed, reduced = chosen
     at = rows[index][1]
     equation = model['equations'][index]
     wrong, swaps = [], []
@@ -319,8 +320,9 @@ def _identity_card(model, s):
     others = [p for i, p, r in _instances(model, s) if i != index and p.split('=', 1)[0] == r.split('=', 1)[0]]
     question = (f'已知 ${identity["text"]}$，且 {s["parity"]}。把 ${s["x"]}={latex(at)}$ 代入已知关系，'
                 f'再用奇偶性把其中的函数值都改写成输入为 {shown} 的函数值，得到什么等式？')
-    view = choice_card('在相反输入处使用已知关系', question, '已知条件', _lines([*_given_rows(s), *others]),
-                       '改写后的等式', reduced, wrong[:3], _lines(_instance_lines(model, s)))
+    view = choice_card(f'代入 ${s["x"]}={latex(at)}$，再用奇偶性改写', question, '已知条件',
+                       _lines([*_given_rows(s), *others]),
+                       '$' + printed.split('=', 1)[0] + '$ 改写后的等式', reduced, wrong[:3], _lines(_instance_lines(model, s)))
     return view, swaps
 
 
@@ -406,6 +408,7 @@ def phase_views(values):
     if d.get('parameter'):
         base, d = d, model['description']
     s = _source(d)
+    s['zero'] = {c['function'] for c in model['calls'] if c['route'] == 'zero' and c['input'] == 0}
     shown_parameter = None
     if base is not None:
         p, candidates = _parameter(base, model)
@@ -418,7 +421,8 @@ def phase_views(values):
     rule = rule_of(d)[0]
     terms, constant = _rewritten(model)
     changed = any(c['route'] == 'zero' or c['image'] != c['input'] for c in model['calls'])
-    rewritten = s['target'] + '=' + _combination(terms, constant) if changed else s['target']
+    head = s['target'] + ('' if s.get('instance') is None else '=' + s['instance'])
+    rewritten = head + '=' + _combination(terms, constant) if changed else head
     correct = _value(model, terms, constant)
     identity_view, swaps = _identity_card(model, s) if d['identities'] else (None, [])
     if phase == 'rewrite':
@@ -428,7 +432,7 @@ def phase_views(values):
         if changed:
             wrong = []
             for t, k in _misreadings(model, s, rule):
-                text = s['target'] + '=' + _combination(t, k)
+                text = head + '=' + _combination(t, k)
                 v = _value(model, t, k)
                 # Equal under the givens (e.g. differs only by f(0)=0) is not a wrong option.
                 if v is not None and v == correct or text == rewritten or text in wrong:

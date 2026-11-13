@@ -83,5 +83,5 @@ function visit(value) {
 visit(bundle);
 for (const formula of answer.kind === 'goal_group' ? summary.items.map(item => item.summary.formula) : [summary.formula]) render(formula);
 assert.ok(rendered > 8);
-if (process.argv[4] === 'function-symmetry') assert.ok(numberLines > 0);
+if (process.argv[5] === 'number-lines') assert.ok(numberLines > 0);
 console.log(JSON.stringify({targets, decisions: replay.actions.length, formulas: rendered, numberLines, summary}));

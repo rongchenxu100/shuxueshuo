@@ -9,7 +9,9 @@ from ..function_parity import reflect_ast
 from ..parity_extension_math import reflect
 from ..parity_inequality_math import FLIP, OPS, _same, solve, symbols
 from ..stage_one.function_domain import expression_latex
-from .absolute_graph_presentation import choice_card
+from .absolute_graph_presentation import choice_card, ends, segment
+from .interaction_graph_contract import validate_graph
+from .interaction_graphs import short_label
 from .math_values import latex
 from .monotonicity_parameter_presentation import _lines
 from .parity_extension_presentation import _number_line, _printed, range_latex
@@ -670,6 +672,65 @@ def presentation(values):
             'derivation_right_label': right['label'], 'derivation_right_math': right['math']}
 
 
+def _intervals(s):
+    rows = s.args if isinstance(s, sp.Union) else [s]
+    return [r for r in rows if isinstance(r, sp.Interval)]
+
+
+def _half_graph(d, model, mirror):
+    """The given half (and, for the mirror step, its symmetric image) against y = k."""
+    variable, rule, k = symbols(d), model['rule'], model['threshold']
+    K, M = model['rule_domain'], model['mirrored_domain']
+    image = sp.expand(model['sign'] * rule.xreplace({variable: -variable}))
+    halves = [(rule, K), *([(image, M)] if mirror else [])]
+    solved = [model['known_solution'], *([model['mirrored_solution']] if mirror else [])]
+    try:
+        segments = [segment(e, piece, variable) for e, r in halves for piece in _intervals(r)]
+    except (ValueError, sp.PolynomialError):
+        return None
+    if not segments:
+        return None
+    anchors = {sp.S.Zero, *(v for _, r in halves for v in (r.inf, r.sup) if v.is_finite),
+               *(v for s in solved for r in _intervals(s) for v in (r.inf, r.sup) if v.is_finite)}
+    low, high = float(min(anchors)) - 1, float(max(anchors)) + 1
+    if high - low < 4:
+        low, high = (low + high) / 2 - 2, (low + high) / 2 + 2
+    ys = [0.0, float(k)]
+    for e, r in halves:
+        a, b = max(low, float(r.inf)), min(high, float(r.sup))
+        ys += [float(e.subs(variable, a + (b - a) * j / 24)) for j in range(1, 24)] if a < b else []
+    pad = max(1.0, (max(ys) - min(ys)) * .12)
+    domain = sp.Union(*(r for _, r in halves))
+    # The plot envelope may span a hole; each segment retains its own endpoints.
+    interval = [float(v) if v.is_finite else None for v in (domain.inf, domain.sup)]
+    closed = [v.is_finite is True and domain.contains(v) is sp.true for v in (domain.inf, domain.sup)]
+    f, x = d['function'], d['variable']
+    params = {'segments': segments, 'bounds': [low, high, min(ys) - pad, max(ys) + pad],
+              'interval': interval, 'interval_closed': closed, 'points': [],
+              'xTicks': [[float(v), short_label(v)] for v in sorted(anchors)],
+              'level': float(k), 'yTicks': [[float(k), short_label(k)]], 'variable': x,
+              'title': f'{f}({x}) 与 y={short_label(k)}',
+              'description': '实线是函数图像，虚线是 y=k；有色曲线对应满足不等式的部分，空心端点不取。',
+              'highlights': [{'from': v[0], 'to': v[1], 'left_closed': c[0], 'right_closed': c[1]}
+                             for s in solved for r in _intervals(s) for v, c in [ends(r)]]}
+    if not mirror:
+        caption = (rf'已知 ${range_latex(K, x)}$ 时的图像；有色部分满足 ${model_inequality(d, model)}$。')
+    elif model['sign'] == -1:
+        caption = (rf'奇函数图像关于原点对称：${range_latex(M, x)}$ 的一段由 ${range_latex(K, x)}$ 的一段'
+                   '绕原点旋转 $180^\\circ$ 得到；有色部分是两侧各自满足不等式的部分。')
+    else:
+        caption = (rf'偶函数图像关于 $y$ 轴对称：${range_latex(M, x)}$ 的一段由 ${range_latex(K, x)}$ 的一段'
+                   '沿 $y$ 轴翻折得到；有色部分是两侧各自满足不等式的部分。')
+    try:
+        return validate_graph({'kind': 'piecewise_curve', 'params': params, 'caption': caption})
+    except ValueError:
+        return None
+
+
+def model_inequality(d, model):
+    return rf'{d["function"]}({d["variable"]}){SYMBOL[model["operator"]]}{latex(model["threshold"])}'
+
+
 def _attach_lines(part, values):
     model = solve(values['description'])
     x = values['description']['variable']
@@ -678,7 +739,10 @@ def _attach_lines(part, values):
         if phase == 'conclude' and isinstance(model['solution'], sp.Interval):
             part['completion_number_line'] = _number_line(x, r'\text{解集}', model['solution'])
         return
-    if phase == 'known' and isinstance(model['known_solution'], sp.Interval):
+    graph = _half_graph(values['description'], model, phase == 'mirror') if phase in ('known', 'mirror') else None
+    if graph is not None:
+        part['completion_graph'] = graph
+    elif phase == 'known' and isinstance(model['known_solution'], sp.Interval):
         part['completion_number_line'] = _number_line(x, r'\text{已知范围内的解}', model['known_solution'])
     elif phase == 'mirror' and isinstance(model['mirrored_solution'], sp.Interval):
         part['completion_number_line'] = _number_line(x, r'\text{对称范围内的解}', model['mirrored_solution'])

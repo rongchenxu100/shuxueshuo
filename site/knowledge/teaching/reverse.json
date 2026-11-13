@@ -4484,7 +4484,7 @@
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "03b664087cacfb80fba9bf4c#1",
+      "step": "afb200b7b361b582993b0683#1",
       "conditions": {}
     },
     {
@@ -7161,42 +7161,42 @@
       "topic": "function-parity",
       "problem": "function-parity-a04",
       "route": "parity-extension",
-      "step": "00683973afe5c108897f8462#1",
+      "step": "f5748207b9f5aca2f5732b28#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a07",
       "route": "parity-extension",
-      "step": "6af6087b8dfdf1bee5837513#1",
+      "step": "fcd25552291b5ef52cd484c2#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a08",
       "route": "parity-extension",
-      "step": "1d39f5ba0721d3883cf30b46#1",
+      "step": "a8216bac3c257abe5585fe32#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "6b768ca566a6b3ff54364776#1",
+      "step": "f21da98e36ae06d1e98daecb#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "a649068c881c8acb3fed861a#1",
+      "step": "9e8fa397de1402c056e0bd04#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "175d31f51a3b41b425411894#1",
+      "step": "4a0668d8ae73c4ce92f56fb9#1",
       "conditions": {}
     },
     {
@@ -12124,28 +12124,28 @@
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "03b664087cacfb80fba9bf4c#1",
+      "step": "afb200b7b361b582993b0683#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "8d646741d7b1f823e023fca4#1",
+      "step": "190c9af486d3cd2f09e3b1ba#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "f37aaddc77abc389cc8dbb68#1",
+      "step": "ef8b80241deb708bf07f3229#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "5d83ff43eecc63cc52f4cdb6#1",
+      "step": "3250d633e6c5121c82b5ba22#1",
       "conditions": {}
     },
     {
@@ -13038,28 +13038,28 @@
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "03b664087cacfb80fba9bf4c#1",
+      "step": "afb200b7b361b582993b0683#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "8d646741d7b1f823e023fca4#1",
+      "step": "190c9af486d3cd2f09e3b1ba#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "f37aaddc77abc389cc8dbb68#1",
+      "step": "ef8b80241deb708bf07f3229#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "5d83ff43eecc63cc52f4cdb6#1",
+      "step": "3250d633e6c5121c82b5ba22#1",
       "conditions": {}
     },
     {
@@ -17252,7 +17252,7 @@
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "03b664087cacfb80fba9bf4c#1",
+      "step": "afb200b7b361b582993b0683#1",
       "conditions": {}
     },
     {
@@ -18315,42 +18315,42 @@
       "topic": "function-parity",
       "problem": "function-parity-a04",
       "route": "parity-extension",
-      "step": "00683973afe5c108897f8462#1",
+      "step": "f5748207b9f5aca2f5732b28#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a07",
       "route": "parity-extension",
-      "step": "6af6087b8dfdf1bee5837513#1",
+      "step": "fcd25552291b5ef52cd484c2#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a08",
       "route": "parity-extension",
-      "step": "1d39f5ba0721d3883cf30b46#1",
+      "step": "a8216bac3c257abe5585fe32#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "6b768ca566a6b3ff54364776#1",
+      "step": "f21da98e36ae06d1e98daecb#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "a649068c881c8acb3fed861a#1",
+      "step": "9e8fa397de1402c056e0bd04#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "175d31f51a3b41b425411894#1",
+      "step": "4a0668d8ae73c4ce92f56fb9#1",
       "conditions": {}
     },
     {
@@ -21611,14 +21611,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "9065c03f0038be45e98fe1a3#1",
+      "step": "a4828e043122ad7bdea0c746#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "2d44beca99a4ee9aaa28c6d8#1",
+      "step": "383d15d2c4b8424d4320db28#1",
       "conditions": {}
     }
   ],
@@ -21963,14 +21963,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "9065c03f0038be45e98fe1a3#1",
+      "step": "a4828e043122ad7bdea0c746#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "2d44beca99a4ee9aaa28c6d8#1",
+      "step": "383d15d2c4b8424d4320db28#1",
       "conditions": {}
     }
   ],
@@ -22717,28 +22717,28 @@
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "9065c03f0038be45e98fe1a3#1",
+      "step": "a4828e043122ad7bdea0c746#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "f37aaddc77abc389cc8dbb68#1",
+      "step": "ef8b80241deb708bf07f3229#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "2d44beca99a4ee9aaa28c6d8#1",
+      "step": "383d15d2c4b8424d4320db28#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "5d83ff43eecc63cc52f4cdb6#1",
+      "step": "3250d633e6c5121c82b5ba22#1",
       "conditions": {}
     },
     {
@@ -24643,14 +24643,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "f37aaddc77abc389cc8dbb68#1",
+      "step": "ef8b80241deb708bf07f3229#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "5d83ff43eecc63cc52f4cdb6#1",
+      "step": "3250d633e6c5121c82b5ba22#1",
       "conditions": {}
     },
     {
@@ -24838,14 +24838,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "f37aaddc77abc389cc8dbb68#1",
+      "step": "ef8b80241deb708bf07f3229#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "5d83ff43eecc63cc52f4cdb6#1",
+      "step": "3250d633e6c5121c82b5ba22#1",
       "conditions": {}
     },
     {
@@ -27845,35 +27845,35 @@
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "8d646741d7b1f823e023fca4#1",
+      "step": "190c9af486d3cd2f09e3b1ba#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "5217961ce5e501b9c2e8ff20#1",
+      "step": "d55ee3931a67d17c54df82d2#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "9065c03f0038be45e98fe1a3#1",
+      "step": "a4828e043122ad7bdea0c746#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "b83ed3330aa5a42227decf67#1",
+      "step": "b168def8cf2c741ede471d66#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "2d44beca99a4ee9aaa28c6d8#1",
+      "step": "383d15d2c4b8424d4320db28#1",
       "conditions": {}
     },
     {
@@ -28802,42 +28802,42 @@
       "topic": "function-parity",
       "problem": "function-parity-a04",
       "route": "parity-extension",
-      "step": "95e426366c692dca1368ff16#1",
+      "step": "c19da1cbb9fc4bc4194eeb3a#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a07",
       "route": "parity-extension",
-      "step": "a5cd6a4684711539b0209da0#1",
+      "step": "b89f503a122c3549dc841f10#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a08",
       "route": "parity-extension",
-      "step": "91c26108f3c4d5be782e4c30#1",
+      "step": "e0ee85d541778d6e764c3b7c#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "f1cdcb0c9f4dacd5774731bd#1",
+      "step": "ae496508c2170705e372d5bb#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "17d4065711a7150cc943a6db#1",
+      "step": "71a9516d0b57acda332e3d8e#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "e2194fc2df40d8a83ec4a376#1",
+      "step": "c66c0fe61abdd13cc4d4e6a8#1",
       "conditions": {}
     }
   ],
@@ -28846,70 +28846,70 @@
       "topic": "function-parity",
       "problem": "function-parity-a04",
       "route": "parity-extension",
-      "step": "95e426366c692dca1368ff16#1",
+      "step": "c19da1cbb9fc4bc4194eeb3a#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a04",
       "route": "parity-extension",
-      "step": "3a6cb0be6289ef5454b54c15#1",
+      "step": "91c63c134f4c88057dcc92d1#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a07",
       "route": "parity-extension",
-      "step": "a5cd6a4684711539b0209da0#1",
+      "step": "b89f503a122c3549dc841f10#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a07",
       "route": "parity-extension",
-      "step": "8dc3f3dc850cb3aace61544e#1",
+      "step": "8707def8f7eb55cb96079e95#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a08",
       "route": "parity-extension",
-      "step": "91c26108f3c4d5be782e4c30#1",
+      "step": "e0ee85d541778d6e764c3b7c#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a08",
       "route": "parity-extension",
-      "step": "5f238828dcd4f29e5e9a1a72#1",
+      "step": "09ba52b418fd0c9b5f2bc1cc#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "c15d08c329744fa3de1c4d00#1",
+      "step": "344d72bc45a60abbe31f9bc0#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "f1cdcb0c9f4dacd5774731bd#1",
+      "step": "ae496508c2170705e372d5bb#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "2f2da2d5c29c80bbc3f4947c#1",
+      "step": "7b3c60168d199ff81e6eb31a#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a12",
       "route": "function-symmetry",
-      "step": "ecaa004f144ede803d1ca94a#1",
+      "step": "0cce40e05d7671a1b3918fe9#1",
       "conditions": {}
     },
     {
@@ -28923,77 +28923,77 @@
       "topic": "function-parity",
       "problem": "function-parity-a03",
       "route": "function-symmetry",
-      "step": "02f0617573c5707f12fd1910#1",
+      "step": "13e353eec7b5ce77b73c9b71#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a06",
       "route": "function-symmetry",
-      "step": "3a1892e531d7a2156a237aa8#1",
+      "step": "ab3a3fb14caf478fa6c02fd2#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a15",
       "route": "function-symmetry",
-      "step": "819a976e41b7193183fb97bc#1",
+      "step": "3756c1ef8c7fc775c1a15b90#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a15",
       "route": "function-symmetry",
-      "step": "819a976e41b7193183fb97bc#2",
+      "step": "3756c1ef8c7fc775c1a15b90#2",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "8d646741d7b1f823e023fca4#1",
+      "step": "190c9af486d3cd2f09e3b1ba#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "17d4065711a7150cc943a6db#1",
+      "step": "71a9516d0b57acda332e3d8e#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "cdb457541115522874bb2eaf#1",
+      "step": "9a13b4c7da9e716d3814350e#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "5217961ce5e501b9c2e8ff20#1",
+      "step": "d55ee3931a67d17c54df82d2#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "e2194fc2df40d8a83ec4a376#1",
+      "step": "c66c0fe61abdd13cc4d4e6a8#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "7147a8babf2258356c6b0daa#1",
+      "step": "c384b1afe9c6571dec942e2a#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "b83ed3330aa5a42227decf67#1",
+      "step": "b168def8cf2c741ede471d66#1",
       "conditions": {}
     },
     {
@@ -29128,42 +29128,42 @@
       "topic": "function-parity",
       "problem": "function-parity-a04",
       "route": "parity-extension",
-      "step": "00683973afe5c108897f8462#1",
+      "step": "f5748207b9f5aca2f5732b28#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a07",
       "route": "parity-extension",
-      "step": "6af6087b8dfdf1bee5837513#1",
+      "step": "fcd25552291b5ef52cd484c2#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a08",
       "route": "parity-extension",
-      "step": "1d39f5ba0721d3883cf30b46#1",
+      "step": "a8216bac3c257abe5585fe32#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "6b768ca566a6b3ff54364776#1",
+      "step": "f21da98e36ae06d1e98daecb#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "a649068c881c8acb3fed861a#1",
+      "step": "9e8fa397de1402c056e0bd04#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "175d31f51a3b41b425411894#1",
+      "step": "4a0668d8ae73c4ce92f56fb9#1",
       "conditions": {}
     }
   ],
@@ -29172,42 +29172,42 @@
       "topic": "function-parity",
       "problem": "function-parity-a04",
       "route": "parity-extension",
-      "step": "3a6cb0be6289ef5454b54c15#1",
+      "step": "91c63c134f4c88057dcc92d1#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a07",
       "route": "parity-extension",
-      "step": "8dc3f3dc850cb3aace61544e#1",
+      "step": "8707def8f7eb55cb96079e95#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a08",
       "route": "parity-extension",
-      "step": "5f238828dcd4f29e5e9a1a72#1",
+      "step": "09ba52b418fd0c9b5f2bc1cc#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "2f2da2d5c29c80bbc3f4947c#1",
+      "step": "7b3c60168d199ff81e6eb31a#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "cdb457541115522874bb2eaf#1",
+      "step": "9a13b4c7da9e716d3814350e#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "7147a8babf2258356c6b0daa#1",
+      "step": "c384b1afe9c6571dec942e2a#1",
       "conditions": {}
     }
   ],
@@ -29216,42 +29216,42 @@
       "topic": "function-parity",
       "problem": "function-parity-a04",
       "route": "parity-extension",
-      "step": "113b5d0166fa835f55194eca#1",
+      "step": "31d6667be76b99db4403e5f6#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a07",
       "route": "parity-extension",
-      "step": "969b9c111f36a70f63555a56#1",
+      "step": "498cee1b932a28a7570479a0#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a08",
       "route": "parity-extension",
-      "step": "5d95516976fcf10e90fa0529#1",
+      "step": "e009c4a0a6002c38dbf93b53#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "d88c5d84a351db748d8cc57b#1",
+      "step": "eaff9cb5b93bba83f07c7249#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "fcd490dd0fa827dc7ecc759b#1",
+      "step": "bbf0afc92da6ce705c422bce#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "b33e0706e8ff8e1372f3533d#1",
+      "step": "76173085d6bd3f0ba0ce4a0e#1",
       "conditions": {}
     }
   ],
@@ -29353,14 +29353,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "c15d08c329744fa3de1c4d00#1",
+      "step": "344d72bc45a60abbe31f9bc0#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a12",
       "route": "function-symmetry",
-      "step": "ecaa004f144ede803d1ca94a#1",
+      "step": "0cce40e05d7671a1b3918fe9#1",
       "conditions": {}
     },
     {
@@ -29374,28 +29374,28 @@
       "topic": "function-parity",
       "problem": "function-parity-a03",
       "route": "function-symmetry",
-      "step": "02f0617573c5707f12fd1910#1",
+      "step": "13e353eec7b5ce77b73c9b71#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a06",
       "route": "function-symmetry",
-      "step": "3a1892e531d7a2156a237aa8#1",
+      "step": "ab3a3fb14caf478fa6c02fd2#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a15",
       "route": "function-symmetry",
-      "step": "819a976e41b7193183fb97bc#1",
+      "step": "3756c1ef8c7fc775c1a15b90#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a15",
       "route": "function-symmetry",
-      "step": "819a976e41b7193183fb97bc#2",
+      "step": "3756c1ef8c7fc775c1a15b90#2",
       "conditions": {}
     },
     {
@@ -29502,14 +29502,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a09",
       "route": "function-symmetry",
-      "step": "3eb639b8fa7001fcaa5122ee#1",
+      "step": "c8c0f474544a7deaf0a67ef9#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a12",
       "route": "function-symmetry",
-      "step": "06cecc51d1f25bb51d6cea65#1",
+      "step": "e3c20f4e1ea17271ca709978#1",
       "conditions": {}
     },
     {
@@ -29523,21 +29523,21 @@
       "topic": "function-parity",
       "problem": "function-parity-a03",
       "route": "function-symmetry",
-      "step": "b4ae445c2d4a0ca7faaf7e20#1",
+      "step": "2543ead8d3aa47a275972e9f#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a06",
       "route": "function-symmetry",
-      "step": "bd19e2f6937c606cc51ddfbb#1",
+      "step": "250425dd893f8d3043b6961d#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a15",
       "route": "function-symmetry",
-      "step": "36b686351b61966cd0f2cc26#1",
+      "step": "af2220b2881bd061c304f4af#1",
       "conditions": {}
     },
     {
@@ -29679,7 +29679,7 @@
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "03b664087cacfb80fba9bf4c#1",
+      "step": "afb200b7b361b582993b0683#1",
       "conditions": {}
     }
   ],
@@ -29688,7 +29688,7 @@
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "8d646741d7b1f823e023fca4#1",
+      "step": "190c9af486d3cd2f09e3b1ba#1",
       "conditions": {}
     }
   ],
@@ -29697,21 +29697,21 @@
       "topic": "function-parity",
       "problem": "function-parity-a02",
       "route": "parity-inequality",
-      "step": "da700d53e9c2524e94706a9c#1",
+      "step": "10187871d22e99ed1787d3bf#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "4e851d37ce21cd0770643d94#1",
+      "step": "967f11a3175027fee0f5be0c#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "1c16e74dbb8f8e3213d743ef#1",
+      "step": "5d06a3eb73760e2a61fc3c8d#1",
       "conditions": {}
     },
     {
@@ -29741,14 +29741,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "5217961ce5e501b9c2e8ff20#1",
+      "step": "d55ee3931a67d17c54df82d2#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "b83ed3330aa5a42227decf67#1",
+      "step": "b168def8cf2c741ede471d66#1",
       "conditions": {}
     },
     {
@@ -29778,14 +29778,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "9065c03f0038be45e98fe1a3#1",
+      "step": "a4828e043122ad7bdea0c746#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "2d44beca99a4ee9aaa28c6d8#1",
+      "step": "383d15d2c4b8424d4320db28#1",
       "conditions": {}
     },
     {
@@ -29808,14 +29808,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "9065c03f0038be45e98fe1a3#1",
+      "step": "a4828e043122ad7bdea0c746#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "2d44beca99a4ee9aaa28c6d8#1",
+      "step": "383d15d2c4b8424d4320db28#1",
       "conditions": {}
     },
     {
@@ -29838,14 +29838,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "9065c03f0038be45e98fe1a3#1",
+      "step": "a4828e043122ad7bdea0c746#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "2d44beca99a4ee9aaa28c6d8#1",
+      "step": "383d15d2c4b8424d4320db28#1",
       "conditions": {}
     },
     {
@@ -29861,14 +29861,14 @@
       "topic": "function-parity",
       "problem": "function-parity-a05",
       "route": "parity-extension",
-      "step": "f37aaddc77abc389cc8dbb68#1",
+      "step": "ef8b80241deb708bf07f3229#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-a11",
       "route": "parity-extension",
-      "step": "5d83ff43eecc63cc52f4cdb6#1",
+      "step": "3250d633e6c5121c82b5ba22#1",
       "conditions": {}
     },
     {

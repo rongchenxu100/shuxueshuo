@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "0c143774917943b199a572a224d9dad9",
-    "lesson_version": "7258d62540d95fb58b10dc27f00f4ae9d1688c0be3e6f75873f64c3dac1d752b",
-    "input_sha256": "17cd51a7a773e134306ee69e3b94d43293091a671a5fad1720cbe17ac7f135fa",
-    "checkpoint_sha256": "2ce0db20d4ad3006e038c7a4606a129f39f9b173c0afa6a276807d5395de7f84",
-    "result_sha256": "00cf28f309157db6ab75f4ccd88be815eab91b46b9251e574c156fbe3fec9e18",
+    "run_id": "f1964f2b6a2e4c2a8c4eb29bd6f69b28",
+    "lesson_version": "879d72abb670b0871da878ff7c48b9112cbb8f91141ac0ce073f91d86414f656",
+    "input_sha256": "ab12ac27419a98744c31d80a51e395a07181029e37d0b8a2bb3aeece68977ba8",
+    "checkpoint_sha256": "48c5f0ac7d400eef7bbe59cc0b7a1b67e90251efda8800ff218e98651be9cb83",
+    "result_sha256": "62c507f0fe13024e60de1687e46c0969d3ef2b238b0a2a08e54aa0ce0110c3bb",
     "stage_one_sha256": "92905e1078185f0d29eb7ff79fe60b1bf25f0782a53e866cc281d38f04665b99",
-    "stage_two_sha256": "a41aebb06075ca961a9b30e719efc25e3b21fb80aee5c25f41430dba1813030d",
+    "stage_two_sha256": "2eac7efe42d5a516df1f290a46ac618ad4107cb869bd2cdfa0ff243116ec462b",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "6722e39dc2c8b1dec05fb0a643ae303fe6b7e8bec198ca7c33c6f0743ff21925",
-    "teaching_revision": "b4ffa779f0ad42f6a703380afe08d586ba3e5ee58f69bc84dfd97322c31cdab5"
+    "teaching_revision": "ce09e19bd263a7df08f756a4bff6f626c13e3028dcc607a03b1ce7cb8dc12a8c"
   },
   "lesson": {
     "status": "completed",
@@ -127,7 +127,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-parity-a15//root/goals/0",
-            "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+            "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
             "problem": {
               "text": "已知定义在 $[m-5,1-2m]$ 上的奇函数 $f(x)$，当 $x\\ge0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____．"
             },
@@ -505,12 +505,12 @@
                 }
               ]
             },
-            "bundleVersion": "c973f3b0893ba377ae04fa284ac9f3068cc76e996b481cc3c5bd20b892b6cfff"
+            "bundleVersion": "96e275b7c75b8fd2081b43f19269d595e7d4cee16ab546c8a7d47605140d1e66"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-parity-a15//root/goals/0",
-            "bundleVersion": "c973f3b0893ba377ae04fa284ac9f3068cc76e996b481cc3c5bd20b892b6cfff",
+            "bundleVersion": "96e275b7c75b8fd2081b43f19269d595e7d4cee16ab546c8a7d47605140d1e66",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -531,10 +531,10 @@
     ]
   },
   "stream": {
-    "run_id": "0c143774917943b199a572a224d9dad9",
-    "lesson_version": "7258d62540d95fb58b10dc27f00f4ae9d1688c0be3e6f75873f64c3dac1d752b",
-    "input_sha256": "17cd51a7a773e134306ee69e3b94d43293091a671a5fad1720cbe17ac7f135fa",
-    "stream_id": "0c143774917943b199a572a224d9dad9",
+    "run_id": "f1964f2b6a2e4c2a8c4eb29bd6f69b28",
+    "lesson_version": "879d72abb670b0871da878ff7c48b9112cbb8f91141ac0ce073f91d86414f656",
+    "input_sha256": "ab12ac27419a98744c31d80a51e395a07181029e37d0b8a2bb3aeece68977ba8",
+    "stream_id": "f1964f2b6a2e4c2a8c4eb29bd6f69b28",
     "last_seq": 17,
     "minimum_seq": 1,
     "math_steps": [
@@ -555,20 +555,20 @@
             },
             {
               "label": "改写所求式",
-              "math": "f(m)=-f(4)"
+              "math": "f(m)=f(-4)=-f(4)"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "7258d62540d95fb58b10dc27f00f4ae9d1688c0be3e6f75873f64c3dac1d752b",
+        "lesson_version": "879d72abb670b0871da878ff7c48b9112cbb8f91141ac0ce073f91d86414f656",
         "local_check": "passed",
-        "math_step_sha256": "c7d2db2447e058662519ba08f06756719fba5e115404864a1004d93333fbbfe3",
+        "math_step_sha256": "dd0dfc5bdc9b45aee11e00ea3e2cb3e5b90e66b0d934cdc97d18ac49dd167c60",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "26fce4ef60fc95d28a7f245f8a85aacae7f3105845343f73b651da001f48ffc3",
         "route_id": "function-symmetry",
-        "run_id": "0c143774917943b199a572a224d9dad9",
+        "run_id": "f1964f2b6a2e4c2a8c4eb29bd6f69b28",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -583,14 +583,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_conclude",
-        "explanation": "$$\\begin{gathered}f(4)=4^{2}-2\\cdot 4=8\\\\f(m)=-f(4)=-8\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}f(4)=4^{2}-2\\cdot 4=8\\\\f(m)=f(-4)=-f(4)=-8\\end{gathered}$$",
         "highlight": {
           "caption": "求出所求的值",
           "connector": "⇒",
           "items": [
             {
               "label": "已知与改写",
-              "math": "\\begin{gathered}f(m)=-f(4)\\\\0\\le x\\le 9\\text{ 时，}f(x)=x^{2}-2x\\\\f\\text{ 是奇函数}\\end{gathered}"
+              "math": "\\begin{gathered}f(m)=f(-4)=-f(4)\\\\0\\le x\\le 9\\text{ 时，}f(x)=x^{2}-2x\\\\f\\text{ 是奇函数}\\end{gathered}"
             },
             {
               "label": "结论",
@@ -599,15 +599,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "7258d62540d95fb58b10dc27f00f4ae9d1688c0be3e6f75873f64c3dac1d752b",
+        "lesson_version": "879d72abb670b0871da878ff7c48b9112cbb8f91141ac0ce073f91d86414f656",
         "local_check": "passed",
-        "math_step_sha256": "4bf835a7e598e720c04ff28aab7b45c345e67df283270b5a298ac166dce5ae52",
+        "math_step_sha256": "8e1286267b80f0808518f43cfe0eaff797f247f7765160f86715988571e177ba",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "26fce4ef60fc95d28a7f245f8a85aacae7f3105845343f73b651da001f48ffc3",
         "route_id": "function-symmetry",
-        "run_id": "0c143774917943b199a572a224d9dad9",
+        "run_id": "f1964f2b6a2e4c2a8c4eb29bd6f69b28",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -661,25 +661,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "7258d62540d95fb58b10dc27f00f4ae9d1688c0be3e6f75873f64c3dac1d752b",
+        "lesson_version": "879d72abb670b0871da878ff7c48b9112cbb8f91141ac0ce073f91d86414f656",
         "math_steps": [
           {
-            "math_step_sha256": "c7d2db2447e058662519ba08f06756719fba5e115404864a1004d93333fbbfe3",
+            "math_step_sha256": "dd0dfc5bdc9b45aee11e00ea3e2cb3e5b90e66b0d934cdc97d18ac49dd167c60",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "4bf835a7e598e720c04ff28aab7b45c345e67df283270b5a298ac166dce5ae52",
+            "math_step_sha256": "8e1286267b80f0808518f43cfe0eaff797f247f7765160f86715988571e177ba",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "0c143774917943b199a572a224d9dad9",
+        "run_id": "f1964f2b6a2e4c2a8c4eb29bd6f69b28",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "3e59915be4d13bc52421021da3b437e45a2168a16d28ab2136766933d93140db",
-        "verified_route_sha256": "18b568c54ff93125cc8e2ab9e48a6af9b761c85ef55f4fabdc9265059df40d2a"
+        "task_id": "172e25d8a37c0ac59a6ff610ba153372a696b2d2039fd1ca4b2e11e531e97695",
+        "verified_route_sha256": "cc5df6803b310184d620b4fe1627a5bb36c5bb6b0c345afb5cd7e2cc7601668f"
       }
     ],
     "qa": [],
@@ -729,22 +729,22 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "c7d2db2447e058662519ba08f06756719fba5e115404864a1004d93333fbbfe3",
+        "math_step_sha256": "dd0dfc5bdc9b45aee11e00ea3e2cb3e5b90e66b0d934cdc97d18ac49dd167c60",
         "status": "interactive",
-        "interaction_id": "25a2c8f8b9da2db084508658"
+        "interaction_id": "4bb5a8655df3633d6dd97d9b"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "4bf835a7e598e720c04ff28aab7b45c345e67df283270b5a298ac166dce5ae52",
+        "math_step_sha256": "8e1286267b80f0808518f43cfe0eaff797f247f7765160f86715988571e177ba",
         "status": "interactive",
-        "interaction_id": "169d3838877eec37ddf2a4bc"
+        "interaction_id": "075a3b42e849871915da08b9"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+    "revisions_ref": "26fce4ef60fc95d28a7f245f8a85aacae7f3105845343f73b651da001f48ffc3",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -844,10 +844,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "25a2c8f8b9da2db084508658",
+        "interaction_id": "4bb5a8655df3633d6dd97d9b",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "1b0b93ba4e772eef5f6cc9a2fb1aa96fd50eb02f9d084f0cec355230e5858399",
-        "lesson_version": "7258d62540d95fb58b10dc27f00f4ae9d1688c0be3e6f75873f64c3dac1d752b",
+        "interaction_sha256": "16c533ff932647ad18486f3fdd8c9be78d3dd8f8e6aa2862775972f1dbf415d6",
+        "lesson_version": "879d72abb670b0871da878ff7c48b9112cbb8f91141ac0ce073f91d86414f656",
         "parts": [
           {
             "completion_board": {
@@ -873,7 +873,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "25a2c8f8b9da2db084508658#1",
+            "id": "4bb5a8655df3633d6dd97d9b#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -882,12 +882,12 @@
                   "value": "o1"
                 },
                 {
-                  "label": "$m=4$",
-                  "value": "o2"
-                },
-                {
                   "label": "$m\\text{ 的值不能唯一确定}$",
                   "value": "o3"
+                },
+                {
+                  "label": "$m=4$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -922,7 +922,7 @@
                 },
                 {
                   "label": "改写所求式",
-                  "math": "f(m)=-f(4)"
+                  "math": "f(m)=f(-4)=-f(4)"
                 }
               ],
               "layout": "derivation"
@@ -935,16 +935,16 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "25a2c8f8b9da2db084508658#2",
+            "id": "4bb5a8655df3633d6dd97d9b#2",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(m)=f(4)$",
+                  "label": "$f(m)=f(-4)=f(4)$",
                   "value": "o2"
                 },
                 {
-                  "label": "$f(m)=-f(4)$",
+                  "label": "$f(m)=f(-4)=-f(4)$",
                   "value": "o1"
                 }
               ],
@@ -971,11 +971,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "0c143774917943b199a572a224d9dad9",
+        "run_id": "f1964f2b6a2e4c2a8c4eb29bd6f69b28",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "c7d2db2447e058662519ba08f06756719fba5e115404864a1004d93333fbbfe3",
+            "math_step_sha256": "dd0dfc5bdc9b45aee11e00ea3e2cb3e5b90e66b0d934cdc97d18ac49dd167c60",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -983,10 +983,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "169d3838877eec37ddf2a4bc",
+        "interaction_id": "075a3b42e849871915da08b9",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "ee80da26663465d475fa6565c61401991111e837cfdc9941865e491d95c7f1ac",
-        "lesson_version": "7258d62540d95fb58b10dc27f00f4ae9d1688c0be3e6f75873f64c3dac1d752b",
+        "interaction_sha256": "3eb224e84f6ad4eea50e50ff037c1dee6a336b464a6535923d38f4e78e41466f",
+        "lesson_version": "879d72abb670b0871da878ff7c48b9112cbb8f91141ac0ce073f91d86414f656",
         "parts": [
           {
             "completion_board": {
@@ -995,7 +995,7 @@
               "items": [
                 {
                   "label": "已知与改写",
-                  "math": "\\begin{gathered}f(m)=-f(4)\\\\0\\le x\\le 9\\text{ 时，}f(x)=x^{2}-2x\\\\f\\text{ 是奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}f(m)=f(-4)=-f(4)\\\\0\\le x\\le 9\\text{ 时，}f(x)=x^{2}-2x\\\\f\\text{ 是奇函数}\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -1012,7 +1012,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "169d3838877eec37ddf2a4bc#1",
+            "id": "075a3b42e849871915da08b9#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1021,24 +1021,24 @@
                   "value": "o2"
                 },
                 {
-                  "label": "$f(m)\\text{ 不能唯一确定}$",
-                  "value": "o3"
-                },
-                {
                   "label": "$f(m)=-8$",
                   "value": "o1"
+                },
+                {
+                  "label": "$f(m)\\text{ 不能唯一确定}$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
             },
-            "question": "由上一步，$f(m)=-f(4)$。用已知解析式求出需要的函数值，再代回改写后的式子。所求的结论是什么？",
+            "question": "由上一步，$f(m)=f(-4)=-f(4)$。用已知解析式求出需要的函数值，再代回改写后的式子。所求的结论是什么？",
             "stem_board": {
               "caption": "求出所求的值",
               "connector": "⇒",
               "items": [
                 {
                   "label": "已知与改写",
-                  "math": "\\begin{gathered}f(m)=-f(4)\\\\0\\le x\\le 9\\text{ 时，}f(x)=x^{2}-2x\\\\f\\text{ 是奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}f(m)=f(-4)=-f(4)\\\\0\\le x\\le 9\\text{ 时，}f(x)=x^{2}-2x\\\\f\\text{ 是奇函数}\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -1052,11 +1052,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "0c143774917943b199a572a224d9dad9",
+        "run_id": "f1964f2b6a2e4c2a8c4eb29bd6f69b28",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "4bf835a7e598e720c04ff28aab7b45c345e67df283270b5a298ac166dce5ae52",
+            "math_step_sha256": "8e1286267b80f0808518f43cfe0eaff797f247f7765160f86715988571e177ba",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],

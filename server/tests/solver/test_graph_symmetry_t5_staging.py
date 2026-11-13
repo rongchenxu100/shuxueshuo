@@ -42,6 +42,6 @@ def test_staged_course_grading_replay_and_math_rendering(entry, tmp_path):
     source = tmp_path/'source.json'
     source.write_text(json.dumps(entry['course_source'], ensure_ascii=False))
     check = subprocess.run(['node', str(ROOT/'tools/tests/fixtures/parity-parameter-course-check.mjs'),
-                            str(evidence), str(source), 'function-symmetry'], capture_output=True, text=True, check=False)
+                            str(evidence), str(source), 'function-symmetry', 'number-lines'], capture_output=True, text=True, check=False)
     assert check.returncode == 0, check.stdout+check.stderr
     assert json.loads(check.stdout)['targets'] == [g['target_ref'] for g in goals]

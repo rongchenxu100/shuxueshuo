@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "problemId": "function-parity-a06",
-  "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+  "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
   "problem": {
     "text": "已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf R$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____．"
   },
@@ -159,7 +159,7 @@
       "steps": [
         {
           "completion_board": {
-            "caption": "在相反输入处使用已知关系",
+            "caption": "代入 $x=-2$，再用奇偶性改写",
             "connector": "⇒",
             "items": [
               {
@@ -167,7 +167,7 @@
                 "math": "\\begin{gathered}f(x)-g(x)=x^{3}+x^{2}-1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)-g(2)=2^{3}+2^{2}-1=11\\end{gathered}"
               },
               {
-                "label": "改写后的等式",
+                "label": "$f(-2)-g(-2)$ 改写后的等式",
                 "math": "-f(2)-g(2)=-5"
               }
             ],
@@ -181,18 +181,10 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "3a1892e531d7a2156a237aa8#1",
+          "id": "ab3a3fb14caf478fa6c02fd2#1",
           "interaction": {
             "field": "answer",
             "options": [
-              {
-                "label": "$f(2)+g(2)=-5$",
-                "value": "o3"
-              },
-              {
-                "label": "$-f(2)-g(2)=11$",
-                "value": "o4"
-              },
               {
                 "label": "$f(2)-g(2)=-5$",
                 "value": "o2"
@@ -200,13 +192,21 @@
               {
                 "label": "$-f(2)-g(2)=-5$",
                 "value": "o1"
+              },
+              {
+                "label": "$f(2)+g(2)=-5$",
+                "value": "o3"
+              },
+              {
+                "label": "$-f(2)-g(2)=11$",
+                "value": "o4"
               }
             ],
             "type": "choice"
           },
           "question": "已知 $f(x)-g(x)=x^{3}+x^{2}-1$，且 $f$ 是奇函数，$g$ 是偶函数。把 $x=-2$ 代入已知关系，再用奇偶性把其中的函数值都改写成输入为 $2$ 的函数值，得到什么等式？",
           "stem_board": {
-            "caption": "在相反输入处使用已知关系",
+            "caption": "代入 $x=-2$，再用奇偶性改写",
             "connector": "⇒",
             "items": [
               {
@@ -214,32 +214,32 @@
                 "math": "\\begin{gathered}f(x)-g(x)=x^{3}+x^{2}-1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)-g(2)=2^{3}+2^{2}-1=11\\end{gathered}"
               },
               {
-                "label": "改写后的等式",
+                "label": "$f(-2)-g(-2)$ 改写后的等式",
                 "math": null
               }
             ],
             "layout": "derivation"
           },
           "submit_label": "确认判断",
-          "title": "在相反输入处使用已知关系",
+          "title": "代入 $x=-2$，再用奇偶性改写",
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "23fd5034d2096ee4e0468ea5b7d9d8e13292f6790698915fad019b7f760678c3",
+              "math_step_sha256": "6c9c8acea54ac0381dca213217ceded2b6d388eeae5eb8ea2f63e8bccd17422b",
               "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "0e99106ca1e004454c7a4060",
+          "stream_interaction_id": "ab3a3fb14caf478fa6c02fd2",
           "stream_part_index": 0,
           "stream_part_count": 1,
-          "stream_group_title": "在相反输入处使用已知关系",
+          "stream_group_title": "代入 $x=-2$，再用奇偶性改写",
           "effects": {
             "nodes": [],
             "edges": [],
             "calls": [],
             "results": [],
-            "log": "完成判断：在相反输入处使用已知关系"
+            "log": "完成判断：代入 $x=-2$，再用奇偶性改写"
           }
         },
         {
@@ -266,25 +266,25 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "bd19e2f6937c606cc51ddfbb#1",
+          "id": "250425dd893f8d3043b6961d#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$f(2)+g(2)=5$",
-                "value": "o1"
+                "label": "$f(2)+g(2)=-5$",
+                "value": "o2"
               },
               {
                 "label": "$f(2)+g(2)=-11$",
                 "value": "o3"
               },
               {
-                "label": "$f(2)+g(2)\\text{ 不能唯一确定}$",
-                "value": "o4"
+                "label": "$f(2)+g(2)=5$",
+                "value": "o1"
               },
               {
-                "label": "$f(2)+g(2)=-5$",
-                "value": "o2"
+                "label": "$f(2)+g(2)\\text{ 不能唯一确定}$",
+                "value": "o4"
               }
             ],
             "type": "choice"
@@ -310,12 +310,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "e80bf6670b4af6ceeb5d531b85e8c35b4990c1fb23b0101443ab9376ffc51766",
+              "math_step_sha256": "8da8f28cb1e5d8f495c333b577c1f082343cab70880a58f5ae5906ed70a5d2b3",
               "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "2716d9031992285c1c0f8902",
+          "stream_interaction_id": "250425dd893f8d3043b6961d",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "求出所求的值",
@@ -352,25 +352,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "41a90fff0898098682c029fd0a667a345861da444d77b112eed17859d18af4d8",
+        "lesson_version": "e2c86e7fe219ac10f7a0185e1d889c2226fb5428e11a51e64c63f716639dceb6",
         "math_steps": [
           {
-            "math_step_sha256": "23fd5034d2096ee4e0468ea5b7d9d8e13292f6790698915fad019b7f760678c3",
+            "math_step_sha256": "6c9c8acea54ac0381dca213217ceded2b6d388eeae5eb8ea2f63e8bccd17422b",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "e80bf6670b4af6ceeb5d531b85e8c35b4990c1fb23b0101443ab9376ffc51766",
+            "math_step_sha256": "8da8f28cb1e5d8f495c333b577c1f082343cab70880a58f5ae5906ed70a5d2b3",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "4a1ac6b8291144e6bef4661545854e45",
+        "run_id": "fdef96c137354d93bc9a666303e06dfe",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "1782ae5c4b3140c9854bf54792902a371adeb8ece59d693ca1c14ac2d38e6705",
-        "verified_route_sha256": "75f8b6d61391f04f5e2e4ee50f1400b71eb5a0b6231817dff6dc5afcc580c89a"
+        "task_id": "be5225202d7a5200db03cb87eba9a921c496dbaff3f0d7ae7b85a1601b80d185",
+        "verified_route_sha256": "eea333573764b85c953a7850efa39c998ec89b3abaaa49b1d2c85923213e1d29"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -685,13 +685,13 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"78cd8088f105ac68070452dee5fdd67b91a1e4c5607045fad8a520a27c08614b\",\"c5d7a53fca5d999aa12b89172c391105b911924a79e993cf82947ef311694df8\",\"b976df47f4ab4b0c8a4d94d80fbab5b7\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"e6aa03a4574f44aa034f83e788c671ddbb18d7690c4d0b415b3717860e2a9438\",\"e2c86e7fe219ac10f7a0185e1d889c2226fb5428e11a51e64c63f716639dceb6\",\"fdef96c137354d93bc9a666303e06dfe\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "4a1ac6b8291144e6bef4661545854e45",
-    "lesson_version": "41a90fff0898098682c029fd0a667a345861da444d77b112eed17859d18af4d8",
-    "stream_id": "4a1ac6b8291144e6bef4661545854e45",
+    "run_id": "fdef96c137354d93bc9a666303e06dfe",
+    "lesson_version": "e2c86e7fe219ac10f7a0185e1d889c2226fb5428e11a51e64c63f716639dceb6",
+    "stream_id": "fdef96c137354d93bc9a666303e06dfe",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "97a3969dc6156e16ffbd9435034fa4826ea1f19658f6f32ed94d54cbae1f4dcc",
+    "base_bundle_version": "e6aa03a4574f44aa034f83e788c671ddbb18d7690c4d0b415b3717860e2a9438",
     "d3": {
       "expected_answer": {},
       "id": "D3",
@@ -730,7 +730,7 @@
         "display_unit": "function_symmetry_rewrite",
         "explanation": "$$\\begin{gathered}f(2)-g(2)=2^{3}+2^{2}-1=11\\\\f(-2)-g(-2)=\\left(-2\\right)^{3}+\\left(-2\\right)^{2}-1=-5\\Rightarrow -f(2)-g(2)=-5\\end{gathered}$$",
         "highlight": {
-          "caption": "在相反输入处使用已知关系",
+          "caption": "代入 $x=-2$，再用奇偶性改写",
           "connector": "⇒",
           "items": [
             {
@@ -738,27 +738,27 @@
               "math": "\\begin{gathered}f(x)-g(x)=x^{3}+x^{2}-1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)-g(2)=2^{3}+2^{2}-1=11\\end{gathered}"
             },
             {
-              "label": "改写后的等式",
+              "label": "$f(-2)-g(-2)$ 改写后的等式",
               "math": "-f(2)-g(2)=-5"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "41a90fff0898098682c029fd0a667a345861da444d77b112eed17859d18af4d8",
+        "lesson_version": "e2c86e7fe219ac10f7a0185e1d889c2226fb5428e11a51e64c63f716639dceb6",
         "local_check": "passed",
-        "math_step_sha256": "23fd5034d2096ee4e0468ea5b7d9d8e13292f6790698915fad019b7f760678c3",
+        "math_step_sha256": "6c9c8acea54ac0381dca213217ceded2b6d388eeae5eb8ea2f63e8bccd17422b",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "fe441c19533eb2f282fd76f7148f37bd2455054798a9ab2aba78f3a23a298e4e",
         "route_id": "function-symmetry",
-        "run_id": "4a1ac6b8291144e6bef4661545854e45",
+        "run_id": "fdef96c137354d93bc9a666303e06dfe",
         "source_refs": [
           "/steps/1/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "target_ref": "/root/goals/0",
-        "title": "在相反输入处使用已知关系",
+        "title": "代入 $x=-2$，再用奇偶性改写",
         "used_basis": []
       },
       {
@@ -783,15 +783,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "41a90fff0898098682c029fd0a667a345861da444d77b112eed17859d18af4d8",
+        "lesson_version": "e2c86e7fe219ac10f7a0185e1d889c2226fb5428e11a51e64c63f716639dceb6",
         "local_check": "passed",
-        "math_step_sha256": "e80bf6670b4af6ceeb5d531b85e8c35b4990c1fb23b0101443ab9376ffc51766",
+        "math_step_sha256": "8da8f28cb1e5d8f495c333b577c1f082343cab70880a58f5ae5906ed70a5d2b3",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "fe441c19533eb2f282fd76f7148f37bd2455054798a9ab2aba78f3a23a298e4e",
         "route_id": "function-symmetry",
-        "run_id": "4a1ac6b8291144e6bef4661545854e45",
+        "run_id": "fdef96c137354d93bc9a666303e06dfe",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -828,31 +828,31 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "23fd5034d2096ee4e0468ea5b7d9d8e13292f6790698915fad019b7f760678c3",
+        "math_step_sha256": "6c9c8acea54ac0381dca213217ceded2b6d388eeae5eb8ea2f63e8bccd17422b",
         "status": "interactive",
-        "interaction_id": "0e99106ca1e004454c7a4060"
+        "interaction_id": "ab3a3fb14caf478fa6c02fd2"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "e80bf6670b4af6ceeb5d531b85e8c35b4990c1fb23b0101443ab9376ffc51766",
+        "math_step_sha256": "8da8f28cb1e5d8f495c333b577c1f082343cab70880a58f5ae5906ed70a5d2b3",
         "status": "interactive",
-        "interaction_id": "2716d9031992285c1c0f8902"
+        "interaction_id": "250425dd893f8d3043b6961d"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "0e99106ca1e004454c7a4060",
+        "interaction_id": "ab3a3fb14caf478fa6c02fd2",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "a7834b3f1a2ab2a84290ca43dc4eca7641e103087fe0bdec8a12ce04918ed01f",
-        "lesson_version": "41a90fff0898098682c029fd0a667a345861da444d77b112eed17859d18af4d8",
+        "interaction_sha256": "fa9ddb153690d510558d2ce9c1e918df21da46aeebe6bdb74b91c6a84a7ee889",
+        "lesson_version": "e2c86e7fe219ac10f7a0185e1d889c2226fb5428e11a51e64c63f716639dceb6",
         "parts": [
           {
             "completion_board": {
-              "caption": "在相反输入处使用已知关系",
+              "caption": "代入 $x=-2$，再用奇偶性改写",
               "connector": "⇒",
               "items": [
                 {
@@ -860,7 +860,7 @@
                   "math": "\\begin{gathered}f(x)-g(x)=x^{3}+x^{2}-1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)-g(2)=2^{3}+2^{2}-1=11\\end{gathered}"
                 },
                 {
-                  "label": "改写后的等式",
+                  "label": "$f(-2)-g(-2)$ 改写后的等式",
                   "math": "-f(2)-g(2)=-5"
                 }
               ],
@@ -874,32 +874,32 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "0e99106ca1e004454c7a4060#1",
+            "id": "ab3a3fb14caf478fa6c02fd2#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$-f(2)-g(2)=-5$",
-                  "value": "o1"
-                },
                 {
                   "label": "$f(2)-g(2)=-5$",
                   "value": "o2"
                 },
                 {
-                  "label": "$-f(2)-g(2)=11$",
-                  "value": "o4"
+                  "label": "$-f(2)-g(2)=-5$",
+                  "value": "o1"
                 },
                 {
                   "label": "$f(2)+g(2)=-5$",
                   "value": "o3"
+                },
+                {
+                  "label": "$-f(2)-g(2)=11$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
             },
             "question": "已知 $f(x)-g(x)=x^{3}+x^{2}-1$，且 $f$ 是奇函数，$g$ 是偶函数。把 $x=-2$ 代入已知关系，再用奇偶性把其中的函数值都改写成输入为 $2$ 的函数值，得到什么等式？",
             "stem_board": {
-              "caption": "在相反输入处使用已知关系",
+              "caption": "代入 $x=-2$，再用奇偶性改写",
               "connector": "⇒",
               "items": [
                 {
@@ -907,22 +907,22 @@
                   "math": "\\begin{gathered}f(x)-g(x)=x^{3}+x^{2}-1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)-g(2)=2^{3}+2^{2}-1=11\\end{gathered}"
                 },
                 {
-                  "label": "改写后的等式",
+                  "label": "$f(-2)-g(-2)$ 改写后的等式",
                   "math": null
                 }
               ],
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "在相反输入处使用已知关系"
+            "title": "代入 $x=-2$，再用奇偶性改写"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "4a1ac6b8291144e6bef4661545854e45",
+        "run_id": "fdef96c137354d93bc9a666303e06dfe",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "23fd5034d2096ee4e0468ea5b7d9d8e13292f6790698915fad019b7f760678c3",
+            "math_step_sha256": "6c9c8acea54ac0381dca213217ceded2b6d388eeae5eb8ea2f63e8bccd17422b",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -930,10 +930,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "2716d9031992285c1c0f8902",
+        "interaction_id": "250425dd893f8d3043b6961d",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "0568925e83018ec6426a3f07d13c2943a516f54f39b307a5b64cea5937caaea5",
-        "lesson_version": "41a90fff0898098682c029fd0a667a345861da444d77b112eed17859d18af4d8",
+        "interaction_sha256": "0c37635c3bce66ee09faa4b4ec3e4a36f39f8f0b7108571371182b4fca396516",
+        "lesson_version": "e2c86e7fe219ac10f7a0185e1d889c2226fb5428e11a51e64c63f716639dceb6",
         "parts": [
           {
             "completion_board": {
@@ -959,25 +959,25 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "2716d9031992285c1c0f8902#1",
+            "id": "250425dd893f8d3043b6961d#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(2)+g(2)\\text{ 不能唯一确定}$",
-                  "value": "o4"
-                },
-                {
                   "label": "$f(2)+g(2)=-5$",
                   "value": "o2"
+                },
+                {
+                  "label": "$f(2)+g(2)=-11$",
+                  "value": "o3"
                 },
                 {
                   "label": "$f(2)+g(2)=5$",
                   "value": "o1"
                 },
                 {
-                  "label": "$f(2)+g(2)=-11$",
-                  "value": "o3"
+                  "label": "$f(2)+g(2)\\text{ 不能唯一确定}$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -1003,11 +1003,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "4a1ac6b8291144e6bef4661545854e45",
+        "run_id": "fdef96c137354d93bc9a666303e06dfe",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "e80bf6670b4af6ceeb5d531b85e8c35b4990c1fb23b0101443ab9376ffc51766",
+            "math_step_sha256": "8da8f28cb1e5d8f495c333b577c1f082343cab70880a58f5ae5906ed70a5d2b3",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],

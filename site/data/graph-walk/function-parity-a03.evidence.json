@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "c650aa2a20104f6a952e21d05d395151",
-    "lesson_version": "b08e7cfe0aaf5e521ac0351bdb25726dab1784929edd46cc15b805663eaf61c0",
-    "input_sha256": "9800173eae75b99e44cf7f0cd3814b9e4ee83028cd7b89e5d84a08b3d02b08e2",
-    "checkpoint_sha256": "048e331776f5943b6de0046f90e3a61b8df292dac9dcdb391412350a1b83b5e8",
-    "result_sha256": "ad928bc5b7351ea1e827bdcaaeb8122091b17bacd21dec7778f970b06c8ffc86",
+    "run_id": "2c1f967bdc9c4acb81f4c296a42e901a",
+    "lesson_version": "56860f6782414bf59c3c1d9dd9709ef758b616913562eb8200310ee45aecbfb2",
+    "input_sha256": "9add2db6d3a20a10d45b65060f8e36ab51058988b685c7db0c44964c7b302361",
+    "checkpoint_sha256": "f74d6bb087abf60176f11ef321c04aebea0040580dc866e95e0583721b427d53",
+    "result_sha256": "66534dd67aa0f03119ccd0c5e58774dc41b4782e2d56ba88bd8917b877a7101c",
     "stage_one_sha256": "7f33ac4e5a4126068f89192ae51603094f9788605db2c9c9b12c878ca33c2541",
-    "stage_two_sha256": "4c5bb5eef9d75e1ff747e9d4dc510f23515212bb19edaeb597c87e7aa78dce10",
+    "stage_two_sha256": "cb88c06faa80c82820d3009198311b0f7d65650ece5c1ea58b4100097df651c6",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "7d27dbb7ec315612761a67ba917439e22309afda1231a569d82b2d139154bc8f",
-    "teaching_revision": "b4ffa779f0ad42f6a703380afe08d586ba3e5ee58f69bc84dfd97322c31cdab5"
+    "teaching_revision": "d29e0f1e6c6b3096d4f7b6f70514a6e140ad0b908b57513073daab131c692f40"
   },
   "lesson": {
     "status": "completed",
@@ -127,7 +127,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-parity-a03//root/goals/0",
-            "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+            "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
             "problem": {
               "text": "已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$____．"
             },
@@ -505,12 +505,12 @@
                 }
               ]
             },
-            "bundleVersion": "53254cbdf4f83953f75d5aa17f4e064709bf22d825203ebe3354911731f2b9d4"
+            "bundleVersion": "6b1427a779dd851da70cb1c19e3631af0ef508622ece25647148ba52b2e6d41e"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-parity-a03//root/goals/0",
-            "bundleVersion": "53254cbdf4f83953f75d5aa17f4e064709bf22d825203ebe3354911731f2b9d4",
+            "bundleVersion": "6b1427a779dd851da70cb1c19e3631af0ef508622ece25647148ba52b2e6d41e",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -531,10 +531,10 @@
     ]
   },
   "stream": {
-    "run_id": "c650aa2a20104f6a952e21d05d395151",
-    "lesson_version": "b08e7cfe0aaf5e521ac0351bdb25726dab1784929edd46cc15b805663eaf61c0",
-    "input_sha256": "9800173eae75b99e44cf7f0cd3814b9e4ee83028cd7b89e5d84a08b3d02b08e2",
-    "stream_id": "c650aa2a20104f6a952e21d05d395151",
+    "run_id": "2c1f967bdc9c4acb81f4c296a42e901a",
+    "lesson_version": "56860f6782414bf59c3c1d9dd9709ef758b616913562eb8200310ee45aecbfb2",
+    "input_sha256": "9add2db6d3a20a10d45b65060f8e36ab51058988b685c7db0c44964c7b302361",
+    "stream_id": "2c1f967bdc9c4acb81f4c296a42e901a",
     "last_seq": 17,
     "minimum_seq": 1,
     "math_steps": [
@@ -546,7 +546,7 @@
         "display_unit": "function_symmetry_rewrite",
         "explanation": "$$\\begin{gathered}f(2)+g(2)=2^{2}-2+1=3\\\\f(-2)+g(-2)=\\left(-2\\right)^{2}-\\left(-2\\right)+1=7\\Rightarrow -f(2)+g(2)=7\\end{gathered}$$",
         "highlight": {
-          "caption": "在相反输入处使用已知关系",
+          "caption": "代入 $x=-2$，再用奇偶性改写",
           "connector": "⇒",
           "items": [
             {
@@ -554,27 +554,27 @@
               "math": "\\begin{gathered}f(x)+g(x)=x^{2}-x+1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)+g(2)=2^{2}-2+1=3\\end{gathered}"
             },
             {
-              "label": "改写后的等式",
+              "label": "$f(-2)+g(-2)$ 改写后的等式",
               "math": "-f(2)+g(2)=7"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "b08e7cfe0aaf5e521ac0351bdb25726dab1784929edd46cc15b805663eaf61c0",
+        "lesson_version": "56860f6782414bf59c3c1d9dd9709ef758b616913562eb8200310ee45aecbfb2",
         "local_check": "passed",
-        "math_step_sha256": "4bd0e1e8204dcfbe8f04991a27e4c71b41a1ff7976d662d7486d8b37871ca5b2",
+        "math_step_sha256": "f92c0d65dd9b1cacf17550e0984a903167ad7351e8c1832a869c3bef11959dfd",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "fe441c19533eb2f282fd76f7148f37bd2455054798a9ab2aba78f3a23a298e4e",
         "route_id": "function-symmetry",
-        "run_id": "c650aa2a20104f6a952e21d05d395151",
+        "run_id": "2c1f967bdc9c4acb81f4c296a42e901a",
         "source_refs": [
           "/steps/1/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "target_ref": "/root/goals/0",
-        "title": "在相反输入处使用已知关系",
+        "title": "代入 $x=-2$，再用奇偶性改写",
         "used_basis": []
       },
       {
@@ -599,15 +599,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "b08e7cfe0aaf5e521ac0351bdb25726dab1784929edd46cc15b805663eaf61c0",
+        "lesson_version": "56860f6782414bf59c3c1d9dd9709ef758b616913562eb8200310ee45aecbfb2",
         "local_check": "passed",
-        "math_step_sha256": "d3318256f43d78e8cf4339a4198b2218b31822212fcd6dade26ebdd80472efae",
+        "math_step_sha256": "5baf1dc32bafe6e215ff28b41cf18ab9c1c42c6df73b867f1bb8fd967a0c217d",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "fe441c19533eb2f282fd76f7148f37bd2455054798a9ab2aba78f3a23a298e4e",
         "route_id": "function-symmetry",
-        "run_id": "c650aa2a20104f6a952e21d05d395151",
+        "run_id": "2c1f967bdc9c4acb81f4c296a42e901a",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -661,25 +661,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "b08e7cfe0aaf5e521ac0351bdb25726dab1784929edd46cc15b805663eaf61c0",
+        "lesson_version": "56860f6782414bf59c3c1d9dd9709ef758b616913562eb8200310ee45aecbfb2",
         "math_steps": [
           {
-            "math_step_sha256": "4bd0e1e8204dcfbe8f04991a27e4c71b41a1ff7976d662d7486d8b37871ca5b2",
+            "math_step_sha256": "f92c0d65dd9b1cacf17550e0984a903167ad7351e8c1832a869c3bef11959dfd",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "d3318256f43d78e8cf4339a4198b2218b31822212fcd6dade26ebdd80472efae",
+            "math_step_sha256": "5baf1dc32bafe6e215ff28b41cf18ab9c1c42c6df73b867f1bb8fd967a0c217d",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "c650aa2a20104f6a952e21d05d395151",
+        "run_id": "2c1f967bdc9c4acb81f4c296a42e901a",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "2b16bbf0c8206fc2be3d851efbd875014cf5eec7dddd4576f6879ddb5bb6bcf8",
-        "verified_route_sha256": "2fb426bbab7da22afc691d028e9769a65e3040696dbf9e8a302ffb098118ff48"
+        "task_id": "0207dbb7fa75672e68d06daa1bbf3e1467482a8b00f232c438d0c886c9836516",
+        "verified_route_sha256": "b6590477f241ba74a6101d5e8e116c85ec8b9ffbb0dbb7e3294a9d1cb123702a"
       }
     ],
     "qa": [],
@@ -729,22 +729,22 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "4bd0e1e8204dcfbe8f04991a27e4c71b41a1ff7976d662d7486d8b37871ca5b2",
+        "math_step_sha256": "f92c0d65dd9b1cacf17550e0984a903167ad7351e8c1832a869c3bef11959dfd",
         "status": "interactive",
-        "interaction_id": "84c08439bbf2bc49e5e727e8"
+        "interaction_id": "13e353eec7b5ce77b73c9b71"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "d3318256f43d78e8cf4339a4198b2218b31822212fcd6dade26ebdd80472efae",
+        "math_step_sha256": "5baf1dc32bafe6e215ff28b41cf18ab9c1c42c6df73b867f1bb8fd967a0c217d",
         "status": "interactive",
-        "interaction_id": "1cf9e2e9163366f027faeebd"
+        "interaction_id": "2543ead8d3aa47a275972e9f"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+    "revisions_ref": "fe441c19533eb2f282fd76f7148f37bd2455054798a9ab2aba78f3a23a298e4e",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -752,7 +752,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:function-symmetry:complete",
-        "last_seq": 15
+        "last_seq": 17
       }
     ],
     "trajectories": [
@@ -839,14 +839,14 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "84c08439bbf2bc49e5e727e8",
+        "interaction_id": "13e353eec7b5ce77b73c9b71",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "f868849abd139c254be5a1b65e0d5e11380a38f5bdaca0c7d277ea1620f743e9",
-        "lesson_version": "b08e7cfe0aaf5e521ac0351bdb25726dab1784929edd46cc15b805663eaf61c0",
+        "interaction_sha256": "178e3088ea031078e854483ce840bf67e8680a81b45d5e5583527acb024e51aa",
+        "lesson_version": "56860f6782414bf59c3c1d9dd9709ef758b616913562eb8200310ee45aecbfb2",
         "parts": [
           {
             "completion_board": {
-              "caption": "在相反输入处使用已知关系",
+              "caption": "代入 $x=-2$，再用奇偶性改写",
               "connector": "⇒",
               "items": [
                 {
@@ -854,7 +854,7 @@
                   "math": "\\begin{gathered}f(x)+g(x)=x^{2}-x+1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)+g(2)=2^{2}-2+1=3\\end{gathered}"
                 },
                 {
-                  "label": "改写后的等式",
+                  "label": "$f(-2)+g(-2)$ 改写后的等式",
                   "math": "-f(2)+g(2)=7"
                 }
               ],
@@ -868,32 +868,32 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "84c08439bbf2bc49e5e727e8#1",
+            "id": "13e353eec7b5ce77b73c9b71#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$f(2)+g(2)=7$",
-                  "value": "o2"
-                },
                 {
                   "label": "$-f(2)+g(2)=7$",
                   "value": "o1"
                 },
                 {
-                  "label": "$-f(2)+g(2)=3$",
-                  "value": "o4"
-                },
-                {
                   "label": "$f(2)-g(2)=7$",
                   "value": "o3"
+                },
+                {
+                  "label": "$f(2)+g(2)=7$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$-f(2)+g(2)=3$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
             },
             "question": "已知 $f(x)+g(x)=x^{2}-x+1$，且 $f$ 是奇函数，$g$ 是偶函数。把 $x=-2$ 代入已知关系，再用奇偶性把其中的函数值都改写成输入为 $2$ 的函数值，得到什么等式？",
             "stem_board": {
-              "caption": "在相反输入处使用已知关系",
+              "caption": "代入 $x=-2$，再用奇偶性改写",
               "connector": "⇒",
               "items": [
                 {
@@ -901,22 +901,22 @@
                   "math": "\\begin{gathered}f(x)+g(x)=x^{2}-x+1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)+g(2)=2^{2}-2+1=3\\end{gathered}"
                 },
                 {
-                  "label": "改写后的等式",
+                  "label": "$f(-2)+g(-2)$ 改写后的等式",
                   "math": null
                 }
               ],
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "在相反输入处使用已知关系"
+            "title": "代入 $x=-2$，再用奇偶性改写"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "c650aa2a20104f6a952e21d05d395151",
+        "run_id": "2c1f967bdc9c4acb81f4c296a42e901a",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "4bd0e1e8204dcfbe8f04991a27e4c71b41a1ff7976d662d7486d8b37871ca5b2",
+            "math_step_sha256": "f92c0d65dd9b1cacf17550e0984a903167ad7351e8c1832a869c3bef11959dfd",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -924,10 +924,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "1cf9e2e9163366f027faeebd",
+        "interaction_id": "2543ead8d3aa47a275972e9f",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "97710f64fae9b5b6895187dab4ef23bb4fc06f8d0f93e452cde5ef3a1ff27d26",
-        "lesson_version": "b08e7cfe0aaf5e521ac0351bdb25726dab1784929edd46cc15b805663eaf61c0",
+        "interaction_sha256": "d655643a4a5555401c5406e6aea901f8dd1037bebb406735069b05f81966f096",
+        "lesson_version": "56860f6782414bf59c3c1d9dd9709ef758b616913562eb8200310ee45aecbfb2",
         "parts": [
           {
             "completion_board": {
@@ -953,25 +953,25 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "1cf9e2e9163366f027faeebd#1",
+            "id": "2543ead8d3aa47a275972e9f#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(2)=2$",
-                  "value": "o2"
-                },
-                {
-                  "label": "$f(2)=0$",
-                  "value": "o4"
+                  "label": "$f(2)=-2$",
+                  "value": "o1"
                 },
                 {
                   "label": "$f(2)=5$",
                   "value": "o3"
                 },
                 {
-                  "label": "$f(2)=-2$",
-                  "value": "o1"
+                  "label": "$f(2)=0$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$f(2)=2$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -997,11 +997,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "c650aa2a20104f6a952e21d05d395151",
+        "run_id": "2c1f967bdc9c4acb81f4c296a42e901a",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d3318256f43d78e8cf4339a4198b2218b31822212fcd6dade26ebdd80472efae",
+            "math_step_sha256": "5baf1dc32bafe6e215ff28b41cf18ab9c1c42c6df73b867f1bb8fd967a0c217d",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],

@@ -50,6 +50,23 @@ def test_odd_flips_relation_and_zero_is_checked(facts, rule, known, expression, 
     assert model['solution'] == expected and verify(desc, model)
 
 
+@pytest.mark.parametrize('facts', [('Dom(f)=ℝ', 'parity(f,odd)'), ('parity(f,odd)',)])
+def test_mirror_card_keeps_open_origin_when_plotting_both_halves(facts):
+    from shuxueshuo_server.graph_lesson.stage_three.interaction_graph_contract import validate_part_graphs
+    from shuxueshuo_server.graph_lesson.stage_three.parity_inequality_presentation import compile_cards
+    from shuxueshuo_server.graph_lesson.stage_three.trajectory import encode_value
+
+    desc = described(candidate(facts, 'x+1', '(0,∞)', 'f(x)>0'))
+    assert desc['structure_supported'], desc['reason']
+    result = compile_cards([{'values': encode_value({'description': desc, 'phase': 'mirror'})}], 'open-origin')
+    validate_part_graphs(result['parts'])
+    part, = result['parts']
+    params = part['completion_graph']['params']
+    assert params['interval'] == [None, None]
+    assert [piece['interval'] for piece in params['segments']] == [[0, None], [None, 0]]
+    assert all(piece['interval_closed'] == [False, False] for piece in params['segments'])
+
+
 @pytest.mark.parametrize('facts,rule,known,expression,reason', [
     (('parity(f,odd)',), 'x-1', '(0,∞)', 'f(x)<=0', 'parity_ineq.domain_dependent_answer'),
     (('Dom(f)=ℝ', 'parity(f,even)'), 'x-1', '(0,∞)', 'f(x)<0', 'parity_ineq.zero_value_free'),

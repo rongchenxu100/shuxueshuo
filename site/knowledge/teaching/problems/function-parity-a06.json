@@ -36,15 +36,15 @@
             "method-function-symmetry"
           ]
         },
-        "3a1892e531d7a2156a237aa8#1": {
-          "title": "在相反输入处使用已知关系",
+        "ab3a3fb14caf478fa6c02fd2#1": {
+          "title": "代入 $x=-2$，再用奇偶性改写",
           "position": 4,
           "refs": [
             "method-function-symmetry#rewrite",
             "skill-function-symmetry-transform"
           ]
         },
-        "bd19e2f6937c606cc51ddfbb#1": {
+        "250425dd893f8d3043b6961d#1": {
           "title": "求出所求的值",
           "position": 5,
           "refs": [
@@ -54,6 +54,6 @@
       }
     }
   },
-  "page_contract_hash": "6c28d41bebcc8083ef842b8ee6cd628c61335fef9215af4229ecd2dee6b4700b",
-  "practice_version": "e20720c4975e86db220b87d3695430c9d169b498d54b5cb88637684e0fc3aec7"
+  "page_contract_hash": "0c31f35c1f1dd053179d5f15432f375058ab521a341932415fbcae3b7b186bfc",
+  "practice_version": "a9b868716919b43cdb130fe54e10c5e139bfae34a0fb4f81b8b052999e87e9b5"
 }

@@ -36,7 +36,7 @@
             "method-function-symmetry"
           ]
         },
-        "ecaa004f144ede803d1ca94a#1": {
+        "0cce40e05d7671a1b3918fe9#1": {
           "title": "把输入换成相反数",
           "position": 4,
           "refs": [
@@ -44,7 +44,7 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "06cecc51d1f25bb51d6cea65#1": {
+        "e3c20f4e1ea17271ca709978#1": {
           "title": "求出所求的值",
           "position": 5,
           "refs": [
@@ -54,6 +54,6 @@
       }
     }
   },
-  "page_contract_hash": "f56126eca82a1b4d4cd3bdc2372aac8656230cf6eaf986ff2eaeba357a42bbcc",
-  "practice_version": "e79457326b96180c87f29b728bd06d246eaf7236f5bc04fe884527c837db310f"
+  "page_contract_hash": "7ef1765bfdd00ab8ddf5e270c53b0e0f3dc1eaee7bceb98b72f175317396316a",
+  "practice_version": "9d72a291293af52fa85a410d7add53c6c9bb0740a3e678cb65b7fe6278168f11"
 }

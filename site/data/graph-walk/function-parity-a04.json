@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "problemId": "function-parity-a04",
-  "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+  "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
   "problem": {
     "text": "已知 $f(x)$ 为偶函数，若当 $x\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是____．"
   },
@@ -172,10 +172,10 @@
             "items": [
               {
                 "label": "已知与所求",
-                "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+                "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
               },
               {
-                "label": "-x\\text{ 的范围}",
+                "label": "$-x$ 的范围",
                 "math": "x<0\\text{ 时，}-x>0"
               }
             ],
@@ -386,21 +386,21 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "95e426366c692dca1368ff16#1",
+          "id": "c19da1cbb9fc4bc4194eeb3a#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$x<0\\text{ 时，}-x>0$",
-                "value": "o1"
+                "label": "$x<0\\text{ 时，}-x\\le 0$",
+                "value": "o3"
               },
               {
                 "label": "$x<0\\text{ 时，}-x<0$",
                 "value": "o2"
               },
               {
-                "label": "$x<0\\text{ 时，}-x\\le 0$",
-                "value": "o3"
+                "label": "$x<0\\text{ 时，}-x>0$",
+                "value": "o1"
               }
             ],
             "type": "choice"
@@ -412,10 +412,10 @@
             "items": [
               {
                 "label": "已知与所求",
-                "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+                "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
               },
               {
-                "label": "-x\\text{ 的范围}",
+                "label": "$-x$ 的范围",
                 "math": null
               }
             ],
@@ -426,12 +426,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "6dae3f1d937ab33bdb65c2a1f540465dacb4ec79204228bc57b72a54ec68773a",
+              "math_step_sha256": "7b4c6f50784a3f9230d71f9e86c3143ebd1826cd3f5f29514b886b76986abbea",
               "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "a2264f228400266b1e9a623a",
+          "stream_interaction_id": "c19da1cbb9fc4bc4194eeb3a",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "把输入换到已知一侧",
@@ -453,7 +453,7 @@
                 "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
               },
               {
-                "label": "f(-x)",
+                "label": "$f(-x)$",
                 "math": "x<0\\text{ 时，}f(-x)=x^{2} - 4 x"
               }
             ],
@@ -467,25 +467,25 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "00683973afe5c108897f8462#1",
+          "id": "f5748207b9f5aca2f5732b28#1",
           "interaction": {
             "field": "answer",
             "options": [
-              {
-                "label": "$x<0\\text{ 时，}f(-x)=- x^{2} + 4 x$",
-                "value": "o3"
-              },
               {
                 "label": "$x<0\\text{ 时，}f(-x)=- x^{2} - 4 x$",
                 "value": "o4"
               },
               {
-                "label": "$x<0\\text{ 时，}f(-x)=x^{2} - 4 x$",
-                "value": "o1"
+                "label": "$x<0\\text{ 时，}f(-x)=- x^{2} + 4 x$",
+                "value": "o3"
               },
               {
                 "label": "$x<0\\text{ 时，}f(-x)=x^{2} + 4 x$",
                 "value": "o2"
+              },
+              {
+                "label": "$x<0\\text{ 时，}f(-x)=x^{2} - 4 x$",
+                "value": "o1"
               }
             ],
             "type": "choice"
@@ -500,7 +500,7 @@
                 "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
               },
               {
-                "label": "f(-x)",
+                "label": "$f(-x)$",
                 "math": null
               }
             ],
@@ -511,12 +511,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "552fcfcb5245fcf6332a2c1219f4e0db25f09f1ff05499afb2f6c5699f5958d8",
+              "math_step_sha256": "39cbdff4cabc7808d1a3e1c58f17de09de532e6ffe31f5ef403dbbfc49dfd512",
               "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "11969d8c36c6278ffa0bccff",
+          "stream_interaction_id": "f5748207b9f5aca2f5732b28",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "代入相反输入",
@@ -535,10 +535,10 @@
             "items": [
               {
                 "label": "已求出的式子",
-                "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数}\\end{gathered}"
+                "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
               },
               {
-                "label": "f(x)",
+                "label": "$f(x)$",
                 "math": "x<0\\text{ 时，}f(x)=x^{2} - 4 x"
               }
             ],
@@ -552,10 +552,14 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "3a6cb0be6289ef5454b54c15#1",
+          "id": "91c63c134f4c88057dcc92d1#1",
           "interaction": {
             "field": "answer",
             "options": [
+              {
+                "label": "$x<0\\text{ 时，}f(x)=x^{2} + 4 x$",
+                "value": "o4"
+              },
               {
                 "label": "$x<0\\text{ 时，}f(x)=x^{2} - 4 x$",
                 "value": "o1"
@@ -567,10 +571,6 @@
               {
                 "label": "$x<0\\text{ 时，}f(x)=- x^{2} - 4 x$",
                 "value": "o3"
-              },
-              {
-                "label": "$x<0\\text{ 时，}f(x)=x^{2} + 4 x$",
-                "value": "o4"
               }
             ],
             "type": "choice"
@@ -582,10 +582,10 @@
             "items": [
               {
                 "label": "已求出的式子",
-                "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数}\\end{gathered}"
+                "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
               },
               {
-                "label": "f(x)",
+                "label": "$f(x)$",
                 "math": null
               }
             ],
@@ -596,12 +596,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "ec9b5dd48858a5328f8d624a232e6406ae8d9736cf961d9fd4cee014a6215f07",
+              "math_step_sha256": "5a4951cc7077ded8d9b473dbe122c057b50f935b15329b1764c1aa3514a93f6f",
               "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "936e560df664cd6135cebc24",
+          "stream_interaction_id": "91c63c134f4c88057dcc92d1",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "用奇偶性换回 f(x)",
@@ -620,7 +620,7 @@
             "items": [
               {
                 "label": "已求出的式子",
-                "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=x^{2} - 4 x\\\\x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+                "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=x^{2} - 4 x\\\\x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
               },
               {
                 "label": "结论",
@@ -637,14 +637,10 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "113b5d0166fa835f55194eca#1",
+          "id": "31d6667be76b99db4403e5f6#1",
           "interaction": {
             "field": "answer",
             "options": [
-              {
-                "label": "$x\\in D\\text{ 时，}f(x)=x^{2} - 4 x$",
-                "value": "o2"
-              },
               {
                 "label": "$x<0\\text{ 时，}f(x)=x^{2} - 4 x$",
                 "value": "o3"
@@ -652,6 +648,10 @@
               {
                 "label": "$x\\in D\\text{ 时，}f(x)=x^{2} + 4 x$",
                 "value": "o4"
+              },
+              {
+                "label": "$x\\in D\\text{ 时，}f(x)=x^{2} - 4 x$",
+                "value": "o2"
               },
               {
                 "label": "$f(x)=\\begin{cases}x^{2} - 4 x,&x<0\\\\x^{2} + 4 x,&x\\ge 0\\end{cases}$",
@@ -667,7 +667,7 @@
             "items": [
               {
                 "label": "已求出的式子",
-                "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=x^{2} - 4 x\\\\x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+                "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=x^{2} - 4 x\\\\x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
               },
               {
                 "label": "结论",
@@ -681,12 +681,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "6d1ed42f0fc91565b6ebf4fac599db32f6907dddee21c43448ecdce30bff3262",
+              "math_step_sha256": "630cd651dde3b2199f7721c97cd02bd14ca0d3da63347b512f05e503ec3c60b2",
               "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "d6cc710c64cf0b5a482a0634",
+          "stream_interaction_id": "31d6667be76b99db4403e5f6",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "拼接已知部分并写出结论",
@@ -779,35 +779,35 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "7888bedef260c07ff185427be74f70a19e17fa163de840d423f3f5d1886401b7",
+        "lesson_version": "85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b",
         "math_steps": [
           {
-            "math_step_sha256": "6dae3f1d937ab33bdb65c2a1f540465dacb4ec79204228bc57b72a54ec68773a",
+            "math_step_sha256": "7b4c6f50784a3f9230d71f9e86c3143ebd1826cd3f5f29514b886b76986abbea",
             "ordinal": 1,
             "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
           },
           {
-            "math_step_sha256": "552fcfcb5245fcf6332a2c1219f4e0db25f09f1ff05499afb2f6c5699f5958d8",
+            "math_step_sha256": "39cbdff4cabc7808d1a3e1c58f17de09de532e6ffe31f5ef403dbbfc49dfd512",
             "ordinal": 2,
             "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
           },
           {
-            "math_step_sha256": "ec9b5dd48858a5328f8d624a232e6406ae8d9736cf961d9fd4cee014a6215f07",
+            "math_step_sha256": "5a4951cc7077ded8d9b473dbe122c057b50f935b15329b1764c1aa3514a93f6f",
             "ordinal": 3,
             "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
           },
           {
-            "math_step_sha256": "6d1ed42f0fc91565b6ebf4fac599db32f6907dddee21c43448ecdce30bff3262",
+            "math_step_sha256": "630cd651dde3b2199f7721c97cd02bd14ca0d3da63347b512f05e503ec3c60b2",
             "ordinal": 4,
             "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "2d424ea7f9554891b2bbe7dc0b00dece",
+        "run_id": "75fafc3b517348c3a668625e3afc1eea",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "e8af8c2d3dc67b75dc9532c07f36f49a0392d7d7e468d46da21f450d11ec6358",
-        "verified_route_sha256": "a46a7710983fb777e61674075c143aa76a3039641cc610f257e3f11a9380df16"
+        "task_id": "b05a7dbf8aa4fe5ab5c6a736b0f7e58d23eff5968a0f30d3000f260452571c4a",
+        "verified_route_sha256": "e85411f4fd58aa6b9431217ed02f3989bdff022b4971cd6b934d15319dc52e73"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -1115,13 +1115,13 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"5eb4eff7a994ea75175a740f4564087bfdeb97f74fd925e6e00913c776bbeaef\",\"70802f16f4c6667e46cf33efa7350e8762c0a1d1c9b79cbed14a26c14ca9b3a4\",\"f41c2815fcdf46e09385785426b7a7ec\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"464984997a8f1d2bc9b2d8fdb3ad7a7a8086c6cc5cd7500252f37c81cb001c19\",\"85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b\",\"75fafc3b517348c3a668625e3afc1eea\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "2d424ea7f9554891b2bbe7dc0b00dece",
-    "lesson_version": "7888bedef260c07ff185427be74f70a19e17fa163de840d423f3f5d1886401b7",
-    "stream_id": "2d424ea7f9554891b2bbe7dc0b00dece",
+    "run_id": "75fafc3b517348c3a668625e3afc1eea",
+    "lesson_version": "85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b",
+    "stream_id": "75fafc3b517348c3a668625e3afc1eea",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "b50cd9c7dd11a6c09fab07ea30a29e898eced917f6ad71bd6ff4a69d9bd1369d",
+    "base_bundle_version": "464984997a8f1d2bc9b2d8fdb3ad7a7a8086c6cc5cd7500252f37c81cb001c19",
     "d3": {
       "expected_answer": {},
       "id": "D3",
@@ -1165,24 +1165,24 @@
           "items": [
             {
               "label": "已知与所求",
-              "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+              "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
             },
             {
-              "label": "-x\\text{ 的范围}",
+              "label": "$-x$ 的范围",
               "math": "x<0\\text{ 时，}-x>0"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "7888bedef260c07ff185427be74f70a19e17fa163de840d423f3f5d1886401b7",
+        "lesson_version": "85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b",
         "local_check": "passed",
-        "math_step_sha256": "6dae3f1d937ab33bdb65c2a1f540465dacb4ec79204228bc57b72a54ec68773a",
+        "math_step_sha256": "7b4c6f50784a3f9230d71f9e86c3143ebd1826cd3f5f29514b886b76986abbea",
         "method_ref": "method-parity-extension#map",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
         "route_id": "parity-extension",
-        "run_id": "2d424ea7f9554891b2bbe7dc0b00dece",
+        "run_id": "75fafc3b517348c3a668625e3afc1eea",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -1207,21 +1207,21 @@
               "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
             },
             {
-              "label": "f(-x)",
+              "label": "$f(-x)$",
               "math": "x<0\\text{ 时，}f(-x)=x^{2} - 4 x"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "7888bedef260c07ff185427be74f70a19e17fa163de840d423f3f5d1886401b7",
+        "lesson_version": "85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b",
         "local_check": "passed",
-        "math_step_sha256": "552fcfcb5245fcf6332a2c1219f4e0db25f09f1ff05499afb2f6c5699f5958d8",
+        "math_step_sha256": "39cbdff4cabc7808d1a3e1c58f17de09de532e6ffe31f5ef403dbbfc49dfd512",
         "method_ref": "method-parity-extension#substitute",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
         "route_id": "parity-extension",
-        "run_id": "2d424ea7f9554891b2bbe7dc0b00dece",
+        "run_id": "75fafc3b517348c3a668625e3afc1eea",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -1245,24 +1245,24 @@
           "items": [
             {
               "label": "已求出的式子",
-              "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数}\\end{gathered}"
+              "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
             },
             {
-              "label": "f(x)",
+              "label": "$f(x)$",
               "math": "x<0\\text{ 时，}f(x)=x^{2} - 4 x"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "7888bedef260c07ff185427be74f70a19e17fa163de840d423f3f5d1886401b7",
+        "lesson_version": "85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b",
         "local_check": "passed",
-        "math_step_sha256": "ec9b5dd48858a5328f8d624a232e6406ae8d9736cf961d9fd4cee014a6215f07",
+        "math_step_sha256": "5a4951cc7077ded8d9b473dbe122c057b50f935b15329b1764c1aa3514a93f6f",
         "method_ref": "method-parity-extension#write-back",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
         "route_id": "parity-extension",
-        "run_id": "2d424ea7f9554891b2bbe7dc0b00dece",
+        "run_id": "75fafc3b517348c3a668625e3afc1eea",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1284,7 +1284,7 @@
           "items": [
             {
               "label": "已求出的式子",
-              "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=x^{2} - 4 x\\\\x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+              "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=x^{2} - 4 x\\\\x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
             },
             {
               "label": "结论",
@@ -1293,15 +1293,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "7888bedef260c07ff185427be74f70a19e17fa163de840d423f3f5d1886401b7",
+        "lesson_version": "85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b",
         "local_check": "passed",
-        "math_step_sha256": "6d1ed42f0fc91565b6ebf4fac599db32f6907dddee21c43448ecdce30bff3262",
+        "math_step_sha256": "630cd651dde3b2199f7721c97cd02bd14ca0d3da63347b512f05e503ec3c60b2",
         "method_ref": "method-parity-extension#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "e4f75942b0fd934919f8701989ddf2242a9404bbed0b2482a51c1e79decc0699",
         "route_id": "parity-extension",
-        "run_id": "2d424ea7f9554891b2bbe7dc0b00dece",
+        "run_id": "75fafc3b517348c3a668625e3afc1eea",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -1358,45 +1358,45 @@
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-001-parity_extension_map",
         "ordinal": 1,
-        "math_step_sha256": "6dae3f1d937ab33bdb65c2a1f540465dacb4ec79204228bc57b72a54ec68773a",
+        "math_step_sha256": "7b4c6f50784a3f9230d71f9e86c3143ebd1826cd3f5f29514b886b76986abbea",
         "status": "interactive",
-        "interaction_id": "a2264f228400266b1e9a623a"
+        "interaction_id": "c19da1cbb9fc4bc4194eeb3a"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute",
         "ordinal": 2,
-        "math_step_sha256": "552fcfcb5245fcf6332a2c1219f4e0db25f09f1ff05499afb2f6c5699f5958d8",
+        "math_step_sha256": "39cbdff4cabc7808d1a3e1c58f17de09de532e6ffe31f5ef403dbbfc49dfd512",
         "status": "interactive",
-        "interaction_id": "11969d8c36c6278ffa0bccff"
+        "interaction_id": "f5748207b9f5aca2f5732b28"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back",
         "ordinal": 3,
-        "math_step_sha256": "ec9b5dd48858a5328f8d624a232e6406ae8d9736cf961d9fd4cee014a6215f07",
+        "math_step_sha256": "5a4951cc7077ded8d9b473dbe122c057b50f935b15329b1764c1aa3514a93f6f",
         "status": "interactive",
-        "interaction_id": "936e560df664cd6135cebc24"
+        "interaction_id": "91c63c134f4c88057dcc92d1"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude",
         "ordinal": 4,
-        "math_step_sha256": "6d1ed42f0fc91565b6ebf4fac599db32f6907dddee21c43448ecdce30bff3262",
+        "math_step_sha256": "630cd651dde3b2199f7721c97cd02bd14ca0d3da63347b512f05e503ec3c60b2",
         "status": "interactive",
-        "interaction_id": "d6cc710c64cf0b5a482a0634"
+        "interaction_id": "31d6667be76b99db4403e5f6"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "a2264f228400266b1e9a623a",
+        "interaction_id": "c19da1cbb9fc4bc4194eeb3a",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "464bda857324d70c62c7dde4233bff44cc113d0d5b5c7c6b70eede9b4a27d72b",
-        "lesson_version": "7888bedef260c07ff185427be74f70a19e17fa163de840d423f3f5d1886401b7",
+        "interaction_sha256": "a9304154f2d200ba7c907f11596c25b06ddc0f0f5fce1b7c041cbb15c9036197",
+        "lesson_version": "85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b",
         "parts": [
           {
             "completion_board": {
@@ -1405,10 +1405,10 @@
               "items": [
                 {
                   "label": "已知与所求",
-                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
                 },
                 {
-                  "label": "-x\\text{ 的范围}",
+                  "label": "$-x$ 的范围",
                   "math": "x<0\\text{ 时，}-x>0"
                 }
               ],
@@ -1619,7 +1619,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "a2264f228400266b1e9a623a#1",
+            "id": "c19da1cbb9fc4bc4194eeb3a#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1645,10 +1645,10 @@
               "items": [
                 {
                   "label": "已知与所求",
-                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
                 },
                 {
-                  "label": "-x\\text{ 的范围}",
+                  "label": "$-x$ 的范围",
                   "math": null
                 }
               ],
@@ -1659,11 +1659,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "2d424ea7f9554891b2bbe7dc0b00dece",
+        "run_id": "75fafc3b517348c3a668625e3afc1eea",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "6dae3f1d937ab33bdb65c2a1f540465dacb4ec79204228bc57b72a54ec68773a",
+            "math_step_sha256": "7b4c6f50784a3f9230d71f9e86c3143ebd1826cd3f5f29514b886b76986abbea",
             "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
           }
         ],
@@ -1671,10 +1671,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "11969d8c36c6278ffa0bccff",
+        "interaction_id": "f5748207b9f5aca2f5732b28",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "849e76bd8673e4e9f658e11a61a375e2e075eead1c85b387bfdd7f90aa39afb2",
-        "lesson_version": "7888bedef260c07ff185427be74f70a19e17fa163de840d423f3f5d1886401b7",
+        "interaction_sha256": "074dfa0c354e1cf7400dbb73775dcef19a6503e51f72911e162a247ad57ad40b",
+        "lesson_version": "85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b",
         "parts": [
           {
             "completion_board": {
@@ -1686,7 +1686,7 @@
                   "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
                 },
                 {
-                  "label": "f(-x)",
+                  "label": "$f(-x)$",
                   "math": "x<0\\text{ 时，}f(-x)=x^{2} - 4 x"
                 }
               ],
@@ -1700,10 +1700,14 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "11969d8c36c6278ffa0bccff#1",
+            "id": "f5748207b9f5aca2f5732b28#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$x<0\\text{ 时，}f(-x)=- x^{2} - 4 x$",
+                  "value": "o4"
+                },
                 {
                   "label": "$x<0\\text{ 时，}f(-x)=- x^{2} + 4 x$",
                   "value": "o3"
@@ -1715,10 +1719,6 @@
                 {
                   "label": "$x<0\\text{ 时，}f(-x)=x^{2} - 4 x$",
                   "value": "o1"
-                },
-                {
-                  "label": "$x<0\\text{ 时，}f(-x)=- x^{2} - 4 x$",
-                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -1733,7 +1733,7 @@
                   "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
                 },
                 {
-                  "label": "f(-x)",
+                  "label": "$f(-x)$",
                   "math": null
                 }
               ],
@@ -1744,11 +1744,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "2d424ea7f9554891b2bbe7dc0b00dece",
+        "run_id": "75fafc3b517348c3a668625e3afc1eea",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "552fcfcb5245fcf6332a2c1219f4e0db25f09f1ff05499afb2f6c5699f5958d8",
+            "math_step_sha256": "39cbdff4cabc7808d1a3e1c58f17de09de532e6ffe31f5ef403dbbfc49dfd512",
             "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
           }
         ],
@@ -1756,10 +1756,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "936e560df664cd6135cebc24",
+        "interaction_id": "91c63c134f4c88057dcc92d1",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "0fae49c59750cc834e7b0568cd0f79623f09be244cd6621e2e7e1e5d3f0a243a",
-        "lesson_version": "7888bedef260c07ff185427be74f70a19e17fa163de840d423f3f5d1886401b7",
+        "interaction_sha256": "a150931cda844178f64cf572b9420a1625cc64365aad5cbcb1f07ec20a55cdce",
+        "lesson_version": "85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b",
         "parts": [
           {
             "completion_board": {
@@ -1768,10 +1768,10 @@
               "items": [
                 {
                   "label": "已求出的式子",
-                  "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
                 },
                 {
-                  "label": "f(x)",
+                  "label": "$f(x)$",
                   "math": "x<0\\text{ 时，}f(x)=x^{2} - 4 x"
                 }
               ],
@@ -1785,7 +1785,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "936e560df664cd6135cebc24#1",
+            "id": "91c63c134f4c88057dcc92d1#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1794,16 +1794,16 @@
                   "value": "o4"
                 },
                 {
-                  "label": "$x<0\\text{ 时，}f(x)=- x^{2} - 4 x$",
-                  "value": "o3"
+                  "label": "$x<0\\text{ 时，}f(x)=x^{2} - 4 x$",
+                  "value": "o1"
                 },
                 {
                   "label": "$x<0\\text{ 时，}f(x)=- x^{2} + 4 x$",
                   "value": "o2"
                 },
                 {
-                  "label": "$x<0\\text{ 时，}f(x)=x^{2} - 4 x$",
-                  "value": "o1"
+                  "label": "$x<0\\text{ 时，}f(x)=- x^{2} - 4 x$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -1815,10 +1815,10 @@
               "items": [
                 {
                   "label": "已求出的式子",
-                  "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
                 },
                 {
-                  "label": "f(x)",
+                  "label": "$f(x)$",
                   "math": null
                 }
               ],
@@ -1829,11 +1829,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "2d424ea7f9554891b2bbe7dc0b00dece",
+        "run_id": "75fafc3b517348c3a668625e3afc1eea",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "ec9b5dd48858a5328f8d624a232e6406ae8d9736cf961d9fd4cee014a6215f07",
+            "math_step_sha256": "5a4951cc7077ded8d9b473dbe122c057b50f935b15329b1764c1aa3514a93f6f",
             "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
           }
         ],
@@ -1841,10 +1841,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "d6cc710c64cf0b5a482a0634",
+        "interaction_id": "31d6667be76b99db4403e5f6",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "afd7ff3dd8d2fbd6795f3a837aa47f12530e8f3e985f1c82ebb4971cdad70fa3",
-        "lesson_version": "7888bedef260c07ff185427be74f70a19e17fa163de840d423f3f5d1886401b7",
+        "interaction_sha256": "a145846aeb4e9ee106ea5d8bb8d7b0e852e7df861bd6ac91e231744686f05e6f",
+        "lesson_version": "85d118e1dc8ebc180c7cad618c9d5a7706896fe4cd843ec00bf21be113c50d1b",
         "parts": [
           {
             "completion_board": {
@@ -1853,7 +1853,7 @@
               "items": [
                 {
                   "label": "已求出的式子",
-                  "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=x^{2} - 4 x\\\\x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=x^{2} - 4 x\\\\x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -1870,18 +1870,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "d6cc710c64cf0b5a482a0634#1",
+            "id": "31d6667be76b99db4403e5f6#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$f(x)=\\begin{cases}x^{2} - 4 x,&x<0\\\\x^{2} + 4 x,&x\\ge 0\\end{cases}$",
-                  "value": "o1"
-                },
-                {
-                  "label": "$x\\in D\\text{ 时，}f(x)=x^{2} - 4 x$",
-                  "value": "o2"
-                },
                 {
                   "label": "$x<0\\text{ 时，}f(x)=x^{2} - 4 x$",
                   "value": "o3"
@@ -1889,6 +1881,14 @@
                 {
                   "label": "$x\\in D\\text{ 时，}f(x)=x^{2} + 4 x$",
                   "value": "o4"
+                },
+                {
+                  "label": "$x\\in D\\text{ 时，}f(x)=x^{2} - 4 x$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x)=\\begin{cases}x^{2} - 4 x,&x<0\\\\x^{2} + 4 x,&x\\ge 0\\end{cases}$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1900,7 +1900,7 @@
               "items": [
                 {
                   "label": "已求出的式子",
-                  "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=x^{2} - 4 x\\\\x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x<0\\text{ 时，}f(x)=x^{2} - 4 x\\\\x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数：}f(x)=f(-x)\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -1914,11 +1914,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "2d424ea7f9554891b2bbe7dc0b00dece",
+        "run_id": "75fafc3b517348c3a668625e3afc1eea",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "6d1ed42f0fc91565b6ebf4fac599db32f6907dddee21c43448ecdce30bff3262",
+            "math_step_sha256": "630cd651dde3b2199f7721c97cd02bd14ca0d3da63347b512f05e503ec3c60b2",
             "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
           }
         ],

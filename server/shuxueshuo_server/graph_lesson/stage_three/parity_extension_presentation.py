@@ -286,6 +286,9 @@ def phase_views(values):
                    '这部分由已知解析式和题给函数值给出。' if (extra & given_points) != sp.S.EmptySet else
                    '这部分由已知解析式给出。')
                 + rf'${whole}$ 时 ${fx}$ 的结论是什么？')
+    if zero and free.contains(0) is not sp.true:
+        given_rows[-1] = (r'\text{' + s['property'] + '：}' + (r'0\in D\text{ 时 }' if s['abstract'] else '')
+                          + rf'{f}(0)=0')
     return [choice_card(title, question, '已求出的式子',
                         _lines([target + fx + '=' + latex(expression), *given_rows]),
                         '结论', conclusion, [_conclusion(w, s) for w in wrong[:3]], proof)]

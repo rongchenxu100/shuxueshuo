@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "b975d3cc9a9e447fb2ed4462a0ce3a27",
-    "lesson_version": "b64ae061f9408f695e27a2f740f220a37becce9ea883fd1a1ed56471179c1fee",
-    "input_sha256": "3709739407f1e1c66639c4030b284fcd9ba75e643491fb324abe9b8c54996f65",
-    "checkpoint_sha256": "ad6c2d0d82e60c356de1ece643c1d4278022cf8078615242db6df1d4d717b405",
-    "result_sha256": "83ff4d1befbdce1d44a31f950e33370112b298192ffd6b8223d6f4d3f5eb8f1d",
+    "run_id": "6fba06b9b50e47e4b24e7cccdcc22ed5",
+    "lesson_version": "bfca5c008aaacff4513ac5a885ae2bbb6fa0a65ba9250c04fd2d6915a906f87c",
+    "input_sha256": "0a8074e3f7dddf7eb0a7f6fbcfdcee920ba2284d79cccf48879a949bf96de9f3",
+    "checkpoint_sha256": "64c6346ac5da776544ff56682813c3dba1cabb560fe07f79d83fdefa4176e6de",
+    "result_sha256": "7f7fc36ab55171d70f2da5a06192af614a0b7535e9fe723bda3c517ebe99fdfd",
     "stage_one_sha256": "d3f7ec0c23854d03f60938d3cbbf2831673ba951cf38f2adbc2eeeb85a48fa07",
-    "stage_two_sha256": "ff6075c535c4a1a1b5d8cd2878f4ec8c5b5e5e1a8c303045ad8ab1a28e939e0c",
+    "stage_two_sha256": "1aa65df1be0e41a53a2f44f26eb58cb897dc503c00bd145c156a7c8f1c6cf346",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "8876323d30e539d0aa04a07d26ca377ebe8a47bf5ecb91301ac8a805c62c1bf1",
-    "teaching_revision": "b4ffa779f0ad42f6a703380afe08d586ba3e5ee58f69bc84dfd97322c31cdab5"
+    "teaching_revision": "0875fd7b5b46d5d1613e1a0176a9d0998b4cd696d93c1a8bea82586f72a82eaa"
   },
   "lesson": {
     "status": "completed",
@@ -127,7 +127,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-parity-a12//root/goals/0",
-            "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+            "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
             "problem": {
               "text": "已知函数 $y=f(x)$ 是定义域为 $\\mathbf R$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$____．"
             },
@@ -505,12 +505,12 @@
                 }
               ]
             },
-            "bundleVersion": "36f2ea7fdabe08e8cbc6e7ad224ea06af883896ddefaa60804fe0292722368ef"
+            "bundleVersion": "e71eaf38126a4afa2ad588f7c10361e36f4b24a7e556d9082c2aa5e648923425"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-parity-a12//root/goals/0",
-            "bundleVersion": "36f2ea7fdabe08e8cbc6e7ad224ea06af883896ddefaa60804fe0292722368ef",
+            "bundleVersion": "e71eaf38126a4afa2ad588f7c10361e36f4b24a7e556d9082c2aa5e648923425",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -531,10 +531,10 @@
     ]
   },
   "stream": {
-    "run_id": "b975d3cc9a9e447fb2ed4462a0ce3a27",
-    "lesson_version": "b64ae061f9408f695e27a2f740f220a37becce9ea883fd1a1ed56471179c1fee",
-    "input_sha256": "3709739407f1e1c66639c4030b284fcd9ba75e643491fb324abe9b8c54996f65",
-    "stream_id": "b975d3cc9a9e447fb2ed4462a0ce3a27",
+    "run_id": "6fba06b9b50e47e4b24e7cccdcc22ed5",
+    "lesson_version": "bfca5c008aaacff4513ac5a885ae2bbb6fa0a65ba9250c04fd2d6915a906f87c",
+    "input_sha256": "0a8074e3f7dddf7eb0a7f6fbcfdcee920ba2284d79cccf48879a949bf96de9f3",
+    "stream_id": "6fba06b9b50e47e4b24e7cccdcc22ed5",
     "last_seq": 17,
     "minimum_seq": 1,
     "math_steps": [
@@ -551,7 +551,7 @@
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\end{gathered}"
+              "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\text{，}f(0)=0\\end{gathered}"
             },
             {
               "label": "改写所求式",
@@ -560,15 +560,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "b64ae061f9408f695e27a2f740f220a37becce9ea883fd1a1ed56471179c1fee",
+        "lesson_version": "bfca5c008aaacff4513ac5a885ae2bbb6fa0a65ba9250c04fd2d6915a906f87c",
         "local_check": "passed",
-        "math_step_sha256": "e7766ce6a3ea2644a18023da81f221fa05ee8fd12991329b818e0f140d9a52fa",
+        "math_step_sha256": "b1a55ad95e3e2dbb68aee86290ac5785b1d004ad6e80a26caec33e1d5212fd21",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "9787439a58c0a8b7f406ec6a0c0315a780d90966daf5bebec20fe18308419b24",
         "route_id": "function-symmetry",
-        "run_id": "b975d3cc9a9e447fb2ed4462a0ce3a27",
+        "run_id": "6fba06b9b50e47e4b24e7cccdcc22ed5",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -590,7 +590,7 @@
           "items": [
             {
               "label": "已知与改写",
-              "math": "\\begin{gathered}f(0)+f(-1)=-f(1)\\\\x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\end{gathered}"
+              "math": "\\begin{gathered}f(0)+f(-1)=-f(1)\\\\x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\text{，}f(0)=0\\end{gathered}"
             },
             {
               "label": "结论",
@@ -599,15 +599,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "b64ae061f9408f695e27a2f740f220a37becce9ea883fd1a1ed56471179c1fee",
+        "lesson_version": "bfca5c008aaacff4513ac5a885ae2bbb6fa0a65ba9250c04fd2d6915a906f87c",
         "local_check": "passed",
-        "math_step_sha256": "99ede7e051b25b18b55f5ee6eb3ae61fdc534b6bb1f2b73eaaf3c6d585b315c0",
+        "math_step_sha256": "dde6ea4e1ec9b2aee53d46e3c31911a9e723f1bf2c9dbc415489d850a366ba02",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "9787439a58c0a8b7f406ec6a0c0315a780d90966daf5bebec20fe18308419b24",
         "route_id": "function-symmetry",
-        "run_id": "b975d3cc9a9e447fb2ed4462a0ce3a27",
+        "run_id": "6fba06b9b50e47e4b24e7cccdcc22ed5",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -661,25 +661,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "b64ae061f9408f695e27a2f740f220a37becce9ea883fd1a1ed56471179c1fee",
+        "lesson_version": "bfca5c008aaacff4513ac5a885ae2bbb6fa0a65ba9250c04fd2d6915a906f87c",
         "math_steps": [
           {
-            "math_step_sha256": "e7766ce6a3ea2644a18023da81f221fa05ee8fd12991329b818e0f140d9a52fa",
+            "math_step_sha256": "b1a55ad95e3e2dbb68aee86290ac5785b1d004ad6e80a26caec33e1d5212fd21",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "99ede7e051b25b18b55f5ee6eb3ae61fdc534b6bb1f2b73eaaf3c6d585b315c0",
+            "math_step_sha256": "dde6ea4e1ec9b2aee53d46e3c31911a9e723f1bf2c9dbc415489d850a366ba02",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "b975d3cc9a9e447fb2ed4462a0ce3a27",
+        "run_id": "6fba06b9b50e47e4b24e7cccdcc22ed5",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "db37e720b978e3197ca7c893b325727bc69ae90c80fb2f84623426160aee1892",
-        "verified_route_sha256": "fd3ac46239f8061a006bc111007c8409aa06c9be878e084bd723646e5ae93c37"
+        "task_id": "087ee3d955893c1066d2a5432cc41e3625c251445b0949b6991dd5360a60b065",
+        "verified_route_sha256": "7b194418d660877210e6bfd4341acbe5dbf37183a6970a09215ef83f3693a4d9"
       }
     ],
     "qa": [],
@@ -729,22 +729,22 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "e7766ce6a3ea2644a18023da81f221fa05ee8fd12991329b818e0f140d9a52fa",
+        "math_step_sha256": "b1a55ad95e3e2dbb68aee86290ac5785b1d004ad6e80a26caec33e1d5212fd21",
         "status": "interactive",
-        "interaction_id": "bdaf1312183b9bbf179387b5"
+        "interaction_id": "0cce40e05d7671a1b3918fe9"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "99ede7e051b25b18b55f5ee6eb3ae61fdc534b6bb1f2b73eaaf3c6d585b315c0",
+        "math_step_sha256": "dde6ea4e1ec9b2aee53d46e3c31911a9e723f1bf2c9dbc415489d850a366ba02",
         "status": "interactive",
-        "interaction_id": "7edcd60206e3099a718417c4"
+        "interaction_id": "e3c20f4e1ea17271ca709978"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+    "revisions_ref": "9787439a58c0a8b7f406ec6a0c0315a780d90966daf5bebec20fe18308419b24",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -752,7 +752,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:function-symmetry:complete",
-        "last_seq": 15
+        "last_seq": 17
       }
     ],
     "trajectories": [
@@ -841,10 +841,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "bdaf1312183b9bbf179387b5",
+        "interaction_id": "0cce40e05d7671a1b3918fe9",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "3647e6e948a45edd53c19ea9829c2a7f209d265695d28d6cc5a4d1c1841365f1",
-        "lesson_version": "b64ae061f9408f695e27a2f740f220a37becce9ea883fd1a1ed56471179c1fee",
+        "interaction_sha256": "e179b189aa64c988ec54bd2aa241f59dea7555354d329d77bcdc88f002414620",
+        "lesson_version": "bfca5c008aaacff4513ac5a885ae2bbb6fa0a65ba9250c04fd2d6915a906f87c",
         "parts": [
           {
             "completion_board": {
@@ -853,7 +853,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\text{，}f(0)=0\\end{gathered}"
                 },
                 {
                   "label": "改写所求式",
@@ -870,21 +870,21 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "bdaf1312183b9bbf179387b5#1",
+            "id": "0cce40e05d7671a1b3918fe9#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(0)+f(-1)=f(1)$",
-                  "value": "o2"
+                  "label": "$f(0)+f(-1)=-f(1)+1$",
+                  "value": "o3"
                 },
                 {
                   "label": "$f(0)+f(-1)=-f(1)$",
                   "value": "o1"
                 },
                 {
-                  "label": "$f(0)+f(-1)=-f(1)+1$",
-                  "value": "o3"
+                  "label": "$f(0)+f(-1)=f(1)$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -896,7 +896,7 @@
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\text{，}f(0)=0\\end{gathered}"
                 },
                 {
                   "label": "改写所求式",
@@ -910,11 +910,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "b975d3cc9a9e447fb2ed4462a0ce3a27",
+        "run_id": "6fba06b9b50e47e4b24e7cccdcc22ed5",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "e7766ce6a3ea2644a18023da81f221fa05ee8fd12991329b818e0f140d9a52fa",
+            "math_step_sha256": "b1a55ad95e3e2dbb68aee86290ac5785b1d004ad6e80a26caec33e1d5212fd21",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -922,10 +922,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "7edcd60206e3099a718417c4",
+        "interaction_id": "e3c20f4e1ea17271ca709978",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "86f5163ed24d290c52b5429bb982e46615f40d1a6d253cb08fdf17f3c8a8ee63",
-        "lesson_version": "b64ae061f9408f695e27a2f740f220a37becce9ea883fd1a1ed56471179c1fee",
+        "interaction_sha256": "163091c0968bd3ddf400d319d43ee15e4e5f56b777fe80b4f3db69be959daf37",
+        "lesson_version": "bfca5c008aaacff4513ac5a885ae2bbb6fa0a65ba9250c04fd2d6915a906f87c",
         "parts": [
           {
             "completion_board": {
@@ -934,7 +934,7 @@
               "items": [
                 {
                   "label": "已知与改写",
-                  "math": "\\begin{gathered}f(0)+f(-1)=-f(1)\\\\x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}f(0)+f(-1)=-f(1)\\\\x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\text{，}f(0)=0\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -951,7 +951,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "7edcd60206e3099a718417c4#1",
+            "id": "e3c20f4e1ea17271ca709978#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -964,12 +964,12 @@
                   "value": "o4"
                 },
                 {
-                  "label": "$f(0)+f(-1)=4$",
-                  "value": "o2"
-                },
-                {
                   "label": "$f(0)+f(-1)=-4$",
                   "value": "o1"
+                },
+                {
+                  "label": "$f(0)+f(-1)=4$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -981,7 +981,7 @@
               "items": [
                 {
                   "label": "已知与改写",
-                  "math": "\\begin{gathered}f(0)+f(-1)=-f(1)\\\\x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\end{gathered}"
+                  "math": "\\begin{gathered}f(0)+f(-1)=-f(1)\\\\x>0\\text{ 时，}f(x)=x^{3}+2x+1\\\\f\\text{ 是奇函数}\\text{，}f(0)=0\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -995,11 +995,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "b975d3cc9a9e447fb2ed4462a0ce3a27",
+        "run_id": "6fba06b9b50e47e4b24e7cccdcc22ed5",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "99ede7e051b25b18b55f5ee6eb3ae61fdc534b6bb1f2b73eaaf3c6d585b315c0",
+            "math_step_sha256": "dde6ea4e1ec9b2aee53d46e3c31911a9e723f1bf2c9dbc415489d850a366ba02",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],

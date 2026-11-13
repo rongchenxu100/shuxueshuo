@@ -36,7 +36,7 @@
             "method-function-symmetry"
           ]
         },
-        "819a976e41b7193183fb97bc#1": {
+        "3756c1ef8c7fc775c1a15b90#1": {
           "title": "先确定定义域中的参数",
           "position": 4,
           "refs": [
@@ -44,7 +44,7 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "819a976e41b7193183fb97bc#2": {
+        "3756c1ef8c7fc775c1a15b90#2": {
           "title": "把输入换成相反数",
           "position": 5,
           "refs": [
@@ -52,7 +52,7 @@
             "skill-function-symmetry-transform"
           ]
         },
-        "36b686351b61966cd0f2cc26#1": {
+        "af2220b2881bd061c304f4af#1": {
           "title": "求出所求的值",
           "position": 6,
           "refs": [
@@ -62,6 +62,6 @@
       }
     }
   },
-  "page_contract_hash": "26daad93a423e1245778f9cd2ddcfdecb001e6f3aa6d0aff291c86b6141a5d6c",
-  "practice_version": "5ddf81fd3aebe10f81f7069a9c323b674784ca73675ee31e03110547a079ce76"
+  "page_contract_hash": "6b609b47677559e06cc9fc54b7f777555509bd13fc964287f19ca42f492c676f",
+  "practice_version": "05b2bd2cbf3cfc9569f0f76586b131678deb8dba35fca83acc33db6feb3d0020"
 }

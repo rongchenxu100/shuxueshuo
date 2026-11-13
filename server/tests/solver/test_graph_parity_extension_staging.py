@@ -1,4 +1,4 @@
-"""Staged FP-T3 questions compile and grade in isolation without publishing links."""
+"""Staged FP-T3 questions compile and grade in isolation."""
 import json
 import subprocess
 
@@ -13,12 +13,13 @@ STAGING = ROOT/'internal/senior-high/authored-courses/function-parity-t3-staged-
 MANIFEST = json.loads(STAGING.read_text())
 
 
-def test_staged_questions_are_not_public_yet():
+def test_staged_questions_are_published_from_their_records():
     topic = json.loads((ROOT/'site/data/knowledge-next/topics/function-parity.json').read_text())
-    ids = {entry['id'] for entry in MANIFEST['pending'] + MANIFEST['partial']}
-    assert not ids & set(topic['problems'])
-    assert not any(ids & set(group['problems']) for group in topic['groups'])
-    assert not any((ROOT/'site/data/graph-walk'/f'{i}.source.json').exists() for i in ids)
+    assert {entry['id'] for entry in MANIFEST['pending'] + MANIFEST['partial']} <= set(topic['problems'])
+    for entry in MANIFEST['pending']:
+        public = json.loads((ROOT/'site/data/graph-walk'/f'{entry["id"]}.source.json').read_text())
+        assert public['authoringSource'] == entry['authored_source']
+        assert all(public[k] == v for k, v in entry['course_source'].items())
 
 
 @pytest.mark.parametrize('entry', [e for e in MANIFEST['partial'] if 'authored_source' in e], ids=lambda v: v['id'])
