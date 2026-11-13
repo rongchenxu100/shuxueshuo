@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-b11-v3",
+  "title": "按斜率分类求值域 · B11",
+  "page": "/topics/function-monotonicity/q11b/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知 $f(x)=x^2-2x$，$g(x)=ax-1$。若 $\\forall x1\\in[-1,2]:\\exists x2\\in[-1,2]:f(x1)=g(x2)$，求实数 $a$ 的取值范围。",
+  "evidence": "site/data/graph-walk/function-monotonicity-b11-v3.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-publication-20261112/b11-v3.json"
+}

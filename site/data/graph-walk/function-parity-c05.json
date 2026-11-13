@@ -1,0 +1,1659 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-c05",
+  "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
+  "problem": {
+    "text": "已知函数 $f(x)=\\sqrt{px^2}$ 为奇函数，求实数 $p$ 的取值范围。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "这一问的已知条件和目标是什么？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "判断函数是奇函数还是偶函数",
+            "feedback": "奇偶性是已知条件；要确定哪些 $p$ 使这个条件成立。"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "根据题给奇偶性，求参数 $p$ 的全部取值"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o1"
+        ]
+      },
+      "feedback": {
+        "answer": "奇偶性是已知条件；要确定哪些 $p$ 使这个条件成立。"
+      },
+      "candidateNodes": [
+        "function-parity",
+        "type-function-parity",
+        "type-parity-parameter",
+        "type-function-symmetry",
+        "type-parity-formula",
+        "type-parity-inequality",
+        "type-shifted-odd-application"
+      ],
+      "effects": {
+        "nodes": [
+          "function-parity"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "$f(x)=\\sqrt{p\\cdot x^{2}}$；$\\text{定义域由根号内非负确定}$；$\\text{奇函数}$。根据题给奇偶性，求参数 $p$ 的全部取值。"
+        ],
+        "log": "图谱查询：从 1 个知识线索反查，找到 6 个相关题型；最高覆盖 1/1。"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-function-parity",
+            "label": "判断函数的奇偶性",
+            "note": "原目标是判断一个已给解析式的函数的奇偶性",
+            "feedback": "判断函数的奇偶性，目标是性质；本型的性质已给，目标是参数。"
+          },
+          {
+            "value": "type-parity-parameter",
+            "label": "根据奇偶性求参",
+            "note": "已知奇偶性，所求是函数中的参数"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-parity-parameter"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-function-parity",
+        "type-parity-parameter"
+      ],
+      "effects": {
+        "nodes": [
+          "type-parity-parameter"
+        ],
+        "edges": [
+          "type-parity-parameter|involves|function-parity"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：题目给出含参函数和奇偶性，要求参数的值或范围。"
+        ],
+        "log": "作答判断：选择主要题型「根据奇偶性求参」；另外 1 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read",
+        "methods": [
+          {
+            "value": "direct",
+            "label": "奇偶性条件求参法",
+            "target": "method-parity-parameter",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "parity-parameter"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-parity-parameter",
+        "op": "methods"
+      },
+      "question": "使用奇偶性条件求参法：先核对定义域，再把已知奇偶性写成函数值关系。比较对应项的系数，求出满足全部条件的参数，并代回检查。",
+      "submit_label": "用奇偶性条件求参法解题",
+      "title": "选择解题方法",
+      "verdicts": {},
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "method-parity-parameter"
+      ],
+      "effects": {
+        "nodes": [
+          "method-parity-parameter"
+        ],
+        "edges": [
+          "type-parity-parameter|candidate|method-parity-parameter"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "本题可直接使用这条已验证的方法路线。"
+      },
+      "route_by_answer": {
+        "read": "parity-parameter"
+      }
+    }
+  ],
+  "routes": {
+    "parity-parameter": {
+      "id": "parity-parameter",
+      "method": "method-parity-parameter",
+      "label": "奇偶性条件求参法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "求定义域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原题条件",
+                "math": "\\begin{gathered}f(x)=\\sqrt{p\\cdot x^{2}}\\\\\\text{定义域由根号内非负确定}\\\\\\text{奇函数}\\end{gathered}"
+              },
+              {
+                "label": "定义域",
+                "math": "\\begin{gathered}p x^{2}\\ge0\\\\p\\ge 0\\text{ 时，}D=\\mathbb R\\\\p<0\\text{ 时，}D=\\{0\\}\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "8a4fa29f5cfac6adc47f0c82#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "先求 $f(x)$ 的定义域。",
+          "stem_board": {
+            "caption": "求定义域",
+            "lines": [
+              "$$p x^{2}\\ge0$$",
+              "$$p\\ge 0\\text{ 时，}D=\\mathbb R$$",
+              "$$p<0\\text{ 时，}D=\\{0\\}$$"
+            ]
+          },
+          "submit_label": "继续",
+          "title": "求定义域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "42adc1cd745c6a4d37f63c3eacc4685d1973122e4c21397c30d864a3bf980e6a",
+              "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_original_prepare"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "8a4fa29f5cfac6adc47f0c82",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "求定义域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：求定义域"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "把相反数代入原式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原题条件",
+                "math": "\\begin{gathered}f(x)=\\sqrt{p\\cdot x^{2}}\\\\\\text{定义域由根号内非负确定}\\\\\\text{奇函数}\\end{gathered}"
+              },
+              {
+                "label": "代入结果",
+                "math": "f(-x)=\\sqrt{p\\cdot (-x)^{2}}=\\sqrt{p x^{2}}=f(x)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "e7ccb2dc5b34b3a365dfd03c#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "把 $-x$ 代入根式，和 $f(x)$ 比较。",
+          "stem_board": {
+            "caption": "把相反数代入原式",
+            "lines": [
+              "$$f(-x)=\\sqrt{p\\cdot (-x)^{2}}=\\sqrt{p x^{2}}=f(x)$$",
+              "$$f(-x)=-f(x)$$"
+            ]
+          },
+          "submit_label": "继续",
+          "title": "把相反数代入原式",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "27fac49177b866392af781a58810de15c00c2966a2eb5b177efbede846a3a4a6",
+              "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "e7ccb2dc5b34b3a365dfd03c",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "把相反数代入原式",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：把相反数代入原式"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "分情况讨论",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原题条件",
+                "math": "\\begin{gathered}f(x)=\\sqrt{p\\cdot x^{2}}\\\\p\\ge 0\\text{ 时，}D=\\mathbb R\\\\p<0\\text{ 时，}D=\\{0\\}\\\\\\text{奇函数}\\end{gathered}"
+              },
+              {
+                "label": "各情况的结论",
+                "math": "\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "41ee10fb1ebc3659ce2c4ce6#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "按定义域分情况，检查每种情况下 $f(-x)=-f(x)$ 能否成立。",
+          "stem_board": {
+            "caption": "分情况讨论",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "分情况讨论",
+                "math": "\\begin{gathered}p\\ge 0\\text{ 时：}D=\\mathbb R\\text{，需 }f(x)=0\\text{ 恒成立}\\\\p<0\\text{ 时：}D=\\{0\\}\\text{，}f(0)=0\\end{gathered}"
+              },
+              {
+                "label": "各情况的结论",
+                "math": "\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "继续",
+          "title": "分情况讨论",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "272b7d2e6ab5af8e4667c8028b53add20501c93f33ccd535f4c66e837259887e",
+              "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "41ee10fb1ebc3659ce2c4ce6",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "分情况讨论",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：分情况讨论"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "取并集",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "各情况的结论",
+                "math": "\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}"
+              },
+              {
+                "label": "参数范围",
+                "math": "p\\in \\left(-\\infty, 0\\right]"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "f7b85d4976e335e6d8eae80e#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$p\\in \\mathbb{R}$",
+                "value": "o4"
+              },
+              {
+                "label": "$p\\in \\left\\{0\\right\\}$",
+                "value": "o2"
+              },
+              {
+                "label": "$p\\in \\left(-\\infty, 0\\right)$",
+                "value": "o3"
+              },
+              {
+                "label": "$p\\in \\left(-\\infty, 0\\right]$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把各种情况得到的参数合在一起。",
+          "stem_board": {
+            "caption": "取并集",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "各情况的结论",
+                "math": "\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}"
+              },
+              {
+                "label": "参数范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "取并集",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "79b7e3996158fcea9f3f8fc58dbe12a2e00759dcff53de09509769e7cc255df9",
+              "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "f7b85d4976e335e6d8eae80e",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "取并集",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：取并集"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "代回核验",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "代入参数",
+                "math": "\\begin{gathered}p=0\\text{ 时，}D=\\mathbb R\\\\p=0\\text{ 时，}f(x)=0\\\\p<0\\text{ 时，}D=\\{0\\}\\end{gathered}"
+              },
+              {
+                "label": "检验",
+                "math": "\\begin{gathered}p=0\\text{ 时，}f(-x)=0\\\\p<0\\text{ 时，}f(0)=0\\\\\\Rightarrow\\ f(-x)=-f(x)\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "$p=-1$ 时，实线 $f(x)$ 与虚线 $-f(-x)$ 重合。",
+            "kind": "sampled_curve",
+            "params": {
+              "bounds": [
+                -2,
+                2,
+                -1.15,
+                1.15
+              ],
+              "description": "实线为原函数，虚线为镜像；空心点不取，实心点取到。图窗裁剪处不是定义域端点。",
+              "dividers": [
+                0
+              ],
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [],
+              "title": "p=-1 时的函数与镜像",
+              "traces": [
+                {
+                  "label": "f(x)",
+                  "markers": [
+                    {
+                      "closed": true,
+                      "x": 0,
+                      "y": 0
+                    }
+                  ],
+                  "segments": []
+                },
+                {
+                  "label": "-f(-x)",
+                  "markers": [
+                    {
+                      "closed": true,
+                      "x": 0,
+                      "y": 0
+                    }
+                  ],
+                  "segments": []
+                }
+              ],
+              "variable": "x",
+              "xTicks": [
+                [
+                  0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "5af82d4fdb584d35edffec44#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "把各种情况的参数分别代回原式检查。",
+          "stem_board": {
+            "caption": "代回核验",
+            "lines": [
+              "$$p=0\\text{ 时，}D=\\mathbb R$$",
+              "$$p=0\\text{ 时，}f(x)=0$$",
+              "$$p<0\\text{ 时，}D=\\{0\\}$$",
+              "$$p=0\\text{ 时，}f(-x)=0$$",
+              "$$p<0\\text{ 时，}f(0)=0$$",
+              "$$\\Rightarrow\\ f(-x)=-f(x)$$",
+              "$$p\\in \\left(-\\infty, 0\\right]$$"
+            ]
+          },
+          "submit_label": "继续",
+          "title": "代回核验",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "0b9cb698ae49551f8d077075cf67752640071876eaebf21a5decca3247dd7cad",
+              "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "5af82d4fdb584d35edffec44",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "代回核验",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：代回核验"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "kind": "find_range",
+          "set": {
+            "expression": "Interval(-oo, 0)",
+            "latex": "\\left(-\\infty, 0\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "exact": {
+            "$math": "Interval",
+            "args": [
+              {
+                "$math": "NegativeInfinity"
+              },
+              {
+                "$math": "Integer",
+                "value": "0"
+              },
+              {
+                "$math": "BooleanTrue"
+              },
+              {
+                "$math": "BooleanFalse"
+              }
+            ]
+          },
+          "expression": "Interval(-oo, 0)",
+          "latex": "\\left(-\\infty, 0\\right]"
+        },
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "math_steps": [
+          {
+            "math_step_sha256": "42adc1cd745c6a4d37f63c3eacc4685d1973122e4c21397c30d864a3bf980e6a",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_original_prepare"
+          },
+          {
+            "math_step_sha256": "27fac49177b866392af781a58810de15c00c2966a2eb5b177efbede846a3a4a6",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
+          },
+          {
+            "math_step_sha256": "272b7d2e6ab5af8e4667c8028b53add20501c93f33ccd535f4c66e837259887e",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
+          },
+          {
+            "math_step_sha256": "79b7e3996158fcea9f3f8fc58dbe12a2e00759dcff53de09509769e7cc255df9",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
+          },
+          {
+            "math_step_sha256": "0b9cb698ae49551f8d077075cf67752640071876eaebf21a5decca3247dd7cad",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "a274216e0b7305ccd9216b627badbf1e217b55d2da657a369021b3ca80c26317",
+        "verified_route_sha256": "a1824f80c43c4c69836d0dea4fa9f6bb9424aa3f15dbb57c488b3b2b8df24fc7"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-parity/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "function-parity",
+        "kind": "knowledge",
+        "label": "函数的奇偶性",
+        "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-parity",
+        "kind": "problem_type",
+        "label": "判断函数的奇偶性",
+        "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-parity-parameter",
+        "kind": "problem_type",
+        "label": "根据奇偶性求参",
+        "summary": "已知函数的奇偶性，求使定义域与函数值关系同时满足要求的参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-symmetry",
+        "kind": "problem_type",
+        "label": "利用图像对称关系求值与求和",
+        "summary": "依据对称轴、对称中心或限定范围的对称等式，变换输入并求值或求和。",
+        "aliases": [],
+        "status": "active"
+      },
+      {
+        "id": "type-parity-formula",
+        "kind": "problem_type",
+        "label": "根据奇偶性求解析式",
+        "summary": "已知奇偶性和一侧的解析式，求另一侧指定范围内的解析式。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-parity-inequality",
+        "kind": "problem_type",
+        "label": "利用奇偶性解不等式",
+        "summary": "已知奇偶性，以及一侧的解析式、单调性或零点，解关于函数值的不等式。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-shifted-odd-application",
+        "kind": "problem_type",
+        "label": "奇函数＋常数结论的应用",
+        "summary": "先明确奇函数与原函数的关系，再求相反输入的值、配对和或最值之和。",
+        "aliases": [],
+        "status": "active"
+      },
+      {
+        "id": "method-parity-parameter",
+        "kind": "method",
+        "label": "奇偶性条件求参法",
+        "summary": "保留原式与参数限制，把奇偶性转为恒等条件，求出全部参数并回验。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "prepare",
+            "title": "检查定义域",
+            "calls": [
+              "method-domain-intersection",
+              "skill-domain-symmetry"
+            ]
+          },
+          {
+            "id": "identity",
+            "title": "把奇偶性写成关系",
+            "calls": [
+              "method-function-evaluation"
+            ]
+          },
+          {
+            "id": "compare",
+            "title": "检查函数值关系",
+            "calls": [
+              "skill-polynomial-coefficient-comparison"
+            ]
+          },
+          {
+            "id": "solve",
+            "title": "合并全部参数条件",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "代回核验",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-domain-intersection",
+        "kind": "method",
+        "label": "列条件求交集法",
+        "summary": "求具体函数定义域时，按原式列出有意义的条件，分别求解，再与题给范围取交集并检查端点。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "extract",
+            "title": "找限制位置并列条件",
+            "calls": [
+              "skill-expression-defined"
+            ]
+          },
+          {
+            "id": "solve",
+            "title": "解每个条件",
+            "calls": [
+              "skill-inequality-transform"
+            ]
+          },
+          {
+            "id": "intersect",
+            "title": "把全部条件与题给范围取交集",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "检查原式与端点",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "function-concept",
+        "kind": "knowledge",
+        "label": "函数的概念",
+        "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+        "aliases": [
+          "函数定义",
+          "函数三要素"
+        ],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "set-intersection-union",
+        "kind": "knowledge",
+        "label": "集合的交集与并集",
+        "summary": "交集表达同时满足的条件，并集表达至少满足一种条件的范围。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch1"
+      },
+      {
+        "id": "method-function-evaluation",
+        "kind": "method",
+        "label": "代入法",
+        "summary": "把完整输入放进已有函数规则，按内到外计算并保留原输入限制；可验证定值与有限配对求和。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "evaluate",
+            "title": "代入并计算",
+            "calls": [
+              "skill-expression-defined",
+              "skill-simplify",
+              "skill-equality-transform",
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "核验原式与目标结果",
+            "calls": []
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "function-concept|prerequisite|function-parity",
+        "from": "function-concept",
+        "to": "function-parity",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "method-parity-parameter|calls|method-domain-intersection",
+        "from": "method-parity-parameter",
+        "to": "method-domain-intersection",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "prepare",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-parity-parameter|calls|method-function-evaluation",
+        "from": "method-parity-parameter",
+        "to": "method-function-evaluation",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "identity",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "type-function-parity|involves|function-parity",
+        "from": "type-function-parity",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-symmetry|involves|function-parity",
+        "from": "type-function-symmetry",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-parity-formula|involves|function-parity",
+        "from": "type-parity-formula",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-parity-inequality|involves|function-parity",
+        "from": "type-parity-inequality",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-parity-parameter|candidate|method-parity-parameter",
+        "from": "type-parity-parameter",
+        "to": "method-parity-parameter",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-parity-parameter|involves|function-parity",
+        "from": "type-parity-parameter",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-shifted-odd-application|involves|function-parity",
+        "from": "type-shifted-odd-application",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "function-parity"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "function-concept",
+          "set-intersection-union"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"a629d6b7cfb3ffcef57094bc9a1bf9ecfc0b22f039db6f0fc3dee60337104c49\",\"8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2\",\"31f0534a1b784d23bb2630e13548066e\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "31f0534a1b784d23bb2630e13548066e",
+    "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+    "stream_id": "31f0534a1b784d23bb2630e13548066e",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "a629d6b7cfb3ffcef57094bc9a1bf9ecfc0b22f039db6f0fc3dee60337104c49",
+    "d3": {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read"
+      },
+      "query": {
+        "from": "type-parity-parameter",
+        "op": "methods"
+      },
+      "question": "先核对定义域，再把已知奇偶性写成函数值关系。比较对应项的系数，求出满足全部条件的参数，并代回检查。",
+      "submit_label": "用奇偶性条件求参法解题",
+      "title": "选择解题方法",
+      "verdicts": {}
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "direct",
+          "message": "开始解题",
+          "method": "method-parity-parameter",
+          "recommendation": "preferred",
+          "route_id": "parity-parameter",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_original_prepare",
+        "explanation": "$$\\begin{gathered}p x^{2}\\ge0\\\\p\\ge 0\\text{ 时，}D=\\mathbb R\\\\p<0\\text{ 时，}D=\\{0\\}\\end{gathered}$$",
+        "highlight": {
+          "caption": "求定义域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原题条件",
+              "math": "\\begin{gathered}f(x)=\\sqrt{p\\cdot x^{2}}\\\\\\text{定义域由根号内非负确定}\\\\\\text{奇函数}\\end{gathered}"
+            },
+            {
+              "label": "定义域",
+              "math": "\\begin{gathered}p x^{2}\\ge0\\\\p\\ge 0\\text{ 时，}D=\\mathbb R\\\\p<0\\text{ 时，}D=\\{0\\}\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "local_check": "passed",
+        "math_step_sha256": "42adc1cd745c6a4d37f63c3eacc4685d1973122e4c21397c30d864a3bf980e6a",
+        "method_ref": "method-parity-parameter#prepare",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/skipped_calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_original_prepare",
+        "target_ref": "/root/goals/0",
+        "title": "求定义域",
+        "used_basis": [
+          "function-concept#elements",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_identity",
+        "explanation": "$$\\begin{gathered}f(-x)=\\sqrt{p\\cdot (-x)^{2}}=\\sqrt{p x^{2}}=f(x)\\\\f(-x)=-f(x)\\end{gathered}$$",
+        "highlight": {
+          "caption": "把相反数代入原式",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原题条件",
+              "math": "\\begin{gathered}f(x)=\\sqrt{p\\cdot x^{2}}\\\\\\text{定义域由根号内非负确定}\\\\\\text{奇函数}\\end{gathered}"
+            },
+            {
+              "label": "代入结果",
+              "math": "f(-x)=\\sqrt{p\\cdot (-x)^{2}}=\\sqrt{p x^{2}}=f(x)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "local_check": "passed",
+        "math_step_sha256": "27fac49177b866392af781a58810de15c00c2966a2eb5b177efbede846a3a4a6",
+        "method_ref": "method-parity-parameter#identity",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity",
+        "target_ref": "/root/goals/0",
+        "title": "把相反数代入原式",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_compare",
+        "explanation": "$$\\begin{gathered}p\\ge 0\\text{ 时：}D=\\mathbb R\\text{，需 }f(x)=0\\text{ 恒成立}\\\\p<0\\text{ 时：}D=\\{0\\}\\text{，}f(0)=0\\\\p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}$$",
+        "highlight": {
+          "caption": "分情况讨论",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原题条件",
+              "math": "\\begin{gathered}f(x)=\\sqrt{p\\cdot x^{2}}\\\\p\\ge 0\\text{ 时，}D=\\mathbb R\\\\p<0\\text{ 时，}D=\\{0\\}\\\\\\text{奇函数}\\end{gathered}"
+            },
+            {
+              "label": "各情况的结论",
+              "math": "\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "local_check": "passed",
+        "math_step_sha256": "272b7d2e6ab5af8e4667c8028b53add20501c93f33ccd535f4c66e837259887e",
+        "method_ref": "method-parity-parameter#compare",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/skipped_calls/2",
+          "/steps/2/skipped_calls/3",
+          "/steps/2/merges/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare",
+        "target_ref": "/root/goals/0",
+        "title": "分情况讨论",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_solve",
+        "explanation": "$$\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\\\p\\in \\left(-\\infty, 0\\right]\\end{gathered}$$",
+        "highlight": {
+          "caption": "取并集",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "各情况的结论",
+              "math": "\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}"
+            },
+            {
+              "label": "参数范围",
+              "math": "p\\in \\left(-\\infty, 0\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "local_check": "passed",
+        "math_step_sha256": "79b7e3996158fcea9f3f8fc58dbe12a2e00759dcff53de09509769e7cc255df9",
+        "method_ref": "method-parity-parameter#solve",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "source_refs": [
+          "/steps/3/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve",
+        "target_ref": "/root/goals/0",
+        "title": "取并集",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_verify",
+        "explanation": "$$\\begin{gathered}p=0\\text{ 时，}D=\\mathbb R\\\\p=0\\text{ 时，}f(x)=0\\\\p<0\\text{ 时，}D=\\{0\\}\\\\p=0\\text{ 时，}f(-x)=0\\\\p<0\\text{ 时，}f(0)=0\\\\\\Rightarrow\\ f(-x)=-f(x)\\\\p\\in \\left(-\\infty, 0\\right]\\end{gathered}$$",
+        "highlight": {
+          "caption": "代回核验",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "代入参数",
+              "math": "\\begin{gathered}p=0\\text{ 时，}D=\\mathbb R\\\\p=0\\text{ 时，}f(x)=0\\\\p<0\\text{ 时，}D=\\{0\\}\\end{gathered}"
+            },
+            {
+              "label": "检验",
+              "math": "\\begin{gathered}p=0\\text{ 时，}f(-x)=0\\\\p<0\\text{ 时，}f(0)=0\\\\\\Rightarrow\\ f(-x)=-f(x)\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "local_check": "passed",
+        "math_step_sha256": "0b9cb698ae49551f8d077075cf67752640071876eaebf21a5decca3247dd7cad",
+        "method_ref": "method-parity-parameter#verify",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify",
+        "target_ref": "/root/goals/0",
+        "title": "代回核验",
+        "used_basis": []
+      }
+    ],
+    "step_calls": {
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-001-parity_parameter_original_prepare\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "prepare",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-parity-parameter",
+          "step": "prepare",
+          "ref": "method-domain-intersection",
+          "usedBasis": [
+            "function-concept#elements",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/0/calls/1"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-002-parity_parameter_identity\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "identity",
+          "ref": "method-function-evaluation",
+          "usedBasis": [],
+          "source": "/steps/1/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-003-parity_parameter_compare\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "compare",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-004-parity_parameter_solve\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/3/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-005-parity_parameter_verify\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "verify",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/4/calls/0"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_original_prepare",
+        "ordinal": 1,
+        "math_step_sha256": "42adc1cd745c6a4d37f63c3eacc4685d1973122e4c21397c30d864a3bf980e6a",
+        "status": "interactive",
+        "interaction_id": "8a4fa29f5cfac6adc47f0c82"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity",
+        "ordinal": 2,
+        "math_step_sha256": "27fac49177b866392af781a58810de15c00c2966a2eb5b177efbede846a3a4a6",
+        "status": "interactive",
+        "interaction_id": "e7ccb2dc5b34b3a365dfd03c"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare",
+        "ordinal": 3,
+        "math_step_sha256": "272b7d2e6ab5af8e4667c8028b53add20501c93f33ccd535f4c66e837259887e",
+        "status": "interactive",
+        "interaction_id": "41ee10fb1ebc3659ce2c4ce6"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve",
+        "ordinal": 4,
+        "math_step_sha256": "79b7e3996158fcea9f3f8fc58dbe12a2e00759dcff53de09509769e7cc255df9",
+        "status": "interactive",
+        "interaction_id": "f7b85d4976e335e6d8eae80e"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify",
+        "ordinal": 5,
+        "math_step_sha256": "0b9cb698ae49551f8d077075cf67752640071876eaebf21a5decca3247dd7cad",
+        "status": "interactive",
+        "interaction_id": "5af82d4fdb584d35edffec44"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "8a4fa29f5cfac6adc47f0c82",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "236cc50e549d9dfe18e870dffe2b4fa506f370d7377e70ccf38a7bff382566af",
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "求定义域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原题条件",
+                  "math": "\\begin{gathered}f(x)=\\sqrt{p\\cdot x^{2}}\\\\\\text{定义域由根号内非负确定}\\\\\\text{奇函数}\\end{gathered}"
+                },
+                {
+                  "label": "定义域",
+                  "math": "\\begin{gathered}p x^{2}\\ge0\\\\p\\ge 0\\text{ 时，}D=\\mathbb R\\\\p<0\\text{ 时，}D=\\{0\\}\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "8a4fa29f5cfac6adc47f0c82#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "先求 $f(x)$ 的定义域。",
+            "stem_board": {
+              "caption": "求定义域",
+              "lines": [
+                "$$p x^{2}\\ge0$$",
+                "$$p\\ge 0\\text{ 时，}D=\\mathbb R$$",
+                "$$p<0\\text{ 时，}D=\\{0\\}$$"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "求定义域"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "42adc1cd745c6a4d37f63c3eacc4685d1973122e4c21397c30d864a3bf980e6a",
+            "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_original_prepare"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "e7ccb2dc5b34b3a365dfd03c",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "c8de1dc3451e8cc4392eca17748d09d18a2d613c40142783bf14473f5789144a",
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把相反数代入原式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原题条件",
+                  "math": "\\begin{gathered}f(x)=\\sqrt{p\\cdot x^{2}}\\\\\\text{定义域由根号内非负确定}\\\\\\text{奇函数}\\end{gathered}"
+                },
+                {
+                  "label": "代入结果",
+                  "math": "f(-x)=\\sqrt{p\\cdot (-x)^{2}}=\\sqrt{p x^{2}}=f(x)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "e7ccb2dc5b34b3a365dfd03c#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "把 $-x$ 代入根式，和 $f(x)$ 比较。",
+            "stem_board": {
+              "caption": "把相反数代入原式",
+              "lines": [
+                "$$f(-x)=\\sqrt{p\\cdot (-x)^{2}}=\\sqrt{p x^{2}}=f(x)$$",
+                "$$f(-x)=-f(x)$$"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "把相反数代入原式"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "27fac49177b866392af781a58810de15c00c2966a2eb5b177efbede846a3a4a6",
+            "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "41ee10fb1ebc3659ce2c4ce6",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "3cfda20451273a579ab43abf54e6cc7e7c799a98a6e511ecee93b5a6ff45f999",
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "分情况讨论",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原题条件",
+                  "math": "\\begin{gathered}f(x)=\\sqrt{p\\cdot x^{2}}\\\\p\\ge 0\\text{ 时，}D=\\mathbb R\\\\p<0\\text{ 时，}D=\\{0\\}\\\\\\text{奇函数}\\end{gathered}"
+                },
+                {
+                  "label": "各情况的结论",
+                  "math": "\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "41ee10fb1ebc3659ce2c4ce6#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "按定义域分情况，检查每种情况下 $f(-x)=-f(x)$ 能否成立。",
+            "stem_board": {
+              "caption": "分情况讨论",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "分情况讨论",
+                  "math": "\\begin{gathered}p\\ge 0\\text{ 时：}D=\\mathbb R\\text{，需 }f(x)=0\\text{ 恒成立}\\\\p<0\\text{ 时：}D=\\{0\\}\\text{，}f(0)=0\\end{gathered}"
+                },
+                {
+                  "label": "各情况的结论",
+                  "math": "\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "继续",
+            "title": "分情况讨论"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "272b7d2e6ab5af8e4667c8028b53add20501c93f33ccd535f4c66e837259887e",
+            "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "f7b85d4976e335e6d8eae80e",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "5ab8ebba9722b800dc216637a9e9bfd7d38709045f58d9927273a2d222a0e406",
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "取并集",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "各情况的结论",
+                  "math": "\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}"
+                },
+                {
+                  "label": "参数范围",
+                  "math": "p\\in \\left(-\\infty, 0\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "f7b85d4976e335e6d8eae80e#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$p\\in \\mathbb{R}$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$p\\in \\left\\{0\\right\\}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$p\\in \\left(-\\infty, 0\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$p\\in \\left(-\\infty, 0\\right]$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把各种情况得到的参数合在一起。",
+            "stem_board": {
+              "caption": "取并集",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "各情况的结论",
+                  "math": "\\begin{gathered}p\\ge 0\\text{ 时：}p=0\\\\p<0\\text{ 时：}\\text{都满足}\\end{gathered}"
+                },
+                {
+                  "label": "参数范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "取并集"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "79b7e3996158fcea9f3f8fc58dbe12a2e00759dcff53de09509769e7cc255df9",
+            "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "5af82d4fdb584d35edffec44",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "deaa7d1bc48d046dfae2be72014ba7db4fe199455f37f18f8eade0f53412584f",
+        "lesson_version": "8fddd90b88e00c4fb6c9e92bf8b44f1183ec56483cd536bd12f14699b64470f2",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "代回核验",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "代入参数",
+                  "math": "\\begin{gathered}p=0\\text{ 时，}D=\\mathbb R\\\\p=0\\text{ 时，}f(x)=0\\\\p<0\\text{ 时，}D=\\{0\\}\\end{gathered}"
+                },
+                {
+                  "label": "检验",
+                  "math": "\\begin{gathered}p=0\\text{ 时，}f(-x)=0\\\\p<0\\text{ 时，}f(0)=0\\\\\\Rightarrow\\ f(-x)=-f(x)\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "$p=-1$ 时，实线 $f(x)$ 与虚线 $-f(-x)$ 重合。",
+              "kind": "sampled_curve",
+              "params": {
+                "bounds": [
+                  -2,
+                  2,
+                  -1.15,
+                  1.15
+                ],
+                "description": "实线为原函数，虚线为镜像；空心点不取，实心点取到。图窗裁剪处不是定义域端点。",
+                "dividers": [
+                  0
+                ],
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "title": "p=-1 时的函数与镜像",
+                "traces": [
+                  {
+                    "label": "f(x)",
+                    "markers": [
+                      {
+                        "closed": true,
+                        "x": 0,
+                        "y": 0
+                      }
+                    ],
+                    "segments": []
+                  },
+                  {
+                    "label": "-f(-x)",
+                    "markers": [
+                      {
+                        "closed": true,
+                        "x": 0,
+                        "y": 0
+                      }
+                    ],
+                    "segments": []
+                  }
+                ],
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "5af82d4fdb584d35edffec44#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "把各种情况的参数分别代回原式检查。",
+            "stem_board": {
+              "caption": "代回核验",
+              "lines": [
+                "$$p=0\\text{ 时，}D=\\mathbb R$$",
+                "$$p=0\\text{ 时，}f(x)=0$$",
+                "$$p<0\\text{ 时，}D=\\{0\\}$$",
+                "$$p=0\\text{ 时，}f(-x)=0$$",
+                "$$p<0\\text{ 时，}f(0)=0$$",
+                "$$\\Rightarrow\\ f(-x)=-f(x)$$",
+                "$$p\\in \\left(-\\infty, 0\\right]$$"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "代回核验"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "31f0534a1b784d23bb2630e13548066e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "0b9cb698ae49551f8d077075cf67752640071876eaebf21a5decca3247dd7cad",
+            "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

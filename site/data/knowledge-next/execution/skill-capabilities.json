@@ -116,7 +116,8 @@
     ],
     "method-domain-intersection": [
       "submethod",
-      "solve_original_function_domain"
+      "solve_original_function_domain",
+      "solve_parity_parameter_domain"
     ],
     "method-quadratic-interval-range": [
       "submethod"

@@ -166,23 +166,43 @@ def test_a20_returns_parameter_without_completing_the_inequality():
     assert verify_borrowed_parameter(context, result)
 
 
-def test_pairing_view_preserves_holes_and_does_not_reveal_pending_answer():
+def _cards(d, phase, evidence):
     from shuxueshuo_server.graph_lesson.stage_three.parity_parameter_presentation import (
         compile_cards,
     )
+    return compile_cards([{'values': {'description': d, 'phase': phase, 'evidence': encode_value(evidence)}}], phase)['parts']
+
+
+def test_verify_states_the_symmetric_domain_without_number_lines():
     d = description(candidate('x^2', facts=('Dom(f)=[-3,3]∖{1,m}',)))
     model = math.solve(d)
-    pending = compile_cards([{'values': {'description': d, 'phase': 'domain',
-                                       'evidence': encode_value(model['comparison']['domain_evidence'])}}], 'domain')
-    assert 'condition_number_lines' not in pending['parts'][0]
-    completed = compile_cards([{'values': {'description': d, 'phase': 'verify', 'evidence': encode_value(model)}}], 'verify')
-    lines = completed['parts'][0]['condition_number_lines']
-    assert len(lines) == 4  # Accepted and rejected domain pairing examples.
-    assert lines[0]['bounds'] == lines[1]['bounds']
-    assert lines[0]['exact_set'] == lines[1]['exact_set']
-    assert lines[2]['exact_set'] != lines[3]['exact_set']
-    assert len(lines[0]['intervals']) == 3
-    assert lines[0]['intervals'][0]['right_closed'] is False
-    assert lines[0]['intervals'][1]['left_closed'] is False
-    assert lines[0]['intervals'][1]['right_closed'] is False
-    assert lines[0]['intervals'][2]['left_closed'] is False
+    pending, = _cards(d, 'domain', model['comparison']['domain_evidence'])
+    assert 'condition_number_lines' not in pending
+    completed, = _cards(d, 'verify', model)
+    assert 'condition_number_lines' not in completed
+    text = ''.join(completed['stem_board']['lines'])
+    assert '=D$$' in text and r'\cup' in text and r'f(-x)=x^{2}' in text
+    assert [item['label'] for item in completed['completion_board']['items']] == ['代入 m=-1', '检验']
+
+
+def test_endpoint_domain_card_names_the_symmetry_equation():
+    from shuxueshuo_server.graph_lesson.stage_three.parity_parameter_runtime import card_plan
+    d = description(abstract_candidate())
+    model = math.solve(d)
+    assert card_plan(d) == {'value': False, 'merge': False}
+    card, = _cards(d, 'domain', model['comparison']['domain_evidence'])
+    assert card['title'] == '检查定义域是否关于原点对称'
+    assert '定义域关于原点对称' in card['stem_board']['items'][0]['math']
+    labels = {o['value']: o['label'] for o in card['interaction']['options']}
+    correct, = card['expected_answer']['one_of']
+    assert labels[correct] == r'$(m-3)+2\cdot m=0\ \Rightarrow\ m=1$'
+    wrong = [v for k, v in labels.items() if k != correct]
+    assert wrong and all('m=1$' not in v for v in wrong)
+    verify, = _cards(d, 'verify', model)
+    assert verify['stem_board']['lines'][:2] == [r'$$D=\left[-2, 2\right]$$', r'$$-D=\left[-2, 2\right]=D$$']
+
+
+def test_formula_or_restriction_keeps_the_merge_cards():
+    from shuxueshuo_server.graph_lesson.stage_three.parity_parameter_runtime import card_plan
+    assert card_plan(description(candidate('m*x^2+1', 'odd', facts=('Dom(f)={-1,1}',)))) == {'value': True, 'merge': True}
+    assert card_plan(description(abstract_candidate(prop='even_only'))) == {'value': False, 'merge': True}

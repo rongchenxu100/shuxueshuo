@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-monotonicity-b16-v3",
+  "bundleVersion": "[\"stream\",\"86c1a21e0b9ac680b67a70dbe3297ebd019c41eb5eed6c52878f5d12be8ec4c7\",\"abdbe058f9f3ada8d76a0e3ff3a91726f845dfe52acc71437b2bfef22681a562\",\"1db3eb557eb346db9658d55e2b666730\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "quantified-range-comparison"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-monotonicity-extremum"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "quantified"
+        ],
+        "method": "quantified",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "7bb257e54f7b4b0f05ea192c#1",
+      "answer": "read"
+    },
+    {
+      "decision": "7bb257e54f7b4b0f05ea192c#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "7bb257e54f7b4b0f05ea192c#3",
+      "answer": "o1"
+    },
+    {
+      "decision": "7bb257e54f7b4b0f05ea192c#4",
+      "answer": "o1"
+    },
+    {
+      "decision": "7bb257e54f7b4b0f05ea192c#5",
+      "answer": "o1"
+    },
+    {
+      "decision": "ad131b1603742c7a7c99fcda#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "ad131b1603742c7a7c99fcda#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "cdd2fd5a72717e8a350c4001#1",
+      "answer": "o1"
+    }
+  ]
+}

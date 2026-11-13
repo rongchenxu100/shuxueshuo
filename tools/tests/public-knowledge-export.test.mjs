@@ -28,17 +28,17 @@ test('release checks execute through a symlinked source directory', async () => 
 });
 
 test('structured export contains current ontology and private drills without HTML rendering', () => {
-  assert.equal(data.knowledge_nodes.length, 167);
+  assert.equal(data.knowledge_nodes.length, 170);
   assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 9);
   assert.equal(new Set(data.knowledge_edges.map((e) => e.relation_type)).size, 10);
-  assert.equal(data.practice_problems.length, 137);
-  assert.equal(data.practice_routes.length, 157);
+  assert.equal(data.practice_problems.length, 165);
+  assert.equal(data.practice_routes.length, 185);
   const comparisonSteps = data.practice_steps.filter(row => row.problem_id === 'function-concepts-q20-v2');
   // B–D each merge two scored parts into one displayed card: 15 decisions, 12 cards.
   assert.equal(comparisonSteps.length, 15, '3 intro + 11 scoped mathematical decisions + 1 original exact selection');
   const sharedComparisonSteps = data.practice_steps.filter(row => row.problem_id === 'function-concepts-q19');
   assert.equal(sharedComparisonSteps.length, 15);
-  assert.equal(data.practice_steps.length, 1310);
+  assert.equal(data.practice_steps.length, 1513);
   assert.equal(data.knowledge_drill_items.length, 177);
   assert.equal(new Set(data.knowledge_drill_items.map((q) => q.item_id)).size, 177);
   assert.equal(data.knowledge_drill_items.filter((q) => q.node_id === 'amgm-formula').length, 1);
@@ -144,9 +144,15 @@ test('monotonicity publishes verified courses for all five implemented types', (
   }
 });
 
-test('parity exports T1 and the verified T2 parameter course with their own methods', () => {
+test('parity exports all six groups with verified routes and complete question membership', () => {
   const topic = data.practice_topics.find(row => row.id === 'function-parity');
-  assert.equal(topic.groups.length, 2);
+  assert.equal(topic.groups.length, 6);
+  assert.deepEqual(topic.groups.map(group => group.problems.length), [2, 7, 9, 6, 2, 5]);
+  assert.equal(data.practice_topic_problems.filter(row => row.topic_id === topic.id).length, 31);
+  for (const group of topic.groups) for (const id of group.problems) {
+    assert.ok(data.practice_problems.some(row => row.id === id));
+    assert.ok(data.practice_routes.some(row => row.problem_id === id));
+  }
   assert.equal(topic.groups[0].type, 'type-function-parity');
   assert.deepEqual(topic.groups[0].problems, ['function-parity-a01-1-v2', 'function-parity-a01-2-v2']);
   for (const id of topic.groups[0].problems) {
@@ -158,7 +164,8 @@ test('parity exports T1 and the verified T2 parameter course with their own meth
     assert.ok(data.practice_steps.some(row => row.problem_id === id));
   }
   assert.equal(topic.groups[1].type, 'type-parity-parameter');
-  assert.deepEqual(topic.groups[1].problems, ['function-parity-a17']);
+  assert.deepEqual(topic.groups[1].problems, ['function-parity-a17',
+    ...Array.from({length: 6}, (_, index) => `function-parity-c0${index + 1}`)]);
   const id = 'function-parity-a17';
   const course = data.practice_problems.find(row => row.id === id).problem_data._graph_walk;
   assert.deepEqual(Object.keys(course.routes), ['parity-parameter']);

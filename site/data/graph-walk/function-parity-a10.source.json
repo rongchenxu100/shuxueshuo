@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a10",
+  "title": "对称轴与奇性求和 · A10",
+  "page": "/topics/function-parity/q10/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t5-staged-20261112/a10.json",
+  "evidence": "site/data/graph-walk/function-parity-a10.evidence.json",
+  "targetRefs": [
+    "/root/goals/0",
+    "/root/goals/1"
+  ],
+  "targetTitles": [
+    "求四项之和",
+    "求前 54 项之和"
+  ],
+  "mainTargetRef": "/root/goals/1"
+}

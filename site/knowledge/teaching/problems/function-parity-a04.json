@@ -1,0 +1,76 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-a04",
+  "label": "偶函数在原定义域上的解析式 · A04",
+  "path": "/topics/function-parity/q04/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-a04.json",
+  "types": [
+    "type-parity-formula"
+  ],
+  "statement": "已知 $f(x)$ 为偶函数，若当 $x\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是____．",
+  "routes": {
+    "parity-extension": {
+      "label": "对称补全法",
+      "methods": [
+        "method-parity-extension"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-parity-extension"
+          ]
+        },
+        "95e426366c692dca1368ff16#1": {
+          "title": "把输入换到已知一侧",
+          "position": 4,
+          "refs": [
+            "method-parity-extension#map",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "00683973afe5c108897f8462#1": {
+          "title": "代入相反输入",
+          "position": 5,
+          "refs": [
+            "method-parity-extension#substitute",
+            "method-function-evaluation",
+            "skill-simplify"
+          ]
+        },
+        "3a6cb0be6289ef5454b54c15#1": {
+          "title": "用奇偶性换回 f(x)",
+          "position": 6,
+          "refs": [
+            "method-parity-extension#write-back",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "113b5d0166fa835f55194eca#1": {
+          "title": "拼接已知部分并写出结论",
+          "position": 7,
+          "refs": [
+            "method-parity-extension#conclude"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "366ebf4b53b65ccb2fd867c45d7bafaa9c41dfc1a88a50315a5999b9daaf52fa",
+  "practice_version": "59d03498db031dbda348f74679e841befcac7d01ca5e36f1682db5145df133a9"
+}

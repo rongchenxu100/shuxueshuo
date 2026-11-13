@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "problemId": "function-monotonicity-a01-v2",
-  "graphVersion": "15adb2edd648bc430080a2b5a299d8efdb8a4e363391e102554000315dbec532",
+  "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
   "problem": {
     "text": "已知函数 $f(x)=-x^2+2|x|+3$，求函数的单调递增区间。"
   },
@@ -304,12 +304,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "8f944426d93aaeead636b609db17b7c89d53fe127cd903ee89d44414c09d09ba",
+              "math_step_sha256": "2ace861d673aa22ebf5622e0eb36cb5127cc9e8f4773e145293ab1cad3806730",
               "step_id": "39e5646dcb-piecewise-monotonicity-001-domain"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "61f4a269eeda3f722c910cfb",
+          "stream_interaction_id": "a742acbd3aaedd4bb5bd3c97",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "确定讨论范围",
@@ -441,12 +441,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "148f2486cf5763810630f68268faa1528aa58453f306ce9e1780b2f43e065d3b",
+              "math_step_sha256": "dc6fe1d134c39647fa258fc85c30d846d3b240c4f03bc56dab9a18bb034c8366",
               "step_id": "39e5646dcb-piecewise-monotonicity-002-square"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "ed271b5f41d2dfa9a5b96514",
+          "stream_interaction_id": "fef17de2a40d0720203c925a",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "把二次函数配成顶点式",
@@ -584,12 +584,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "3e760393d101216085b55ac4f3c3a45c8b0290641d4cbc682b37b9be4dd04a20",
+              "math_step_sha256": "87309061f21c2c864a646a66e25070bb37d3afe6655a279a486c3567b00de25f",
               "step_id": "39e5646dcb-piecewise-monotonicity-003-inner"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "cb42de018ce6f2fbd6fc93e0",
+          "stream_interaction_id": "013256e02c098dcf5b2900c7",
           "stream_part_index": 0,
           "stream_part_count": 2,
           "stream_group_title": "判断二次函数的增减",
@@ -805,12 +805,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "3e760393d101216085b55ac4f3c3a45c8b0290641d4cbc682b37b9be4dd04a20",
+              "math_step_sha256": "87309061f21c2c864a646a66e25070bb37d3afe6655a279a486c3567b00de25f",
               "step_id": "39e5646dcb-piecewise-monotonicity-003-inner"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "cb42de018ce6f2fbd6fc93e0",
+          "stream_interaction_id": "013256e02c098dcf5b2900c7",
           "stream_part_index": 1,
           "stream_part_count": 2,
           "stream_group_title": "判断二次函数的增减",
@@ -1038,12 +1038,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "186a1bc58e47fe5617542ed72534ae30af999635e85f37b0c4059a238e790de4",
+              "math_step_sha256": "c50fd741a149250c55726f69eb4ffa3bf37418512d05d2491b9b75d69b0f4075",
               "step_id": "39e5646dcb-piecewise-monotonicity-004-answer"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "7f6b767f9803e20c127ebcdf",
+          "stream_interaction_id": "2a467d678d53fe56fea52fb6",
           "stream_part_index": 0,
           "stream_part_count": 2,
           "stream_group_title": "写出递减区间",
@@ -1271,12 +1271,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "186a1bc58e47fe5617542ed72534ae30af999635e85f37b0c4059a238e790de4",
+              "math_step_sha256": "c50fd741a149250c55726f69eb4ffa3bf37418512d05d2491b9b75d69b0f4075",
               "step_id": "39e5646dcb-piecewise-monotonicity-004-answer"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "7f6b767f9803e20c127ebcdf",
+          "stream_interaction_id": "2a467d678d53fe56fea52fb6",
           "stream_part_index": 1,
           "stream_part_count": 2,
           "stream_group_title": "写出递减区间",
@@ -1352,12 +1352,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "b5625b4afdc4a304aac5e3a000084d2295d596032c6e22e4b794583e4b83aefe",
+              "math_step_sha256": "40b4d808c9278efc00bf9e598d0313dabd71f5e41bd8a3046fb368a9ef7fb47a",
               "step_id": "39e5646dcb-piecewise-monotonicity-005-domain"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "fd70b4c0fbc44e41d0d93c5e",
+          "stream_interaction_id": "468e83c5d90738526cfec93a",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "确定讨论范围",
@@ -1489,12 +1489,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "1779332542bb4185cf99f63016261f17aa5f34e32580a2bf7b8d5c04efc9c8fa",
+              "math_step_sha256": "d1867d8d27a54845eba4cefd69d9381d4fe33aad2ccdd38439ca66ce92c645de",
               "step_id": "39e5646dcb-piecewise-monotonicity-006-square"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "2fe59b939ed4fa893bf23f7b",
+          "stream_interaction_id": "a63b97c592732660a64377cc",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "把二次函数配成顶点式",
@@ -1632,12 +1632,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "7256754c29d07113a9f8bff416039fd933dd14fb01f1758bc0ac2de0f8d83e20",
+              "math_step_sha256": "41d57c0ff24ff3584a481034c2029ad93dd53fc09e6311fedbe25ca07224b96a",
               "step_id": "39e5646dcb-piecewise-monotonicity-007-inner"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "678db68fb7d92ce7d8f82617",
+          "stream_interaction_id": "fa63e8de87879384d3988826",
           "stream_part_index": 0,
           "stream_part_count": 2,
           "stream_group_title": "判断二次函数的增减",
@@ -1853,12 +1853,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "7256754c29d07113a9f8bff416039fd933dd14fb01f1758bc0ac2de0f8d83e20",
+              "math_step_sha256": "41d57c0ff24ff3584a481034c2029ad93dd53fc09e6311fedbe25ca07224b96a",
               "step_id": "39e5646dcb-piecewise-monotonicity-007-inner"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "678db68fb7d92ce7d8f82617",
+          "stream_interaction_id": "fa63e8de87879384d3988826",
           "stream_part_index": 1,
           "stream_part_count": 2,
           "stream_group_title": "判断二次函数的增减",
@@ -2086,12 +2086,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "dbd7d16ca2dfec0b16f55f2f65087e11e359302117071c25652fceb0601b08f5",
+              "math_step_sha256": "5f6359f76a6a7efa86071042b816ef12eaa0739f6fdcc0044ec941726f4e6de7",
               "step_id": "39e5646dcb-piecewise-monotonicity-008-answer"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "3ef1c616a0120735a6681e13",
+          "stream_interaction_id": "45b4ad5009d20d1809d3f166",
           "stream_part_index": 0,
           "stream_part_count": 2,
           "stream_group_title": "写出递减区间",
@@ -2319,12 +2319,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "dbd7d16ca2dfec0b16f55f2f65087e11e359302117071c25652fceb0601b08f5",
+              "math_step_sha256": "5f6359f76a6a7efa86071042b816ef12eaa0739f6fdcc0044ec941726f4e6de7",
               "step_id": "39e5646dcb-piecewise-monotonicity-008-answer"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "3ef1c616a0120735a6681e13",
+          "stream_interaction_id": "45b4ad5009d20d1809d3f166",
           "stream_part_index": 1,
           "stream_part_count": 2,
           "stream_group_title": "写出递减区间",
@@ -2608,12 +2608,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "9ccb0219a4e5e2090b874fa80e34b64c033d5dad5e055ecbfd65c289f6eafe1f",
+              "math_step_sha256": "e061d7898d20e4ef4be2f8951a19c0a859a7a04fb1f3373de25284c361801cfa",
               "step_id": "39e5646dcb-piecewise-monotonicity-009-join"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "abc1d146effa32b082f46efe",
+          "stream_interaction_id": "3effd548efa13073c85af10a",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "检查跨段单调性",
@@ -2919,12 +2919,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "cd9818a8c83aa5d9df86810d0f5a95b1ac808246744f4c1f1c5edf5f8bc3dd47",
+              "math_step_sha256": "625831fe8ab6751a16230a1c5ef8c2f811b0e3100edd912d89828c950476c6c9",
               "step_id": "39e5646dcb-piecewise-monotonicity-010-answer"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "97cda6b51f44e57d390a08d4",
+          "stream_interaction_id": "08c1c6f5a263f535d6f58229",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "写出递增区间",
@@ -2992,65 +2992,65 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "math_steps": [
           {
-            "math_step_sha256": "8f944426d93aaeead636b609db17b7c89d53fe127cd903ee89d44414c09d09ba",
+            "math_step_sha256": "2ace861d673aa22ebf5622e0eb36cb5127cc9e8f4773e145293ab1cad3806730",
             "ordinal": 1,
             "step_id": "39e5646dcb-piecewise-monotonicity-001-domain"
           },
           {
-            "math_step_sha256": "148f2486cf5763810630f68268faa1528aa58453f306ce9e1780b2f43e065d3b",
+            "math_step_sha256": "dc6fe1d134c39647fa258fc85c30d846d3b240c4f03bc56dab9a18bb034c8366",
             "ordinal": 2,
             "step_id": "39e5646dcb-piecewise-monotonicity-002-square"
           },
           {
-            "math_step_sha256": "3e760393d101216085b55ac4f3c3a45c8b0290641d4cbc682b37b9be4dd04a20",
+            "math_step_sha256": "87309061f21c2c864a646a66e25070bb37d3afe6655a279a486c3567b00de25f",
             "ordinal": 3,
             "step_id": "39e5646dcb-piecewise-monotonicity-003-inner"
           },
           {
-            "math_step_sha256": "186a1bc58e47fe5617542ed72534ae30af999635e85f37b0c4059a238e790de4",
+            "math_step_sha256": "c50fd741a149250c55726f69eb4ffa3bf37418512d05d2491b9b75d69b0f4075",
             "ordinal": 4,
             "step_id": "39e5646dcb-piecewise-monotonicity-004-answer"
           },
           {
-            "math_step_sha256": "b5625b4afdc4a304aac5e3a000084d2295d596032c6e22e4b794583e4b83aefe",
+            "math_step_sha256": "40b4d808c9278efc00bf9e598d0313dabd71f5e41bd8a3046fb368a9ef7fb47a",
             "ordinal": 5,
             "step_id": "39e5646dcb-piecewise-monotonicity-005-domain"
           },
           {
-            "math_step_sha256": "1779332542bb4185cf99f63016261f17aa5f34e32580a2bf7b8d5c04efc9c8fa",
+            "math_step_sha256": "d1867d8d27a54845eba4cefd69d9381d4fe33aad2ccdd38439ca66ce92c645de",
             "ordinal": 6,
             "step_id": "39e5646dcb-piecewise-monotonicity-006-square"
           },
           {
-            "math_step_sha256": "7256754c29d07113a9f8bff416039fd933dd14fb01f1758bc0ac2de0f8d83e20",
+            "math_step_sha256": "41d57c0ff24ff3584a481034c2029ad93dd53fc09e6311fedbe25ca07224b96a",
             "ordinal": 7,
             "step_id": "39e5646dcb-piecewise-monotonicity-007-inner"
           },
           {
-            "math_step_sha256": "dbd7d16ca2dfec0b16f55f2f65087e11e359302117071c25652fceb0601b08f5",
+            "math_step_sha256": "5f6359f76a6a7efa86071042b816ef12eaa0739f6fdcc0044ec941726f4e6de7",
             "ordinal": 8,
             "step_id": "39e5646dcb-piecewise-monotonicity-008-answer"
           },
           {
-            "math_step_sha256": "9ccb0219a4e5e2090b874fa80e34b64c033d5dad5e055ecbfd65c289f6eafe1f",
+            "math_step_sha256": "e061d7898d20e4ef4be2f8951a19c0a859a7a04fb1f3373de25284c361801cfa",
             "ordinal": 9,
             "step_id": "39e5646dcb-piecewise-monotonicity-009-join"
           },
           {
-            "math_step_sha256": "cd9818a8c83aa5d9df86810d0f5a95b1ac808246744f4c1f1c5edf5f8bc3dd47",
+            "math_step_sha256": "625831fe8ab6751a16230a1c5ef8c2f811b0e3100edd912d89828c950476c6c9",
             "ordinal": 10,
             "step_id": "39e5646dcb-piecewise-monotonicity-010-answer"
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "9242f12f4e1ae7a382689f70f918408c8b8cf4b826e96e89ddd69431a8d5bd3d",
-        "verified_route_sha256": "7971987c472eb47d4998773ca96d3a6f593d574110809b021a8a7c21391af6a0"
+        "task_id": "dd044c75a18150eaeb75ac4e5f9c927cd5f7451c463fab3842fe7f2137e324f0",
+        "verified_route_sha256": "d33b63d7432a4321ff1a9128a2687e89b9554568eb55b68e48e92c9d6e1caec3"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -3512,11 +3512,11 @@
   },
   "bundleVersion": "[\"stream\",\"75abe2933b615aa68e020fafa313a3d20d84c4c72a1161e7e3b31d5f5e3a123e\",\"1d2a2e0801c5fff6feab6740d1577b8c8ad2dc9f85f70563f4fb37108f9221a7\",\"bf83cf0699e14b038c484c0d2964a131\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
-    "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
-    "stream_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+    "run_id": "b0135facdf7540cda377196b939faf79",
+    "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
+    "stream_id": "b0135facdf7540cda377196b939faf79",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "76f0d45a1a2ac307460e7eb133ce0e887a092bed827701148b6f37640353716a",
+    "base_bundle_version": "ed93b16e93c6443b5f806cf9fcdb28b72cfe1727ae80511c5778b015f9044536",
     "d3": {
       "expected_answer": {
         "checks": {
@@ -3649,15 +3649,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "local_check": "passed",
-        "math_step_sha256": "8f944426d93aaeead636b609db17b7c89d53fe127cd903ee89d44414c09d09ba",
+        "math_step_sha256": "2ace861d673aa22ebf5622e0eb36cb5127cc9e8f4773e145293ab1cad3806730",
         "method_ref": "method-monotonicity-structure#analyze",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "source_refs": [
           "/steps/6/calls/0"
         ],
@@ -3693,15 +3693,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "local_check": "passed",
-        "math_step_sha256": "148f2486cf5763810630f68268faa1528aa58453f306ce9e1780b2f43e065d3b",
+        "math_step_sha256": "dc6fe1d134c39647fa258fc85c30d846d3b240c4f03bc56dab9a18bb034c8366",
         "method_ref": "method-monotonicity-structure#analyze",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "source_refs": [
           "/steps/6/calls/0"
         ],
@@ -3737,15 +3737,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "local_check": "passed",
-        "math_step_sha256": "3e760393d101216085b55ac4f3c3a45c8b0290641d4cbc682b37b9be4dd04a20",
+        "math_step_sha256": "87309061f21c2c864a646a66e25070bb37d3afe6655a279a486c3567b00de25f",
         "method_ref": "method-monotonicity-structure#analyze",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "source_refs": [
           "/steps/6/calls/0"
         ],
@@ -3781,15 +3781,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "local_check": "passed",
-        "math_step_sha256": "186a1bc58e47fe5617542ed72534ae30af999635e85f37b0c4059a238e790de4",
+        "math_step_sha256": "c50fd741a149250c55726f69eb4ffa3bf37418512d05d2491b9b75d69b0f4075",
         "method_ref": "method-monotonicity-structure#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "source_refs": [
           "/steps/8/calls/0"
         ],
@@ -3825,15 +3825,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "local_check": "passed",
-        "math_step_sha256": "b5625b4afdc4a304aac5e3a000084d2295d596032c6e22e4b794583e4b83aefe",
+        "math_step_sha256": "40b4d808c9278efc00bf9e598d0313dabd71f5e41bd8a3046fb368a9ef7fb47a",
         "method_ref": "method-monotonicity-structure#analyze",
         "ordinal": 5,
         "premise_refs": [],
-        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "source_refs": [
           "/steps/14/calls/0"
         ],
@@ -3869,15 +3869,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "local_check": "passed",
-        "math_step_sha256": "1779332542bb4185cf99f63016261f17aa5f34e32580a2bf7b8d5c04efc9c8fa",
+        "math_step_sha256": "d1867d8d27a54845eba4cefd69d9381d4fe33aad2ccdd38439ca66ce92c645de",
         "method_ref": "method-monotonicity-structure#analyze",
         "ordinal": 6,
         "premise_refs": [],
-        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "source_refs": [
           "/steps/14/calls/0"
         ],
@@ -3913,15 +3913,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "local_check": "passed",
-        "math_step_sha256": "7256754c29d07113a9f8bff416039fd933dd14fb01f1758bc0ac2de0f8d83e20",
+        "math_step_sha256": "41d57c0ff24ff3584a481034c2029ad93dd53fc09e6311fedbe25ca07224b96a",
         "method_ref": "method-monotonicity-structure#analyze",
         "ordinal": 7,
         "premise_refs": [],
-        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "source_refs": [
           "/steps/14/calls/0"
         ],
@@ -3957,15 +3957,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "local_check": "passed",
-        "math_step_sha256": "dbd7d16ca2dfec0b16f55f2f65087e11e359302117071c25652fceb0601b08f5",
+        "math_step_sha256": "5f6359f76a6a7efa86071042b816ef12eaa0739f6fdcc0044ec941726f4e6de7",
         "method_ref": "method-monotonicity-structure#conclude",
         "ordinal": 8,
         "premise_refs": [],
-        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "source_refs": [
           "/steps/16/calls/0"
         ],
@@ -3999,15 +3999,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "local_check": "passed",
-        "math_step_sha256": "9ccb0219a4e5e2090b874fa80e34b64c033d5dad5e055ecbfd65c289f6eafe1f",
+        "math_step_sha256": "e061d7898d20e4ef4be2f8951a19c0a859a7a04fb1f3373de25284c361801cfa",
         "method_ref": "method-piecewise-monotonicity#join",
         "ordinal": 9,
         "premise_refs": [],
-        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "source_refs": [
           "/steps/18/calls/0"
         ],
@@ -4040,15 +4040,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "local_check": "passed",
-        "math_step_sha256": "cd9818a8c83aa5d9df86810d0f5a95b1ac808246744f4c1f1c5edf5f8bc3dd47",
+        "math_step_sha256": "625831fe8ab6751a16230a1c5ef8c2f811b0e3100edd912d89828c950476c6c9",
         "method_ref": "method-piecewise-monotonicity#conclude",
         "ordinal": 10,
         "premise_refs": [],
-        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "source_refs": [
           "/steps/19/calls/0"
         ],
@@ -4189,99 +4189,99 @@
         "route_id": "piecewise-monotonicity",
         "step_id": "39e5646dcb-piecewise-monotonicity-001-domain",
         "ordinal": 1,
-        "math_step_sha256": "8f944426d93aaeead636b609db17b7c89d53fe127cd903ee89d44414c09d09ba",
+        "math_step_sha256": "2ace861d673aa22ebf5622e0eb36cb5127cc9e8f4773e145293ab1cad3806730",
         "status": "interactive",
-        "interaction_id": "61f4a269eeda3f722c910cfb"
+        "interaction_id": "a742acbd3aaedd4bb5bd3c97"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-monotonicity",
         "step_id": "39e5646dcb-piecewise-monotonicity-002-square",
         "ordinal": 2,
-        "math_step_sha256": "148f2486cf5763810630f68268faa1528aa58453f306ce9e1780b2f43e065d3b",
+        "math_step_sha256": "dc6fe1d134c39647fa258fc85c30d846d3b240c4f03bc56dab9a18bb034c8366",
         "status": "interactive",
-        "interaction_id": "ed271b5f41d2dfa9a5b96514"
+        "interaction_id": "fef17de2a40d0720203c925a"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-monotonicity",
         "step_id": "39e5646dcb-piecewise-monotonicity-003-inner",
         "ordinal": 3,
-        "math_step_sha256": "3e760393d101216085b55ac4f3c3a45c8b0290641d4cbc682b37b9be4dd04a20",
+        "math_step_sha256": "87309061f21c2c864a646a66e25070bb37d3afe6655a279a486c3567b00de25f",
         "status": "interactive",
-        "interaction_id": "cb42de018ce6f2fbd6fc93e0"
+        "interaction_id": "013256e02c098dcf5b2900c7"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-monotonicity",
         "step_id": "39e5646dcb-piecewise-monotonicity-004-answer",
         "ordinal": 4,
-        "math_step_sha256": "186a1bc58e47fe5617542ed72534ae30af999635e85f37b0c4059a238e790de4",
+        "math_step_sha256": "c50fd741a149250c55726f69eb4ffa3bf37418512d05d2491b9b75d69b0f4075",
         "status": "interactive",
-        "interaction_id": "7f6b767f9803e20c127ebcdf"
+        "interaction_id": "2a467d678d53fe56fea52fb6"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-monotonicity",
         "step_id": "39e5646dcb-piecewise-monotonicity-005-domain",
         "ordinal": 5,
-        "math_step_sha256": "b5625b4afdc4a304aac5e3a000084d2295d596032c6e22e4b794583e4b83aefe",
+        "math_step_sha256": "40b4d808c9278efc00bf9e598d0313dabd71f5e41bd8a3046fb368a9ef7fb47a",
         "status": "interactive",
-        "interaction_id": "fd70b4c0fbc44e41d0d93c5e"
+        "interaction_id": "468e83c5d90738526cfec93a"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-monotonicity",
         "step_id": "39e5646dcb-piecewise-monotonicity-006-square",
         "ordinal": 6,
-        "math_step_sha256": "1779332542bb4185cf99f63016261f17aa5f34e32580a2bf7b8d5c04efc9c8fa",
+        "math_step_sha256": "d1867d8d27a54845eba4cefd69d9381d4fe33aad2ccdd38439ca66ce92c645de",
         "status": "interactive",
-        "interaction_id": "2fe59b939ed4fa893bf23f7b"
+        "interaction_id": "a63b97c592732660a64377cc"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-monotonicity",
         "step_id": "39e5646dcb-piecewise-monotonicity-007-inner",
         "ordinal": 7,
-        "math_step_sha256": "7256754c29d07113a9f8bff416039fd933dd14fb01f1758bc0ac2de0f8d83e20",
+        "math_step_sha256": "41d57c0ff24ff3584a481034c2029ad93dd53fc09e6311fedbe25ca07224b96a",
         "status": "interactive",
-        "interaction_id": "678db68fb7d92ce7d8f82617"
+        "interaction_id": "fa63e8de87879384d3988826"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-monotonicity",
         "step_id": "39e5646dcb-piecewise-monotonicity-008-answer",
         "ordinal": 8,
-        "math_step_sha256": "dbd7d16ca2dfec0b16f55f2f65087e11e359302117071c25652fceb0601b08f5",
+        "math_step_sha256": "5f6359f76a6a7efa86071042b816ef12eaa0739f6fdcc0044ec941726f4e6de7",
         "status": "interactive",
-        "interaction_id": "3ef1c616a0120735a6681e13"
+        "interaction_id": "45b4ad5009d20d1809d3f166"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-monotonicity",
         "step_id": "39e5646dcb-piecewise-monotonicity-009-join",
         "ordinal": 9,
-        "math_step_sha256": "9ccb0219a4e5e2090b874fa80e34b64c033d5dad5e055ecbfd65c289f6eafe1f",
+        "math_step_sha256": "e061d7898d20e4ef4be2f8951a19c0a859a7a04fb1f3373de25284c361801cfa",
         "status": "interactive",
-        "interaction_id": "abc1d146effa32b082f46efe"
+        "interaction_id": "3effd548efa13073c85af10a"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-monotonicity",
         "step_id": "39e5646dcb-piecewise-monotonicity-010-answer",
         "ordinal": 10,
-        "math_step_sha256": "cd9818a8c83aa5d9df86810d0f5a95b1ac808246744f4c1f1c5edf5f8bc3dd47",
+        "math_step_sha256": "625831fe8ab6751a16230a1c5ef8c2f811b0e3100edd912d89828c950476c6c9",
         "status": "interactive",
-        "interaction_id": "97cda6b51f44e57d390a08d4"
+        "interaction_id": "08c1c6f5a263f535d6f58229"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "61f4a269eeda3f722c910cfb",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "ac0227aa06ed8a157b7727789d63d7a64bd84a9d8cd4469cefa80d4debe8834b",
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "interaction_id": "a742acbd3aaedd4bb5bd3c97",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "e1e4e0342565be393066830772a9ad08381efe1170a2e08715c9cf025f64d75c",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "parts": [
           {
             "completion_board": {
@@ -4307,10 +4307,14 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "61f4a269eeda3f722c910cfb#1",
+            "id": "a742acbd3aaedd4bb5bd3c97#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$\\{0\\}$",
+                  "value": "o3"
+                },
                 {
                   "label": "$\\left(-\\infty, 0\\right)$",
                   "value": "o1"
@@ -4318,10 +4322,6 @@
                 {
                   "label": "$\\varnothing$",
                   "value": "o2"
-                },
-                {
-                  "label": "$\\{0\\}$",
-                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -4347,11 +4347,11 @@
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "8f944426d93aaeead636b609db17b7c89d53fe127cd903ee89d44414c09d09ba",
+            "math_step_sha256": "2ace861d673aa22ebf5622e0eb36cb5127cc9e8f4773e145293ab1cad3806730",
             "step_id": "39e5646dcb-piecewise-monotonicity-001-domain"
           }
         ],
@@ -4359,10 +4359,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "ed271b5f41d2dfa9a5b96514",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "5534fe5e64c72ecca17cb9bed87f4b0fedbfb17a8a25eb96dc663e0e69fbea34",
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "interaction_id": "fef17de2a40d0720203c925a",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "5794468874fa76af7d25170e669dd68c3a5182ee20e952d7695be8c4b5d8c772",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "parts": [
           {
             "completion_board": {
@@ -4440,10 +4440,14 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "ed271b5f41d2dfa9a5b96514#1",
+            "id": "fef17de2a40d0720203c925a#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$\\left(x + 1\\right)^{2} + 4$",
+                  "value": "o4"
+                },
                 {
                   "label": "$- \\left(x + 1\\right)^{2} - 4$",
                   "value": "o3"
@@ -4455,10 +4459,6 @@
                 {
                   "label": "$- \\left(x - 1\\right)^{2} + 4$",
                   "value": "o2"
-                },
-                {
-                  "label": "$\\left(x + 1\\right)^{2} + 4$",
-                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -4484,11 +4484,11 @@
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "148f2486cf5763810630f68268faa1528aa58453f306ce9e1780b2f43e065d3b",
+            "math_step_sha256": "dc6fe1d134c39647fa258fc85c30d846d3b240c4f03bc56dab9a18bb034c8366",
             "step_id": "39e5646dcb-piecewise-monotonicity-002-square"
           }
         ],
@@ -4496,10 +4496,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "cb42de018ce6f2fbd6fc93e0",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "ad2ac81d5cef22cfea7ce13affd06569ad8a42755bf95b111742e29d4b3c55b6",
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "interaction_id": "013256e02c098dcf5b2900c7",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "cebde95116ed0a9b922040bb3369a204d190347b7cf23dce0830ecc7ef3ccf66",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "parts": [
           {
             "completion_board": {
@@ -4587,7 +4587,7 @@
                 ]
               }
             },
-            "id": "cb42de018ce6f2fbd6fc93e0#1",
+            "id": "013256e02c098dcf5b2900c7#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -4789,10 +4789,14 @@
                 ]
               }
             },
-            "id": "cb42de018ce6f2fbd6fc93e0#2",
+            "id": "013256e02c098dcf5b2900c7#2",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$\\text{常值}$",
+                  "value": "o3"
+                },
                 {
                   "label": "$\\uparrow$",
                   "value": "o2"
@@ -4800,10 +4804,6 @@
                 {
                   "label": "$\\downarrow$",
                   "value": "o1"
-                },
-                {
-                  "label": "$\\text{常值}$",
-                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -4829,11 +4829,11 @@
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "3e760393d101216085b55ac4f3c3a45c8b0290641d4cbc682b37b9be4dd04a20",
+            "math_step_sha256": "87309061f21c2c864a646a66e25070bb37d3afe6655a279a486c3567b00de25f",
             "step_id": "39e5646dcb-piecewise-monotonicity-003-inner"
           }
         ],
@@ -4841,10 +4841,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "7f6b767f9803e20c127ebcdf",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "4a766859ee23a6dbd767109a07e20c916b443dfba7f808d3a6637648ed4ae9f9",
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "interaction_id": "2a467d678d53fe56fea52fb6",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "24b4e29e17ec6928d608548551b9b4dda99c8a9a3505347cc09b309770832927",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "parts": [
           {
             "completion_board": {
@@ -5018,17 +5018,17 @@
                 ]
               }
             },
-            "id": "7f6b767f9803e20c127ebcdf#1",
+            "id": "2a467d678d53fe56fea52fb6#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\text{无}$",
-                  "value": "o4"
-                },
-                {
                   "label": "$\\left[-1, 0\\right)$",
                   "value": "o2"
+                },
+                {
+                  "label": "$\\text{无}$",
+                  "value": "o4"
                 },
                 {
                   "label": "$\\left(-\\infty, 0\\right)$",
@@ -5232,13 +5232,13 @@
                 ]
               }
             },
-            "id": "7f6b767f9803e20c127ebcdf#2",
+            "id": "2a467d678d53fe56fea52fb6#2",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\left(-\\infty, 0\\right)$",
-                  "value": "o3"
+                  "label": "$\\left[-1, 0\\right)$",
+                  "value": "o1"
                 },
                 {
                   "label": "$\\text{无}$",
@@ -5249,8 +5249,8 @@
                   "value": "o2"
                 },
                 {
-                  "label": "$\\left[-1, 0\\right)$",
-                  "value": "o1"
+                  "label": "$\\left(-\\infty, 0\\right)$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -5276,11 +5276,11 @@
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "186a1bc58e47fe5617542ed72534ae30af999635e85f37b0c4059a238e790de4",
+            "math_step_sha256": "c50fd741a149250c55726f69eb4ffa3bf37418512d05d2491b9b75d69b0f4075",
             "step_id": "39e5646dcb-piecewise-monotonicity-004-answer"
           }
         ],
@@ -5288,10 +5288,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "fd70b4c0fbc44e41d0d93c5e",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "5fc40d9938f3ef9da5435862a7f081586630721c3441276385c22c235e28c963",
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "interaction_id": "468e83c5d90738526cfec93a",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "2598d5bf83b027d9cdaa87bf90165cbcbd1ef92c92ce82c3729d29918670e72d",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "parts": [
           {
             "completion_board": {
@@ -5317,7 +5317,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "fd70b4c0fbc44e41d0d93c5e#1",
+            "id": "468e83c5d90738526cfec93a#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -5326,12 +5326,12 @@
                   "value": "o2"
                 },
                 {
-                  "label": "$\\left[0, \\infty\\right)$",
-                  "value": "o1"
-                },
-                {
                   "label": "$\\{0\\}$",
                   "value": "o3"
+                },
+                {
+                  "label": "$\\left[0, \\infty\\right)$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -5357,11 +5357,11 @@
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "b5625b4afdc4a304aac5e3a000084d2295d596032c6e22e4b794583e4b83aefe",
+            "math_step_sha256": "40b4d808c9278efc00bf9e598d0313dabd71f5e41bd8a3046fb368a9ef7fb47a",
             "step_id": "39e5646dcb-piecewise-monotonicity-005-domain"
           }
         ],
@@ -5369,10 +5369,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "2fe59b939ed4fa893bf23f7b",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "a061cb14bc37729d9c384847f691ddea5471349e5befe44579edc14ebd2b93fb",
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "interaction_id": "a63b97c592732660a64377cc",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "28dc1dee605d78e443a598b8d8da57b42b33880a6f089af2e98db55dd275350b",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "parts": [
           {
             "completion_board": {
@@ -5450,18 +5450,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "2fe59b939ed4fa893bf23f7b#1",
+            "id": "a63b97c592732660a64377cc#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$\\left(x - 1\\right)^{2} + 4$",
-                  "value": "o4"
-                },
-                {
-                  "label": "$- \\left(x - 1\\right)^{2} + 4$",
-                  "value": "o1"
-                },
                 {
                   "label": "$- \\left(x - 1\\right)^{2} - 4$",
                   "value": "o3"
@@ -5469,6 +5461,14 @@
                 {
                   "label": "$- \\left(x + 1\\right)^{2} + 4$",
                   "value": "o2"
+                },
+                {
+                  "label": "$- \\left(x - 1\\right)^{2} + 4$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left(x - 1\\right)^{2} + 4$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -5494,11 +5494,11 @@
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "1779332542bb4185cf99f63016261f17aa5f34e32580a2bf7b8d5c04efc9c8fa",
+            "math_step_sha256": "d1867d8d27a54845eba4cefd69d9381d4fe33aad2ccdd38439ca66ce92c645de",
             "step_id": "39e5646dcb-piecewise-monotonicity-006-square"
           }
         ],
@@ -5506,10 +5506,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "678db68fb7d92ce7d8f82617",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "21a2b852c48bd29259780d451fa3dd4f9ecd29433cf536ca5acb8f609a863996",
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "interaction_id": "fa63e8de87879384d3988826",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "ea178d81f2e48a11773a6ba062dc25deaa2f5ea9afad83b6c0b344844a351450",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "parts": [
           {
             "completion_board": {
@@ -5597,21 +5597,21 @@
                 ]
               }
             },
-            "id": "678db68fb7d92ce7d8f82617#1",
+            "id": "fa63e8de87879384d3988826#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\uparrow$",
-                  "value": "o1"
+                  "label": "$\\downarrow$",
+                  "value": "o2"
                 },
                 {
                   "label": "$\\text{常值}$",
                   "value": "o3"
                 },
                 {
-                  "label": "$\\downarrow$",
-                  "value": "o2"
+                  "label": "$\\uparrow$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -5799,10 +5799,14 @@
                 ]
               }
             },
-            "id": "678db68fb7d92ce7d8f82617#2",
+            "id": "fa63e8de87879384d3988826#2",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$\\downarrow$",
+                  "value": "o1"
+                },
                 {
                   "label": "$\\uparrow$",
                   "value": "o2"
@@ -5810,10 +5814,6 @@
                 {
                   "label": "$\\text{常值}$",
                   "value": "o3"
-                },
-                {
-                  "label": "$\\downarrow$",
-                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -5839,11 +5839,11 @@
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "7256754c29d07113a9f8bff416039fd933dd14fb01f1758bc0ac2de0f8d83e20",
+            "math_step_sha256": "41d57c0ff24ff3584a481034c2029ad93dd53fc09e6311fedbe25ca07224b96a",
             "step_id": "39e5646dcb-piecewise-monotonicity-007-inner"
           }
         ],
@@ -5851,10 +5851,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "3ef1c616a0120735a6681e13",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "bb7e3dbd2d7dc7550662e67e0b5caca24fe7dc1f3d7f023e3103e8afccda0f1c",
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "interaction_id": "45b4ad5009d20d1809d3f166",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "1cadbbc89dee5b80c1314d87928774d2e0ec887a927b2233b8289b385bc5724c",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "parts": [
           {
             "completion_board": {
@@ -6028,25 +6028,25 @@
                 ]
               }
             },
-            "id": "3ef1c616a0120735a6681e13#1",
+            "id": "45b4ad5009d20d1809d3f166#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$\\left[0, 1\\right]$",
-                  "value": "o1"
-                },
                 {
                   "label": "$\\text{无}$",
                   "value": "o4"
                 },
                 {
-                  "label": "$\\left[1, \\infty\\right)$",
-                  "value": "o2"
+                  "label": "$\\left[0, 1\\right]$",
+                  "value": "o1"
                 },
                 {
                   "label": "$\\left[0, \\infty\\right)$",
                   "value": "o3"
+                },
+                {
+                  "label": "$\\left[1, \\infty\\right)$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -6242,17 +6242,17 @@
                 ]
               }
             },
-            "id": "3ef1c616a0120735a6681e13#2",
+            "id": "45b4ad5009d20d1809d3f166#2",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\left[1, \\infty\\right)$",
-                  "value": "o1"
-                },
-                {
                   "label": "$\\left[0, 1\\right]$",
                   "value": "o2"
+                },
+                {
+                  "label": "$\\left[1, \\infty\\right)$",
+                  "value": "o1"
                 },
                 {
                   "label": "$\\left[0, \\infty\\right)$",
@@ -6286,11 +6286,11 @@
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "dbd7d16ca2dfec0b16f55f2f65087e11e359302117071c25652fceb0601b08f5",
+            "math_step_sha256": "5f6359f76a6a7efa86071042b816ef12eaa0739f6fdcc0044ec941726f4e6de7",
             "step_id": "39e5646dcb-piecewise-monotonicity-008-answer"
           }
         ],
@@ -6298,10 +6298,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "abc1d146effa32b082f46efe",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "be0b162a97b7426c265e998b7b0819555bac354467138362de317a7152ac12ea",
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "interaction_id": "3effd548efa13073c85af10a",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "7919add6b0664330435c7724b7463931c5c34c58c7038f5ce178dc050ac569ae",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "parts": [
           {
             "completion_board": {
@@ -6539,17 +6539,17 @@
                 ]
               }
             },
-            "id": "abc1d146effa32b082f46efe#1",
+            "id": "3effd548efa13073c85af10a#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\text{不能合并}$",
-                  "value": "o1"
-                },
-                {
                   "label": "$\\text{可以合并}$",
                   "value": "o2"
+                },
+                {
+                  "label": "$\\text{不能合并}$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -6575,11 +6575,11 @@
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "9ccb0219a4e5e2090b874fa80e34b64c033d5dad5e055ecbfd65c289f6eafe1f",
+            "math_step_sha256": "e061d7898d20e4ef4be2f8951a19c0a859a7a04fb1f3373de25284c361801cfa",
             "step_id": "39e5646dcb-piecewise-monotonicity-009-join"
           }
         ],
@@ -6587,10 +6587,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "97cda6b51f44e57d390a08d4",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "4672219ad7e89ab4ae485c5511090dca6cc65f65eab5a09d8647bd20812dfa44",
-        "lesson_version": "597ed97aace99824dfdca74d9764d191c8523b3b74dc67070399be48bbc6dab9",
+        "interaction_id": "08c1c6f5a263f535d6f58229",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "b69374b6cb1e757a50da3f891800d04d2dfa7e8d2649f7dd646b7ad86536ad08",
+        "lesson_version": "77c2519b683f0fe216488317479aff9b2d04de5bd348854871ab624ba56ea0b3",
         "parts": [
           {
             "completion_board": {
@@ -6842,7 +6842,7 @@
                 ]
               }
             },
-            "id": "97cda6b51f44e57d390a08d4#1",
+            "id": "08c1c6f5a263f535d6f58229#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -6851,16 +6851,16 @@
                   "value": "o2"
                 },
                 {
-                  "label": "$\\mathbb{R}$",
-                  "value": "o3"
+                  "label": "$\\left(-\\infty, -1\\right]\\quad\\text{和}\\quad\\left[0, 1\\right]$",
+                  "value": "o1"
                 },
                 {
                   "label": "$\\text{无}$",
                   "value": "o4"
                 },
                 {
-                  "label": "$\\left(-\\infty, -1\\right]\\quad\\text{和}\\quad\\left[0, 1\\right]$",
-                  "value": "o1"
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -6886,11 +6886,11 @@
           }
         ],
         "route_id": "piecewise-monotonicity",
-        "run_id": "dc87e6e490a14ca2bf7a7e0f4f70b4c3",
+        "run_id": "b0135facdf7540cda377196b939faf79",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "cd9818a8c83aa5d9df86810d0f5a95b1ac808246744f4c1f1c5edf5f8bc3dd47",
+            "math_step_sha256": "625831fe8ab6751a16230a1c5ef8c2f811b0e3100edd912d89828c950476c6c9",
             "step_id": "39e5646dcb-piecewise-monotonicity-010-answer"
           }
         ],

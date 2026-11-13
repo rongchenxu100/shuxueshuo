@@ -1,0 +1,59 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-a12",
+  "label": "奇函数零点与相反输入求值 · A12",
+  "path": "/topics/function-parity/q12/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-a12.json",
+  "types": [
+    "type-function-evaluation"
+  ],
+  "statement": "已知函数 $y=f(x)$ 是定义域为 $\\mathbf R$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$____．",
+  "routes": {
+    "function-symmetry": {
+      "label": "对称关系法",
+      "methods": [
+        "method-function-symmetry"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-function-symmetry"
+          ]
+        },
+        "ecaa004f144ede803d1ca94a#1": {
+          "title": "把输入换成相反数",
+          "position": 4,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "06cecc51d1f25bb51d6cea65#1": {
+          "title": "求出所求的值",
+          "position": 5,
+          "refs": [
+            "method-function-symmetry#conclude"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "f56126eca82a1b4d4cd3bdc2372aac8656230cf6eaf986ff2eaeba357a42bbcc",
+  "practice_version": "e79457326b96180c87f29b728bd06d246eaf7236f5bc04fe884527c837db310f"
+}

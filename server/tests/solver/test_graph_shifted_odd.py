@@ -268,12 +268,33 @@ def test_local_relation_only_applies_in_its_scope(scope, definition, answer):
         ("f(x)=x^2+3", "f(1)+f(-1)", False),
         ("f(x)=x+1", "f(1)+f(2)", False),
         ("f(x)=x+1", "f(1)+f(-1)", True),
+        ("f(x)=x+1", "f(f(1))", False),
+        ("f(x)=x+1", "f(1+f(1))", False),
+        ("f(x)=piecewise(3*x,x>=3,-x^2+6*x,x<3)", "f(f(1))", False),
     ],
 )
 def test_explicit_sources_are_not_all_claimed_by_t6(definition, expression, expected):
     p = candidate(definition, [], expression)
     c = build_context(p, TARGET)
     assert math.owned(c["goal"], c["goal_ast"], c["entries"]) is expected
+
+
+@pytest.mark.stage_three_db
+def test_nested_evaluation_in_a_multi_goal_problem_keeps_its_original_route(tmp_path):
+    import json
+
+    from shuxueshuo_server.graph_lesson.stage_three import runner
+    from shuxueshuo_server.graph_lesson.stage_three.contracts import ROOT
+    from tests.solver.test_graph_function_parity_recognition import recognize
+
+    record = json.loads((ROOT / 'internal/senior-high/authored-courses/function-monotonicity-t3-20261106/b09.json').read_text())
+    _, recognized = recognize(record['candidate'], tmp_path)
+    assert [goal['primary'] for goal in recognized['goals']] == [
+        'type-function-evaluation', 'type-monotonicity-inequality',
+    ]
+    result = runner.run_sample(tmp_path / 'stage-two/stage-two-result.json', tmp_path / 'execution')
+    assert all(goal['status'] == 'solved' for goal in result['goals'])
+    assert result['goals'][0]['answer']['value']['expression'] == '15'
 
 
 def test_paired_finite_sum_preserves_repetition_and_kind():

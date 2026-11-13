@@ -18,9 +18,73 @@
       "label": "根据奇偶性求参",
       "type": "type-parity-parameter",
       "groupBy": "method",
-      "description": "将已知的奇偶性写成恒等关系，比较系数后求参数并核验。",
+      "description": "从定义域对称和函数值关系列出条件，求满足奇偶性要求的参数，并检查端点与禁取值。",
       "problems": [
-        "function-parity-a17"
+        "function-parity-a17",
+        "function-parity-c01",
+        "function-parity-c02",
+        "function-parity-c03",
+        "function-parity-c04",
+        "function-parity-c05",
+        "function-parity-c06"
+      ]
+    },
+    {
+      "id": "formula",
+      "label": "根据奇偶性求解析式",
+      "type": "type-parity-formula",
+      "groupBy": "method",
+      "description": "利用相反输入补全解析式、求函数值，或分离已知关系中的奇函数与偶函数。",
+      "problems": [
+        "function-parity-a04",
+        "function-parity-a07",
+        "function-parity-a08",
+        "function-parity-a09",
+        "function-parity-a12",
+        "function-parity-a13",
+        "function-parity-a03",
+        "function-parity-a06",
+        "function-parity-a15"
+      ]
+    },
+    {
+      "id": "inequality",
+      "label": "利用奇偶性解不等式",
+      "type": "type-parity-inequality",
+      "groupBy": "method",
+      "description": "用奇偶性转换函数值关系，结合已知一侧的解析式、单调性或符号解不等式，保留输入范围。",
+      "problems": [
+        "function-parity-a02",
+        "function-parity-a05",
+        "function-parity-a11",
+        "function-parity-a18",
+        "function-parity-a20",
+        "function-parity-a19"
+      ]
+    },
+    {
+      "id": "symmetry",
+      "label": "利用图像的对称性",
+      "type": "type-function-symmetry",
+      "groupBy": "method",
+      "description": "写出对称配对，组合反射得到平移关系，逐项求值或分组求和。",
+      "problems": [
+        "function-parity-a10",
+        "function-parity-a14"
+      ]
+    },
+    {
+      "id": "shifted-odd",
+      "label": "奇函数＋常数结论的应用",
+      "type": "type-shifted-odd-application",
+      "groupBy": "method",
+      "description": "先找到奇函数与常数的关系，再求相反输入的函数值、配对和或最值之和。",
+      "problems": [
+        "function-parity-a16",
+        "function-parity-b01",
+        "function-parity-b02",
+        "function-parity-b03",
+        "function-parity-b04"
       ]
     }
   ],
@@ -231,14 +295,14 @@
                 "method-parity-parameter"
               ]
             },
-            "c441f0d7816f0e7bb9a5f8d2#1": {
+            "39b07482ed252c247ea6bf86#1": {
               "title": "检查定义域",
               "position": 4,
               "refs": [
                 "method-parity-parameter#prepare"
               ]
             },
-            "804b631cb58ded5bd0060c7f#1": {
+            "c432141d9bb9fc68deb74f79#1": {
               "title": "把奇偶性写成关系",
               "position": 5,
               "refs": [
@@ -247,7 +311,7 @@
                 "skill-simplify"
               ]
             },
-            "b7de6f8b9f14cd77b0e60d97#1": {
+            "c8a11cf315c1520001978b39#1": {
               "title": "比较对应项的系数",
               "position": 6,
               "refs": [
@@ -256,18 +320,2105 @@
                 "equality-properties#polynomial-coefficients"
               ]
             },
-            "0aa93e268d6ebf9fe651396a#1": {
+            "bddc21b953120f0def9ef94f#1": {
               "title": "合并全部参数条件",
               "position": 7,
               "refs": [
                 "method-parity-parameter#solve"
               ]
             },
-            "8441b24844f923ed2601440b#1": {
+            "54705bb50d9df2aa7e1ec172#1": {
               "title": "代回核验",
               "position": 8,
               "refs": [
                 "method-parity-parameter#verify"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-c01": {
+      "label": "定义域端点配对 · C01",
+      "path": "/topics/function-parity/variant1/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c01.json",
+      "types": [
+        "type-parity-parameter"
+      ],
+      "statement": "已知函数 $f$ 是定义在 $[a-3,2a]$ 上的偶函数，求实数 $a$ 的值。",
+      "routes": {
+        "parity-parameter": {
+          "label": "奇偶性条件求参法",
+          "methods": [
+            "method-parity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-parameter"
+              ]
+            },
+            "b92425bd24dc15d4fda346b6#1": {
+              "title": "检查定义域是否关于原点对称",
+              "position": 4,
+              "refs": [
+                "method-parity-parameter#prepare",
+                "skill-domain-symmetry"
+              ]
+            },
+            "75b7e2d29ddcf67e6a803de2#1": {
+              "title": "代回核验",
+              "position": 5,
+              "refs": [
+                "method-parity-parameter#verify"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-c02": {
+      "label": "四次式中的一次项 · C02",
+      "path": "/topics/function-parity/variant2/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c02.json",
+      "types": [
+        "type-parity-parameter"
+      ],
+      "statement": "已知函数 $f(x)=(x^2-1)^2+px$ 为偶函数，求实数 $p$ 的取值范围。",
+      "routes": {
+        "parity-parameter": {
+          "label": "奇偶性条件求参法",
+          "methods": [
+            "method-parity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-parameter"
+              ]
+            },
+            "bf242712ddf1b76503cbc45a#1": {
+              "title": "检查定义域",
+              "position": 4,
+              "refs": [
+                "method-parity-parameter#prepare"
+              ]
+            },
+            "74f7f64cdcd2865cfeb667d5#1": {
+              "title": "把奇偶性写成关系",
+              "position": 5,
+              "refs": [
+                "method-parity-parameter#identity",
+                "method-function-evaluation",
+                "skill-simplify"
+              ]
+            },
+            "842d0e471b250aa85e153401#1": {
+              "title": "比较对应项的系数",
+              "position": 6,
+              "refs": [
+                "method-parity-parameter#compare",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients"
+              ]
+            },
+            "46644fcbf1b847b9300d9942#1": {
+              "title": "合并全部参数条件",
+              "position": 7,
+              "refs": [
+                "method-parity-parameter#solve"
+              ]
+            },
+            "43a4ccfeb370c2691567d023#1": {
+              "title": "代回核验",
+              "position": 8,
+              "refs": [
+                "method-parity-parameter#verify"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-c03": {
+      "label": "约分后仍保留原孔洞 · C03",
+      "path": "/topics/function-parity/variant3/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c03.json",
+      "types": [
+        "type-parity-parameter"
+      ],
+      "statement": "已知函数 $f(x)=\\frac{x-p}{x-p}$ 为偶函数，求实数 $p$ 的取值范围。",
+      "routes": {
+        "parity-parameter": {
+          "label": "奇偶性条件求参法",
+          "methods": [
+            "method-parity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-parameter"
+              ]
+            },
+            "6c4a2d8663ca65da36357646#1": {
+              "title": "求定义域",
+              "position": 4,
+              "refs": [
+                "method-parity-parameter#prepare",
+                "method-domain-intersection",
+                "function-concept#elements",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "6c4a2d8663ca65da36357646#2": {
+              "title": "检查定义域是否关于原点对称",
+              "position": 5,
+              "refs": [
+                "method-parity-parameter#prepare",
+                "method-domain-intersection",
+                "function-concept#elements",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "a53ef0ee8d01a9497b7823f3#1": {
+              "title": "代回核验",
+              "position": 6,
+              "refs": [
+                "method-parity-parameter#verify"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-c04": {
+      "label": "分段函数的零点条件 · C04",
+      "path": "/topics/function-parity/variant4/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c04.json",
+      "types": [
+        "type-parity-parameter"
+      ],
+      "statement": "已知函数 $f(x)=\\begin{cases}x^2+p,&x>0\\\\p,&x=0\\\\-x^2-p,&x<0\\end{cases}$ 为奇函数，求实数 $p$ 的取值范围。",
+      "routes": {
+        "parity-parameter": {
+          "label": "奇偶性条件求参法",
+          "methods": [
+            "method-parity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-parameter"
+              ]
+            },
+            "488e64e3cfdd8b20563cf35a#1": {
+              "title": "求定义域",
+              "position": 4,
+              "refs": [
+                "method-parity-parameter#prepare",
+                "method-domain-intersection",
+                "function-concept#elements",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "d48d39a27ae3a3e0584ae70f#1": {
+              "title": "按原式配对函数值",
+              "position": 5,
+              "refs": [
+                "method-parity-parameter#identity",
+                "method-function-evaluation"
+              ]
+            },
+            "4e2af5f091fc533911d20e4c#1": {
+              "title": "分类检查函数值关系",
+              "position": 6,
+              "refs": [
+                "method-parity-parameter#compare"
+              ]
+            },
+            "70a0a56a5ce27fbfc3e0596b#1": {
+              "title": "合并全部参数条件",
+              "position": 7,
+              "refs": [
+                "method-parity-parameter#solve"
+              ]
+            },
+            "9813641a723879915b888ad8#1": {
+              "title": "代回核验",
+              "position": 8,
+              "refs": [
+                "method-parity-parameter#verify"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-c05": {
+      "label": "根式的自然定义域 · C05",
+      "path": "/topics/function-parity/variant5/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c05.json",
+      "types": [
+        "type-parity-parameter"
+      ],
+      "statement": "已知函数 $f(x)=\\sqrt{px^2}$ 为奇函数，求实数 $p$ 的取值范围。",
+      "routes": {
+        "parity-parameter": {
+          "label": "奇偶性条件求参法",
+          "methods": [
+            "method-parity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-parameter"
+              ]
+            },
+            "8a4fa29f5cfac6adc47f0c82#1": {
+              "title": "求定义域",
+              "position": 4,
+              "refs": [
+                "method-parity-parameter#prepare",
+                "method-domain-intersection",
+                "function-concept#elements",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "e7ccb2dc5b34b3a365dfd03c#1": {
+              "title": "把相反数代入原式",
+              "position": 5,
+              "refs": [
+                "method-parity-parameter#identity",
+                "method-function-evaluation"
+              ]
+            },
+            "41ee10fb1ebc3659ce2c4ce6#1": {
+              "title": "分情况讨论",
+              "position": 6,
+              "refs": [
+                "method-parity-parameter#compare"
+              ]
+            },
+            "f7b85d4976e335e6d8eae80e#1": {
+              "title": "取并集",
+              "position": 7,
+              "refs": [
+                "method-parity-parameter#solve"
+              ]
+            },
+            "5af82d4fdb584d35edffec44#1": {
+              "title": "代回核验",
+              "position": 8,
+              "refs": [
+                "method-parity-parameter#verify"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-c06": {
+      "label": "有限定义域中的联合参数 · C06",
+      "path": "/topics/function-parity/variant6/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c06.json",
+      "types": [
+        "type-parity-parameter"
+      ],
+      "statement": "已知函数 $f(x)=ax^2+b$，定义域为 $\\{-1,1\\}$ 为奇函数，求实数 $a,b$ 的取值范围。",
+      "routes": {
+        "parity-parameter": {
+          "label": "奇偶性条件求参法",
+          "methods": [
+            "method-parity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-parameter"
+              ]
+            },
+            "097e8435da6d5e8a5e94abcb#1": {
+              "title": "检查完整定义域",
+              "position": 4,
+              "refs": [
+                "method-parity-parameter#prepare"
+              ]
+            },
+            "e726a5b8167c7b3b685d80e9#1": {
+              "title": "写出相反输入的关系",
+              "position": 5,
+              "refs": [
+                "method-parity-parameter#identity",
+                "method-function-evaluation"
+              ]
+            },
+            "b5fd6ce7cb32910c2eb1d7e9#1": {
+              "title": "逐点列条件",
+              "position": 6,
+              "refs": [
+                "method-parity-parameter#compare"
+              ]
+            },
+            "d19c8e7a80ab31009b5b6878#1": {
+              "title": "合并联合参数条件",
+              "position": 7,
+              "refs": [
+                "method-parity-parameter#solve"
+              ]
+            },
+            "1c74e53423a73b4be1402e99#1": {
+              "title": "代回核验",
+              "position": 8,
+              "refs": [
+                "method-parity-parameter#verify"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a04": {
+      "label": "偶函数在原定义域上的解析式 · A04",
+      "path": "/topics/function-parity/q04/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a04.json",
+      "types": [
+        "type-parity-formula"
+      ],
+      "statement": "已知 $f(x)$ 为偶函数，若当 $x\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是____．",
+      "routes": {
+        "parity-extension": {
+          "label": "对称补全法",
+          "methods": [
+            "method-parity-extension"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-extension"
+              ]
+            },
+            "95e426366c692dca1368ff16#1": {
+              "title": "把输入换到已知一侧",
+              "position": 4,
+              "refs": [
+                "method-parity-extension#map",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "00683973afe5c108897f8462#1": {
+              "title": "代入相反输入",
+              "position": 5,
+              "refs": [
+                "method-parity-extension#substitute",
+                "method-function-evaluation",
+                "skill-simplify"
+              ]
+            },
+            "3a6cb0be6289ef5454b54c15#1": {
+              "title": "用奇偶性换回 f(x)",
+              "position": 6,
+              "refs": [
+                "method-parity-extension#write-back",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "113b5d0166fa835f55194eca#1": {
+              "title": "拼接已知部分并写出结论",
+              "position": 7,
+              "refs": [
+                "method-parity-extension#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a07": {
+      "label": "偶函数补全负半轴 · A07",
+      "path": "/topics/function-parity/q07/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a07.json",
+      "types": [
+        "type-parity-formula"
+      ],
+      "statement": "已知函数 $f(x)$ 是定义域为 $\\mathbf R$ 的偶函数，当 $x\\ge 0$ 时，$f(x)=x(1+x)$．则当 $x<0$ 时，$f(x)=$____．",
+      "routes": {
+        "parity-extension": {
+          "label": "对称补全法",
+          "methods": [
+            "method-parity-extension"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-extension"
+              ]
+            },
+            "a5cd6a4684711539b0209da0#1": {
+              "title": "把输入换到已知一侧",
+              "position": 4,
+              "refs": [
+                "method-parity-extension#map",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "6af6087b8dfdf1bee5837513#1": {
+              "title": "代入相反输入",
+              "position": 5,
+              "refs": [
+                "method-parity-extension#substitute",
+                "method-function-evaluation",
+                "skill-simplify"
+              ]
+            },
+            "8dc3f3dc850cb3aace61544e#1": {
+              "title": "用奇偶性换回 f(x)",
+              "position": 6,
+              "refs": [
+                "method-parity-extension#write-back",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "969b9c111f36a70f63555a56#1": {
+              "title": "写出带范围的结论",
+              "position": 7,
+              "refs": [
+                "method-parity-extension#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a08": {
+      "label": "奇函数补全负半轴 · A08",
+      "path": "/topics/function-parity/q08/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a08.json",
+      "types": [
+        "type-parity-formula"
+      ],
+      "statement": "函数 $f(x)$ 是定义在 $\\mathbf R$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$____．",
+      "routes": {
+        "parity-extension": {
+          "label": "对称补全法",
+          "methods": [
+            "method-parity-extension"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-extension"
+              ]
+            },
+            "91c26108f3c4d5be782e4c30#1": {
+              "title": "把输入换到已知一侧",
+              "position": 4,
+              "refs": [
+                "method-parity-extension#map",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "1d39f5ba0721d3883cf30b46#1": {
+              "title": "代入相反输入",
+              "position": 5,
+              "refs": [
+                "method-parity-extension#substitute",
+                "method-function-evaluation",
+                "skill-simplify"
+              ]
+            },
+            "5f238828dcd4f29e5e9a1a72#1": {
+              "title": "用奇偶性换回 f(x)",
+              "position": 6,
+              "refs": [
+                "method-parity-extension#write-back",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "5d95516976fcf10e90fa0529#1": {
+              "title": "写出带范围的结论",
+              "position": 7,
+              "refs": [
+                "method-parity-extension#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a09": {
+      "label": "奇函数求值与补全负半轴 · A09",
+      "path": "/topics/function-parity/q09/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a09.json",
+      "types": [
+        "type-function-evaluation",
+        "type-parity-formula"
+      ],
+      "statement": "设 $f(x)$ 是定义在 $(-\\infty,+\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$____；当 $x\\le 0$ 时，$f(x)=$____．",
+      "routes": {
+        "function-symmetry": {
+          "label": "第①空：求 $f(-3)$ → 第②空：求 $x\\le 0$ 时的解析式",
+          "methods": [
+            "method-parity-extension",
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "c15d08c329744fa3de1c4d00#1": {
+              "title": "把输入换成相反数",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "3eb639b8fa7001fcaa5122ee#1": {
+              "title": "求出所求的值",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            },
+            "goal-2-D1": {
+              "title": "第②空：求 $x\\le 0$ 时的解析式",
+              "position": 6,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "goal-2-D2": {
+              "title": "确定题型",
+              "position": 7,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "goal-2-D3": {
+              "title": "选择解题方法",
+              "position": 8,
+              "refs": [
+                "method-parity-extension"
+              ]
+            },
+            "f1cdcb0c9f4dacd5774731bd#1": {
+              "title": "把输入换到已知一侧",
+              "position": 9,
+              "refs": [
+                "method-parity-extension#map",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "6b768ca566a6b3ff54364776#1": {
+              "title": "代入相反输入",
+              "position": 10,
+              "refs": [
+                "method-parity-extension#substitute",
+                "method-function-evaluation",
+                "skill-simplify"
+              ]
+            },
+            "2f2da2d5c29c80bbc3f4947c#1": {
+              "title": "用奇偶性换回 f(x)",
+              "position": 11,
+              "refs": [
+                "method-parity-extension#write-back",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "d88c5d84a351db748d8cc57b#1": {
+              "title": "检查零点并写出结论",
+              "position": 12,
+              "refs": [
+                "method-parity-extension#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a12": {
+      "label": "奇函数零点与相反输入求值 · A12",
+      "path": "/topics/function-parity/q12/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a12.json",
+      "types": [
+        "type-function-evaluation"
+      ],
+      "statement": "已知函数 $y=f(x)$ 是定义域为 $\\mathbf R$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$____．",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "ecaa004f144ede803d1ca94a#1": {
+              "title": "把输入换成相反数",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "06cecc51d1f25bb51d6cea65#1": {
+              "title": "求出所求的值",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a13": {
+      "label": "奇函数整组相反输入求值 · A13",
+      "path": "/topics/function-parity/q13/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a13.json",
+      "types": [
+        "type-function-evaluation"
+      ],
+      "statement": "已知函数 $f(x)$ 是定义在 $\\mathbf R$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____．",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "76657cea794b7b2049a2de2f#1": {
+              "title": "把输入换成相反数",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "adc14dcbe3d7003bafc91ce1#1": {
+              "title": "求出所求的值",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a03": {
+      "label": "奇函数与偶函数的和式求值 · A03",
+      "path": "/topics/function-parity/q03/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a03.json",
+      "types": [
+        "type-function-evaluation"
+      ],
+      "statement": "已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$____．",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "02f0617573c5707f12fd1910#1": {
+              "title": "在相反输入处使用已知关系",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "b4ae445c2d4a0ca7faaf7e20#1": {
+              "title": "求出所求的值",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a06": {
+      "label": "奇函数与偶函数的差式求值 · A06",
+      "path": "/topics/function-parity/q06/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a06.json",
+      "types": [
+        "type-function-evaluation"
+      ],
+      "statement": "已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf R$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____．",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "3a1892e531d7a2156a237aa8#1": {
+              "title": "在相反输入处使用已知关系",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "bd19e2f6937c606cc51ddfbb#1": {
+              "title": "求出所求的值",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a15": {
+      "label": "含参定义域的奇函数求值 · A15",
+      "path": "/topics/function-parity/q15/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a15.json",
+      "types": [
+        "type-function-evaluation"
+      ],
+      "statement": "已知定义在 $[m-5,1-2m]$ 上的奇函数 $f(x)$，当 $x\\ge0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____．",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "819a976e41b7193183fb97bc#1": {
+              "title": "先确定定义域中的参数",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "819a976e41b7193183fb97bc#2": {
+              "title": "把输入换成相反数",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "36b686351b61966cd0f2cc26#1": {
+              "title": "求出所求的值",
+              "position": 6,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a02": {
+      "label": "偶函数半轴解析式解不等式 · A02",
+      "path": "/topics/function-parity/q02/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a02.json",
+      "types": [
+        "type-parity-inequality"
+      ],
+      "statement": "已知 $y=f(x)$ 是 $\\mathbf R$ 上的偶函数，且当 $x\\ge0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le0$ 的解集为____．",
+      "routes": {
+        "parity-inequality": {
+          "label": "奇偶性解不等式法",
+          "methods": [
+            "method-parity-inequality"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-inequality"
+              ]
+            },
+            "03b664087cacfb80fba9bf4c#1": {
+              "title": "先在已知范围内解不等式",
+              "position": 4,
+              "refs": [
+                "method-parity-inequality#given-side",
+                "skill-inequality-transform",
+                "function-concept#elements",
+                "quadratic-inequality#signs",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "8d646741d7b1f823e023fca4#1": {
+              "title": "用奇偶性得到另一侧的解",
+              "position": 5,
+              "refs": [
+                "method-parity-inequality#mirror",
+                "skill-function-symmetry-transform",
+                "function-concept#elements",
+                "function-parity#definition",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "da700d53e9c2524e94706a9c#1": {
+              "title": "合并各部分，写出解集",
+              "position": 6,
+              "refs": [
+                "method-parity-inequality#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a05": {
+      "label": "奇函数半轴解析式与两值比较 · A05",
+      "path": "/topics/function-parity/q05/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a05.json",
+      "types": [
+        "type-parity-formula",
+        "type-parity-inequality"
+      ],
+      "statement": "已知 $f(x)$ 是定义在 $(-2,2)$ 上的奇函数，且当 $x\\in(0,2)$ 时，$f(x)=x^2+2x$，则当 $-2<x<0$ 时，$f(x)=$____，不等式 $f(x-1)+f(x)<0$ 的解集是____．",
+      "routes": {
+        "parity-extension": {
+          "label": "补全另一侧解析式 → 解不等式",
+          "methods": [
+            "method-parity-inequality",
+            "method-parity-extension"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-extension"
+              ]
+            },
+            "17d4065711a7150cc943a6db#1": {
+              "title": "把输入换到已知一侧",
+              "position": 4,
+              "refs": [
+                "method-parity-extension#map",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "a649068c881c8acb3fed861a#1": {
+              "title": "代入相反输入",
+              "position": 5,
+              "refs": [
+                "method-parity-extension#substitute",
+                "method-function-evaluation",
+                "skill-simplify"
+              ]
+            },
+            "cdb457541115522874bb2eaf#1": {
+              "title": "用奇偶性换回 f(x)",
+              "position": 6,
+              "refs": [
+                "method-parity-extension#write-back",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "fcd490dd0fa827dc7ecc759b#1": {
+              "title": "写出带范围的结论",
+              "position": 7,
+              "refs": [
+                "method-parity-extension#conclude"
+              ]
+            },
+            "goal-2-D1": {
+              "title": "解不等式",
+              "position": 8,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "goal-2-D2": {
+              "title": "确定题型",
+              "position": 9,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "goal-2-D3": {
+              "title": "选择解题方法",
+              "position": 10,
+              "refs": [
+                "method-parity-inequality"
+              ]
+            },
+            "5217961ce5e501b9c2e8ff20#1": {
+              "title": "改写成两个函数值的比较",
+              "position": 11,
+              "refs": [
+                "method-parity-inequality#rewrite",
+                "skill-function-symmetry-transform",
+                "function-parity#definition"
+              ]
+            },
+            "9065c03f0038be45e98fe1a3#1": {
+              "title": "确定整个定义域上的单调方向",
+              "position": 12,
+              "refs": [
+                "method-parity-inequality#direction",
+                "skill-parity-monotonicity-transfer",
+                "composite-function-monotonicity#rule",
+                "function-monotonicity#interval",
+                "function-parity#definition",
+                "function-parity-graph#monotonicity",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "f37aaddc77abc389cc8dbb68#1": {
+              "title": "去掉函数符号比较输入",
+              "position": 13,
+              "refs": [
+                "method-parity-inequality#compare",
+                "skill-monotonicity-order",
+                "function-concept#elements",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "4e851d37ce21cd0770643d94#1": {
+              "title": "合法输入求交，写出解集",
+              "position": 14,
+              "refs": [
+                "method-parity-inequality#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a11": {
+      "label": "奇函数半轴解析式与两值比较 · A11",
+      "path": "/topics/function-parity/q11/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a11.json",
+      "types": [
+        "type-parity-formula",
+        "type-parity-inequality"
+      ],
+      "statement": "$f(x)$ 是定义在 $R$ 上的奇函数，且当 $x\\ge0$ 时，$f(x)=x^2+x$．则 $x<0$ 时，$f(x)=$____；不等式 $f(2x+1)+f(-5)>0$ 的解集是____．",
+      "routes": {
+        "parity-extension": {
+          "label": "补全另一侧解析式 → 解不等式",
+          "methods": [
+            "method-parity-inequality",
+            "method-parity-extension"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-extension"
+              ]
+            },
+            "e2194fc2df40d8a83ec4a376#1": {
+              "title": "把输入换到已知一侧",
+              "position": 4,
+              "refs": [
+                "method-parity-extension#map",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "175d31f51a3b41b425411894#1": {
+              "title": "代入相反输入",
+              "position": 5,
+              "refs": [
+                "method-parity-extension#substitute",
+                "method-function-evaluation",
+                "skill-simplify"
+              ]
+            },
+            "7147a8babf2258356c6b0daa#1": {
+              "title": "用奇偶性换回 f(x)",
+              "position": 6,
+              "refs": [
+                "method-parity-extension#write-back",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "b33e0706e8ff8e1372f3533d#1": {
+              "title": "写出带范围的结论",
+              "position": 7,
+              "refs": [
+                "method-parity-extension#conclude"
+              ]
+            },
+            "goal-2-D1": {
+              "title": "解不等式",
+              "position": 8,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "goal-2-D2": {
+              "title": "确定题型",
+              "position": 9,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "goal-2-D3": {
+              "title": "选择解题方法",
+              "position": 10,
+              "refs": [
+                "method-parity-inequality"
+              ]
+            },
+            "b83ed3330aa5a42227decf67#1": {
+              "title": "改写成两个函数值的比较",
+              "position": 11,
+              "refs": [
+                "method-parity-inequality#rewrite",
+                "skill-function-symmetry-transform",
+                "function-parity#definition"
+              ]
+            },
+            "2d44beca99a4ee9aaa28c6d8#1": {
+              "title": "确定整个定义域上的单调方向",
+              "position": 12,
+              "refs": [
+                "method-parity-inequality#direction",
+                "skill-parity-monotonicity-transfer",
+                "composite-function-monotonicity#rule",
+                "function-monotonicity#interval",
+                "function-parity#definition",
+                "function-parity-graph#monotonicity",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "5d83ff43eecc63cc52f4cdb6#1": {
+              "title": "去掉函数符号比较输入",
+              "position": 13,
+              "refs": [
+                "method-parity-inequality#compare",
+                "skill-monotonicity-order",
+                "function-concept#elements",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "1c16e74dbb8f8e3213d743ef#1": {
+              "title": "合法输入求交，写出解集",
+              "position": 14,
+              "refs": [
+                "method-parity-inequality#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a18": {
+      "label": "奇函数差商单调与两值比较 · A18",
+      "path": "/topics/function-parity/q18/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a18.json",
+      "types": [
+        "type-parity-inequality"
+      ],
+      "statement": "已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为____．",
+      "routes": {
+        "parity-inequality": {
+          "label": "奇偶性解不等式法",
+          "methods": [
+            "method-parity-inequality"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-inequality"
+              ]
+            },
+            "32fd68a0cb1c163220908af2#1": {
+              "title": "改写成两个函数值的比较",
+              "position": 4,
+              "refs": [
+                "method-parity-inequality#rewrite",
+                "skill-function-symmetry-transform",
+                "function-parity#definition"
+              ]
+            },
+            "056f705fa837ac287d839561#1": {
+              "title": "确定整个定义域上的单调方向",
+              "position": 5,
+              "refs": [
+                "method-parity-inequality#direction",
+                "skill-parity-monotonicity-transfer",
+                "function-monotonicity#definition",
+                "function-monotonicity#difference-quotient"
+              ]
+            },
+            "353ed2692e84eda388e64b86#1": {
+              "title": "去掉函数符号比较输入",
+              "position": 6,
+              "refs": [
+                "method-parity-inequality#compare",
+                "skill-monotonicity-order",
+                "function-concept#elements",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "0504c36f3fafa208b0f80a63#1": {
+              "title": "合法输入求交，写出解集",
+              "position": 7,
+              "refs": [
+                "method-parity-inequality#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a20": {
+      "label": "含参定义域偶函数两值比较 · A20",
+      "path": "/topics/function-parity/q20/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a20.json",
+      "types": [
+        "type-parity-inequality"
+      ],
+      "statement": "已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\le f(2x)$ 的解集为____．",
+      "routes": {
+        "parity-inequality": {
+          "label": "奇偶性解不等式法",
+          "methods": [
+            "method-parity-inequality"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-inequality"
+              ]
+            },
+            "5af7befaf9de95a8d127451f#1": {
+              "title": "先确定定义域中的参数",
+              "position": 4,
+              "refs": [
+                "method-parity-inequality#rewrite",
+                "skill-function-symmetry-transform",
+                "function-parity#definition"
+              ]
+            },
+            "5af7befaf9de95a8d127451f#2": {
+              "title": "把两个输入换到非负一侧",
+              "position": 5,
+              "refs": [
+                "method-parity-inequality#rewrite",
+                "skill-function-symmetry-transform",
+                "function-parity#definition"
+              ]
+            },
+            "02e6b6f0e31be282215c49a4#1": {
+              "title": "确定非负一侧的单调方向",
+              "position": 6,
+              "refs": [
+                "method-parity-inequality#direction",
+                "skill-parity-monotonicity-transfer",
+                "function-parity#definition",
+                "function-parity-graph#monotonicity"
+              ]
+            },
+            "4bc1eeed34627a776cdef0eb#1": {
+              "title": "去掉函数符号比较输入",
+              "position": 7,
+              "refs": [
+                "method-parity-inequality#compare",
+                "skill-monotonicity-order",
+                "function-concept#elements",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "30b3f316d856ac7d893614dc#1": {
+              "title": "合法输入求交，写出解集",
+              "position": 8,
+              "refs": [
+                "method-parity-inequality#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a19": {
+      "label": "奇函数符号表与分母 · A19",
+      "path": "/topics/function-parity/q19/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a19.json",
+      "types": [
+        "type-parity-inequality"
+      ],
+      "statement": "已知 $f(x)$ 是奇函数，且在 $(0,+\\infty)$ 上是增函数，又 $f(2)=0$，则 $\\frac{f(x-1)}{x}<0$ 的解集为____．",
+      "routes": {
+        "parity-inequality": {
+          "label": "奇偶性解不等式法",
+          "methods": [
+            "method-parity-inequality"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-parity-inequality"
+              ]
+            },
+            "8556335779c187054f24b196#1": {
+              "title": "确定已知区间上函数值的符号",
+              "position": 4,
+              "refs": [
+                "method-parity-inequality#sign-known",
+                "skill-monotonicity-order",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "736f7b1cb890622a396763c8#1": {
+              "title": "用奇偶性得到另一侧的符号",
+              "position": 5,
+              "refs": [
+                "method-parity-inequality#sign-mirror",
+                "skill-function-symmetry-transform",
+                "function-parity#definition",
+                "function-parity-graph#paired-values"
+              ]
+            },
+            "fe1ca5e9c03d1840092780b8#1": {
+              "title": "结合分母列出符号条件",
+              "position": 6,
+              "refs": [
+                "method-parity-inequality#sign-solve",
+                "skill-inequality-transform",
+                "method-discriminant#merge",
+                "method-discriminant#solve",
+                "rational-expression#meaning"
+              ]
+            },
+            "eeab169dc103d3805af668de#1": {
+              "title": "解出各种情况，写出解集",
+              "position": 7,
+              "refs": [
+                "method-parity-inequality#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a10": {
+      "label": "对称轴与奇性求和 · A10",
+      "path": "/topics/function-parity/q10/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a10.json",
+      "types": [
+        "type-function-symmetry"
+      ],
+      "statement": "设函数 $f(x)$ 是定义在 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$____；$f(1)+f(2)+\\cdots+f(54)$ 的值为____。",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-graph-symmetry"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "242e4c2a5df665d5e3271bac#1": {
+              "title": "找出配对的输入",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "242e4c2a5df665d5e3271bac#2": {
+              "title": "找出配对的输入",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "242e4c2a5df665d5e3271bac#3": {
+              "title": "连续使用两次对称关系",
+              "position": 6,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "5d72945c92cbd6e0d0fc71d1#1": {
+              "title": "求出所求的值",
+              "position": 7,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            },
+            "goal-2-D1": {
+              "title": "求前 54 项之和",
+              "position": 8,
+              "refs": [
+                "function-graph-symmetry"
+              ]
+            },
+            "02658af8eae76ada249a94fd#1": {
+              "title": "找出配对的输入",
+              "position": 9,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "02658af8eae76ada249a94fd#2": {
+              "title": "找出配对的输入",
+              "position": 10,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "02658af8eae76ada249a94fd#3": {
+              "title": "连续使用两次对称关系",
+              "position": 11,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "c87d103ddedcadc5d02d43da#1": {
+              "title": "分组并保留余项",
+              "position": 12,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            },
+            "c87d103ddedcadc5d02d43da#2": {
+              "title": "求出函数值之和",
+              "position": 13,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a14": {
+      "label": "对称轴与整数点取值 · A14",
+      "path": "/topics/function-parity/q14/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a14.json",
+      "types": [
+        "type-function-symmetry"
+      ],
+      "statement": "设 $f(x)$ 是定义在 $R$ 上的奇函数，且 $y=f(x)$ 的图像关于直线 $x=\\frac12$ 对称，则 $f(1)+f(2)+f(3)+f(4)+f(5)=$____。",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-graph-symmetry"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "249893c57b642f06aae05b17#1": {
+              "title": "找出配对的输入",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "249893c57b642f06aae05b17#2": {
+              "title": "找出配对的输入",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "249893c57b642f06aae05b17#3": {
+              "title": "连续使用两次对称关系",
+              "position": 6,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "1e3d0e3f104864cee02b196c#1": {
+              "title": "求出所求的值",
+              "position": 7,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-a16": {
+      "label": "从辅助函数还原函数值",
+      "path": "/topics/function-parity/q16/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a16.json",
+      "types": [
+        "type-shifted-odd-application"
+      ],
+      "statement": "已知 $g(x)=f(x)+2$ 是 $\\mathbb R$ 上的奇函数，且 $f(1)=9$，求 $f(-1)$ 的值。",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "75477f7bdff05d115768251c#1": {
+              "title": "求相反输入的函数值之和",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "9e35167000748de2fdbfe8e6#1": {
+              "title": "回答原题所求",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-b01": {
+      "label": "由奇函数平移求值",
+      "path": "/topics/function-parity/q21/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-b01.json",
+      "types": [
+        "type-shifted-odd-application"
+      ],
+      "statement": "已知 $g(x)$ 为奇函数，$f(x)=g(x)+1$，且 $f(-2)=3$，则 $f(2)=$____。",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "3a11dd04866ee83836e9966c#1": {
+              "title": "求相反输入的函数值之和",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "10690727413f9e50bc4e5365#1": {
+              "title": "回答原题所求",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-b02": {
+      "label": "相反输入的函数值之和",
+      "path": "/topics/function-parity/q22/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-b02.json",
+      "types": [
+        "type-shifted-odd-application"
+      ],
+      "statement": "已知 $f(x)=ax+\\frac{b}{x}-2$，则 $f(2024)+f(-2024)=$____。",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "5cba67c64c0452fe3f71462a#1": {
+              "title": "求相反输入的函数值之和",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "5f4105118bf1b2730d9ae102#1": {
+              "title": "回答原题所求",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-b03": {
+      "label": "拆分有理式求相反输入值",
+      "path": "/topics/function-parity/q23/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-b03.json",
+      "types": [
+        "type-shifted-odd-application"
+      ],
+      "statement": "已知函数 $f(x)=\\frac{2024x^3+2x^2+3x+6}{x^2+3}$，且 $f(a)=14$，则 $f(-a)$ 的值为____。",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "9584f865addeee7f6b31590f#1": {
+              "title": "求相反输入的函数值之和",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "5576c40ecd04f467ef7c6bb2#1": {
+              "title": "回答原题所求",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-parity-b04": {
+      "label": "对称区间上的最大值与最小值之和",
+      "path": "/topics/function-parity/q24/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-b04.json",
+      "types": [
+        "type-shifted-odd-application"
+      ],
+      "statement": "当 $x\\in[-1,1]$ 时，函数 $f(x)=\\frac{(x+1)^2+ax^5}{x^2+1}$ 的最大值为 $M$，最小值为 $m$，其中 $a$ 为常数，则 $M+m=$____。",
+      "routes": {
+        "function-symmetry": {
+          "label": "对称关系法",
+          "methods": [
+            "method-function-symmetry"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-parity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-symmetry"
+              ]
+            },
+            "976b2e0d17baab8548e413c7#1": {
+              "title": "求相反输入的函数值之和",
+              "position": 4,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "f2ce9d7a328b8c062d9bf8c5#1": {
+              "title": "回答原题所求",
+              "position": 5,
+              "refs": [
+                "method-function-symmetry#conclude"
               ]
             }
           }

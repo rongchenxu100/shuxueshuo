@@ -106,10 +106,10 @@ def test_direct_publishing_rejects_invalid_graph_before_transaction(invalid):
 
 
 def test_shared_export_has_complete_next_content(authored):
-    assert len(authored['practice_problems']) == 101
-    assert len(authored['practice_routes']) == 121
-    assert len(authored['practice_steps']) == 946
-    assert len(authored['knowledge_nodes']) == 129
+    assert len(authored['practice_problems']) == 165
+    assert len(authored['practice_routes']) == 185
+    assert len(authored['practice_steps']) == 1513
+    assert len(authored['knowledge_nodes']) == 170
     assert len(authored['knowledge_drill_items']) == 177
     assert authored['_meta']['counts']['eligible_drill_nodes'] == 16
     assert len({q['item_id'] for q in authored['knowledge_drill_items']}) == 177
@@ -220,8 +220,10 @@ def test_import_repeat_and_transaction_rollback(publisher, authored):
         assert c.scalar(text('SELECT count(*) FROM learning_content_releases')) == previous
     changed = deepcopy(authored)
     changed['practice_problems'][0]['contract_hash'] = 'different'
-    with pytest.raises(ValueError, match='teaching contract changed'):
-        publish(publisher, version(changed))
+    publish(publisher, version(changed))
+    with transaction(publisher) as c:
+        assert c.scalar(text('SELECT contract_hash FROM practice_problems WHERE id=:id'),
+                        {'id': changed['practice_problems'][0]['id']}) == 'different'
 
 
 def student(c):

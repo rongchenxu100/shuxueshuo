@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-b04",
+  "title": "对称区间上的最大值与最小值之和",
+  "page": "/topics/function-parity/q24/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b04.json",
+  "evidence": "site/data/graph-walk/function-parity-b04.evidence.json"
+}

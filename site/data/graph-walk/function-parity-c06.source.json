@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-c06",
+  "title": "有限定义域中的联合参数 · C06",
+  "page": "/topics/function-parity/variant6/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c06.json",
+  "evidence": "site/data/graph-walk/function-parity-c06.evidence.json"
+}

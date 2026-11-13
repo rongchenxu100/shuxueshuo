@@ -114,6 +114,10 @@ def owned(goal, goal_ast, entries):
     try:
         expanded = targets({"source": goal, "goal_ast": goal_ast})
         calls = [c for row in expanded for c in _function_calls(row["ast"])]
+        # Nested calls need forward evaluation before their inputs can be
+        # compared. A scalar parsing failure is not evidence of an odd shift.
+        if any(_function_calls(c[2]) for c in calls):
+            return False
         inputs = [(c[1][1], scalar(c[2])) for c in calls]
         paired = any((ref, -q) in inputs for ref, q in inputs)
         known = [

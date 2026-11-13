@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {preserveCourseIdentity, requireCourseIdentity} from '../lib/graph-walk-course-identity.mjs';
+import {preserveCourseIdentity} from '../lib/graph-walk-course-identity.mjs';
 import {pageContract} from '../../site/assets/learning/practice-compatibility.mjs';
 import {createState, currentDecision, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
 import {replayAnswer} from '../../site/assets/graph-walk/walk-replay.mjs';
@@ -90,17 +90,18 @@ for (const [name, change] of Object.entries({
     const step = decisions(b).find(s => s.source === 'stream' && s.interaction.type === 'choice');
     step.interaction.options[1] = {...step.interaction.options[0], value: step.interaction.options[1].value};
   },
-})) test(`a genuine ${name} change does not reuse the published identity`, () => {
+})) test(`a genuine ${name} change rebuilds with a fresh bundle version`, () => {
   const current = rerun(base); change(current);
-  assert.equal(preserveCourseIdentity(current, base), current);
-  if (name !== 'identity') assert.throws(() => requireCourseIdentity(current, base), /allocate a new course ID/);
+  const rebuilt = preserveCourseIdentity(current, base);
+  assert.equal(rebuilt, current);
+  assert.notEqual(rebuilt.bundleVersion, base.bundleVersion);
 });
 
 test('choice explanation changes preserve answers and keep the new explanation', () => {
   const current = rerun(base);
   const step = decisions(current).find(s => s.source === 'stream' && s.interaction.type === 'choice');
   step.interaction.options.forEach(option => { option.note = '更清楚的说明，不改变选项含义。'; });
-  const updated = requireCourseIdentity(current, base);
+  const updated = preserveCourseIdentity(current, base);
   assert.deepEqual(pageContract(updated), pageContract(base));
   assert.ok(decisions(updated).some(step => step.interaction.options?.some(option => option.note === '更清楚的说明，不改变选项含义。')));
 });
@@ -119,11 +120,11 @@ test('graph title exponent typography preserves answers, but changed conditions 
   const step = decisions(current).find(step => step.graph?.params?.title?.includes('x^2'));
   assert.ok(step);
   step.graph.params.title = step.graph.params.title.replace('x^2', 'x²');
-  const updated = requireCourseIdentity(current, previous);
+  const updated = preserveCourseIdentity(current, previous);
   assert.deepEqual(pageContract(updated), pageContract(previous));
   assert.ok(decisions(updated).some(step => step.graph?.params?.title?.includes('x²')));
   step.graph.params.title = step.graph.params.title.replace('x²', 'x³');
-  assert.throws(() => requireCourseIdentity(current, previous), /allocate a new course ID/);
+  assert.equal(preserveCourseIdentity(current, previous), current);
 });
 
 test('helper-plot trend annotations preserve answers without ignoring changed plot geometry', () => {
@@ -133,10 +134,10 @@ test('helper-plot trend annotations preserve answers without ignoring changed pl
   step.graph.caption = '图中箭头表示前面已确认的增减方向。';
   step.graph.params.description = '增加区间标记。';
   step.graph.params.interval_marks = [{from: 0, to: 1, trend: 'increasing'}];
-  const updated = requireCourseIdentity(current, previous);
+  const updated = preserveCourseIdentity(current, previous);
   assert.deepEqual(pageContract(updated), pageContract(previous));
   step.graph.params.xMin = -100;
-  assert.throws(() => requireCourseIdentity(current, previous), /allocate a new course ID/);
+  assert.equal(preserveCourseIdentity(current, previous), current);
 });
 
 test('other diagram captions may contain conditions and must not be ignored', () => {
@@ -145,5 +146,5 @@ test('other diagram captions may contain conditions and must not be ignored', ()
   step.graph = {kind: 'number_line', caption: 'x > 0', params: {points: [0]}};
   const current = rerun(previous);
   decisions(current).find(step => step.graph?.kind === 'number_line').graph.caption = 'x < 0';
-  assert.throws(() => requireCourseIdentity(current, previous), /allocate a new course ID/);
+  assert.equal(preserveCourseIdentity(current, previous), current);
 });

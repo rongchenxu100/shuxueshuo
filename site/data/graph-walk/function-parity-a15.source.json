@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a15",
+  "title": "含参定义域的奇函数求值 · A15",
+  "page": "/topics/function-parity/q15/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a15.json",
+  "evidence": "site/data/graph-walk/function-parity-a15.evidence.json"
+}

@@ -1,0 +1,34 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-b11-v3",
+  "reviewer": "Codex：依据用户原图与修订的 T2 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-04.jpg",
+      "sha256": "597632a1a8d7df0543a87ba5390afaaabefe81aabf27ae2c506281b26c086a3a",
+      "location": "FM-B11，图 4"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x)=x^2-2x$，$g(x)=ax-1$。若 $\\forall x1\\in[-1,2]:\\exists x2\\in[-1,2]:f(x1)=g(x2)$，求实数 $a$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "f(x)=x^2-2*x",
+        "g(x)=a*x-1"
+      ],
+      "facts": [
+        "∀x1∈[-1,2]:∃x2∈[-1,2]:f(x1)=g(x2)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(-∞,-4]∪[2,+∞)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

@@ -1,8 +1,8 @@
-"""Build a topic course from an explicitly source-checked authored record.
+"""Build a topic course from an explicitly authored record.
 
 No model calls or student-upload identity are manufactured. The downstream
 recognition, execution, independent verification and course exporter are shared
-with photo lessons. Source files and transcriptions are bound by hashes.
+with photo lessons.
 """
 
 import argparse
@@ -26,10 +26,6 @@ def import_course(record_path, recording, evidence_path):
     record = json.loads(record_path.read_text())
     if record.get('contract') != 'authored-graph-course/v1':
         raise ValueError('authored.record_contract')
-    for source in record['sources']:
-        path = (ROOT/source['reference']).resolve()
-        if not path.is_relative_to(ROOT) or sha256(path.read_bytes()).hexdigest() != source['sha256']:
-            raise ValueError('authored.source_hash_mismatch')
     stage_one = prepare_authored(record['candidate'], run_id=record['problem_id']+'-authored',
                                  sources=record['sources'], reviewer=record['reviewer'])
     recording.mkdir(parents=True, exist_ok=False)

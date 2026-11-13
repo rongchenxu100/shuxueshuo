@@ -10,11 +10,18 @@ its own. Nothing outside I ∪ −I ∪ {0} is guessed; a free value at 0 or an
 answer that depends on an unstated domain is a capability gap, not an answer.
 """
 from copy import deepcopy
+from itertools import pairwise
 
 import sympy as sp
 
 from . import parity_extension_math as extension
-from .parity_extension_math import SIGNS, combined_rule, reflect, region, rule_expression
+from .parity_extension_math import (
+    SIGNS,
+    combined_rule,
+    reflect,
+    region,
+    rule_expression,
+)
 
 VERSION = 'parity-inequality/r0-v1'
 OPS = {'<': sp.Lt, '<=': sp.Le, '>': sp.Gt, '>=': sp.Ge}
@@ -177,13 +184,18 @@ def describe(goal, goal_ast, target_ref, entries, *, candidate=None):
         return None
     if not any(_name(r['ast'][1]) == name for r in facts):
         return None
+    relation_rows = [r for r in entries if r['ast'][0] in OPS and order._calls(r['ast'])]
+    target = goal_ast.get('value')
+    if not (isinstance(target, list) and target[0] in OPS and order._calls(target)) and not relation_rows:
+        # A local formula and a parity fact also occur in parameter problems.
+        # They do not, by themselves, make the requested range an inequality.
+        return None
     desc = {**base, 'route': 'half_axis', 'structure_version': VERSION}
     try:
         variable = goal.get('variable', goal['symbol'])
         if goal['symbol'] != variable:
             raise ValueError('parity_ineq.variable_mismatch')
         goal_ast = deepcopy(goal_ast)
-        relation_rows = [r for r in entries if r['ast'][0] in OPS and order._calls(r['ast'])]
         if 'expression' in goal:
             relation_ref = target_ref + '/expression'
             owned = [r for r in relation_rows if r['ast'] == goal_ast.get('value')]
@@ -248,7 +260,7 @@ def _cells(points, domain):
     ordered = sorted({p for p in points if p.is_finite}, key=lambda p: float(p))
     rows = [(sp.FiniteSet(p), p) for p in ordered if domain.contains(p) is sp.true]
     ends = [-sp.oo, *ordered, sp.oo]
-    for a, b in zip(ends, ends[1:]):
+    for a, b in pairwise(ends):
         cell = sp.Interval.open(a, b)
         rep = b - 1 if a == -sp.oo and b != sp.oo else a + 1 if b == sp.oo and a != -sp.oo else \
             sp.S.Zero if a == -sp.oo else (a + b) / 2

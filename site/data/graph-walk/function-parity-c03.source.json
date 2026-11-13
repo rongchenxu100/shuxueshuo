@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-c03",
+  "title": "约分后仍保留原孔洞 · C03",
+  "page": "/topics/function-parity/variant3/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c03.json",
+  "evidence": "site/data/graph-walk/function-parity-c03.evidence.json"
+}

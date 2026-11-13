@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a07",
+  "title": "偶函数补全负半轴 · A07",
+  "page": "/topics/function-parity/q07/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a07.json",
+  "evidence": "site/data/graph-walk/function-parity-a07.evidence.json"
+}

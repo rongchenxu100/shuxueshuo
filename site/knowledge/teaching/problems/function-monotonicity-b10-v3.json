@@ -1,0 +1,126 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-b10-v3",
+  "label": "动区间的最大值 · B10",
+  "path": "/topics/function-monotonicity/q10b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-b10-v3.json",
+  "types": [
+    "type-monotonicity-extremum"
+  ],
+  "statement": "已知 $f(x)=x-\\frac{1}{x}$，$g(x)=x^2-4x-3$。若 $\\forall x1\\in[-2,-1]:\\exists x2\\in[1,a]:f(x1)<g(x2)$，求实数 $a$ 的取值范围。",
+  "routes": {
+    "quantified-range-comparison": {
+      "label": "量词比较求参法",
+      "methods": [
+        "method-quantified-range-comparison"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-range-extrema"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "7ef93f5ecc5306781be4883e#1": {
+          "title": "先保证 g 有输入",
+          "position": 4,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum",
+            "reciprocal-sum-function"
+          ]
+        },
+        "7ef93f5ecc5306781be4883e#2": {
+          "title": "先把量词关系化成最值比较",
+          "position": 5,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum",
+            "reciprocal-sum-function"
+          ]
+        },
+        "7ef93f5ecc5306781be4883e#3": {
+          "title": "由图像读出 f 的最大值",
+          "position": 6,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum",
+            "reciprocal-sum-function"
+          ]
+        },
+        "7ef93f5ecc5306781be4883e#4": {
+          "title": "求 g 的最大值：配成顶点式",
+          "position": 7,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum",
+            "reciprocal-sum-function"
+          ]
+        },
+        "7ef93f5ecc5306781be4883e#5": {
+          "title": "求 g 的最大值：比较二次函数两端",
+          "position": 8,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum",
+            "reciprocal-sum-function"
+          ]
+        },
+        "7ef93f5ecc5306781be4883e#6": {
+          "title": "求 g 的最大值：按端点高低分成两类",
+          "position": 9,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum",
+            "reciprocal-sum-function"
+          ]
+        },
+        "a0ee3a410e0046b7d26b1545#1": {
+          "title": "求参数（$1 \\leq a \\leq 3$）",
+          "position": 10,
+          "refs": [
+            "method-quantified-range-comparison#conditions",
+            "skill-quantified-range",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "a0ee3a410e0046b7d26b1545#2": {
+          "title": "求参数（$a > 3$）",
+          "position": 11,
+          "refs": [
+            "method-quantified-range-comparison#conditions",
+            "skill-quantified-range",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "92b989b7fca9309e0a99f250#1": {
+          "title": "回到原题，汇总参数范围",
+          "position": 12,
+          "refs": [
+            "method-quantified-range-comparison#conclude",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "1c67aeb0fa73317ce4786152b8edda0372c4eec0ee70d1ee007708f9ff333e88",
+  "practice_version": "a38abd62670ecc46238cf2e23bc502212d6663b951daf8c8abea591c1fc58424"
+}

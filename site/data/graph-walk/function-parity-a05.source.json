@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a05",
+  "title": "奇函数半轴解析式与两值比较 · A05",
+  "page": "/topics/function-parity/q05/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "targetRefs": [
+    "/root/goals/0",
+    "/root/goals/1"
+  ],
+  "targetTitles": [
+    "补全另一侧解析式",
+    "解不等式"
+  ],
+  "mainTargetRef": "/root/goals/1",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a05.json",
+  "evidence": "site/data/graph-walk/function-parity-a05.evidence.json"
+}

@@ -4,10 +4,10 @@
   "nodeCounts": {
     "method": 52,
     "knowledge": 32,
-    "problem_type": 26,
+    "problem_type": 28,
     "judgment_rule": 11,
     "section": 9,
-    "skill": 32,
+    "skill": 33,
     "textbook": 1,
     "collection": 1,
     "chapter": 3
@@ -147,6 +147,7 @@
     "skill-equality-transform/index.html",
     "skill-expression-defined/index.html",
     "skill-factor/index.html",
+    "skill-function-shift-iteration/index.html",
     "skill-function-symmetry-transform/index.html",
     "skill-graph-coordinate-transform/index.html",
     "skill-inequality-transform/index.html",
@@ -195,6 +196,7 @@
     "type-function-monotonicity/index.html",
     "type-function-parity/index.html",
     "type-function-range/index.html",
+    "type-function-symmetry/index.html",
     "type-monotonicity-abstract-proof/index.html",
     "type-monotonicity-extremum/index.html",
     "type-monotonicity-inequality/index.html",
@@ -207,6 +209,7 @@
     "type-quadratic-solve/index.html",
     "type-quantified-quadratic/index.html",
     "type-rational-inequality/index.html",
+    "type-shifted-odd-application/index.html",
     "type-solution-parameters/index.html",
     "type-sum-product-extremum/index.html"
   ]

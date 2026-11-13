@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a09",
+  "title": "奇函数求值与补全负半轴 · A09",
+  "page": "/topics/function-parity/q09/",
+  "topicHref": "/topics/function-parity/",
+  "targetRefs": [
+    "/root/goals/0",
+    "/root/goals/1"
+  ],
+  "targetTitles": [
+    "第①空：求 $f(-3)$",
+    "第②空：求 $x\\le 0$ 时的解析式"
+  ],
+  "mainTargetRef": "/root/goals/1",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a09.json",
+  "evidence": "site/data/graph-walk/function-parity-a09.evidence.json"
+}

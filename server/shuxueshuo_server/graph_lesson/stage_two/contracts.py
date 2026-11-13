@@ -137,7 +137,7 @@ def validate_input(value, admission="acceptance"):
                 'candidate_sha256': {'const': revision(candidate)},
                 'reviewer': {'type': 'string', 'minLength': 1},
                 'sources': {'type': 'array', 'minItems': 1, 'items': {
-                    'type': 'object', 'required': ['reference', 'sha256', 'location'],
+                    'type': 'object', 'required': ['reference', 'location'],
                     'properties': {'reference': {'type': 'string', 'minLength': 1},
                                    'sha256': {'type': 'string', 'pattern': '^[a-f0-9]{64}$'},
                                    'location': {'type': 'string', 'minLength': 1}}}},

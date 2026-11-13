@@ -1,0 +1,139 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-a11",
+  "label": "奇函数半轴解析式与两值比较 · A11",
+  "path": "/topics/function-parity/q11/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-a11.json",
+  "types": [
+    "type-parity-formula",
+    "type-parity-inequality"
+  ],
+  "statement": "$f(x)$ 是定义在 $R$ 上的奇函数，且当 $x\\ge0$ 时，$f(x)=x^2+x$．则 $x<0$ 时，$f(x)=$____；不等式 $f(2x+1)+f(-5)>0$ 的解集是____．",
+  "routes": {
+    "parity-extension": {
+      "label": "补全另一侧解析式 → 解不等式",
+      "methods": [
+        "method-parity-inequality",
+        "method-parity-extension"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-parity-extension"
+          ]
+        },
+        "e2194fc2df40d8a83ec4a376#1": {
+          "title": "把输入换到已知一侧",
+          "position": 4,
+          "refs": [
+            "method-parity-extension#map",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "175d31f51a3b41b425411894#1": {
+          "title": "代入相反输入",
+          "position": 5,
+          "refs": [
+            "method-parity-extension#substitute",
+            "method-function-evaluation",
+            "skill-simplify"
+          ]
+        },
+        "7147a8babf2258356c6b0daa#1": {
+          "title": "用奇偶性换回 f(x)",
+          "position": 6,
+          "refs": [
+            "method-parity-extension#write-back",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "b33e0706e8ff8e1372f3533d#1": {
+          "title": "写出带范围的结论",
+          "position": 7,
+          "refs": [
+            "method-parity-extension#conclude"
+          ]
+        },
+        "goal-2-D1": {
+          "title": "解不等式",
+          "position": 8,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "goal-2-D2": {
+          "title": "确定题型",
+          "position": 9,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "goal-2-D3": {
+          "title": "选择解题方法",
+          "position": 10,
+          "refs": [
+            "method-parity-inequality"
+          ]
+        },
+        "b83ed3330aa5a42227decf67#1": {
+          "title": "改写成两个函数值的比较",
+          "position": 11,
+          "refs": [
+            "method-parity-inequality#rewrite",
+            "skill-function-symmetry-transform",
+            "function-parity#definition"
+          ]
+        },
+        "2d44beca99a4ee9aaa28c6d8#1": {
+          "title": "确定整个定义域上的单调方向",
+          "position": 12,
+          "refs": [
+            "method-parity-inequality#direction",
+            "skill-parity-monotonicity-transfer",
+            "composite-function-monotonicity#rule",
+            "function-monotonicity#interval",
+            "function-parity#definition",
+            "function-parity-graph#monotonicity",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "5d83ff43eecc63cc52f4cdb6#1": {
+          "title": "去掉函数符号比较输入",
+          "position": 13,
+          "refs": [
+            "method-parity-inequality#compare",
+            "skill-monotonicity-order",
+            "function-concept#elements",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval",
+            "set-intersection-union#intersection"
+          ]
+        },
+        "1c16e74dbb8f8e3213d743ef#1": {
+          "title": "合法输入求交，写出解集",
+          "position": 14,
+          "refs": [
+            "method-parity-inequality#conclude"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "fe002041fd2a979aea3ed8698a958ead08bf5e5171bf87f0e8aac773b434696b",
+  "practice_version": "157d712e0da8acace20a7c669243b8442c1f5bf9af990e5ccd8d1e9be205f947"
+}

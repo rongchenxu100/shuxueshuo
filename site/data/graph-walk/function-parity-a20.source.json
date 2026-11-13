@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a20",
+  "title": "含参定义域偶函数两值比较 · A20",
+  "page": "/topics/function-parity/q20/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a20.json",
+  "evidence": "site/data/graph-walk/function-parity-a20.evidence.json"
+}

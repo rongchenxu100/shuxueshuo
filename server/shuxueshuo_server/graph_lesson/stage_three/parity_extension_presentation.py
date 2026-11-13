@@ -190,9 +190,10 @@ def phase_views(values):
     if '_presentation_range' in d:
         s.update(mirrored=d['_presentation_range'], mapped=reflect(d['_presentation_range']))
     x, fx, fneg = s['x'], s['fx'], s['fneg']
+    relation = r'\text{' + s['property'] + '：}' + fx + '=' + ('' if s['sign'] == 1 else '-') + fneg
     given_rows = [_when(s['printed_known'], x) + fx + '=' + s['rule'],
                   *(rf'{s["f"]}({latex(c)})={latex(v)}' for c, v in sorted(s['points'].items())),
-                  r'\text{' + s['property'] + '}']
+                  relation]
     given = _lines(given_rows)
     target = _when(s['mirrored'], x)
     if phase == 'map':
@@ -200,7 +201,7 @@ def phase_views(values):
         wrong = [c for i, c in enumerate(wrong) if c not in wrong[:i]]
         return [choice_card('把输入换到已知一侧', rf'要求 ${range_latex(s["mirrored"], x)}$ 时的 ${fx}$，'
                             rf'先看相反数 $-{x}$ 的范围。这时 $-{x}$ 满足什么？',
-                            '已知与所求', given, rf'-{x}\text{{ 的范围}}',
+                            '已知与所求', given, '$-' + x + '$ 的范围',
                             target + range_latex(s['mapped'], '-' + x),
                             [target + range_latex(c, '-' + x) for c in wrong], _map_proof(s))]
     variable = symbols(d)
@@ -213,7 +214,7 @@ def phase_views(values):
                             rf'${fneg}$ 等于什么？',
                             '已知解析式', _lines([_when(s['printed_known'], x) + fx + '=' + s['rule'],
                                                   target + range_latex(s['mapped'], '-' + x)]),
-                            rf'{fneg}', target + fneg + '=' + latex(substituted),
+                            f'${fneg}$', target + fneg + '=' + latex(substituted),
                             [target + fneg + '=' + latex(v) for v in wrong[:3]],
                             _substitute_proof(s, substituted))]
     if phase == 'write_back':
@@ -222,8 +223,8 @@ def phase_views(values):
         wrong = _distinct(expression, [-expression, partial, sp.expand(rule)], s['mirrored'], variable)
         return [choice_card('用奇偶性换回 f(x)', rf'题给 ${s["f"]}$ 是{s["property"]}，'
                             rf'奇偶性把 ${fx}$ 与 ${fneg}$ 联系起来。${range_latex(s["mirrored"], x)}$ 时 ${fx}$ 等于什么？',
-                            '已求出的式子', _lines([target + fneg + '=' + latex(substituted), r'\text{' + s['property'] + '}']),
-                            rf'{fx}', target + fx + '=' + latex(expression),
+                            '已求出的式子', _lines([target + fneg + '=' + latex(substituted), relation]),
+                            f'${fx}$', target + fx + '=' + latex(expression),
                             [target + fx + '=' + latex(v) for v in wrong[:3]],
                             _write_back_proof(s, substituted, expression))]
     model = solve(d)

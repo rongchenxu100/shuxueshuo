@@ -59,6 +59,15 @@ def _read(title, question, left_label, left, right_label, right, proof):
     return view
 
 
+def compare_view(title, question, relations, rows, right_label, conditions, *,
+                 relation_label='要恒成立的关系', rows_label='逐项比较'):
+    view = _read(title, question, relation_label, relations, right_label, conditions, _lines([*rows, conditions]))
+    if rows:
+        view['read_board'] = {'layout': 'derivation', 'caption': title, 'connector': '⇒', 'items': [
+            {'label': rows_label, 'math': _lines(rows)}, {'label': right_label, 'math': conditions}]}
+    return view
+
+
 def phase_views(values):
     d, phase = values['description'], values['phase']
     if d.get('analysis_mode') == 'joint':
@@ -99,9 +108,8 @@ def phase_views(values):
         rows = [terms[int(r['degree'])] + latex(r['left']) + '=' + latex(r['right']) for r in comparison['rows']]
         conditions = [latex(v) + '=0' for v in comparison['equations']]
         summary = _lines(conditions) if conditions else r'\text{对所有实数参数都恒成立}'
-        return [_read('比较对应项的系数', '两边要对所有实数输入都相等，各次项的系数必须分别相等；相同的项不再限制参数。',
-                      '要恒成立的关系', _lines(relations), '系数条件', summary,
-                      _lines([*rows, summary]))]
+        return [compare_view('比较对应项的系数', '两边要对所有实数输入都相等，各次项的系数必须分别相等；相同的项不再限制参数。',
+                             _lines(relations), rows, '系数条件', summary)]
     model = values['evidence']
     solution = model['feasible_set']
     conditions = [condition_value_latex(v) for v in model['conditions']]
@@ -125,18 +133,33 @@ def phase_views(values):
     # Back substitution is displayed only for a complete, finite candidate set;
     # infinite solutions are verified symbolically, never by sample parameters.
     from ..parity_parameter_math import source
-    _, parameter, expr, _, _, _ = source(d)
-    lines = [proof]
-    if isinstance(solution, sp.FiniteSet):
+    variable, parameter, expr, _, _, _ = source(d)
+    if isinstance(solution, sp.FiniteSet) and solution != sp.S.EmptySet:
+        given, checks = [], []
         for value in sorted(solution):
-            lines += [rf'{p}={latex(value)}:\quad {fx}={latex(sp.expand(expr.subs(parameter, value)))}']
-    lines += [r'\text{已按原式核对定义域、全部系数条件和原参数限制}']
-    return [_read('代回核验', '核验包括保留的全部参数和被排除的情形，不能只找出一个可行参数就结束。',
-                  '原函数', original, '最终参数集合', latex(solution), _lines(lines))]
+            prefix = rf'{p}={latex(value)}\text{{ 时，}}' if len(solution) > 1 else ''
+            value_expr = sp.expand(expr.subs(parameter, value))
+            given.append(prefix + fx + '=' + latex(value_expr))
+            checks.append(prefix + fneg + '=' + latex(sp.expand(value_expr.subs(variable, -variable))))
+            if model['exclusive']:
+                checks.append(prefix + fx + r'\text{ 不恒为零}')
+        return [substitution_view(d, solution, given, [*checks, r'\Rightarrow\ ' + r'\text{、}'.join(relations)])]
+    return [_read('代回核验', '把求出的参数代回原式检查。',
+                  '原函数', original, '最终参数集合', latex(solution), proof)]
+
+
+def substitution_view(d, solution, given, checks):
+    """Left: the original after substituting the parameter; right: the check."""
+    p = d['parameter']
+    single = len(solution) == 1
+    value = latex(next(iter(solution)))
+    return _read('代回核验', f'把 ${p}={value}$ 代入原式检查。' if single else '把求出的参数代入原式检查。',
+                 f'代入 {p}={value}' if single else '代入参数', _lines(given), '检验', _lines(checks),
+                 _lines([*given, *checks, p + r'\in ' + latex(solution)]))
 
 
 def presentation(values):
-    view, = phase_views(decode_value(values))
+    view = phase_views(decode_value(values))[-1]
     left, right = view['derivation']['items']
     return {'formula_title': view['title'], 'formula_explanation': '$$'+view['proof']+'$$',
             'derivation_caption': view['title'], 'derivation_left_label': left['label'],
@@ -150,7 +173,7 @@ def compile_cards(seeds, interaction_id):
     for index, view in enumerate(phase_views(decode_value(seed['values'])), 1):
         board, interaction = deepcopy(view['derivation']), deepcopy(view['interaction'])
         if interaction['type'] == 'read':
-            board = {'caption': view['title'], 'lines': board_lines(view['proof'])}
+            board = view.get('read_board') or {'caption': view['title'], 'lines': board_lines(view['proof'])}
         else:
             board['items'][1]['math'] = None
             interaction['options'].sort(key=lambda row: sha256(f'{interaction_id}:{index}:{row["value"]}'.encode()).digest())
@@ -159,10 +182,7 @@ def compile_cards(seeds, interaction_id):
                       'feedback': view['feedback'], 'submit_label': '继续' if interaction['type'] == 'read' else '确认判断',
                       'stem_board': board, 'completion_board': view['derivation']})
         values = decode_value(seed['values'])
-        if values['description'].get('analysis_mode') == 'domain':
-            from .parity_domain_presentation import attach_pairing
-            attach_pairing(parts[-1], values)
-        elif values['description'].get('analysis_mode') in ('original', 'quartic'):
+        if values['description'].get('analysis_mode') in ('original', 'quartic'):
             from .parity_original_presentation import attach_graphs
             attach_graphs(parts[-1], values)
     return {'parts': parts, 'diagnostics': []}

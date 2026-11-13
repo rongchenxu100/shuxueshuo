@@ -1,0 +1,34 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-b16-v3",
+  "reviewer": "Codex：依据用户原图与修订的 T2 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-04.jpg",
+      "sha256": "597632a1a8d7df0543a87ba5390afaaabefe81aabf27ae2c506281b26c086a3a",
+      "location": "FM-B16，图 4"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $A=\\{x\\mid 1\\le x\\le3\\}$，对任意 $x_1\\in A$，都存在 $x_2\\in A$，使 $x_2^2-3x_2>mx_1+1$ 成立，其中 $m<0$，求实数 $m$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "A={x∈ℝ | 1≤x≤3}"
+      ],
+      "facts": [
+        "m<0",
+        "∀x_1∈A:∃x_2∈A:x_2^2-3*x_2>m*x_1+1"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "m"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(-∞,-1)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

@@ -110,11 +110,3 @@ export function preserveCourseIdentity(current, previous) {
   candidate.bundleVersion = previous.bundleVersion;
   return candidate;
 }
-
-export function requireCourseIdentity(current, previous) {
-  const aligned = preserveCourseIdentity(current, previous);
-  if (previous?.problemId === current.problemId && aligned === current) {
-    throw Error(`${current.problemId}: teaching contract changed; allocate a new course ID before rebuilding`);
-  }
-  return aligned;
-}

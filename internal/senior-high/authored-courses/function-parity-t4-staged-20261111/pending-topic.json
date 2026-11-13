@@ -2,8 +2,8 @@
   "contract": "authored-topic-staging/v1",
   "topic": "function-parity",
   "group": "inequality",
-  "publish_state": "awaiting_t2_t5_unified_rebuild",
-  "note": "这份内部登记不被公开构建自动读取；T4 开发期只做临时目录的隔离课程编译与作答核验。T2–T5 完成后统一重建时，再加入 topic.problems、group.problems 与 graph-walk source；不能提前添加未生成的公共链接。",
+  "publish_state": "published",
+  "note": "已在统一重建后加入正式专题；保留 pending 条目作为原始发布清单，课程来源仍为经核对的 authored record。真实照片与页面验收另见各题型验收记录。",
   "group_entry": {
     "id": "inequality",
     "label": "利用奇偶性解不等式",
@@ -47,8 +47,14 @@
         "page": "/topics/function-parity/q05/",
         "topicHref": "/topics/function-parity/",
         "targetRef": "/root/goals/0",
-        "targetRefs": ["/root/goals/0", "/root/goals/1"],
-        "targetTitles": ["补全另一侧解析式", "解不等式"],
+        "targetRefs": [
+          "/root/goals/0",
+          "/root/goals/1"
+        ],
+        "targetTitles": [
+          "补全另一侧解析式",
+          "解不等式"
+        ],
         "mainTargetRef": "/root/goals/1",
         "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a05.json",
         "evidence": "site/data/graph-walk/function-parity-a05.evidence.json"
@@ -79,8 +85,14 @@
         "page": "/topics/function-parity/q11/",
         "topicHref": "/topics/function-parity/",
         "targetRef": "/root/goals/0",
-        "targetRefs": ["/root/goals/0", "/root/goals/1"],
-        "targetTitles": ["补全另一侧解析式", "解不等式"],
+        "targetRefs": [
+          "/root/goals/0",
+          "/root/goals/1"
+        ],
+        "targetTitles": [
+          "补全另一侧解析式",
+          "解不等式"
+        ],
         "mainTargetRef": "/root/goals/1",
         "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a11.json",
         "evidence": "site/data/graph-walk/function-parity-a11.evidence.json"
@@ -172,5 +184,10 @@
         ]
       }
     }
-  ]
+  ],
+  "publication": {
+    "date": "2026-11-12",
+    "report": "docs/function-parity-topic-publication-20261112.md",
+    "topic": "site/data/knowledge-next/topics/function-parity.json"
+  }
 }

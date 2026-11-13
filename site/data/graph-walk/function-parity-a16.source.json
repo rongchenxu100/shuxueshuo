@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a16",
+  "title": "从辅助函数还原函数值",
+  "page": "/topics/function-parity/q16/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/a16.json",
+  "evidence": "site/data/graph-walk/function-parity-a16.evidence.json"
+}

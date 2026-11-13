@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a02",
+  "title": "偶函数半轴解析式解不等式 · A02",
+  "page": "/topics/function-parity/q02/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a02.json",
+  "evidence": "site/data/graph-walk/function-parity-a02.evidence.json"
+}

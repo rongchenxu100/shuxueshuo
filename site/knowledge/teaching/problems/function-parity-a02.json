@@ -1,0 +1,73 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-a02",
+  "label": "偶函数半轴解析式解不等式 · A02",
+  "path": "/topics/function-parity/q02/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-a02.json",
+  "types": [
+    "type-parity-inequality"
+  ],
+  "statement": "已知 $y=f(x)$ 是 $\\mathbf R$ 上的偶函数，且当 $x\\ge0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le0$ 的解集为____．",
+  "routes": {
+    "parity-inequality": {
+      "label": "奇偶性解不等式法",
+      "methods": [
+        "method-parity-inequality"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-parity-inequality"
+          ]
+        },
+        "03b664087cacfb80fba9bf4c#1": {
+          "title": "先在已知范围内解不等式",
+          "position": 4,
+          "refs": [
+            "method-parity-inequality#given-side",
+            "skill-inequality-transform",
+            "function-concept#elements",
+            "quadratic-inequality#signs",
+            "set-intersection-union#intersection"
+          ]
+        },
+        "8d646741d7b1f823e023fca4#1": {
+          "title": "用奇偶性得到另一侧的解",
+          "position": 5,
+          "refs": [
+            "method-parity-inequality#mirror",
+            "skill-function-symmetry-transform",
+            "function-concept#elements",
+            "function-parity#definition",
+            "set-intersection-union#intersection"
+          ]
+        },
+        "da700d53e9c2524e94706a9c#1": {
+          "title": "合并各部分，写出解集",
+          "position": 6,
+          "refs": [
+            "method-parity-inequality#conclude"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "59bf2f5413f25727911d380536984b831554af4baf969f1f1f72650b977bcab4",
+  "practice_version": "5d674000d94f07c3c2d7cda3d3553573315e8c02f599059501508458a0cc94c6"
+}

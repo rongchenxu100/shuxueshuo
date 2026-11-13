@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-c01",
+  "title": "定义域端点配对 · C01",
+  "page": "/topics/function-parity/variant1/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-r1-20261111/domain-endpoints.json",
+  "evidence": "site/data/graph-walk/function-parity-c01.evidence.json"
+}

@@ -1,0 +1,59 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-a16",
+  "label": "从辅助函数还原函数值",
+  "path": "/topics/function-parity/q16/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-a16.json",
+  "types": [
+    "type-shifted-odd-application"
+  ],
+  "statement": "已知 $g(x)=f(x)+2$ 是 $\\mathbb R$ 上的奇函数，且 $f(1)=9$，求 $f(-1)$ 的值。",
+  "routes": {
+    "function-symmetry": {
+      "label": "对称关系法",
+      "methods": [
+        "method-function-symmetry"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-function-symmetry"
+          ]
+        },
+        "75477f7bdff05d115768251c#1": {
+          "title": "求相反输入的函数值之和",
+          "position": 4,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "9e35167000748de2fdbfe8e6#1": {
+          "title": "回答原题所求",
+          "position": 5,
+          "refs": [
+            "method-function-symmetry#conclude"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "8495b4c52386ae9338a54d33e3a03f12cdc393db4f6f24bf49b1f0cf4170eab8",
+  "practice_version": "dd07dca354995aab320c668185329775fd806e36d88d32fcb11b1eff525f8153"
+}

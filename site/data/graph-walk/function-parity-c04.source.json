@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-c04",
+  "title": "分段函数的零点条件 · C04",
+  "page": "/topics/function-parity/variant4/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c04.json",
+  "evidence": "site/data/graph-walk/function-parity-c04.evidence.json"
+}

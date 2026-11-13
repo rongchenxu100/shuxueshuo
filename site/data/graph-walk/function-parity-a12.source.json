@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a12",
+  "title": "奇函数零点与相反输入求值 · A12",
+  "page": "/topics/function-parity/q12/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a12.json",
+  "evidence": "site/data/graph-walk/function-parity-a12.evidence.json"
+}

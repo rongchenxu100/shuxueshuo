@@ -2,7 +2,6 @@
 import json
 
 import pytest
-
 from shuxueshuo_server.graph_lesson.stage_three import runner
 from shuxueshuo_server.graph_lesson.stage_three.preview import open_store
 from shuxueshuo_server.search.lesson import present_lesson
@@ -16,6 +15,9 @@ from tools.export_graph_walk_course import export_course
     ('(x^2-m^2)/(x^2-m^2)', 'even', ()),
     ('abs(x+1)+m*abs(x-1)', 'even', ()),
     ('piecewise(-1,x<0,m,x=0,1,x>0)', 'odd', ()),
+    ('piecewise(m,x<0,1,x>0)', 'odd', ()),
+    ('piecewise(m/(x-1),x<0,-1/(x+1),x>=0)', 'even', ()),
+    ('m/x', 'even', ('Dom(f)={-1,1}',)),
     ('sqrt(x^2+m)', 'even', ()),
     ('sqrt(m*x^2)', 'odd', ()),
     ('sqrt(m*x^2+1)', 'odd', ()),
@@ -43,8 +45,9 @@ def test_original_route_export_and_restore(expr, prop, facts, tmp_path):
     evidence = export_course(output, 'function-parity-r2-test')  # no public files written
     assert evidence['stream']['handoffs'][0]['answer'] == goal['answer']
     serialized = json.dumps(evidence, ensure_ascii=False)
-    assert 'sampled_curve' in serialized
-    assert 'condition_number_lines' in serialized
+    # Only an accepted parameter is drawn; an empty answer has nothing to substitute.
+    assert ('sampled_curve' in serialized) == (goal['answer']['set']['expression'] != 'EmptySet')
+    assert 'condition_number_lines' not in serialized
 
 
 def test_missing_original_holes_cannot_publish(tmp_path):

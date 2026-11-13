@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a19",
+  "title": "奇函数符号表与分母 · A19",
+  "page": "/topics/function-parity/q19/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a19.json",
+  "evidence": "site/data/graph-walk/function-parity-a19.evidence.json"
+}

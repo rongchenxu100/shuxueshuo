@@ -1,0 +1,164 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-b11-v3",
+  "label": "按斜率分类求值域 · B11",
+  "path": "/topics/function-monotonicity/q11b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-b11-v3.json",
+  "types": [
+    "type-monotonicity-extremum"
+  ],
+  "statement": "已知 $f(x)=x^2-2x$，$g(x)=ax-1$。若 $\\forall x1\\in[-1,2]:\\exists x2\\in[-1,2]:f(x1)=g(x2)$，求实数 $a$ 的取值范围。",
+  "routes": {
+    "quantified-range-comparison": {
+      "label": "量词比较求参法",
+      "methods": [
+        "method-quantified-range-comparison"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-range-extrema"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "cb380639276048098b818c42#1": {
+          "title": "求 f 的值域：配成顶点式",
+          "position": 4,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "cb380639276048098b818c42#2": {
+          "title": "由图像读出 f 的值域",
+          "position": 5,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "cb380639276048098b818c42#3": {
+          "title": "求 g 的值域：按斜率分类（↑）",
+          "position": 6,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "cb380639276048098b818c42#4": {
+          "title": "由图像读出 g 的值域（$a > 0$）",
+          "position": 7,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "cb380639276048098b818c42#5": {
+          "title": "求 g 的值域：按斜率分类（常值）",
+          "position": 8,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "cb380639276048098b818c42#6": {
+          "title": "由图像读出 g 的值域（$a=0$）",
+          "position": 9,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "cb380639276048098b818c42#7": {
+          "title": "求 g 的值域：按斜率分类（↓）",
+          "position": 10,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "cb380639276048098b818c42#8": {
+          "title": "由图像读出 g 的值域（$a < 0$）",
+          "position": 11,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "cb380639276048098b818c42#9": {
+          "title": "汇总 g 在各斜率下的值域",
+          "position": 12,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "72d485f0dec467d78a27d50f#1": {
+          "title": "讨论 f 与 g 的取值关系",
+          "position": 13,
+          "refs": [
+            "method-quantified-range-comparison#conditions",
+            "skill-quantified-range",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "72d485f0dec467d78a27d50f#2": {
+          "title": "求参数（$a=0$）",
+          "position": 14,
+          "refs": [
+            "method-quantified-range-comparison#conditions",
+            "skill-quantified-range",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "72d485f0dec467d78a27d50f#3": {
+          "title": "求参数（$a > 0$）",
+          "position": 15,
+          "refs": [
+            "method-quantified-range-comparison#conditions",
+            "skill-quantified-range",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "72d485f0dec467d78a27d50f#4": {
+          "title": "求参数（$a < 0$）",
+          "position": 16,
+          "refs": [
+            "method-quantified-range-comparison#conditions",
+            "skill-quantified-range",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "b5aa3c5415c09460d935442b#1": {
+          "title": "回到原题，汇总参数范围",
+          "position": 17,
+          "refs": [
+            "method-quantified-range-comparison#conclude",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "ea5eae97b08aa10e98294aebda831ca6453904d8bc83f2ca0fcc4593c1f91d37",
+  "practice_version": "307ef83c906a392c66d0637f18ba95ff4f55527af60a2b79be24cf2af04e6225"
+}

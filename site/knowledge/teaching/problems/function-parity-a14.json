@@ -1,0 +1,75 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-a14",
+  "label": "对称轴与整数点取值 · A14",
+  "path": "/topics/function-parity/q14/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-a14.json",
+  "types": [
+    "type-function-symmetry"
+  ],
+  "statement": "设 $f(x)$ 是定义在 $R$ 上的奇函数，且 $y=f(x)$ 的图像关于直线 $x=\\frac12$ 对称，则 $f(1)+f(2)+f(3)+f(4)+f(5)=$____。",
+  "routes": {
+    "function-symmetry": {
+      "label": "对称关系法",
+      "methods": [
+        "method-function-symmetry"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-graph-symmetry"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-function-symmetry"
+          ]
+        },
+        "249893c57b642f06aae05b17#1": {
+          "title": "找出配对的输入",
+          "position": 4,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "249893c57b642f06aae05b17#2": {
+          "title": "找出配对的输入",
+          "position": 5,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "249893c57b642f06aae05b17#3": {
+          "title": "连续使用两次对称关系",
+          "position": 6,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "1e3d0e3f104864cee02b196c#1": {
+          "title": "求出所求的值",
+          "position": 7,
+          "refs": [
+            "method-function-symmetry#conclude"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "684bc910001daf258c1562f04055a04effa7ece24630bcf08cce46e6a42a8386",
+  "practice_version": "62bdc3e2e57d824de94f11ebdc931da71be954ff18842fd796803f036d93463d"
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-b10-v3",
+  "title": "动区间的最大值 · B10",
+  "page": "/topics/function-monotonicity/q10b/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知 $f(x)=x-\\frac{1}{x}$，$g(x)=x^2-4x-3$。若 $\\forall x1\\in[-2,-1]:\\exists x2\\in[1,a]:f(x1)<g(x2)$，求实数 $a$ 的取值范围。",
+  "evidence": "site/data/graph-walk/function-monotonicity-b10-v3.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-publication-20261112/b10-v3.json"
+}

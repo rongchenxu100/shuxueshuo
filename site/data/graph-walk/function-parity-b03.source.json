@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-b03",
+  "title": "拆分有理式求相反输入值",
+  "page": "/topics/function-parity/q23/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b03.json",
+  "evidence": "site/data/graph-walk/function-parity-b03.evidence.json"
+}

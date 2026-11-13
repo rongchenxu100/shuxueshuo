@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a08",
+  "title": "奇函数补全负半轴 · A08",
+  "page": "/topics/function-parity/q08/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a08.json",
+  "evidence": "site/data/graph-walk/function-parity-a08.evidence.json"
+}

@@ -1,0 +1,959 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "9610078f51ac42cbb829782f89786915",
+    "lesson_version": "d24c8d22d4884e6456f2234df5726001ce5e503d0a225e02568671072a9f5613",
+    "input_sha256": "5756713bab1bb41011d13dbb286e59567f028826c46786e3ef36adc3ae242645",
+    "checkpoint_sha256": "37855185b4d320368e2bdcdcdc8941af0c6325124e622262a7bdf07e1e8b91ed",
+    "result_sha256": "394a959b5e9f00276a4500918ed2d0406ac171c551b1e138a1183c45b8190902",
+    "stage_one_sha256": "409aa6d967d35be83e4b4ac9a0ae2caaab5c4736ba2ebd6bd08420f0447ee8ee",
+    "stage_two_sha256": "ef516fad54576f00de96f4b71a8fb04b951b7a8e9ef12741935466f1372fd6b5",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "38cdcdfc9963f76223d11d67f3a3a124303e130fb29312ea09364c3aec9e05f3",
+    "teaching_revision": "a710956d24ffddffc8a95b7a863b45094b3c08e18f99327eec0732c91e127c6f"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-parity-parameter",
+        "supported": [
+          "type-parity-parameter"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 15,
+                  "end": 23,
+                  "text": "$[a-3,2a]$"
+                },
+                {
+                  "start": 27,
+                  "end": 30,
+                  "text": "偶函数"
+                },
+                {
+                  "start": 15,
+                  "end": 23,
+                  "text": "$[a-3,2a]$"
+                },
+                {
+                  "start": 31,
+                  "end": 41,
+                  "text": "求实数 $a$ 的值"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1",
+                "/root/goals/0:d1:2",
+                "/root/goals/0:d1:3",
+                "/root/goals/0:d1:4"
+              ],
+              "knowledge_refs": [
+                "function-parity#definition"
+              ],
+              "source_refs": [
+                "/root/goals/0",
+                "/root/facts/0",
+                "/root/facts/1"
+              ],
+              "options": [
+                {
+                  "text": "根据题给奇偶性，求参数 $a$ 的全部取值",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "判断函数是奇函数还是偶函数",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "奇偶性是已知条件；要确定哪些 $a$ 使这个条件成立。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "7b6861923796cedd"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问的已知条件和目标是什么？",
+          "feedback": "奇偶性是已知条件；要确定哪些 $a$ 使这个条件成立。",
+          "summary": "$D=[a-3,2\\cdot a]$；$\\text{偶函数}$。根据题给奇偶性，求参数 $a$ 的全部取值。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-parity",
+            "label": "判断函数的奇偶性",
+            "role": "conflict",
+            "feedback": "判断函数的奇偶性，目标是性质；本型的性质已给，目标是参数。",
+            "reasons": [],
+            "choice_hint": "原目标是判断一个已给解析式的函数的奇偶性"
+          },
+          {
+            "type_id": "type-parity-parameter",
+            "label": "根据奇偶性求参",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "题目给出含参函数和奇偶性，要求参数的值或范围。"
+            ],
+            "choice_hint": "已知奇偶性，所求是函数中的参数"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-parity-c01//root/goals/0",
+            "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
+            "problem": {
+              "text": "已知函数 $f$ 是定义在 $[a-3,2a]$ 上的偶函数，求实数 $a$ 的值。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问的已知条件和目标是什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "根据题给奇偶性，求参数 $a$ 的全部取值"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "判断函数是奇函数还是偶函数",
+                      "feedback": "奇偶性是已知条件；要确定哪些 $a$ 使这个条件成立。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "奇偶性是已知条件；要确定哪些 $a$ 使这个条件成立。"
+                },
+                "candidateNodes": [
+                  "function-parity",
+                  "type-function-parity",
+                  "type-parity-parameter",
+                  "type-function-symmetry",
+                  "type-parity-formula",
+                  "type-parity-inequality",
+                  "type-shifted-odd-application"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-parity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "$D=[a-3,2\\cdot a]$；$\\text{偶函数}$。根据题给奇偶性，求参数 $a$ 的全部取值。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 6 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-parity",
+                      "label": "判断函数的奇偶性",
+                      "note": "原目标是判断一个已给解析式的函数的奇偶性",
+                      "feedback": "判断函数的奇偶性，目标是性质；本型的性质已给，目标是参数。"
+                    },
+                    {
+                      "value": "type-parity-parameter",
+                      "label": "根据奇偶性求参",
+                      "note": "已知奇偶性，所求是函数中的参数"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-parity-parameter"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-parity",
+                  "type-parity-parameter"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-parity-parameter"
+                  ],
+                  "edges": [
+                    "type-parity-parameter|involves|function-parity"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：题目给出含参函数和奇偶性，要求参数的值或范围。"
+                  ],
+                  "log": "作答判断：选择主要题型「根据奇偶性求参」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-parity",
+                  "kind": "knowledge",
+                  "label": "函数的奇偶性",
+                  "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-parity",
+                  "kind": "problem_type",
+                  "label": "判断函数的奇偶性",
+                  "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parity-parameter",
+                  "kind": "problem_type",
+                  "label": "根据奇偶性求参",
+                  "summary": "已知函数的奇偶性，求使定义域与函数值关系同时满足要求的参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-symmetry",
+                  "kind": "problem_type",
+                  "label": "利用图像对称关系求值与求和",
+                  "summary": "依据对称轴、对称中心或限定范围的对称等式，变换输入并求值或求和。",
+                  "aliases": [],
+                  "status": "active"
+                },
+                {
+                  "id": "type-parity-formula",
+                  "kind": "problem_type",
+                  "label": "根据奇偶性求解析式",
+                  "summary": "已知奇偶性和一侧的解析式，求另一侧指定范围内的解析式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parity-inequality",
+                  "kind": "problem_type",
+                  "label": "利用奇偶性解不等式",
+                  "summary": "已知奇偶性，以及一侧的解析式、单调性或零点，解关于函数值的不等式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-shifted-odd-application",
+                  "kind": "problem_type",
+                  "label": "奇函数＋常数结论的应用",
+                  "summary": "先明确奇函数与原函数的关系，再求相反输入的值、配对和或最值之和。",
+                  "aliases": [],
+                  "status": "active"
+                },
+                {
+                  "id": "method-parity-parameter",
+                  "kind": "method",
+                  "label": "奇偶性条件求参法",
+                  "summary": "保留原式与参数限制，把奇偶性转为恒等条件，求出全部参数并回验。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "检查定义域",
+                      "calls": [
+                        "method-domain-intersection",
+                        "skill-domain-symmetry"
+                      ]
+                    },
+                    {
+                      "id": "identity",
+                      "title": "把奇偶性写成关系",
+                      "calls": [
+                        "method-function-evaluation"
+                      ]
+                    },
+                    {
+                      "id": "compare",
+                      "title": "检查函数值关系",
+                      "calls": [
+                        "skill-polynomial-coefficient-comparison"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "合并全部参数条件",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "代回核验",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-function-parity|involves|function-parity",
+                  "from": "type-function-parity",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-symmetry|involves|function-parity",
+                  "from": "type-function-symmetry",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-formula|involves|function-parity",
+                  "from": "type-parity-formula",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-inequality|involves|function-parity",
+                  "from": "type-parity-inequality",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-parameter|candidate|method-parity-parameter",
+                  "from": "type-parity-parameter",
+                  "to": "method-parity-parameter",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-parameter|involves|function-parity",
+                  "from": "type-parity-parameter",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-shifted-odd-application|involves|function-parity",
+                  "from": "type-shifted-odd-application",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-parity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "32b63ecda9031dcfcd5061603a8bfaa5e23eaea16b07062e556c391280c51a5f"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-parity-c01//root/goals/0",
+            "bundleVersion": "32b63ecda9031dcfcd5061603a8bfaa5e23eaea16b07062e556c391280c51a5f",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "$D=[a-3,2\\cdot a]$；$\\text{偶函数}$。根据题给奇偶性，求参数 $a$ 的全部取值。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-parity-parameter",
+                "reason": "选「根据奇偶性求参」：题目给出含参函数和奇偶性，要求参数的值或范围。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "9610078f51ac42cbb829782f89786915",
+    "lesson_version": "d24c8d22d4884e6456f2234df5726001ce5e503d0a225e02568671072a9f5613",
+    "input_sha256": "5756713bab1bb41011d13dbb286e59567f028826c46786e3ef36adc3ae242645",
+    "stream_id": "9610078f51ac42cbb829782f89786915",
+    "last_seq": 19,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_domain",
+        "explanation": "$$\\begin{gathered}D=[a-3,2\\cdot a]\\\\(a-3)+2\\cdot a=0\\ \\Rightarrow\\ a=1\\\\a=1\\text{ 时，}a-3<2\\cdot a\\text{，即 }-2<2\\end{gathered}$$",
+        "highlight": {
+          "caption": "检查定义域是否关于原点对称",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原题条件",
+              "math": "\\begin{gathered}D=[a-3,2\\cdot a]\\\\\\text{偶函数}\\\\\\Rightarrow\\ \\text{定义域关于原点对称}\\end{gathered}"
+            },
+            {
+              "label": "对称条件",
+              "math": "(a-3)+2\\cdot a=0\\ \\Rightarrow\\ a=1"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "d24c8d22d4884e6456f2234df5726001ce5e503d0a225e02568671072a9f5613",
+        "local_check": "passed",
+        "math_step_sha256": "c85d2dbfd5d309c0dfbaf98dbce5b9646cc0453bbad3a6745cc106445a8cd866",
+        "method_ref": "method-parity-parameter#prepare",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "9610078f51ac42cbb829782f89786915",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_domain",
+        "target_ref": "/root/goals/0",
+        "title": "检查定义域是否关于原点对称",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_verify",
+        "explanation": "$$\\begin{gathered}D=\\left[-2, 2\\right]\\\\-D=\\left[-2, 2\\right]=D\\\\\\Rightarrow\\ \\text{定义域关于原点对称}\\\\a\\in \\left\\{1\\right\\}\\end{gathered}$$",
+        "highlight": {
+          "caption": "代回核验",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "代入 a=1",
+              "math": "D=\\left[-2, 2\\right]"
+            },
+            {
+              "label": "检验",
+              "math": "\\begin{gathered}-D=\\left[-2, 2\\right]=D\\\\\\Rightarrow\\ \\text{定义域关于原点对称}\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "d24c8d22d4884e6456f2234df5726001ce5e503d0a225e02568671072a9f5613",
+        "local_check": "passed",
+        "math_step_sha256": "d8803fe4c41d2cb37886acb76e467e704619ed5ede9869ebb729af6fa301ac7c",
+        "method_ref": "method-parity-parameter#verify",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "9610078f51ac42cbb829782f89786915",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_verify",
+        "target_ref": "/root/goals/0",
+        "title": "代回核验",
+        "used_basis": []
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "find_value",
+          "parameter": "a",
+          "parameter_set": {
+            "exact": {
+              "$math": "FiniteSet",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                }
+              ]
+            },
+            "expression": "{1}",
+            "latex": "\\left\\{1\\right\\}"
+          },
+          "result_type": "parameter_value",
+          "status": "complete",
+          "value": {
+            "exact": {
+              "$math": "Integer",
+              "value": "1"
+            },
+            "expression": "1",
+            "latex": "1"
+          }
+        },
+        "available": true,
+        "feasible_set": null,
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "find_value",
+          "parameter": "a",
+          "parameter_set": {
+            "exact": {
+              "$math": "FiniteSet",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                }
+              ]
+            },
+            "expression": "{1}",
+            "latex": "\\left\\{1\\right\\}"
+          },
+          "result_type": "parameter_value",
+          "status": "complete",
+          "value": {
+            "exact": {
+              "$math": "Integer",
+              "value": "1"
+            },
+            "expression": "1",
+            "latex": "1"
+          }
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "d24c8d22d4884e6456f2234df5726001ce5e503d0a225e02568671072a9f5613",
+        "math_steps": [
+          {
+            "math_step_sha256": "c85d2dbfd5d309c0dfbaf98dbce5b9646cc0453bbad3a6745cc106445a8cd866",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_domain"
+          },
+          {
+            "math_step_sha256": "d8803fe4c41d2cb37886acb76e467e704619ed5ede9869ebb729af6fa301ac7c",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_verify"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "9610078f51ac42cbb829782f89786915",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "e09b4f7bc59a7d4cd4fc7830cdac6cf29be135a64256217107c461b0b128c6d3",
+        "verified_route_sha256": "d49f067cd3fe197cd1c24604a056ba546e0ff4fce964fdd70e35fcccc727bf1c"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "query": {
+            "from": "type-parity-parameter",
+            "op": "methods"
+          },
+          "question": "先核对定义域，再把已知奇偶性写成函数值关系。比较对应项的系数，求出满足全部条件的参数，并代回检查。",
+          "submit_label": "用奇偶性条件求参法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-parity-parameter",
+              "recommendation": "preferred",
+              "route_id": "parity-parameter",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_domain",
+        "ordinal": 1,
+        "math_step_sha256": "c85d2dbfd5d309c0dfbaf98dbce5b9646cc0453bbad3a6745cc106445a8cd866",
+        "status": "interactive",
+        "interaction_id": "2b25c055b904234ada054f18"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_verify",
+        "ordinal": 2,
+        "math_step_sha256": "d8803fe4c41d2cb37886acb76e467e704619ed5ede9869ebb729af6fa301ac7c",
+        "status": "interactive",
+        "interaction_id": "c82c0c77409e2afeb886a932"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:parity-parameter:complete",
+        "last_seq": 19
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-parity-parameter",
+            "step": "prepare",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-domain-symmetry",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-parity-parameter",
+            "step": "identity",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-function-evaluation",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-parity-parameter",
+            "step": "compare",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-parity-parameter",
+            "step": "solve",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 5,
+            "method": "method-parity-parameter",
+            "step": "verify",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "2b25c055b904234ada054f18",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "90386dfc43aa69efbb6ab7db824ea195affabac6f45aef8e5b277437e1bb4e9f",
+        "lesson_version": "d24c8d22d4884e6456f2234df5726001ce5e503d0a225e02568671072a9f5613",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "检查定义域是否关于原点对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原题条件",
+                  "math": "\\begin{gathered}D=[a-3,2\\cdot a]\\\\\\text{偶函数}\\\\\\Rightarrow\\ \\text{定义域关于原点对称}\\end{gathered}"
+                },
+                {
+                  "label": "对称条件",
+                  "math": "(a-3)+2\\cdot a=0\\ \\Rightarrow\\ a=1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "2b25c055b904234ada054f18#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$2\\cdot a=0\\ \\Rightarrow\\ a=0$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$a-3=2\\cdot a\\ \\Rightarrow\\ a=-3$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$a-3=0\\ \\Rightarrow\\ a=3$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(a-3)+2\\cdot a=0\\ \\Rightarrow\\ a=1$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "奇函数和偶函数的定义域都关于原点对称。要使 $D=[a-3,2\\cdot a]$ 关于原点对称，$a$ 应满足什么？",
+            "stem_board": {
+              "caption": "检查定义域是否关于原点对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原题条件",
+                  "math": "\\begin{gathered}D=[a-3,2\\cdot a]\\\\\\text{偶函数}\\\\\\Rightarrow\\ \\text{定义域关于原点对称}\\end{gathered}"
+                },
+                {
+                  "label": "对称条件",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "检查定义域是否关于原点对称"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "9610078f51ac42cbb829782f89786915",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c85d2dbfd5d309c0dfbaf98dbce5b9646cc0453bbad3a6745cc106445a8cd866",
+            "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_domain"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "c82c0c77409e2afeb886a932",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "595c3078afebcf670aff50777258631413d2a568fffd45fc9b042cbe53434ff9",
+        "lesson_version": "d24c8d22d4884e6456f2234df5726001ce5e503d0a225e02568671072a9f5613",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "代回核验",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "代入 a=1",
+                  "math": "D=\\left[-2, 2\\right]"
+                },
+                {
+                  "label": "检验",
+                  "math": "\\begin{gathered}-D=\\left[-2, 2\\right]=D\\\\\\Rightarrow\\ \\text{定义域关于原点对称}\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "c82c0c77409e2afeb886a932#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "把 $a=1$ 代入原式检查。",
+            "stem_board": {
+              "caption": "代回核验",
+              "lines": [
+                "$$D=\\left[-2, 2\\right]$$",
+                "$$-D=\\left[-2, 2\\right]=D$$",
+                "$$\\Rightarrow\\ \\text{定义域关于原点对称}$$",
+                "$$a\\in \\left\\{1\\right\\}$$"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "代回核验"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "9610078f51ac42cbb829782f89786915",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d8803fe4c41d2cb37886acb76e467e704619ed5ede9869ebb729af6fa301ac7c",
+            "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_verify"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

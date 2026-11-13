@@ -71,12 +71,12 @@
       "groupBy": "method",
       "description": "从分式函数的最值，到量词比较求参、指定点最值条件求参。",
       "problems": [
-        "function-monotonicity-a16-v2",
-        "function-monotonicity-a07-v2",
-        "function-monotonicity-a18-v2",
-        "function-monotonicity-b16-v2",
-        "function-monotonicity-b11-v2",
-        "function-monotonicity-b10-v2",
+        "function-monotonicity-a16-v3",
+        "function-monotonicity-a07-v3",
+        "function-monotonicity-a18-v3",
+        "function-monotonicity-b16-v3",
+        "function-monotonicity-b11-v3",
+        "function-monotonicity-b10-v3",
         "function-monotonicity-b08-v3",
         "function-monotonicity-b14-v3"
       ]
@@ -183,56 +183,56 @@
         "type-function-monotonicity"
       ]
     },
-    "function-monotonicity-a16-v2": {
+    "function-monotonicity-a16-v3": {
       "label": "分式函数的最大值 · A16",
       "path": "/topics/function-monotonicity/q16/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-a16-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-a16-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ]
     },
-    "function-monotonicity-a07-v2": {
+    "function-monotonicity-a07-v3": {
       "label": "用值域包含求参数 · A07",
       "path": "/topics/function-monotonicity/q07/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-a07-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-a07-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ]
     },
-    "function-monotonicity-a18-v2": {
+    "function-monotonicity-a18-v3": {
       "label": "分段函数的量词比较 · A18",
       "path": "/topics/function-monotonicity/q18/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-a18-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-a18-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ]
     },
-    "function-monotonicity-b16-v2": {
+    "function-monotonicity-b16-v3": {
       "label": "严格比较与最值见证 · B16",
       "path": "/topics/function-monotonicity/q16b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-b16-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-b16-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ]
     },
-    "function-monotonicity-b11-v2": {
+    "function-monotonicity-b11-v3": {
       "label": "按斜率分类求值域 · B11",
       "path": "/topics/function-monotonicity/q11b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-b11-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-b11-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ]
     },
-    "function-monotonicity-b10-v2": {
+    "function-monotonicity-b10-v3": {
       "label": "动区间的最大值 · B10",
       "path": "/topics/function-monotonicity/q10b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-b10-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-b10-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ]

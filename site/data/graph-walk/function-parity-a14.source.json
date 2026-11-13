@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a14",
+  "title": "对称轴与整数点取值 · A14",
+  "page": "/topics/function-parity/q14/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t5-staged-20261112/a14.json",
+  "evidence": "site/data/graph-walk/function-parity-a14.evidence.json"
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-parity-c04",
+  "bundleVersion": "[\"stream\",\"70f198c622552e249575871ab37784fc211ad9548156c0f125857d973eadc34f\",\"d5166a314de38efd5f53f877d178771564517bd89806ba3dd400c54b9344a20b\",\"de8485c861594697b5618d68bf6d0401\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "parity-parameter"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o1"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-parity-parameter"
+    },
+    {
+      "decision": "D3",
+      "answer": "read"
+    },
+    {
+      "decision": "488e64e3cfdd8b20563cf35a#1",
+      "answer": "read"
+    },
+    {
+      "decision": "d48d39a27ae3a3e0584ae70f#1",
+      "answer": "read"
+    },
+    {
+      "decision": "4e2af5f091fc533911d20e4c#1",
+      "answer": "read"
+    },
+    {
+      "decision": "70a0a56a5ce27fbfc3e0596b#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "9813641a723879915b888ad8#1",
+      "answer": "read"
+    }
+  ]
+}

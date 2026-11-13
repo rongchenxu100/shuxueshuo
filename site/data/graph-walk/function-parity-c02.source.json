@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-c02",
+  "title": "四次式中的一次项 · C02",
+  "page": "/topics/function-parity/variant2/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c02.json",
+  "evidence": "site/data/graph-walk/function-parity-c02.evidence.json"
+}

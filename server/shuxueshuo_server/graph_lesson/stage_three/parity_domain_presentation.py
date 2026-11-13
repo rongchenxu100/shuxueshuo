@@ -1,16 +1,13 @@
-"""Source-domain cards and paired number lines for verified FP-T2 R1 evidence."""
-from copy import deepcopy
-
+"""Source-domain cards for verified FP-T2 R1 evidence."""
 import sympy as sp
 
 from .. import parameter_domain as domains
-from ..function_parity import reflect_domain_ast, reflect_set
+from ..function_parity import reflect_domain_ast
 from ..stage_one.function_domain import expression_latex
 from .absolute_graph_presentation import choice_card
-from .domain_visuals import exact_math
-from .interaction_graphs import _float, _pieces, short_label
 from .math_values import latex
 from .monotonicity_parameter_presentation import _lines
+from .parity_parameter_runtime import domain_only
 
 
 def domain_latex(ast, variable='x'):
@@ -60,11 +57,58 @@ def _choice(title, question, left, correct, alternatives, proof, parameter, left
 
 
 def _value_conditions(comparison, p):
+    rows = comparison['rows']
+    if not rows:
+        return [r'\text{没有参数使定义域关于原点对称}']
     lines = []
-    for row in comparison['rows']:
-        condition = _lines([latex(e) + '=0' for e in row['equations']]) if row['equations'] else r'\text{函数值关系不增加参数限制}'
-        lines.append(p + r'\in ' + latex(row['parameter_cell']) + r':\quad ' + condition)
-    return lines or [r'\text{没有参数使完整定义域非空且对称}']
+    for row in rows:
+        condition = (r',\ '.join(latex(e) + '=0' for e in row['equations']) if row['equations']
+                     else r'\text{没有新的限制}')
+        prefix = (r'\text{由函数值关系：}' if len(rows) == 1
+                  else r'\text{当 }' + p + r'\in ' + latex(row['parameter_cell']) + r'\text{ 时，由函数值关系：}')
+        lines.append(prefix + condition)
+    return lines
+
+
+def _wrapped(text):
+    return '(' + text + ')' if any(sign in text[1:] for sign in '+-') else text
+
+
+def _endpoint_equation(d, symmetric):
+    """For [L, R] (or (L, R)), symmetry about 0 means L+R=0 with L<R."""
+    ast = d['domain_ast']
+    if ast[0] != 'interval' or ast[1] != ast[2]:
+        return None
+    p = sp.Symbol(d['parameter'], real=True)
+    tree = domains.compile_domain(ast, p, d['parameter_ref'])
+    low, high = tree[3:]
+    if sp.oo in (abs(low), abs(high)):
+        return None
+    values = sp.solve(sp.Eq(low + high, 0), p, dict=True)
+    if len(values) != 1 or sp.FiniteSet(values[0][p]) != symmetric:
+        return None
+    value = values[0][p]
+    texts = [domain_latex(node, d['variable']) for node in ast[3:]]
+    correct = _wrapped(texts[0]) + '+' + _wrapped(texts[1]) + r'=0\ \Rightarrow\ ' + d['parameter'] + '=' + latex(value)
+    wrong = []
+    for left, right, text in ((low, high, texts[0] + '=' + texts[1]),
+                              (low, 0, texts[0] + '=0'), (high, 0, texts[1] + '=0')):
+        found = sp.solve(sp.Eq(left, right), p, dict=True)
+        if len(found) == 1 and found[0][p] != value:
+            wrong.append(text + r'\ \Rightarrow\ ' + d['parameter'] + '=' + latex(found[0][p]))
+    if not wrong:
+        return None
+    order = (texts[0] + '<' + texts[1] + r'\text{，即 }' + latex(low.subs(p, value)) + '<' + latex(high.subs(p, value)))
+    return correct, wrong, [correct, d['parameter'] + '=' + latex(value) + r'\text{ 时，}' + order]
+
+
+def _verify_lines(d, solution):
+    p = sp.Symbol(d['parameter'], real=True)
+    if not isinstance(solution, sp.FiniteSet):
+        return [d['parameter'] + r'\in ' + latex(solution) + r'\text{ 时，定义域关于原点对称}']
+    tree = domains.compile_domain(d['domain_ast'], p, d['parameter_ref'])
+    return [d['parameter'] + '=' + latex(v) + r'\text{ 时，}D=' + latex(domains.fixed_set(tree, p, v))
+            + r'\text{，关于原点对称}' for v in sorted(solution)]
 
 
 def phase_views(values):
@@ -77,24 +121,29 @@ def phase_views(values):
     relations = [f'{f}(-{x})=' + ('-' if sign < 0 else '') + f'{f}({x})' for sign in signs]
     if phase == 'domain':
         proof = values['evidence']
+        symmetric = proof['symmetric_parameters']
+        given = _lines([*source_lines(d), r'\Rightarrow\ \text{定义域关于原点对称}'])
+        title, domain = '检查定义域是否关于原点对称', 'D=' + domain_latex(d['domain_ast'], x)
+        if equation := _endpoint_equation(d, symmetric):
+            correct, wrong, steps = equation
+            return [choice_card(title, f'奇函数和偶函数的定义域都关于原点对称。要使 ${domain}$ 关于原点对称，${p}$ 应满足什么？',
+                                '原题条件', given, '对称条件', correct, wrong, _lines([domain, *steps]))]
         reflected_domain = d['domain_ast'] if d['domain_ast'] == ['empty_set'] else reflect_domain_ast(d['domain_ast'])
-        conditions = _lines(['D=' + domain_latex(d['domain_ast'], x),
-                             '-D=' + domain_latex(reflected_domain, x),
-                             r'\text{原区间端点严格有序，且整个定义域非空、对称}',
-                             p + r'\in ' + latex(proof['symmetric_parameters'])])
-        return [_choice('检查定义域的配对', '保留每个端点的开闭和所有孔洞。哪些参数使完整定义域非空，且每个输入都有相反数与它配对？',
-                        original, proof['symmetric_parameters'],
-                        [proof['valid_parameters'], sp.S.Reals, sp.S.EmptySet, sp.FiniteSet(0)], conditions, p, '原题条件')]
+        conditions = _lines([domain, '-D=' + domain_latex(reflected_domain, x),
+                             r'\text{定义域非空，且 }D=-D', p + r'\in ' + latex(symmetric)])
+        return [_choice(title, f'奇函数和偶函数的定义域都关于原点对称。哪些 ${p}$ 能使 ${domain}$ 非空且关于原点对称？',
+                        given, symmetric, [proof['valid_parameters'], sp.S.Reals, sp.S.EmptySet, sp.FiniteSet(0)],
+                        conditions, p, '原题条件')]
     if phase == 'identity':
         note = r'\text{关系只要求在完整定义域内成立}'
         if d['local_rules']:
             note = r'\text{局部公式只用于题给范围；重叠处和零点必须相容}'
-        return [_read('写出函数值的关系', '定义域中的每个输入，都要满足题给的奇偶关系。已知的局部公式不能直接用于整个定义域。'
-                      if d['expression_ast'] is None else '把相反数整体代入原式，关系须对每个合法输入成立。',
+        return [_read('写出函数值的关系', '题目只给出部分范围内的解析式，奇偶关系要在整个定义域上成立。'
+                      if d['expression_ast'] is None else f'奇偶关系要对定义域内的每个 ${x}$ 都成立。',
                       '原题条件', original, '奇偶关系', _lines(relations), _lines([*relations, note]))]
     if phase == 'compare':
         lines = _value_conditions(values['evidence'], p)
-        return [_read('检查函数值关系', '有区间时检查多项式恒等条件；有限集逐点检查。只有局部规则时，检查它与反射后的规则能否同时成立。',
+        return [_read('检查函数值关系', f'把 ${relations[0]}$ 代入解析式，比较两边，得到参数要满足的条件。',
                       '原式与定义域', original, '函数值条件', _lines(lines), _lines(lines))]
     model = values['evidence']
     solution = model['feasible_set']
@@ -105,70 +154,34 @@ def phase_views(values):
                     p + r'\in ' + latex(solution)])
     if phase == 'solve':
         domain = model['comparison']['domain_evidence']
-        known = [r'\text{定义域非空且对称：}' + p + r'\in ' + latex(domain['symmetric_parameters']),
-                 *_value_conditions(model['comparison'], p), *restrictions,
+        known = [r'\text{由定义域关于原点对称：}' + p + r'\in ' + latex(domain['symmetric_parameters']),
+                 *(_value_conditions(model['comparison'], p) if not domain_only(d) else []), *restrictions,
                  *([r'\text{还须能取到非零函数值}'] if model['exclusive'] else [])]
-        return [_choice('合并全部参数条件', '定义域、函数值关系、原参数限制及排他要求必须同时满足。', _lines(known), solution,
+        return [_choice('合并全部参数条件', '把定义域、函数值关系和题目对参数的其他要求放在一起，同时满足。', _lines(known), solution,
                         [sp.S.Reals, sp.S.EmptySet, sp.FiniteSet(0), model['parity_set']], proof, p)]
-    return [_read('代回核验', '已逐类核对全部参数，包括临界值、孔洞、开闭端点和局部规则的相容性。',
-                  '原题条件', original, '最终参数集合', latex(solution), proof)]
-
-
-def pairing_lines(desc, parameter_value):
-    """A new domain/reflection pairing view using the shared number-line renderer."""
-    p = sp.Symbol(desc['parameter'], real=True)
-    tree = domains.compile_domain(desc['domain_ast'], p, desc['parameter_ref'])
-    original = domains.fixed_set(tree, p, parameter_value)
-    sets = [original, reflect_set(original)]
-    pieces = [_pieces(s) for s in sets]
-    ends = sorted({sp.S.Zero, *(v for intervals, points in pieces for v in
-                   [*points, *(e for part in intervals for e in (part.start, part.end) if e not in (-sp.oo, sp.oo))])})
-    low, high = _float(ends[0]), _float(ends[-1])
-    pad = max((high-low)*0.25, 0.75)
-    ticks = [{'at': _float(v), 'label': short_label(v), 'exact': exact_math(v)} for v in ends]
-    result = []
-    for name, region, (intervals, points) in zip(('D', '-D'), sets, pieces, strict=True):
-        result.append({'variable': desc['variable'], 'label': desc['parameter'] + '=' + latex(parameter_value)
-                       + r'\text{ 时}\quad ' + name + '=' + latex(region), 'bounds': [low-pad, high+pad],
-                       'intervals': [{'left': None if s.start == -sp.oo else _float(s.start),
-                                      'right': None if s.end == sp.oo else _float(s.end),
-                                      'left_closed': not s.left_open, 'right_closed': not s.right_open,
-                                      'exact': exact_math(s)} for s in intervals],
-                       'points': [{'at': _float(v), 'label': short_label(v), 'exact': exact_math(v)} for v in points],
-                       'ticks': deepcopy(ticks), 'exact_set': exact_math(region)})
-    return result
-
-
-def attach_pairing(part, values):
-    phase = values['phase']
-    if phase != 'verify':
-        return
-    solution = values['evidence']['feasible_set']
-    # This is an explicitly labelled instance after the full symbolic answer;
-    # it never replaces the parameter-cell proof or reveals the pending choice.
-    selected = []
-    if isinstance(solution, sp.FiniteSet):
-        selected.append(min(solution))
-    elif solution != sp.S.EmptySet:
-        pieces = sorted(solution.args, key=sp.default_sort_key) if isinstance(solution, sp.Union) else [solution]
-        selected.append(domains.representative(pieces[0]))
-    domain = values['evidence']['comparison']['domain_evidence']
-    # Show a rejected domain pairing as well when one exists. No invalid
-    # interval is drawn as a point, and domain symmetry is never a parity proof.
-    # Interaction seeds deliberately omit full proof cells. Use their checked
-    # aggregate sets to choose labelled examples without copying the certificate.
-    examples = domain['valid_parameters'] - domain['symmetric_parameters']
-    if examples == sp.S.EmptySet and not selected:
-        examples = domain['valid_parameters']
-    if examples != sp.S.EmptySet:
-        pieces = sorted(examples.args, key=sp.default_sort_key) if isinstance(examples, sp.Union) else [examples]
-        selected.append(domains.representative(pieces[0]))
-    lines = []
-    for value in selected:
-        pair = pairing_lines(values['description'], value)
-        matches = pair[0]['exact_set'] == pair[1]['exact_set']
-        for line in pair:
-            line['label'] += r'\quad\text{域配对' + ('相同' if matches else '不同') + '}'
-        lines.extend(pair)
-    if lines:
-        part['condition_number_lines'] = lines
+    if isinstance(solution, sp.FiniteSet) and solution != sp.S.EmptySet:
+        from ..parity_parameter_domain import source
+        from .parity_parameter_presentation import substitution_view
+        variable, parameter, expr, _, _, _ = source(d)
+        tree = domains.compile_domain(d['domain_ast'], parameter, d['parameter_ref'])
+        given, checks = [], []
+        for value in sorted(solution):
+            prefix = p + '=' + latex(value) + r'\text{ 时，}' if len(solution) > 1 else ''
+            domain = latex(domains.fixed_set(tree, parameter, value))
+            given.append(prefix + 'D=' + domain)
+            checks.append(prefix + '-D=' + domain + '=D')
+            if expr is not None and not d['local_rules']:
+                value_expr = sp.expand(expr.subs(parameter, value))
+                given.append(prefix + f'{f}({x})=' + latex(value_expr))
+                checks.append(prefix + f'{f}(-{x})=' + latex(sp.expand(value_expr.subs(variable, -variable))))
+        checks.append(r'\Rightarrow\ ' + (r'\text{定义域关于原点对称}' if domain_only(d)
+                                          else r'\text{、}'.join(relations)))
+        return [substitution_view(d, solution, given, checks)]
+    if solution == sp.S.EmptySet:
+        check = [r'\text{没有参数同时满足全部条件}']
+    else:
+        check = _verify_lines(d, solution)
+        if not domain_only(d):
+            check.append(r'\text{且满足 }' + r'\text{、}'.join(relations))
+    return [_read('代回核验', '把求出的参数代回原题检查。', '原题条件', original, '最终参数集合', latex(solution),
+                  _lines([*check, p + r'\in ' + latex(solution)]))]

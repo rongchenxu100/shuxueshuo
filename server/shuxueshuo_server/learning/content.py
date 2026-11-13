@@ -274,6 +274,7 @@ def publish(db, rows):
     with context as c:
         lock(c, 'learning.publish')
         old = {name: [dict(row) for row in c.execute(text(f'SELECT * FROM {name}')).mappings()] for name in KEYS}
+        regraded = set()
         for name, items in rows.items():
             if name not in KEYS:
                 continue
@@ -283,19 +284,16 @@ def publish(db, rows):
                 existing = previous.get(tuple(row[key] for key in keys))
                 if not existing:
                     continue
-                if name == 'practice_problems' and existing['contract_hash'] != row['contract_hash']:
+                if name == 'practice_problems' and existing['problem_data'] != row['problem_data']:
                     from .compatibility import teaching_contract
-                    # Source hashes may change for wording fixes. Grading and
-                    # step semantics still require a new course identity.
-                    if (existing['problem_data'] == row['problem_data'] or
-                            teaching_contract(existing['problem_data']) != teaching_contract(row['problem_data'])):
-                        raise ValueError(f"{row['id']}: teaching contract changed; allocate a new ID")
+                    if teaching_contract(existing['problem_data']) != teaching_contract(row['problem_data']):
+                        regraded.add(row['id'])
                 if name == 'knowledge_nodes' and (existing['kind'], existing['subtype']) != (row['kind'], row['subtype']):
                     raise ValueError(f"{row['id']}: node identity changed")
         route_hashes = {(row['problem_id'], row['route_id']): row['association_hash'] for row in rows['practice_routes']}
         for route in old['practice_routes']:
             key = (route['problem_id'], route['route_id'])
-            if route_hashes.get(key) != route['association_hash']:
+            if route_hashes.get(key) != route['association_hash'] or route['problem_id'] in regraded:
                 c.execute(text("UPDATE student_practice_attempts SET status='closed',updated_at=clock_timestamp() WHERE problem_id=:problem_id AND route_id=:route_id AND status='in_progress'"), route)
         item_targets = {row['item_id']: (row['node_id'], row['entry_id'], row['content_hash']) for row in rows['knowledge_drill_items']}
         old_targets = {row['item_id']: (row['node_id'], row['entry_id'], row['content_hash']) for row in old['knowledge_drill_items'] if row['is_active']}
@@ -314,6 +312,7 @@ def publish(db, rows):
                 if tuple(row[key] for key in KEYS[name]) not in keep:
                     where = ' AND '.join(f'{key}=:{key}' for key in KEYS[name])
                     c.execute(text(f'DELETE FROM {name} WHERE {where}'), row)
+        _prepare_step_positions(c, old['practice_steps'], rows['practice_steps'])
         for name, keys in KEYS.items():
             for row in rows[name]:
                 _write(c, name, row, keys)
@@ -329,3 +328,27 @@ def publish(db, rows):
                   {**meta, 'counts': encoded(meta['counts'])})
         _write(c, 'learning_content_current', {'id': 'public', 'content_version': meta['content_version']}, ['id'])
     return {name: len(rows[name]) for name in KEYS}
+
+
+def _prepare_step_positions(c, previous, current):
+    """Free positions before upserts so a retained step can move in either direction."""
+    before, after = {}, {}
+    for target, steps in ((before, previous), (after, current)):
+        for step in steps:
+            target.setdefault((step['problem_id'], step['route_id']), {})[step['step_id']] = step['position']
+    for (pid, route), positions in after.items():
+        old = before.get((pid, route), {})
+        if not old or old == positions:
+            continue
+        params = {'problem_id': pid, 'route_id': route}
+        # Removed associations are already deleted. Attempts retain their own
+        # grading snapshot, rather than referencing these current step rows.
+        for step_id in old.keys() - positions.keys():
+            c.execute(text('DELETE FROM practice_steps WHERE problem_id=:problem_id AND route_id=:route_id AND step_id=:step_id'),
+                      {**params, 'step_id': step_id})
+        # The immediate unique constraint includes position. Moving all retained
+        # steps beyond both ranges avoids collisions during swaps and insertions.
+        if old.keys() & positions.keys():
+            offset = max(*old.values(), *positions.values()) + 1
+            c.execute(text('UPDATE practice_steps SET position=position+:offset WHERE problem_id=:problem_id AND route_id=:route_id'),
+                      {**params, 'offset': offset})

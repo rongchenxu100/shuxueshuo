@@ -1,0 +1,110 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a16-v3",
+  "label": "分式函数的最大值 · A16",
+  "path": "/topics/function-monotonicity/q16/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a16-v3.json",
+  "types": [
+    "type-monotonicity-extremum"
+  ],
+  "statement": "已知函数 $f(x)=\\frac{2x+1}{x+3}$，$x\\in[-2,2]$，求最大值。",
+  "routes": {
+    "monotonicity-extremum": {
+      "label": "单调性求最值法",
+      "methods": [
+        "method-monotonicity-extremum"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-range-extrema"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "084dc43f9730abff98d02819#1": {
+          "title": "分离分式",
+          "position": 4,
+          "refs": [
+            "method-monotonicity-extremum#prepare",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "088eaee06fe1ca3991ace98d#1": {
+          "title": "一次函数在 $\\left[-2, 2\\right]$ 上的增减",
+          "position": 5,
+          "refs": [
+            "method-monotonicity-extremum#operations",
+            "skill-monotonicity-operations",
+            "function-monotonicity-operations#reciprocal",
+            "function-monotonicity-operations#sum-difference"
+          ]
+        },
+        "baa245b4cb33c84d16237d06#1": {
+          "title": "取倒数后的增减",
+          "position": 6,
+          "refs": [
+            "method-monotonicity-extremum#operations",
+            "skill-monotonicity-operations",
+            "function-monotonicity-operations#reciprocal",
+            "function-monotonicity-operations#sum-difference"
+          ]
+        },
+        "baa245b4cb33c84d16237d06#2": {
+          "title": "乘常数后的增减",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-extremum#operations",
+            "skill-monotonicity-operations",
+            "function-monotonicity-operations#reciprocal",
+            "function-monotonicity-operations#sum-difference"
+          ]
+        },
+        "baa245b4cb33c84d16237d06#3": {
+          "title": "加常数后的增减",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-extremum#operations",
+            "skill-monotonicity-operations",
+            "function-monotonicity-operations#reciprocal",
+            "function-monotonicity-operations#sum-difference"
+          ]
+        },
+        "75f57dca7826180ab5fbd502#1": {
+          "title": "选择最大值的位置",
+          "position": 9,
+          "refs": [
+            "method-monotonicity-extremum#conclude",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "75f57dca7826180ab5fbd502#2": {
+          "title": "求出最大值",
+          "position": 10,
+          "refs": [
+            "method-monotonicity-extremum#conclude",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "90d32776d9c1c0845ef6b02068547de3ac70f829050169858a2e5c66c9636896",
+  "practice_version": "7a9a5720e7657caa6b5de2b927a3cfaff60f3e26e61823473d9f6d5efb8a4e96"
+}

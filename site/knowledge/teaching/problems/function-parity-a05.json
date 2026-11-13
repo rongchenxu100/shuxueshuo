@@ -1,0 +1,139 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-a05",
+  "label": "奇函数半轴解析式与两值比较 · A05",
+  "path": "/topics/function-parity/q05/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-a05.json",
+  "types": [
+    "type-parity-formula",
+    "type-parity-inequality"
+  ],
+  "statement": "已知 $f(x)$ 是定义在 $(-2,2)$ 上的奇函数，且当 $x\\in(0,2)$ 时，$f(x)=x^2+2x$，则当 $-2<x<0$ 时，$f(x)=$____，不等式 $f(x-1)+f(x)<0$ 的解集是____．",
+  "routes": {
+    "parity-extension": {
+      "label": "补全另一侧解析式 → 解不等式",
+      "methods": [
+        "method-parity-inequality",
+        "method-parity-extension"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-parity-extension"
+          ]
+        },
+        "17d4065711a7150cc943a6db#1": {
+          "title": "把输入换到已知一侧",
+          "position": 4,
+          "refs": [
+            "method-parity-extension#map",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "a649068c881c8acb3fed861a#1": {
+          "title": "代入相反输入",
+          "position": 5,
+          "refs": [
+            "method-parity-extension#substitute",
+            "method-function-evaluation",
+            "skill-simplify"
+          ]
+        },
+        "cdb457541115522874bb2eaf#1": {
+          "title": "用奇偶性换回 f(x)",
+          "position": 6,
+          "refs": [
+            "method-parity-extension#write-back",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "fcd490dd0fa827dc7ecc759b#1": {
+          "title": "写出带范围的结论",
+          "position": 7,
+          "refs": [
+            "method-parity-extension#conclude"
+          ]
+        },
+        "goal-2-D1": {
+          "title": "解不等式",
+          "position": 8,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "goal-2-D2": {
+          "title": "确定题型",
+          "position": 9,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "goal-2-D3": {
+          "title": "选择解题方法",
+          "position": 10,
+          "refs": [
+            "method-parity-inequality"
+          ]
+        },
+        "5217961ce5e501b9c2e8ff20#1": {
+          "title": "改写成两个函数值的比较",
+          "position": 11,
+          "refs": [
+            "method-parity-inequality#rewrite",
+            "skill-function-symmetry-transform",
+            "function-parity#definition"
+          ]
+        },
+        "9065c03f0038be45e98fe1a3#1": {
+          "title": "确定整个定义域上的单调方向",
+          "position": 12,
+          "refs": [
+            "method-parity-inequality#direction",
+            "skill-parity-monotonicity-transfer",
+            "composite-function-monotonicity#rule",
+            "function-monotonicity#interval",
+            "function-parity#definition",
+            "function-parity-graph#monotonicity",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "f37aaddc77abc389cc8dbb68#1": {
+          "title": "去掉函数符号比较输入",
+          "position": 13,
+          "refs": [
+            "method-parity-inequality#compare",
+            "skill-monotonicity-order",
+            "function-concept#elements",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval",
+            "set-intersection-union#intersection"
+          ]
+        },
+        "4e851d37ce21cd0770643d94#1": {
+          "title": "合法输入求交，写出解集",
+          "position": 14,
+          "refs": [
+            "method-parity-inequality#conclude"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "44534dc8f0e2536de7f35b4cc32c273850a2807c5656e2123e2570c0f542537d",
+  "practice_version": "7129a2ba825d922869b7be0a27b57f8b33eb9eb1a135f1e4461c6d3d81efc91e"
+}

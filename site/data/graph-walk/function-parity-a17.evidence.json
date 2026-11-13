@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "e05ffff7322d46d881f8099634c1aa40",
-    "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
-    "input_sha256": "dcb1d6c9a52c285a47e7663992844ebee7145dbca7eea68b7b2f294c042ae2ec",
-    "checkpoint_sha256": "7b4ea286910ccb29a37ea5d3fc98f799b81604c2686110ea5ffa4026ca004ce8",
-    "result_sha256": "cbee7c7695518d80395caef4b2c2367c1f783e15934c7741e683d737150f5133",
-    "stage_one_sha256": "06e812597340401c65296eb7b64a6125c1da152d7ff1919184affdbfb8f62bce",
-    "stage_two_sha256": "9bac35ae3917c0de55bf656d28e0cfb4dcd232f8d646f23044d16c927ae41536",
+    "run_id": "73323f1009c649dfa8cfa61152499734",
+    "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
+    "input_sha256": "56d2a82100f8329fbcba7af332357f8e897eae21ced61ec797981a6e6cd12fab",
+    "checkpoint_sha256": "d5caabe7147fda0212f794dbec161ff8232f853a6f011a10fb1401d4c2f896ed",
+    "result_sha256": "fa8d2b3d41c10d1dc1221ff3019a69bdd54e8c40d6eb260ca2edc93707fe2fb8",
+    "stage_one_sha256": "e3b62fdfd436311d721a8272f91d4b08be945eb86b129874ab523555fa9962e1",
+    "stage_two_sha256": "5986163836dbfd90e0811c5698a3629d074244435fa799a7453faaa172119100",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "87d71dc1e46a8f061a662d9412e11800c5a0a78ca167aa9c81ad7497d0661746",
-    "teaching_revision": "5b57daed5dc8195e4582de437dd4b7d50e01d650bc090536e8a0d3255a1a7972"
+    "teaching_revision": "a710956d24ffddffc8a95b7a863b45094b3c08e18f99327eec0732c91e127c6f"
   },
   "lesson": {
     "status": "completed",
@@ -110,7 +110,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-parity-a17//root/goals/0",
-            "graphVersion": "15adb2edd648bc430080a2b5a299d8efdb8a4e363391e102554000315dbec532",
+            "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
             "problem": {
               "text": "已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是____。"
             },
@@ -148,7 +148,11 @@
                 "candidateNodes": [
                   "function-parity",
                   "type-function-parity",
-                  "type-parity-parameter"
+                  "type-parity-parameter",
+                  "type-function-symmetry",
+                  "type-parity-formula",
+                  "type-parity-inequality",
+                  "type-shifted-odd-application"
                 ],
                 "effects": {
                   "nodes": [
@@ -159,7 +163,7 @@
                   "results": [
                     "$f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12$，在 $\\mathbb{R}$ 上为偶函数。根据题给奇偶性，求参数 $m$ 的全部取值。"
                   ],
-                  "log": "图谱查询：从 1 个知识线索反查，找到 2 个相关题型；最高覆盖 1/1。"
+                  "log": "图谱查询：从 1 个知识线索反查，找到 6 个相关题型；最高覆盖 1/1。"
                 }
               },
               {
@@ -259,6 +263,40 @@
                   "home": "compulsory-1-ch3"
                 },
                 {
+                  "id": "type-function-symmetry",
+                  "kind": "problem_type",
+                  "label": "利用图像对称关系求值与求和",
+                  "summary": "依据对称轴、对称中心或限定范围的对称等式，变换输入并求值或求和。",
+                  "aliases": [],
+                  "status": "active"
+                },
+                {
+                  "id": "type-parity-formula",
+                  "kind": "problem_type",
+                  "label": "根据奇偶性求解析式",
+                  "summary": "已知奇偶性和一侧的解析式，求另一侧指定范围内的解析式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parity-inequality",
+                  "kind": "problem_type",
+                  "label": "利用奇偶性解不等式",
+                  "summary": "已知奇偶性，以及一侧的解析式、单调性或零点，解关于函数值的不等式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-shifted-odd-application",
+                  "kind": "problem_type",
+                  "label": "奇函数＋常数结论的应用",
+                  "summary": "先明确奇函数与原函数的关系，再求相反输入的值、配对和或最值之和。",
+                  "aliases": [],
+                  "status": "active"
+                },
+                {
                   "id": "method-parity-parameter",
                   "kind": "method",
                   "label": "奇偶性条件求参法",
@@ -268,7 +306,10 @@
                     {
                       "id": "prepare",
                       "title": "检查定义域",
-                      "calls": []
+                      "calls": [
+                        "method-domain-intersection",
+                        "skill-domain-symmetry"
+                      ]
                     },
                     {
                       "id": "identity",
@@ -279,7 +320,7 @@
                     },
                     {
                       "id": "compare",
-                      "title": "比较对应项的系数",
+                      "title": "检查函数值关系",
                       "calls": [
                         "skill-polynomial-coefficient-comparison"
                       ]
@@ -308,6 +349,33 @@
                   ]
                 },
                 {
+                  "id": "type-function-symmetry|involves|function-parity",
+                  "from": "type-function-symmetry",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-formula|involves|function-parity",
+                  "from": "type-parity-formula",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-inequality|involves|function-parity",
+                  "from": "type-parity-inequality",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
                   "id": "type-parity-parameter|candidate|method-parity-parameter",
                   "from": "type-parity-parameter",
                   "to": "method-parity-parameter",
@@ -319,6 +387,15 @@
                 {
                   "id": "type-parity-parameter|involves|function-parity",
                   "from": "type-parity-parameter",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-shifted-odd-application|involves|function-parity",
+                  "from": "type-shifted-odd-application",
                   "to": "function-parity",
                   "type": "involves",
                   "occurrences": [
@@ -347,12 +424,12 @@
                 }
               ]
             },
-            "bundleVersion": "5dac1c2f0e0ec7444f1a4cc78ad4f4718d408da9131b14fbff0f67b61e19fac8"
+            "bundleVersion": "bd76c72ec07f9622b55347c850aedd2f470e9cd3c1fd3fb272b8aea0a493df6b"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-parity-a17//root/goals/0",
-            "bundleVersion": "5dac1c2f0e0ec7444f1a4cc78ad4f4718d408da9131b14fbff0f67b61e19fac8",
+            "bundleVersion": "bd76c72ec07f9622b55347c850aedd2f470e9cd3c1fd3fb272b8aea0a493df6b",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -373,10 +450,10 @@
     ]
   },
   "stream": {
-    "run_id": "e05ffff7322d46d881f8099634c1aa40",
-    "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
-    "input_sha256": "dcb1d6c9a52c285a47e7663992844ebee7145dbca7eea68b7b2f294c042ae2ec",
-    "stream_id": "e05ffff7322d46d881f8099634c1aa40",
+    "run_id": "73323f1009c649dfa8cfa61152499734",
+    "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
+    "input_sha256": "56d2a82100f8329fbcba7af332357f8e897eae21ced61ec797981a6e6cd12fab",
+    "stream_id": "73323f1009c649dfa8cfa61152499734",
     "last_seq": 24,
     "minimum_seq": 1,
     "math_steps": [
@@ -402,15 +479,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "local_check": "passed",
-        "math_step_sha256": "ebbb2e40cc4f3152dbe06fb18eb21ec320b99b28d3d7d849bcdcf81b8b95c53e",
+        "math_step_sha256": "35650b72e45fd5813ee9f14376fb291bc78edc7b8bb41aa3d2eb658ada0eb659",
         "method_ref": "method-parity-parameter#prepare",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "source_refs": [
           "/steps/0/calls/0"
         ],
@@ -441,15 +518,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "local_check": "passed",
-        "math_step_sha256": "6c3d21d03eafd933b953b27ad2d738612295f9fe90d5aed0eac26790ab4ce0ba",
+        "math_step_sha256": "a2b67c5381bbd811f56005f00b645988f69b970bf20862fb560761eb7b8e9937",
         "method_ref": "method-parity-parameter#identity",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -482,18 +559,21 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "local_check": "passed",
-        "math_step_sha256": "66f9e8c5a02fac171c72f102caef9f5984eab705c1f4105658f8be5525ef7d83",
+        "math_step_sha256": "2dcbdcbd1b91aedb46e34addc5e8f3b8b47178b6795890f5b4f044bfc261d13a",
         "method_ref": "method-parity-parameter#compare",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "source_refs": [
           "/steps/2/calls/0",
           "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/skipped_calls/2",
+          "/steps/2/skipped_calls/3",
           "/steps/2/merges/0"
         ],
         "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare",
@@ -525,15 +605,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "local_check": "passed",
-        "math_step_sha256": "1dc3fc47d0cbd2dc5e855121c0e94e969ac82146513105a4e061698aacfcb129",
+        "math_step_sha256": "29591692dab88c6bcd0123c6d16373a39ede70d642b7455b288fb6ac7a9f7912",
         "method_ref": "method-parity-parameter#solve",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -548,31 +628,31 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "parity_parameter_verify",
-        "explanation": "$$\\begin{gathered}m\\in \\left\\{2\\right\\}\\\\m=2:\\quad f(x)=x^{2} + 16\\\\\\text{已按原式核对定义域、全部系数条件和原参数限制}\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}f(x)=x^{2} + 16\\\\f(-x)=x^{2} + 16\\\\\\Rightarrow\\ f(-x)=f(x)\\\\m\\in \\left\\{2\\right\\}\\end{gathered}$$",
         "highlight": {
           "caption": "代回核验",
           "connector": "⇒",
           "items": [
             {
-              "label": "原函数",
-              "math": "f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12"
+              "label": "代入 m=2",
+              "math": "f(x)=x^{2} + 16"
             },
             {
-              "label": "最终参数集合",
-              "math": "\\left\\{2\\right\\}"
+              "label": "检验",
+              "math": "\\begin{gathered}f(-x)=x^{2} + 16\\\\\\Rightarrow\\ f(-x)=f(x)\\end{gathered}"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "local_check": "passed",
-        "math_step_sha256": "3f736fed7afff24dd6b7c090ae9cd106d63f91390e241f798212e0f4c8f9fb06",
+        "math_step_sha256": "f39cf30f395bc8ffeb9341296efecc83d289e6bd19e1f4a78e3e406f6a423dd3",
         "method_ref": "method-parity-parameter#verify",
         "ordinal": 5,
         "premise_refs": [],
-        "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -648,40 +728,40 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "math_steps": [
           {
-            "math_step_sha256": "ebbb2e40cc4f3152dbe06fb18eb21ec320b99b28d3d7d849bcdcf81b8b95c53e",
+            "math_step_sha256": "35650b72e45fd5813ee9f14376fb291bc78edc7b8bb41aa3d2eb658ada0eb659",
             "ordinal": 1,
             "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_prepare"
           },
           {
-            "math_step_sha256": "6c3d21d03eafd933b953b27ad2d738612295f9fe90d5aed0eac26790ab4ce0ba",
+            "math_step_sha256": "a2b67c5381bbd811f56005f00b645988f69b970bf20862fb560761eb7b8e9937",
             "ordinal": 2,
             "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
           },
           {
-            "math_step_sha256": "66f9e8c5a02fac171c72f102caef9f5984eab705c1f4105658f8be5525ef7d83",
+            "math_step_sha256": "2dcbdcbd1b91aedb46e34addc5e8f3b8b47178b6795890f5b4f044bfc261d13a",
             "ordinal": 3,
             "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
           },
           {
-            "math_step_sha256": "1dc3fc47d0cbd2dc5e855121c0e94e969ac82146513105a4e061698aacfcb129",
+            "math_step_sha256": "29591692dab88c6bcd0123c6d16373a39ede70d642b7455b288fb6ac7a9f7912",
             "ordinal": 4,
             "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
           },
           {
-            "math_step_sha256": "3f736fed7afff24dd6b7c090ae9cd106d63f91390e241f798212e0f4c8f9fb06",
+            "math_step_sha256": "f39cf30f395bc8ffeb9341296efecc83d289e6bd19e1f4a78e3e406f6a423dd3",
             "ordinal": 5,
             "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
           }
         ],
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "8511a3a054e8bed83881dacf9c13c7f3cbfb394735cfd237830998b7dda704fb",
-        "verified_route_sha256": "b81de56cb3749896c030d6a8deacd99631ff209b11c0b07e48b118d20d88ad7c"
+        "task_id": "d46f936dbcfbaa127658b9e1c5987a4bb4fa89c23cc14ed26be7c96896e12a78",
+        "verified_route_sha256": "da534dc9e359349aeacc3108f74677ab2b5decc265a15dafef5684a6a803a609"
       }
     ],
     "qa": [],
@@ -731,49 +811,49 @@
         "route_id": "parity-parameter",
         "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_prepare",
         "ordinal": 1,
-        "math_step_sha256": "ebbb2e40cc4f3152dbe06fb18eb21ec320b99b28d3d7d849bcdcf81b8b95c53e",
+        "math_step_sha256": "35650b72e45fd5813ee9f14376fb291bc78edc7b8bb41aa3d2eb658ada0eb659",
         "status": "interactive",
-        "interaction_id": "c441f0d7816f0e7bb9a5f8d2"
+        "interaction_id": "9fb79341b6613c1e2e10f951"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-parameter",
         "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity",
         "ordinal": 2,
-        "math_step_sha256": "6c3d21d03eafd933b953b27ad2d738612295f9fe90d5aed0eac26790ab4ce0ba",
+        "math_step_sha256": "a2b67c5381bbd811f56005f00b645988f69b970bf20862fb560761eb7b8e9937",
         "status": "interactive",
-        "interaction_id": "804b631cb58ded5bd0060c7f"
+        "interaction_id": "5151e3c1e5dab1e7dcfafc32"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-parameter",
         "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare",
         "ordinal": 3,
-        "math_step_sha256": "66f9e8c5a02fac171c72f102caef9f5984eab705c1f4105658f8be5525ef7d83",
+        "math_step_sha256": "2dcbdcbd1b91aedb46e34addc5e8f3b8b47178b6795890f5b4f044bfc261d13a",
         "status": "interactive",
-        "interaction_id": "b7de6f8b9f14cd77b0e60d97"
+        "interaction_id": "4092671ae68e16f27707e9bc"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-parameter",
         "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve",
         "ordinal": 4,
-        "math_step_sha256": "1dc3fc47d0cbd2dc5e855121c0e94e969ac82146513105a4e061698aacfcb129",
+        "math_step_sha256": "29591692dab88c6bcd0123c6d16373a39ede70d642b7455b288fb6ac7a9f7912",
         "status": "interactive",
-        "interaction_id": "0aa93e268d6ebf9fe651396a"
+        "interaction_id": "fa48c00669f57a2014c7c87c"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-parameter",
         "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify",
         "ordinal": 5,
-        "math_step_sha256": "3f736fed7afff24dd6b7c090ae9cd106d63f91390e241f798212e0f4c8f9fb06",
+        "math_step_sha256": "f39cf30f395bc8ffeb9341296efecc83d289e6bd19e1f4a78e3e406f6a423dd3",
         "status": "interactive",
-        "interaction_id": "8441b24844f923ed2601440b"
+        "interaction_id": "6056eecdf3d6587b0f5b7103"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+    "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -781,7 +861,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:parity-parameter:complete",
-        "last_seq": 24
+        "last_seq": 19
       }
     ],
     "trajectories": [
@@ -890,10 +970,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "c441f0d7816f0e7bb9a5f8d2",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "529e34db8179d675e501aeefd46b1eb4cc198157d13a1980f5a561cd01d4ccc2",
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "interaction_id": "9fb79341b6613c1e2e10f951",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "06cbdbcbb85b33ff211bf6e73bbd405089eb761bfe3af58db40547406cfb9cb0",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "parts": [
           {
             "completion_board": {
@@ -919,21 +999,21 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "c441f0d7816f0e7bb9a5f8d2#1",
+            "id": "9fb79341b6613c1e2e10f951#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\mathbb R\\setminus\\{0\\}$",
-                  "value": "o3"
+                  "label": "$(0,+\\infty)$",
+                  "value": "o2"
                 },
                 {
                   "label": "$\\mathbb R$",
                   "value": "o1"
                 },
                 {
-                  "label": "$(0,+\\infty)$",
-                  "value": "o2"
+                  "label": "$\\mathbb R\\setminus\\{0\\}$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -959,11 +1039,11 @@
           }
         ],
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "ebbb2e40cc4f3152dbe06fb18eb21ec320b99b28d3d7d849bcdcf81b8b95c53e",
+            "math_step_sha256": "35650b72e45fd5813ee9f14376fb291bc78edc7b8bb41aa3d2eb658ada0eb659",
             "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_prepare"
           }
         ],
@@ -971,10 +1051,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "804b631cb58ded5bd0060c7f",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "f799f82b21786711e6b82c7b9cdc3f443a3ff3b914bf253d86aab76288a68a27",
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "interaction_id": "5151e3c1e5dab1e7dcfafc32",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "9ca047c04ebd3b84160d771bbba6be616dd6e7aa88699820608e29d8eb57f7b3",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "parts": [
           {
             "completion_board": {
@@ -1000,7 +1080,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "804b631cb58ded5bd0060c7f#1",
+            "id": "5151e3c1e5dab1e7dcfafc32#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1036,11 +1116,11 @@
           }
         ],
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "6c3d21d03eafd933b953b27ad2d738612295f9fe90d5aed0eac26790ab4ce0ba",
+            "math_step_sha256": "a2b67c5381bbd811f56005f00b645988f69b970bf20862fb560761eb7b8e9937",
             "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
           }
         ],
@@ -1048,10 +1128,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "b7de6f8b9f14cd77b0e60d97",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "e1a84da27d2d7255160e26921633bec8614ba0e2661e46885f406409a415845b",
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "interaction_id": "4092671ae68e16f27707e9bc",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "c6440f3ac7de709d0848ce8c3b77b79020d8ff88aa9e522395257115a9354ac5",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "parts": [
           {
             "completion_board": {
@@ -1073,30 +1153,36 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "b7de6f8b9f14cd77b0e60d97#1",
+            "id": "4092671ae68e16f27707e9bc#1",
             "interaction": {
               "type": "read"
             },
             "question": "两边要对所有实数输入都相等，各次项的系数必须分别相等；相同的项不再限制参数。",
             "stem_board": {
               "caption": "比较对应项的系数",
-              "lines": [
-                "$$x^{2}\\text{ 项系数：}1=1$$",
-                "$$x\\text{ 项系数：}m - 2=2 - m$$",
-                "$$\\text{常数项：}m^{2} + 12=m^{2} + 12$$",
-                "$$2 m - 4=0$$"
-              ]
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "逐项比较",
+                  "math": "\\begin{gathered}x^{2}\\text{ 项系数：}1=1\\\\x\\text{ 项系数：}m - 2=2 - m\\\\\\text{常数项：}m^{2} + 12=m^{2} + 12\\end{gathered}"
+                },
+                {
+                  "label": "系数条件",
+                  "math": "2 m - 4=0"
+                }
+              ],
+              "layout": "derivation"
             },
             "submit_label": "继续",
             "title": "比较对应项的系数"
           }
         ],
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "66f9e8c5a02fac171c72f102caef9f5984eab705c1f4105658f8be5525ef7d83",
+            "math_step_sha256": "2dcbdcbd1b91aedb46e34addc5e8f3b8b47178b6795890f5b4f044bfc261d13a",
             "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
           }
         ],
@@ -1104,10 +1190,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "0aa93e268d6ebf9fe651396a",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "64ca6783bad6a6f4205f067cb102834f06b0d61825974bb3dc97ab3d2d8d2f50",
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "interaction_id": "fa48c00669f57a2014c7c87c",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "61e7cee2fe390e84cff79956fa86b86fcc5fd76e84310bb0e72404593106adae",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "parts": [
           {
             "completion_board": {
@@ -1133,14 +1219,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "0aa93e268d6ebf9fe651396a#1",
+            "id": "fa48c00669f57a2014c7c87c#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$m\\in \\left\\{0\\right\\}$",
-                  "value": "o4"
-                },
                 {
                   "label": "$m\\in \\emptyset$",
                   "value": "o3"
@@ -1148,6 +1230,10 @@
                 {
                   "label": "$m\\in \\left\\{2\\right\\}$",
                   "value": "o1"
+                },
+                {
+                  "label": "$m\\in \\left\\{0\\right\\}$",
+                  "value": "o4"
                 },
                 {
                   "label": "$m\\in \\mathbb{R}$",
@@ -1177,11 +1263,11 @@
           }
         ],
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "1dc3fc47d0cbd2dc5e855121c0e94e969ac82146513105a4e061698aacfcb129",
+            "math_step_sha256": "29591692dab88c6bcd0123c6d16373a39ede70d642b7455b288fb6ac7a9f7912",
             "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
           }
         ],
@@ -1189,10 +1275,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "8441b24844f923ed2601440b",
-        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
-        "interaction_sha256": "073e31fcbbae965b4d1bb0db2660fd070a5987073c8e446207971e01143913cc",
-        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "interaction_id": "6056eecdf3d6587b0f5b7103",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "ea8c91efe4877f911053b2f45d157b8e1817363033b71b5c6cb4d34a830d5781",
+        "lesson_version": "e8b63836294dbeef5e9ac248e1cdd4fdc6225f9c05559d4861f2a1cc7c36adc8",
         "parts": [
           {
             "completion_board": {
@@ -1200,12 +1286,12 @@
               "connector": "⇒",
               "items": [
                 {
-                  "label": "原函数",
-                  "math": "f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12"
+                  "label": "代入 m=2",
+                  "math": "f(x)=x^{2} + 16"
                 },
                 {
-                  "label": "最终参数集合",
-                  "math": "\\left\\{2\\right\\}"
+                  "label": "检验",
+                  "math": "\\begin{gathered}f(-x)=x^{2} + 16\\\\\\Rightarrow\\ f(-x)=f(x)\\end{gathered}"
                 }
               ],
               "layout": "derivation"
@@ -1214,17 +1300,18 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "8441b24844f923ed2601440b#1",
+            "id": "6056eecdf3d6587b0f5b7103#1",
             "interaction": {
               "type": "read"
             },
-            "question": "核验包括保留的全部参数和被排除的情形，不能只找出一个可行参数就结束。",
+            "question": "把 $m=2$ 代入原式检查。",
             "stem_board": {
               "caption": "代回核验",
               "lines": [
-                "$$m\\in \\left\\{2\\right\\}$$",
-                "$$m=2:\\quad f(x)=x^{2} + 16$$",
-                "已按原式核对定义域、全部系数条件和原参数限制"
+                "$$f(x)=x^{2} + 16$$",
+                "$$f(-x)=x^{2} + 16$$",
+                "$$\\Rightarrow\\ f(-x)=f(x)$$",
+                "$$m\\in \\left\\{2\\right\\}$$"
               ]
             },
             "submit_label": "继续",
@@ -1232,11 +1319,11 @@
           }
         ],
         "route_id": "parity-parameter",
-        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "run_id": "73323f1009c649dfa8cfa61152499734",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "3f736fed7afff24dd6b7c090ae9cd106d63f91390e241f798212e0f4c8f9fb06",
+            "math_step_sha256": "f39cf30f395bc8ffeb9341296efecc83d289e6bd19e1f4a78e3e406f6a423dd3",
             "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
           }
         ],

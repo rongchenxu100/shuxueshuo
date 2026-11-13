@@ -1,0 +1,2511 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "1984c7ed12404256b1e76c7ed3b52daf",
+    "lesson_version": "3888d7a0ec682248e7c053d4f98ce45c1655b844451b59b61b043b70bab26484",
+    "input_sha256": "a75373610e7a986d75237c5e199cdfec43baa4c109fd5df5b54b6092955b7a2c",
+    "checkpoint_sha256": "3f2f26ab379d7803b78de8eb70c2d06fa9cb02d6aaf58fb7a7761f8852fde7b2",
+    "result_sha256": "4a455ac9919481abbf21ac0ff6c5ef9ad19ac04a41f30b9c9de78e99fdf2f789",
+    "stage_one_sha256": "a37d513db7ff5d19b3bda59fd58c2c21bf94c2dafee490e552ebdea9dc7bf55d",
+    "stage_two_sha256": "19b16b6f22b221e93630a161175e3112207d00fef9a48d4e0f33fe4ebe16e83b",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "72d96c8056d613ae7d5d8b0a0534c90e02fdbd54c4eff3f3291996c5a2fe442e",
+    "teaching_revision": "b4ffa779f0ad42f6a703380afe08d586ba3e5ee58f69bc84dfd97322c31cdab5"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-monotonicity-extremum",
+        "supported": [
+          "type-monotonicity-extremum"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 85,
+                  "end": 98,
+                  "text": "求实数 $a$ 的取值范围"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:4"
+              ],
+              "knowledge_refs": [
+                "function-range-extrema#extrema"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "比较两边取值，求参数 $a$ 的取值范围",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "只求出某一边的最值就结束",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "最值／值域是手段；原题还要求出 $a$ 的范围。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "3dd9e72e16af6496"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问最终要求什么？",
+          "feedback": "最值／值域是手段；原题还要求出 $a$ 的范围。",
+          "summary": "比较两边取值，求参数 $a$ 的取值范围"
+        },
+        "d2": [
+          {
+            "type_id": "type-monotonicity-extremum",
+            "label": "利用单调性求最值",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "借助函数在指定区间上的单调性，确定最大值或最小值及能否取到。"
+            ],
+            "choice_hint": "直接求最值，或把量词比较／指定点最值条件转化成参数范围"
+          },
+          {
+            "type_id": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "role": "conflict",
+            "feedback": "原目标是求完整单调区间或证明增减，不是求最值或转化成参数范围。",
+            "reasons": [],
+            "choice_hint": "原目标是判断增减或求完整单调区间"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-monotonicity-b11-v3//root/goals/0",
+            "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+            "problem": {
+              "text": "已知 $f(x)=x^2-2x$，$g(x)=ax-1$。若 $\\forall x1\\in[-1,2]:\\exists x2\\in[-1,2]:f(x1)=g(x2)$，求实数 $a$ 的取值范围。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问最终要求什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "比较两边取值，求参数 $a$ 的取值范围"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "只求出某一边的最值就结束",
+                      "feedback": "最值／值域是手段；原题还要求出 $a$ 的范围。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "最值／值域是手段；原题还要求出 $a$ 的范围。"
+                },
+                "candidateNodes": [
+                  "function-range-extrema",
+                  "type-monotonicity-extremum",
+                  "type-function-monotonicity",
+                  "type-amgm-quantified",
+                  "type-function-range",
+                  "type-quantified-quadratic"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-range-extrema"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "比较两边取值，求参数 $a$ 的取值范围"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-monotonicity-extremum",
+                      "label": "利用单调性求最值",
+                      "note": "直接求最值，或把量词比较／指定点最值条件转化成参数范围"
+                    },
+                    {
+                      "value": "type-function-monotonicity",
+                      "label": "判断函数的单调性",
+                      "note": "原目标是判断增减或求完整单调区间",
+                      "feedback": "原目标是求完整单调区间或证明增减，不是求最值或转化成参数范围。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-monotonicity-extremum"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-monotonicity-extremum",
+                  "type-function-monotonicity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-monotonicity-extremum"
+                  ],
+                  "edges": [
+                    "type-monotonicity-extremum|involves|function-range-extrema"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：借助函数在指定区间上的单调性，确定最大值或最小值及能否取到。"
+                  ],
+                  "log": "作答判断：选择主要题型「利用单调性求最值」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-range-extrema",
+                  "kind": "knowledge",
+                  "label": "函数的值域与最值",
+                  "summary": "最大值、最小值既要约束所有函数值，也要能被实际取到；用图像和单调区间定位取值点。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-extremum",
+                  "kind": "problem_type",
+                  "label": "利用单调性求最值",
+                  "summary": "先确认有效区间和取得性，再求最值；量词比较与指定点最值条件转化为参数约束。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-monotonicity",
+                  "kind": "problem_type",
+                  "label": "判断函数的单调性",
+                  "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-amgm-quantified",
+                  "kind": "problem_type",
+                  "label": "应用基本不等式的恒成立与存在成立问题",
+                  "summary": "不等式要对所有取值（或某个取值）成立，求参数范围、最小值或最大值；参数另一边式子的最值用基本不等式求，再看最值取不取得到。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch2"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-quantified-quadratic",
+                  "kind": "problem_type",
+                  "label": "含参一元二次不等式的恒成立与存在成立问题",
+                  "summary": "在给定范围内，二次不等式要对所有取值都成立（或至少一个取值成立），求参数的范围、最小值或最大值。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch2"
+                },
+                {
+                  "id": "rule-monotonicity-extremum-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "最值题的选法判断",
+                  "summary": "按直接最值、量词比较与指定最值条件选择路线。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-extremum-condition-parameter",
+                  "kind": "method",
+                  "label": "指定最值求参法",
+                  "summary": "求指定点的实际值，再检查全域界，合并每段的参数要求。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "确定原目标和条件",
+                      "calls": []
+                    },
+                    {
+                      "id": "piece-inputs",
+                      "title": "按原分段绑定子问题",
+                      "calls": []
+                    },
+                    {
+                      "id": "borrowed",
+                      "title": "分别解决恒成立子问题",
+                      "calls": [
+                        "method-interval-extremum",
+                        "method-separation"
+                      ]
+                    },
+                    {
+                      "id": "ranges",
+                      "title": "核对各段的分类与取得性",
+                      "calls": []
+                    },
+                    {
+                      "id": "conditions",
+                      "title": "收回各段参数条件",
+                      "calls": [
+                        "skill-quantified-range"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "回到原目标收束",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验原题",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-monotonicity-extremum",
+                  "kind": "method",
+                  "label": "单调性求最值法",
+                  "summary": "根据同一区间的增减确定位置，检查取得性，再回代原式。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "确定原目标和条件",
+                      "calls": []
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "绑定各项的共同范围",
+                      "calls": []
+                    },
+                    {
+                      "id": "children",
+                      "title": "判断各项的单调性",
+                      "calls": [
+                        "method-monotonicity-structure"
+                      ]
+                    },
+                    {
+                      "id": "operations",
+                      "title": "判断运算后的方向",
+                      "calls": [
+                        "skill-monotonicity-operations"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "回到原目标收束",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验原题",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-quantified-range-comparison",
+                  "kind": "method",
+                  "label": "量词比较求参法",
+                  "summary": "保留任意与存在的次序，比较完整像集或已取得的最值，再解参数条件。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "分清量词角色",
+                      "calls": []
+                    },
+                    {
+                      "id": "ranges",
+                      "title": "求需要的像集或最值",
+                      "calls": []
+                    },
+                    {
+                      "id": "conditions",
+                      "title": "按量词转换参数条件",
+                      "calls": [
+                        "skill-quantified-range"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "合并各分类的参数",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回验原量词",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "rule-monotonicity-extremum-method|selects|method-extremum-condition-parameter",
+                  "from": "rule-monotonicity-extremum-method",
+                  "to": "method-extremum-condition-parameter",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "specified",
+                      "condition": "求指定点的实际值，再检查全域界，合并每段的参数要求。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-monotonicity-extremum-method|selects|method-monotonicity-extremum",
+                  "from": "rule-monotonicity-extremum-method",
+                  "to": "method-monotonicity-extremum",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "direct",
+                      "condition": "根据同一区间的增减确定位置，检查取得性，再回代原式。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-monotonicity-extremum-method|selects|method-quantified-range-comparison",
+                  "from": "rule-monotonicity-extremum-method",
+                  "to": "method-quantified-range-comparison",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "quantified",
+                      "condition": "保留任意与存在的次序，比较完整像集或已取得的最值，再解参数条件。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-amgm-quantified|involves|function-range-extrema",
+                  "from": "type-amgm-quantified",
+                  "to": "function-range-extrema",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-range-extrema",
+                  "from": "type-function-range",
+                  "to": "function-range-extrema",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|candidate|method-extremum-condition-parameter",
+                  "from": "type-monotonicity-extremum",
+                  "to": "method-extremum-condition-parameter",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|candidate|method-monotonicity-extremum",
+                  "from": "type-monotonicity-extremum",
+                  "to": "method-monotonicity-extremum",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|candidate|method-quantified-range-comparison",
+                  "from": "type-monotonicity-extremum",
+                  "to": "method-quantified-range-comparison",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|involves|function-range-extrema",
+                  "from": "type-monotonicity-extremum",
+                  "to": "function-range-extrema",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|method_rule|rule-monotonicity-extremum-method",
+                  "from": "type-monotonicity-extremum",
+                  "to": "rule-monotonicity-extremum-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-quantified-quadratic|involves|function-range-extrema",
+                  "from": "type-quantified-quadratic",
+                  "to": "function-range-extrema",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-range-extrema"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "974934c226de162a691e712f0f9fe313181f36f8b69684fc66f2338a6ae6ae65"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-monotonicity-b11-v3//root/goals/0",
+            "bundleVersion": "974934c226de162a691e712f0f9fe313181f36f8b69684fc66f2338a6ae6ae65",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "比较两边取值，求参数 $a$ 的取值范围"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-monotonicity-extremum",
+                "reason": "选「利用单调性求最值」：借助函数在指定区间上的单调性，确定最大值或最小值及能否取到。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "1984c7ed12404256b1e76c7ed3b52daf",
+    "lesson_version": "3888d7a0ec682248e7c053d4f98ce45c1655b844451b59b61b043b70bab26484",
+    "input_sha256": "a75373610e7a986d75237c5e199cdfec43baa4c109fd5df5b54b6092955b7a2c",
+    "stream_id": "1984c7ed12404256b1e76c7ed3b52daf",
+    "last_seq": 18,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "ranges",
+        "explanation": "$f(x)=\\left(x - 1\\right)^2-1,\\ x\\in[-1,2]$\n$\\therefore\\ f\\text{ 的值域}=[-1,3]$\n$g(x)=a x - 1,\\ x\\in[-1,2]$\n$\\because\\ a=0,\\ \\therefore\\ g\\text{ 的值域}=\\{-1\\}$\n$\\because\\ a\\in \\left(0, \\infty\\right),\\ \\therefore\\ g\\text{ 的值域}=[- a - 1,2 a - 1]$\n$\\because\\ a\\in \\left(-\\infty, 0\\right),\\ \\therefore\\ g\\text{ 的值域}=[2 a - 1,- a - 1]$",
+        "highlight": {
+          "caption": "汇总 g 在各斜率下的值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已知与当前范围",
+              "math": "\\begin{gathered}g(x)=a x - 1\\\\a\\in \\left(0, \\infty\\right)\\Rightarrow [- a - 1,2 a - 1]\\\\a=0\\Rightarrow \\{-1\\}\\\\a\\in \\left(-\\infty, 0\\right)\\Rightarrow [2 a - 1,- a - 1]\\end{gathered}"
+            },
+            {
+              "label": "g 的值域",
+              "math": "\\begin{cases}{[- a - 1,2 a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\\\{[2 a - 1,- a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "3888d7a0ec682248e7c053d4f98ce45c1655b844451b59b61b043b70bab26484",
+        "local_check": "passed",
+        "math_step_sha256": "798f9b7cba4f36a6c041a19cbf24a7be219f26be7665a953efa79e10fabf131b",
+        "method_ref": "method-quantified-range-comparison#ranges",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "route_id": "quantified-range-comparison",
+        "run_id": "1984c7ed12404256b1e76c7ed3b52daf",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-quantified-range-comparison-001-ranges",
+        "target_ref": "/root/goals/0",
+        "title": "由图像读出两边的值域",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "conditions",
+        "explanation": "$\\because\\ \\text{需 }f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }$\n$\\text{情况 }1\\ (a=0):$\n$f\\text{ 的值域}=[-1,3]$\n$g\\text{ 的值域}=\\{-1\\}$\n$\\therefore\\ \\text{本支覆盖条件不成立}$\n$\\therefore\\ \\varnothing$\n$\\text{情况 }2\\ (a\\in \\left(0, \\infty\\right)):$\n$f\\text{ 的值域}=[-1,3]$\n$g\\text{ 的值域}=[- a - 1,2 a - 1]$\n$\\therefore\\ - a - 1 \\leq -1 \\wedge 2 a - 1 \\geq 3$\n$\\therefore\\ a \\geq 2$\n$\\text{情况 }3\\ (a\\in \\left(-\\infty, 0\\right)):$\n$f\\text{ 的值域}=[-1,3]$\n$g\\text{ 的值域}=[2 a - 1,- a - 1]$\n$\\therefore\\ 2 a - 1 \\leq -1 \\wedge - a - 1 \\geq 3$\n$\\therefore\\ a \\leq -4$",
+        "highlight": {
+          "caption": "求参数（$a < 0$）",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已知与当前范围",
+              "math": "\\begin{gathered}a\\in \\left(-\\infty, 0\\right)\\\\f\\text{ 的值域}=[-1,3]\\\\g\\text{ 的值域}=[2 a - 1,- a - 1]\\\\f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }\\end{gathered}"
+            },
+            {
+              "label": "本支条件与 $a$",
+              "math": "2 a - 1 \\leq -1 \\wedge - a - 1 \\geq 3\\Rightarrow a \\leq -4"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "3888d7a0ec682248e7c053d4f98ce45c1655b844451b59b61b043b70bab26484",
+        "local_check": "passed",
+        "math_step_sha256": "3171f917d595b56a8a2ecab4bed5caa767358498ea35f042e40d3c5db5d63022",
+        "method_ref": "method-quantified-range-comparison#conditions",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "route_id": "quantified-range-comparison",
+        "run_id": "1984c7ed12404256b1e76c7ed3b52daf",
+        "source_refs": [
+          "/steps/2/calls/0"
+        ],
+        "step_id": "39e5646dcb-quantified-range-comparison-002-conditions",
+        "target_ref": "/root/goals/0",
+        "title": "由覆盖关系求参数条件",
+        "used_basis": [
+          "function-range-extrema#attainability",
+          "function-range-extrema#extrema"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "conclude",
+        "explanation": "$\\text{情况 }1\\ (a=0):\\ \\varnothing$\n$\\text{情况 }2\\ (a\\in \\left(0, \\infty\\right)):\\ a \\geq 2$\n$\\text{情况 }3\\ (a\\in \\left(-\\infty, 0\\right)):\\ a \\leq -4$\n$\\text{分类结果取并集，再保留题目原有的参数限制}$\n$\\therefore\\ a \\geq 2 \\quad\\text{或}\\quad a \\leq -4$",
+        "highlight": {
+          "caption": "回到原题，汇总参数范围",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已知与当前范围",
+              "math": "\\begin{gathered}\\varnothing\\\\a \\geq 2\\\\a \\leq -4\\end{gathered}"
+            },
+            {
+              "label": "$a$ 的取值范围",
+              "math": "a \\geq 2 \\quad\\text{或}\\quad a \\leq -4"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "3888d7a0ec682248e7c053d4f98ce45c1655b844451b59b61b043b70bab26484",
+        "local_check": "passed",
+        "math_step_sha256": "8bdae294e773c99b32c26b79a4257d853f9037e96db7edbede80fb4cffd14505",
+        "method_ref": "method-quantified-range-comparison#conclude",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "route_id": "quantified-range-comparison",
+        "run_id": "1984c7ed12404256b1e76c7ed3b52daf",
+        "source_refs": [
+          "/steps/3/calls/0"
+        ],
+        "step_id": "39e5646dcb-quantified-range-comparison-003-conclude",
+        "target_ref": "/root/goals/0",
+        "title": "合并参数范围",
+        "used_basis": [
+          "function-range-extrema#attainability",
+          "function-range-extrema#extrema"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "find_range",
+          "set": {
+            "expression": "Union(Interval(-oo, -4), Interval(2, oo))",
+            "latex": "\\left(-\\infty, -4\\right] \\cup \\left[2, \\infty\\right)"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "exact": {
+            "$math": "Union",
+            "args": [
+              {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "-4"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  }
+                ]
+              },
+              {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "2"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              }
+            ]
+          },
+          "expression": "Union(Interval(-oo, -4), Interval(2, oo))",
+          "latex": "\\left(-\\infty, -4\\right] \\cup \\left[2, \\infty\\right)"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "find_range",
+          "set": {
+            "expression": "Union(Interval(-oo, -4), Interval(2, oo))",
+            "latex": "\\left(-\\infty, -4\\right] \\cup \\left[2, \\infty\\right)"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "exact": {
+            "$math": "Union",
+            "args": [
+              {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "-4"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  }
+                ]
+              },
+              {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "2"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              }
+            ]
+          },
+          "expression": "Union(Interval(-oo, -4), Interval(2, oo))",
+          "latex": "\\left(-\\infty, -4\\right] \\cup \\left[2, \\infty\\right)"
+        },
+        "lesson_version": "3888d7a0ec682248e7c053d4f98ce45c1655b844451b59b61b043b70bab26484",
+        "math_steps": [
+          {
+            "math_step_sha256": "798f9b7cba4f36a6c041a19cbf24a7be219f26be7665a953efa79e10fabf131b",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-quantified-range-comparison-001-ranges"
+          },
+          {
+            "math_step_sha256": "3171f917d595b56a8a2ecab4bed5caa767358498ea35f042e40d3c5db5d63022",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-quantified-range-comparison-002-conditions"
+          },
+          {
+            "math_step_sha256": "8bdae294e773c99b32c26b79a4257d853f9037e96db7edbede80fb4cffd14505",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-quantified-range-comparison-003-conclude"
+          }
+        ],
+        "route_id": "quantified-range-comparison",
+        "run_id": "1984c7ed12404256b1e76c7ed3b52daf",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "caa81aef8972d75a7f52e46626b7062728b6c695daee2bd6e62a6fd363d2169f",
+        "verified_route_sha256": "adfbade59c0b04d1c5c8f7cd6c0a92fda56b630c083ead748e2d3cdbbee75197"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {
+            "checks": {
+              "goal": "quantified"
+            }
+          },
+          "id": "D3",
+          "interaction": {
+            "checks": [
+              {
+                "feedback": "先分清谁随便取、谁负责配合，再比较两边能取到的值或最值。",
+                "id": "goal",
+                "options": [
+                  {
+                    "label": "给出函数，求最大值或最小值",
+                    "note": "根据同一区间内的增减，选择最值位置，再检查能否取到。",
+                    "value": "direct"
+                  },
+                  {
+                    "label": "一边随便取，另一边都能配上",
+                    "note": "题面常见「对任意 $x_1$，存在 $x_2$，使 $f(x_1)\\le g(x_2)$」：左边每一个函数值，右边都能找到配合。先分清谁随便取、谁负责配合，再比较两边的取值范围（或最值），求出使条件成立的参数。",
+                    "value": "quantified"
+                  },
+                  {
+                    "label": "指定某一点已经是最大或最小",
+                    "note": "例如已知 $f(0)$ 是最小值：先算出这个值，再要求定义域里其他点都不比它更小；若是最大值，则其他点都不比它更大。不必要求只在这一点取到。",
+                    "value": "specified"
+                  }
+                ],
+                "question": "这道题需要完成什么？",
+                "resolved": "量词比较求参法"
+              }
+            ],
+            "connections": [
+              {
+                "cue": "direct",
+                "method": "direct"
+              },
+              {
+                "cue": "quantified",
+                "method": "quantified"
+              },
+              {
+                "cue": "specified",
+                "method": "specified"
+              }
+            ],
+            "facts": [],
+            "layout": "connections",
+            "method_choices": [
+              {
+                "label": "单调性求最值法",
+                "value": "direct"
+              },
+              {
+                "label": "量词比较求参法",
+                "value": "quantified"
+              },
+              {
+                "label": "指定最值求参法",
+                "value": "specified"
+              }
+            ],
+            "method_notes": {},
+            "source_refs": [
+              "/root/goals/0",
+              "/root/definitions/0",
+              "/root/definitions/1",
+              "/root/facts/0"
+            ],
+            "type": "method_cards"
+          },
+          "query": {
+            "from": "type-monotonicity-extremum",
+            "op": "methods"
+          },
+          "question": "结合本题的目标，选择解题方法。",
+          "submit_label": "确认选法",
+          "title": "选择解题方法",
+          "verdicts": {
+            "direct": {
+              "message": "请先核对题目所求的目标。",
+              "value": "unfit"
+            },
+            "quantified": {
+              "message": "先分清谁随便取、谁负责配合，再比较两边能取到的值或最值。",
+              "value": "fit"
+            },
+            "specified": {
+              "message": "请先核对题目所求的目标。",
+              "value": "unfit"
+            }
+          }
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "quantified",
+              "message": "开始解题",
+              "method": "method-quantified-range-comparison",
+              "recommendation": "preferred",
+              "route_id": "quantified-range-comparison",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "按所选方法解题"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quantified-range-comparison",
+        "step_id": "39e5646dcb-quantified-range-comparison-001-ranges",
+        "ordinal": 1,
+        "math_step_sha256": "798f9b7cba4f36a6c041a19cbf24a7be219f26be7665a953efa79e10fabf131b",
+        "status": "interactive",
+        "interaction_id": "cb380639276048098b818c42"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quantified-range-comparison",
+        "step_id": "39e5646dcb-quantified-range-comparison-002-conditions",
+        "ordinal": 2,
+        "math_step_sha256": "3171f917d595b56a8a2ecab4bed5caa767358498ea35f042e40d3c5db5d63022",
+        "status": "interactive",
+        "interaction_id": "72d485f0dec467d78a27d50f"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quantified-range-comparison",
+        "step_id": "39e5646dcb-quantified-range-comparison-003-conclude",
+        "ordinal": 3,
+        "math_step_sha256": "8bdae294e773c99b32c26b79a4257d853f9037e96db7edbede80fb4cffd14505",
+        "status": "interactive",
+        "interaction_id": "b5aa3c5415c09460d935442b"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quantified-range-comparison",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:quantified-range-comparison:complete",
+        "last_seq": 18
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quantified-range-comparison",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-quantified-range-comparison",
+            "step": "prepare",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-range-extrema#attainability",
+                  "function-range-extrema#extrema"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-quantified-range-comparison",
+            "step": "ranges",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "quadratic-interval-extremum"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-quantified-range-comparison",
+            "step": "conditions",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-quantified-range",
+                "used_basis": [
+                  "function-range-extrema#attainability",
+                  "function-range-extrema#extrema"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-quantified-range-comparison",
+            "step": "conclude",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-range-extrema#attainability",
+                  "function-range-extrema#extrema"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 5,
+            "method": "method-quantified-range-comparison",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "cb380639276048098b818c42",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "c9081b832fa54ab018190423ee4156338e651509540a94b2c8da58a176cd4d0c",
+        "lesson_version": "3888d7a0ec682248e7c053d4f98ce45c1655b844451b59b61b043b70bab26484",
+        "parts": [
+          {
+            "card_group": "side_f",
+            "card_group_title": "求 f 的值域",
+            "completion_board": {
+              "caption": "求 f 的值域：配成顶点式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}f(x)=x^{2} - 2 x\\\\x\\in[-1,2]\\end{gathered}"
+                },
+                {
+                  "label": "顶点式",
+                  "math": "f(x)=\\left(x - 1\\right)^2-1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "cb380639276048098b818c42#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x)=x^{2} - 2 x + 1$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(x)=\\left(x + 1\\right)^2+1$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x)=\\left(x - 1\\right)^2-1$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "先配方，确认对称轴与开口，再讨论题目允许的输入范围。",
+            "stem_board": {
+              "caption": "求 f 的值域：配成顶点式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}f(x)=x^{2} - 2 x\\\\x\\in[-1,2]\\end{gathered}"
+                },
+                {
+                  "label": "顶点式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求 f 的值域：配成顶点式"
+          },
+          {
+            "card_group": "side_f",
+            "card_group_title": "求 f 的值域",
+            "completion_board": {
+              "caption": "由图像读出 f 的值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}f(x)=x^{2} - 2 x\\\\x\\in[-1,2]\\end{gathered}"
+                },
+                {
+                  "label": "f 的值域",
+                  "math": "[-1,3]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "图中标出增减方向；根据箭头直接读出值域或最值。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  3.0,
+                  -1.9993750000000001,
+                  4.0
+                ],
+                "description": "箭头是已确认的方向。实心端点可以取到，空心端点不能取到。",
+                "interval": [
+                  -1.0,
+                  2.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "interval_marks": [],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      2.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "图中标出增减方向；根据箭头直接读出值域或最值。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  3.0,
+                  -1.9993750000000001,
+                  4.0
+                ],
+                "description": "箭头是已确认的方向。实心端点可以取到，空心端点不能取到。",
+                "interval": [
+                  -1.0,
+                  2.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "interval_marks": [],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      2.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f 的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "cb380639276048098b818c42#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$[3,-1]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\{-1\\}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$[-1,3]$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "看图中标出的增减方向，直接读出 f 在本区间上的值域。",
+            "stem_board": {
+              "caption": "由图像读出 f 的值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}f(x)=x^{2} - 2 x\\\\x\\in[-1,2]\\end{gathered}"
+                },
+                {
+                  "label": "f 的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "由图像读出 f 的值域"
+          },
+          {
+            "card_group": "side_g",
+            "card_group_title": "求 g 的值域",
+            "completion_board": {
+              "caption": "求 g 的值域：按斜率分类（↑）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\\\text{要使方向为 }\\uparrow\\end{gathered}"
+                },
+                {
+                  "label": "a",
+                  "math": "a > 0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "cb380639276048098b818c42#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$a > 0$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$a=0$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\varnothing$",
+                  "value": "o5"
+                },
+                {
+                  "label": "$a < 0$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$a\\in \\mathbb R$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "一次函数看斜率的正、零、负，图像方向不同，值域也不同。",
+            "stem_board": {
+              "caption": "求 g 的值域：按斜率分类（↑）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\\\text{要使方向为 }\\uparrow\\end{gathered}"
+                },
+                {
+                  "label": "a",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求 g 的值域：按斜率分类（↑）"
+          },
+          {
+            "card_group": "side_g",
+            "card_group_title": "求 g 的值域",
+            "completion_board": {
+              "caption": "由图像读出 g 的值域（$a > 0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\a\\in \\left(0, \\infty\\right)\\end{gathered}"
+                },
+                {
+                  "label": "g 的值域",
+                  "math": "[- a - 1,2 a - 1]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图（取 $a=1$）；箭头表示增减，用来读值域。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  3.0,
+                  -3.0,
+                  2.0
+                ],
+                "description": "箭头是已确认的方向。实心端点可以取到，空心端点不能取到。",
+                "interval": [
+                  -1.0,
+                  2.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "interval_marks": [
+                  {
+                    "from": -1.0,
+                    "label": "[-1, 2]",
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 2.0,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0.0,
+                      1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      2.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "g 的图像（$a > 0$）",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图（取 $a=1$）；箭头表示增减，用来读值域。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  3.0,
+                  -3.0,
+                  2.0
+                ],
+                "description": "箭头是已确认的方向。实心端点可以取到，空心端点不能取到。",
+                "interval": [
+                  -1.0,
+                  2.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "interval_marks": [
+                  {
+                    "from": -1.0,
+                    "label": "[-1, 2]",
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 2.0,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0.0,
+                      1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      2.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "g 的图像（$a > 0$）",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "cb380639276048098b818c42#4",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$[2 a - 1,- a - 1]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$[- a - 1,2 a - 1]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\{- a - 1\\}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "看图中标出的增减方向，直接读出 g 在本区间上的值域。",
+            "stem_board": {
+              "caption": "由图像读出 g 的值域（$a > 0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\a\\in \\left(0, \\infty\\right)\\end{gathered}"
+                },
+                {
+                  "label": "g 的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "由图像读出 g 的值域（$a > 0$）"
+          },
+          {
+            "card_group": "side_g",
+            "card_group_title": "求 g 的值域",
+            "completion_board": {
+              "caption": "求 g 的值域：按斜率分类（常值）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\\\text{要使方向为 }\\rightarrow\\;\\text{常值}\\end{gathered}"
+                },
+                {
+                  "label": "a",
+                  "math": "a=0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "cb380639276048098b818c42#5",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$a > 0$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$a=0$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\varnothing$",
+                  "value": "o5"
+                },
+                {
+                  "label": "$a < 0$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$a\\in \\mathbb R$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "一次函数看斜率的正、零、负，图像方向不同，值域也不同。",
+            "stem_board": {
+              "caption": "求 g 的值域：按斜率分类（常值）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\\\text{要使方向为 }\\rightarrow\\;\\text{常值}\\end{gathered}"
+                },
+                {
+                  "label": "a",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求 g 的值域：按斜率分类（常值）"
+          },
+          {
+            "card_group": "side_g",
+            "card_group_title": "求 g 的值域",
+            "completion_board": {
+              "caption": "由图像读出 g 的值域（$a=0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\a=0\\end{gathered}"
+                },
+                {
+                  "label": "g 的值域",
+                  "math": "\\{-1\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "cb380639276048098b818c42#6",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$0$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\{-1\\}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "看图中标出的增减方向，直接读出 g 在本区间上的值域。",
+            "stem_board": {
+              "caption": "由图像读出 g 的值域（$a=0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\a=0\\end{gathered}"
+                },
+                {
+                  "label": "g 的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "由图像读出 g 的值域（$a=0$）"
+          },
+          {
+            "card_group": "side_g",
+            "card_group_title": "求 g 的值域",
+            "completion_board": {
+              "caption": "求 g 的值域：按斜率分类（↓）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\\\text{要使方向为 }\\downarrow\\end{gathered}"
+                },
+                {
+                  "label": "a",
+                  "math": "a < 0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "cb380639276048098b818c42#7",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$a < 0$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$a > 0$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$a\\in \\mathbb R$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$a=0$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\varnothing$",
+                  "value": "o5"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "一次函数看斜率的正、零、负，图像方向不同，值域也不同。",
+            "stem_board": {
+              "caption": "求 g 的值域：按斜率分类（↓）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\\\text{要使方向为 }\\downarrow\\end{gathered}"
+                },
+                {
+                  "label": "a",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求 g 的值域：按斜率分类（↓）"
+          },
+          {
+            "card_group": "side_g",
+            "card_group_title": "求 g 的值域",
+            "completion_board": {
+              "caption": "由图像读出 g 的值域（$a < 0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\a\\in \\left(-\\infty, 0\\right)\\end{gathered}"
+                },
+                {
+                  "label": "g 的值域",
+                  "math": "[2 a - 1,- a - 1]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图（取 $a=-1$）；箭头表示增减，用来读值域。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  3.0,
+                  -4.0,
+                  1.0
+                ],
+                "description": "箭头是已确认的方向。实心端点可以取到，空心端点不能取到。",
+                "interval": [
+                  -1.0,
+                  2.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "interval_marks": [
+                  {
+                    "from": -1.0,
+                    "label": "[-1, 2]",
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 2.0,
+                    "trend": "decreasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0.0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      2.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "g 的图像（$a < 0$）",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图（取 $a=-1$）；箭头表示增减，用来读值域。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  3.0,
+                  -4.0,
+                  1.0
+                ],
+                "description": "箭头是已确认的方向。实心端点可以取到，空心端点不能取到。",
+                "interval": [
+                  -1.0,
+                  2.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "interval_marks": [
+                  {
+                    "from": -1.0,
+                    "label": "[-1, 2]",
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 2.0,
+                    "trend": "decreasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0.0,
+                      -1.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      2.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "g 的图像（$a < 0$）",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ]
+              }
+            },
+            "id": "cb380639276048098b818c42#8",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$[2 a - 1,- a - 1]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$[- a - 1,2 a - 1]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\{2 a - 1\\}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "看图中标出的增减方向，直接读出 g 在本区间上的值域。",
+            "stem_board": {
+              "caption": "由图像读出 g 的值域（$a < 0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\x\\in[-1,2]\\\\a\\in \\left(-\\infty, 0\\right)\\end{gathered}"
+                },
+                {
+                  "label": "g 的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "由图像读出 g 的值域（$a < 0$）"
+          },
+          {
+            "card_group": "side_g",
+            "card_group_title": "求 g 的值域",
+            "completion_board": {
+              "caption": "汇总 g 在各斜率下的值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\a\\in \\left(0, \\infty\\right)\\Rightarrow [- a - 1,2 a - 1]\\\\a=0\\Rightarrow \\{-1\\}\\\\a\\in \\left(-\\infty, 0\\right)\\Rightarrow [2 a - 1,- a - 1]\\end{gathered}"
+                },
+                {
+                  "label": "g 的值域",
+                  "math": "\\begin{cases}{[- a - 1,2 a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\\\{[2 a - 1,- a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "cb380639276048098b818c42#9",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\begin{cases}{[2 a - 1,- a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\\\{[- a - 1,2 a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\begin{cases}\\{-1\\},& a=0\\\\{[2 a - 1,- a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$\\begin{cases}{[- a - 1,2 a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\\\{[2 a - 1,- a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\begin{cases}{[- a - 1,2 a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\end{cases}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把刚才分情况得到的值域写在一起。",
+            "stem_board": {
+              "caption": "汇总 g 在各斜率下的值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}g(x)=a x - 1\\\\a\\in \\left(0, \\infty\\right)\\Rightarrow [- a - 1,2 a - 1]\\\\a=0\\Rightarrow \\{-1\\}\\\\a\\in \\left(-\\infty, 0\\right)\\Rightarrow [2 a - 1,- a - 1]\\end{gathered}"
+                },
+                {
+                  "label": "g 的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "汇总 g 在各斜率下的值域"
+          }
+        ],
+        "route_id": "quantified-range-comparison",
+        "run_id": "1984c7ed12404256b1e76c7ed3b52daf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "798f9b7cba4f36a6c041a19cbf24a7be219f26be7665a953efa79e10fabf131b",
+            "step_id": "39e5646dcb-quantified-range-comparison-001-ranges"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "72d485f0dec467d78a27d50f",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "6ef017b992232a4cd74f524875bd36e9bed30bf3acf362f6a2661bdbcd9772e9",
+        "lesson_version": "3888d7a0ec682248e7c053d4f98ce45c1655b844451b59b61b043b70bab26484",
+        "parts": [
+          {
+            "card_group": "solve",
+            "card_group_title": "求参数",
+            "completion_board": {
+              "caption": "讨论 f 与 g 的取值关系",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}f\\text{ 的值域}=[-1,3]\\\\g\\text{ 的值域}=\\begin{cases}\\{-1\\},& a=0\\\\{[- a - 1,2 a - 1]},& a\\in \\left(0, \\infty\\right)\\\\{[2 a - 1,- a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}\\\\\\text{f 取到的每个值，g 都要能取到}\\end{gathered}"
+                },
+                {
+                  "label": "值域覆盖关系",
+                  "math": "f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "72d485f0dec467d78a27d50f#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f\\text{ 的值域 }=g\\text{ 的值域 }$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$g\\text{ 的值域 }\\subseteq f\\text{ 的值域 }$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "正确的包含关系是什么？f 的值域必须被 g 的值域盖住，才能保证 f 取到的每个值，g 都能取到。",
+            "stem_board": {
+              "caption": "讨论 f 与 g 的取值关系",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}f\\text{ 的值域}=[-1,3]\\\\g\\text{ 的值域}=\\begin{cases}\\{-1\\},& a=0\\\\{[- a - 1,2 a - 1]},& a\\in \\left(0, \\infty\\right)\\\\{[2 a - 1,- a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}\\\\\\text{f 取到的每个值，g 都要能取到}\\end{gathered}"
+                },
+                {
+                  "label": "值域覆盖关系",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "讨论 f 与 g 的取值关系"
+          },
+          {
+            "card_group": "solve",
+            "card_group_title": "求参数",
+            "completion_board": {
+              "caption": "求参数（$a=0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}a=0\\\\f\\text{ 的值域}=[-1,3]\\\\g\\text{ 的值域}=\\{-1\\}\\\\f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }\\end{gathered}"
+                },
+                {
+                  "label": "本支条件与 $a$",
+                  "math": "\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "72d485f0dec467d78a27d50f#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\text{本支覆盖条件不成立}\\Rightarrow a \\geq 2$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$- a - 1 \\leq -1 \\wedge 2 a - 1 \\geq 3\\Rightarrow a \\geq 2$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "根据覆盖关系，选出本支的判断，并搭配求交后保留的参数。",
+            "stem_board": {
+              "caption": "求参数（$a=0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}a=0\\\\f\\text{ 的值域}=[-1,3]\\\\g\\text{ 的值域}=\\{-1\\}\\\\f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }\\end{gathered}"
+                },
+                {
+                  "label": "本支条件与 $a$",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求参数（$a=0$）"
+          },
+          {
+            "card_group": "solve",
+            "card_group_title": "求参数",
+            "completion_board": {
+              "caption": "求参数（$a > 0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}a\\in \\left(0, \\infty\\right)\\\\f\\text{ 的值域}=[-1,3]\\\\g\\text{ 的值域}=[- a - 1,2 a - 1]\\\\f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }\\end{gathered}"
+                },
+                {
+                  "label": "本支条件与 $a$",
+                  "math": "- a - 1 \\leq -1 \\wedge 2 a - 1 \\geq 3\\Rightarrow a \\geq 2"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "72d485f0dec467d78a27d50f#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$- a - 1 \\leq -1 \\wedge 2 a - 1 \\geq 3\\Rightarrow \\varnothing$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$- a - 1 \\leq -1 \\wedge 2 a - 1 \\geq 3\\Rightarrow a \\geq 2$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "根据覆盖关系，选出本支的判断，并搭配求交后保留的参数。",
+            "stem_board": {
+              "caption": "求参数（$a > 0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}a\\in \\left(0, \\infty\\right)\\\\f\\text{ 的值域}=[-1,3]\\\\g\\text{ 的值域}=[- a - 1,2 a - 1]\\\\f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }\\end{gathered}"
+                },
+                {
+                  "label": "本支条件与 $a$",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求参数（$a > 0$）"
+          },
+          {
+            "card_group": "solve",
+            "card_group_title": "求参数",
+            "completion_board": {
+              "caption": "求参数（$a < 0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}a\\in \\left(-\\infty, 0\\right)\\\\f\\text{ 的值域}=[-1,3]\\\\g\\text{ 的值域}=[2 a - 1,- a - 1]\\\\f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }\\end{gathered}"
+                },
+                {
+                  "label": "本支条件与 $a$",
+                  "math": "2 a - 1 \\leq -1 \\wedge - a - 1 \\geq 3\\Rightarrow a \\leq -4"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "72d485f0dec467d78a27d50f#4",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$2 a - 1 \\leq -1 \\wedge - a - 1 \\geq 3\\Rightarrow \\varnothing$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$2 a - 1 \\leq -1 \\wedge - a - 1 \\geq 3\\Rightarrow a \\leq -4$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "根据覆盖关系，选出本支的判断，并搭配求交后保留的参数。",
+            "stem_board": {
+              "caption": "求参数（$a < 0$）",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}a\\in \\left(-\\infty, 0\\right)\\\\f\\text{ 的值域}=[-1,3]\\\\g\\text{ 的值域}=[2 a - 1,- a - 1]\\\\f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }\\end{gathered}"
+                },
+                {
+                  "label": "本支条件与 $a$",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求参数（$a < 0$）"
+          }
+        ],
+        "route_id": "quantified-range-comparison",
+        "run_id": "1984c7ed12404256b1e76c7ed3b52daf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "3171f917d595b56a8a2ecab4bed5caa767358498ea35f042e40d3c5db5d63022",
+            "step_id": "39e5646dcb-quantified-range-comparison-002-conditions"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b5aa3c5415c09460d935442b",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "e412e366809dc51661fb783121d6158a62843f89f3c6a6e408c477221904c760",
+        "lesson_version": "3888d7a0ec682248e7c053d4f98ce45c1655b844451b59b61b043b70bab26484",
+        "parts": [
+          {
+            "card_group": "solve",
+            "card_group_title": "求参数",
+            "completion_board": {
+              "caption": "回到原题，汇总参数范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}\\varnothing\\\\a \\geq 2\\\\a \\leq -4\\end{gathered}"
+                },
+                {
+                  "label": "$a$ 的取值范围",
+                  "math": "a \\geq 2 \\quad\\text{或}\\quad a \\leq -4"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "b5aa3c5415c09460d935442b#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\varnothing$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$a \\geq 2 \\quad\\text{或}\\quad a \\leq -4$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$a\\in \\mathbb R$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "分类结果取并集，再保留题目原有的参数限制。",
+            "stem_board": {
+              "caption": "回到原题，汇总参数范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与当前范围",
+                  "math": "\\begin{gathered}\\varnothing\\\\a \\geq 2\\\\a \\leq -4\\end{gathered}"
+                },
+                {
+                  "label": "$a$ 的取值范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "回到原题，汇总参数范围"
+          }
+        ],
+        "route_id": "quantified-range-comparison",
+        "run_id": "1984c7ed12404256b1e76c7ed3b52daf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "8bdae294e773c99b32c26b79a4257d853f9037e96db7edbede80fb4cffd14505",
+            "step_id": "39e5646dcb-quantified-range-comparison-003-conclude"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

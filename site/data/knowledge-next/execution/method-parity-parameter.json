@@ -18,7 +18,8 @@
             "context": "$context"
           },
           "outputs": {
-            "description": "description"
+            "description": "description",
+            "card_plan": "card_plan"
           },
           "order": 0
         },
@@ -39,6 +40,22 @@
           "guard": {
             "ref": "description.analysis_mode",
             "equals": "domain"
+          }
+        },
+        {
+          "id": "original_domain",
+          "capability": "solve_parity_parameter_domain",
+          "public_ref": "method-domain-intersection",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "original_domain": "original_domain"
+          },
+          "order": 2,
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "original"
           }
         }
       ],
@@ -104,17 +121,18 @@
         },
         {
           "id": "parity_parameter_original_prepare",
-          "after": "prepare",
+          "after": "original_domain",
           "template": "parity_parameter_derivation",
           "bindings": {
             "description": "$description",
-            "evidence": {},
+            "evidence": "$original_domain",
             "phase": "domain",
             "before": [],
             "after": []
           },
           "depends_on": [
-            "description"
+            "description",
+            "original_domain"
           ],
           "guard": {
             "ref": "description.analysis_mode",
@@ -177,7 +195,11 @@
           "depends_on": [
             "description",
             "identities"
-          ]
+          ],
+          "guard": {
+            "ref": "card_plan.value",
+            "equals": true
+          }
         }
       ]
     },
@@ -288,7 +310,11 @@
           "depends_on": [
             "description",
             "comparison"
-          ]
+          ],
+          "guard": {
+            "ref": "card_plan.value",
+            "equals": true
+          }
         }
       ],
       "merges": [
@@ -378,7 +404,11 @@
           "depends_on": [
             "description",
             "parity_parameter_result"
-          ]
+          ],
+          "guard": {
+            "ref": "card_plan.merge",
+            "equals": true
+          }
         }
       ]
     },

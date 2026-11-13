@@ -3,7 +3,6 @@
 These pictures illustrate a completed symbolic proof. Sampling is never used
 to infer parity, close a hole, choose a branch or determine an answer.
 """
-from copy import deepcopy
 from itertools import pairwise
 from math import isfinite
 
@@ -11,8 +10,6 @@ import sympy as sp
 
 from .. import parameter_domain as domains
 from .. import parity_parameter_original as math
-from ..function_parity import reflect_set
-from .domain_visuals import exact_math
 from .interaction_graphs import GraphUnavailable, _float, _pieces, short_label, ticks
 from .math_values import latex
 
@@ -59,27 +56,6 @@ def _instance(desc, model, value):
             regions.append(region)
             parts.append((region, expr))
     return x, sp.Union(*regions), parts, discrete
-
-
-def _number_lines(desc, value, domain):
-    sets = [domain, reflect_set(domain)]
-    pieces = [_pieces(s) for s in sets]
-    ends = sorted({sp.S.Zero, *(v for intervals, points in pieces for v in
-                    [*points, *(e for part in intervals for e in (part.start, part.end) if e not in (-sp.oo, sp.oo))])})
-    low, high = _float(ends[0]), _float(ends[-1])
-    pad = max((high-low)*0.25, 1.0)
-    marks = [{'at': _float(v), 'label': short_label(v), 'exact': exact_math(v)} for v in ends]
-    result = []
-    for name, region, (intervals, points) in zip(('D', '-D'), sets, pieces, strict=True):
-        result.append({'variable': desc['variable'], 'label': desc['parameter']+'='+latex(value)
-                       + r'\text{ 时}\quad '+name+'='+latex(region), 'bounds': [low-pad, high+pad],
-                       'intervals': [{'left': None if s.start == -sp.oo else _float(s.start),
-                                      'right': None if s.end == sp.oo else _float(s.end),
-                                      'left_closed': not s.left_open, 'right_closed': not s.right_open,
-                                      'exact': exact_math(s)} for s in intervals],
-                       'points': [{'at': _float(v), 'label': short_label(v), 'exact': exact_math(v)} for v in points],
-                       'ticks': deepcopy(marks), 'exact_set': exact_math(region)})
-    return result
 
 
 def _graph(desc, value, x, domain, parts, discrete):
@@ -153,45 +129,21 @@ def _graph(desc, value, x, domain, parts, discrete):
             'caption': '$'+desc['parameter']+'='+latex(value)+'$ 的实例；实线为原函数，虚线为 $'+label+'$。参数结论依据完整分类，图窗以外不表示无定义。'}
 
 
-def examples(desc, model):
+def solution_graph(desc, model):
+    """One accepted parameter value, whose curve and mirror coincide."""
     solution = model['feasible_set']
-    available = sp.S.Reals if desc['analysis_mode'] == 'quartic' else model['domain_parameters']
-    # Valid but asymmetric domains remain useful rejected examples.
-    if model['comparison'].get('kind') == 'rational_cells':
-        available = sp.Union(*(r['parameter_cell'] for r in model['comparison']['rows'] if r['valid'] and r['nonempty']))
-    selected = []
-    for region in (solution, available-solution):
-        if region == sp.S.EmptySet:
-            continue
-        pieces = sorted(region.args, key=sp.default_sort_key) if isinstance(region, sp.Union) else [region]
-        selected.append(domains.representative(pieces[0]))
-    if not selected and model['comparison'].get('kind') == 'radical' and desc['domain_role'] == 'natural':
-        # An empty natural domain is labelled explicitly, never a paired curve.
-        selected = [sp.S.Zero]
-    lines, graphs = [], []
-    for value in selected:
-        try:
-            x, domain, parts, discrete = _instance(desc, model, value)
-            lines.extend(_number_lines(desc, value, domain))
-            if domain != sp.S.EmptySet:
-                graph = _graph(desc, value, x, domain, parts, discrete)
-                traces = graph['params']['traces']
-                markers = [{(m['x'], m['y']): m['closed'] for m in trace['markers']} for trace in traces]
-                conflict = any(markers[0][q] != markers[1][q] for q in markers[0].keys() & markers[1].keys())
-                if conflict:
-                    # A filled mirror point must not paint over an original
-                    # hole (or a discontinuous branch's hollow limit). Show
-                    # the same coordinate window in separate labelled panels.
-                    for index, trace in enumerate(traces):
-                        separate = deepcopy(graph)
-                        separate['params']['traces'] = [trace]
-                        label = '原函数' if index == 0 else '镜像'
-                        separate['params']['title'] = desc['parameter']+'='+short_label(value)+' 时的'+label
-                        separate['params']['description'] = label+'；空心点不取，实心点取到。与另一幅图使用相同坐标范围。'
-                        separate['caption'] = '$'+desc['parameter']+'='+latex(value)+'$ 时的'+label+' $'+trace['label']+'$。空心点不取，实心点取到；两图坐标范围相同。'
-                        graphs.append(separate)
-                else:
-                    graphs.append(graph)
-        except GraphUnavailable:
-            continue  # Exact text proof/number lines remain the authoritative view.
-    return lines, graphs
+    if solution == sp.S.EmptySet:
+        return None
+    pieces = sorted(solution.args, key=sp.default_sort_key) if isinstance(solution, sp.Union) else [solution]
+    value = domains.representative(pieces[0])
+    try:
+        x, domain, parts, discrete = _instance(desc, model, value)
+        if domain == sp.S.EmptySet:
+            return None
+        graph = _graph(desc, value, x, domain, parts, discrete)
+    except GraphUnavailable:
+        return None  # The exact text proof remains the authoritative view.
+    label = graph['params']['traces'][1]['label']
+    graph['caption'] = ('$'+desc['parameter']+'='+latex(value)+'$ 时，实线 $'+desc['function']+'('+desc['variable']
+                        + ')$ 与虚线 $'+label+'$ 重合。')
+    return graph

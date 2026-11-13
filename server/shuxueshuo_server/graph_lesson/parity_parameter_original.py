@@ -327,22 +327,17 @@ def compare(desc):
     return _derive(desc)
 
 
-def _derive(desc, *, independent=False):
-    src = source(desc)
-    if src['kind'] == 'radical':
-        from .parity_parameter_radical import compare as radical_compare
-        return radical_compare(desc, src, independent=independent)
+def _domain_rows(desc, src, *, independent=False):
+    """Partition original input legality, retaining branch scopes and declared domains."""
     x, p = symbols(desc)
     cuts = src['cuts']
     regions = [sp.FiniteSet(c) for c in cuts]
     regions += [sp.Interval.open(a, b) for a, b in pairwise([-sp.oo, *cuts, sp.oo])]
-    signs = sorted({s for f in desc['parity_facts'] for s in base.PROPERTIES[f['property']]})
     rows = []
     for region in regions:
         sample = domains.representative(region)
         atoms = domains.input_atoms(src['points'], p, sample)
         valid = all(domains.interval_valid(tree, p, sample) for tree in src['trees'])
-        equations, zeros = set(), set()
         for atom in atoms:
             q = domains.atom_point(atom, p, sample)
             own, other = (_value_branch(src, x, p, sample, v) for v in (q, -q))
@@ -364,6 +359,93 @@ def _derive(desc, *, independent=False):
             if any(domains.contains(t, p, sample, q) and own is None for t in src['trees'][1:]):
                 valid = False
             atom.update(member=member, reflected_member=reflected, branch=own, reflected_branch=other)
+        nonempty = any(a['member'] for a in atoms)
+        symmetric = all(a['member'] == a['reflected_member'] for a in atoms)
+        rows.append({'parameter_cell': region, 'sample': sample, 'valid': valid, 'nonempty': nonempty,
+                     'symmetric': symmetric, 'input_atoms': atoms})
+    return rows
+
+
+def _domain_proof(desc, *, independent=False):
+    src = source(desc)
+    if src['kind'] == 'radical':
+        from .parity_parameter_radical import domain_proof
+        proof = domain_proof(desc, src, independent=independent)
+    else:
+        proof = {'kind': src['kind'], 'source': src, 'rows': _domain_rows(desc, src, independent=independent)}
+    return {**proof, 'domain_role': desc['domain_role'], 'domain_ast': deepcopy(desc['domain_ast'])}
+
+
+def solve_domain(desc):
+    """Domain submethod output, before imposing any parity identities."""
+    return _domain_proof(desc)
+
+
+def verify_domain(desc, proof):
+    try:
+        return proof == _domain_proof(desc, independent=True)
+    except (ValueError, TypeError, KeyError, IndexError, NotImplementedError):
+        return False
+
+
+def domain_at(desc, proof, value):
+    """Instantiate a certified domain without cancelling the original expression."""
+    _, p = symbols(desc)
+    if proof['kind'] == 'radical':
+        case, = [c for c in proof['cases'] if c['parameter_cell'].contains(value) is sp.true]
+        if desc['domain_role'] == 'declared':
+            if case['domain_kind'] != 'real':
+                raise ValueError('parity_param.invalid_declared_domain')
+            return sp.S.Reals
+        kind = case['domain_kind']
+        if kind in ('real', 'empty', 'singleton_zero'):
+            return {'real': sp.S.Reals, 'empty': sp.S.EmptySet, 'singleton_zero': sp.FiniteSet(0)}[kind]
+        a, b = (proof['source'][k].subs(p, value) for k in ('alpha', 'beta'))
+        radius = sp.sqrt(-b/a)
+        return (sp.Interval(-radius, radius) if kind == 'closed_bounded'
+                else sp.Interval(-sp.oo, -radius) | sp.Interval(radius, sp.oo))
+    row, = [r for r in proof['rows'] if r['parameter_cell'].contains(value) is sp.true]
+    if not row['valid']:
+        raise ValueError('parity_param.invalid_declared_domain')
+    return sp.Union(*(sp.FiniteSet(a['point'].subs(p, value)) if a['kind'] == 'point' else
+                      sp.Interval.open(a['left'].subs(p, value), a['right'].subs(p, value))
+                      for a in row['input_atoms'] if a['member']))
+
+
+def domain_components(row, parameter):
+    """Merge adjacent certified input atoms; symbolic endpoints retain their cell ordering."""
+    atoms = sorted(row['input_atoms'], key=lambda a: domains.atom_point(a, parameter, row['sample']))
+    components, current = [], None
+    for atom in atoms:
+        if not atom['member']:
+            current = None
+            continue
+        point = atom['kind'] == 'point'
+        low, high = (atom['point'], atom['point']) if point else (atom['left'], atom['right'])
+        if isinstance(row['parameter_cell'], sp.FiniteSet):
+            low, high = (v.subs(parameter, row['sample']) for v in (low, high))
+        if current is None:
+            current = {'left': low, 'right': high, 'left_closed': point, 'right_closed': point}
+            components.append(current)
+        else:
+            current.update(right=high, right_closed=point)
+    return components
+
+
+def _derive(desc, *, independent=False):
+    src = source(desc)
+    if src['kind'] == 'radical':
+        from .parity_parameter_radical import compare as radical_compare
+        return radical_compare(desc, src, independent=independent)
+    x, p = symbols(desc)
+    rows = _domain_rows(desc, src, independent=independent)
+    signs = sorted({s for f in desc['parity_facts'] for s in base.PROPERTIES[f['property']]})
+    for row in rows:
+        region = row['parameter_cell']
+        equations, zeros = set(), set()
+        for atom in row['input_atoms']:
+            member, reflected = atom['member'], atom['reflected_member']
+            own, other = atom['branch'], atom['reflected_branch']
             if member and own is not None:
                 a = src['parts'][own]
                 zeros.update(_equations(a['numerator'], atom, x, p, region, independent=independent))
@@ -373,13 +455,9 @@ def _derive(desc, *, independent=False):
                         residual = sp.expand(b['numerator'].subs(x, -x)*a['denominator']
                                              - sign*a['numerator']*b['denominator'].subs(x, -x))
                         equations.update(_equations(residual, atom, x, p, region, independent=independent))
-        nonempty = any(a['member'] for a in atoms)
-        symmetric = all(a['member'] == a['reflected_member'] for a in atoms)
-        rows.append({'parameter_cell': region, 'sample': sample, 'valid': valid, 'nonempty': nonempty,
-                     'symmetric': symmetric, 'input_atoms': atoms,
-                     'equations': sorted(equations, key=sp.default_sort_key),
-                     'zero_equations': sorted(zeros, key=sp.default_sort_key)})
-    all_cuts = set(cuts)
+        row.update(equations=sorted(equations, key=sp.default_sort_key),
+                   zero_equations=sorted(zeros, key=sp.default_sort_key))
+    all_cuts = set(src['cuts'])
     expressions = [e for c in src['conditions'] for e in base._relations(c)]
     expressions += [e for row in rows for e in [*row['equations'], *row['zero_equations']]]
     for e in expressions:

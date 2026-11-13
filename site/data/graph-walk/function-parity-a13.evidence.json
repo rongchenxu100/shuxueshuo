@@ -1,0 +1,995 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+    "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+    "input_sha256": "10fa67d94d59099ec78b5dcbb36da87a7d5f3d222421ff061d36a79d8b125bfc",
+    "checkpoint_sha256": "3ddf8381d8af53aa5c8ee74573168568465eef0b4a920c2b0524c9bfd7c8a34f",
+    "result_sha256": "8c9b70ee102abdc3841bb8f549321774d77bf5822b3f9a8623a5955091d71e1d",
+    "stage_one_sha256": "acd696f5e594d90910ec680fcb1bc15c4fda85d4dfd6300a39220a874e734d7c",
+    "stage_two_sha256": "1d86a14f77deebb8956c478424581500516523b610d3fe55d4055a4142d2a2e2",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "379c3dab3865e649d0be314ceffaacdb9c3af0f141e5cc3c8e1642488a6c64aa",
+    "teaching_revision": "b4ffa779f0ad42f6a703380afe08d586ba3e5ee58f69bc84dfd97322c31cdab5"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-evaluation",
+        "supported": [
+          "type-function-evaluation"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 6,
+                  "end": 10,
+                  "text": "$f(x)$"
+                },
+                {
+                  "start": 18,
+                  "end": 27,
+                  "text": "$\\mathbf R$"
+                },
+                {
+                  "start": 31,
+                  "end": 34,
+                  "text": "奇函数"
+                },
+                {
+                  "start": 38,
+                  "end": 50,
+                  "text": "$f(-1)+f(2)=3$"
+                },
+                {
+                  "start": 55,
+                  "end": 66,
+                  "text": "$f(1)+f(-2)=$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1",
+                "/root/goals/0:d1:2",
+                "/root/goals/0:d1:3",
+                "/root/goals/0:d1:4",
+                "/root/goals/0:d1:5"
+              ],
+              "knowledge_refs": [
+                "function-parity#definition"
+              ],
+              "source_refs": [
+                "/root/goals/0",
+                "/root/facts/0",
+                "/root/facts/1",
+                "/root/facts/2"
+              ],
+              "options": [
+                {
+                  "text": "先求出 $f(x)$ 的解析式",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目没有给出解析式；所求的是 $f(1)+f(-2)$ 这个值，不必补出整个函数。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求 $f(1)+f(-2)$ 的值",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                },
+                {
+                  "text": "判断 $f(x)$ 是奇函数还是偶函数",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "奇偶性是已知条件，不需要再判断。",
+                  "id": "/root/goals/0:goal:o2"
+                }
+              ],
+              "signature": "23478172e9dab939"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问的已知条件和目标是什么？",
+          "feedback": "所求的是 $f(1)+f(-2)$ 这个值，不必补出整个函数。",
+          "summary": "$f(x)$ 是定义在 $\\mathbb{R}$ 上的奇函数；$f(-1)+f(2)=3$。求 $f(1)+f(-2)$ 的值。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-evaluation",
+            "label": "求函数值",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "题给奇偶性时，把输入换成相反数，由已知的一侧解析式或已知的函数值组合求所求的值；只知道组合时，所求组合可能唯一而单个函数值不唯一。"
+            ],
+            "choice_hint": "根据函数关系，求给定输入或组合的输出"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-parity-a13//root/goals/0",
+            "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+            "problem": {
+              "text": "已知函数 $f(x)$ 是定义在 $\\mathbf R$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____．"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问的已知条件和目标是什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "先求出 $f(x)$ 的解析式",
+                      "feedback": "题目没有给出解析式；所求的是 $f(1)+f(-2)$ 这个值，不必补出整个函数。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求 $f(1)+f(-2)$ 的值"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o2",
+                      "label": "判断 $f(x)$ 是奇函数还是偶函数",
+                      "feedback": "奇偶性是已知条件，不需要再判断。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "所求的是 $f(1)+f(-2)$ 这个值，不必补出整个函数。"
+                },
+                "candidateNodes": [
+                  "function-parity",
+                  "type-function-evaluation",
+                  "type-function-parity",
+                  "type-function-symmetry",
+                  "type-parity-formula",
+                  "type-parity-inequality",
+                  "type-parity-parameter",
+                  "type-shifted-odd-application"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-parity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "$f(x)$ 是定义在 $\\mathbb{R}$ 上的奇函数；$f(-1)+f(2)=3$。求 $f(1)+f(-2)$ 的值。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 7 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-evaluation",
+                      "label": "求函数值",
+                      "note": "根据函数关系，求给定输入或组合的输出"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-evaluation"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-evaluation"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-evaluation"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "判断依据：题给奇偶性时，把输入换成相反数，由已知的一侧解析式或已知的函数值组合求所求的值；只知道组合时，所求组合可能唯一而单个函数值不唯一。"
+                  ],
+                  "log": "作答判断：选择主要题型「求函数值」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-parity",
+                  "kind": "knowledge",
+                  "label": "函数的奇偶性",
+                  "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-parity",
+                  "kind": "problem_type",
+                  "label": "判断函数的奇偶性",
+                  "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-symmetry",
+                  "kind": "problem_type",
+                  "label": "利用图像对称关系求值与求和",
+                  "summary": "依据对称轴、对称中心或限定范围的对称等式，变换输入并求值或求和。",
+                  "aliases": [],
+                  "status": "active"
+                },
+                {
+                  "id": "type-parity-formula",
+                  "kind": "problem_type",
+                  "label": "根据奇偶性求解析式",
+                  "summary": "已知奇偶性和一侧的解析式，求另一侧指定范围内的解析式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parity-inequality",
+                  "kind": "problem_type",
+                  "label": "利用奇偶性解不等式",
+                  "summary": "已知奇偶性，以及一侧的解析式、单调性或零点，解关于函数值的不等式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parity-parameter",
+                  "kind": "problem_type",
+                  "label": "根据奇偶性求参",
+                  "summary": "已知函数的奇偶性，求使定义域与函数值关系同时满足要求的参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-shifted-odd-application",
+                  "kind": "problem_type",
+                  "label": "奇函数＋常数结论的应用",
+                  "summary": "先明确奇函数与原函数的关系，再求相反输入的值、配对和或最值之和。",
+                  "aliases": [],
+                  "status": "active"
+                },
+                {
+                  "id": "method-function-evaluation",
+                  "kind": "method",
+                  "label": "代入法",
+                  "summary": "把完整输入放进已有函数规则，按内到外计算并保留原输入限制；可验证定值与有限配对求和。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "evaluate",
+                      "title": "代入并计算",
+                      "calls": [
+                        "skill-expression-defined",
+                        "skill-simplify",
+                        "skill-equality-transform",
+                        "skill-solve-quadratic"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验原式与目标结果",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-symmetry",
+                  "kind": "method",
+                  "label": "对称关系法",
+                  "summary": "利用奇偶性、对称轴、对称中心或题给的局部等式，变换输入与函数值，再求值、配对求和或判断同域最值之和。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "读清已知与所求",
+                      "calls": [
+                        "skill-domain-symmetry"
+                      ]
+                    },
+                    {
+                      "id": "rewrite",
+                      "title": "变换输入与函数值",
+                      "calls": [
+                        "skill-function-symmetry-transform"
+                      ]
+                    },
+                    {
+                      "id": "evaluate",
+                      "title": "代入或迭代后求值",
+                      "calls": [
+                        "method-function-evaluation",
+                        "skill-function-shift-iteration"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "组合得到所求的值",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "method-function-symmetry|calls|method-function-evaluation",
+                  "from": "method-function-symmetry",
+                  "to": "method-function-evaluation",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "evaluate",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|candidate|method-function-evaluation",
+                  "from": "type-function-evaluation",
+                  "to": "method-function-evaluation",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|candidate|method-function-symmetry",
+                  "from": "type-function-evaluation",
+                  "to": "method-function-symmetry",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-parity|involves|function-parity",
+                  "from": "type-function-parity",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-symmetry|candidate|method-function-symmetry",
+                  "from": "type-function-symmetry",
+                  "to": "method-function-symmetry",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-symmetry|involves|function-parity",
+                  "from": "type-function-symmetry",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-formula|involves|function-parity",
+                  "from": "type-parity-formula",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-inequality|involves|function-parity",
+                  "from": "type-parity-inequality",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-parameter|involves|function-parity",
+                  "from": "type-parity-parameter",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-shifted-odd-application|candidate|method-function-symmetry",
+                  "from": "type-shifted-odd-application",
+                  "to": "method-function-symmetry",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-shifted-odd-application|involves|function-parity",
+                  "from": "type-shifted-odd-application",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-parity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "42b789bb462912a76aaae133cf47ba70698e93fcb580e16de07b6921247ff697"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-parity-a13//root/goals/0",
+            "bundleVersion": "42b789bb462912a76aaae133cf47ba70698e93fcb580e16de07b6921247ff697",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "$f(x)$ 是定义在 $\\mathbb{R}$ 上的奇函数；$f(-1)+f(2)=3$。求 $f(1)+f(-2)$ 的值。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-evaluation",
+                "reason": "选「求函数值」：题给奇偶性时，把输入换成相反数，由已知的一侧解析式或已知的函数值组合求所求的值；只知道组合时，所求组合可能唯一而单个函数值不唯一。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+    "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+    "input_sha256": "10fa67d94d59099ec78b5dcbb36da87a7d5f3d222421ff061d36a79d8b125bfc",
+    "stream_id": "e28c0a7303204636a8de8c3750bcfb71",
+    "last_seq": 17,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "function_symmetry_rewrite",
+        "explanation": "$$\\begin{gathered}f(1)=-f(-1)\\\\f(-2)=-f(2)\\\\f(1)+f(-2)=-f(-1)-f(2)\\end{gathered}$$",
+        "highlight": {
+          "caption": "把输入换成相反数",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已知条件",
+              "math": "\\begin{gathered}f(-1)+f(2)=3\\\\f\\text{ 是奇函数}\\end{gathered}"
+            },
+            {
+              "label": "改写所求式",
+              "math": "f(1)+f(-2)=-f(-1)-f(2)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+        "local_check": "passed",
+        "math_step_sha256": "c3d64c8779752c45f00aec25af837d9842ea384860d410eb9583ec64d8e8da8e",
+        "method_ref": "method-function-symmetry#rewrite",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "route_id": "function-symmetry",
+        "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
+        "target_ref": "/root/goals/0",
+        "title": "把输入换成相反数",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "function_symmetry_conclude",
+        "explanation": "$$f(1)+f(-2)=-f(-1)-f(2)=-\\left(f(-1)+f(2)\\right)=-3$$",
+        "highlight": {
+          "caption": "求出所求的值",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已知与改写",
+              "math": "\\begin{gathered}f(1)+f(-2)=-f(-1)-f(2)\\\\f(-1)+f(2)=3\\\\f\\text{ 是奇函数}\\end{gathered}"
+            },
+            {
+              "label": "结论",
+              "math": "f(1)+f(-2)=-3"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+        "local_check": "passed",
+        "math_step_sha256": "38302113717f2ff4d657c3633695706f97365f9821f757be8f9b5accf7b9d5bb",
+        "method_ref": "method-function-symmetry#conclude",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "route_id": "function-symmetry",
+        "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+        "source_refs": [
+          "/steps/3/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
+        "target_ref": "/root/goals/0",
+        "title": "求出所求的值",
+        "used_basis": []
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "defined": true,
+          "domain": {
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": null,
+          "is_constant": null,
+          "kind": "find_value",
+          "result_type": "scalar_value",
+          "status": "complete",
+          "value": {
+            "expression": "-3",
+            "latex": "-3"
+          }
+        },
+        "available": true,
+        "feasible_set": null,
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "defined": true,
+          "domain": {
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": null,
+          "is_constant": null,
+          "kind": "find_value",
+          "result_type": "scalar_value",
+          "status": "complete",
+          "value": {
+            "expression": "-3",
+            "latex": "-3"
+          }
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+        "math_steps": [
+          {
+            "math_step_sha256": "c3d64c8779752c45f00aec25af837d9842ea384860d410eb9583ec64d8e8da8e",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
+          },
+          {
+            "math_step_sha256": "38302113717f2ff4d657c3633695706f97365f9821f757be8f9b5accf7b9d5bb",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
+          }
+        ],
+        "route_id": "function-symmetry",
+        "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "65cc8dd44ba36072bbc4fcdee9be3a500f8c9c8645e1c9b2a4c82785e0b1c24e",
+        "verified_route_sha256": "6a7cb3024fbbde286222128a2cceac1680d82cd259be22067c2f8e2a5d033bb2"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "query": {
+            "from": "type-function-evaluation",
+            "op": "methods"
+          },
+          "question": "只求几个函数值或它们的组合：先用奇偶性把每个输入换成它的相反数，找出与已知条件的关系；能直接得到所求组合，就不用补出整个函数。",
+          "submit_label": "用对称关系法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-function-symmetry",
+              "recommendation": "preferred",
+              "route_id": "function-symmetry",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-symmetry",
+        "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
+        "ordinal": 1,
+        "math_step_sha256": "c3d64c8779752c45f00aec25af837d9842ea384860d410eb9583ec64d8e8da8e",
+        "status": "interactive",
+        "interaction_id": "4362c875b4e07448b6069c48"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-symmetry",
+        "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
+        "ordinal": 2,
+        "math_step_sha256": "38302113717f2ff4d657c3633695706f97365f9821f757be8f9b5accf7b9d5bb",
+        "status": "interactive",
+        "interaction_id": "bebeed07d61a5c48a1ca6d37"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-symmetry",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:function-symmetry:complete",
+        "last_seq": 17
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-symmetry",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-function-symmetry",
+            "step": "prepare",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-function-symmetry",
+            "step": "rewrite",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-function-symmetry-transform",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-function-symmetry",
+            "step": "evaluate",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-function-evaluation",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-function-symmetry",
+            "step": "conclude",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "4362c875b4e07448b6069c48",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "49e87afec64cfd566e685d0f2a5b9f0b41e4e8cc87ff23bdb31871f8593c6ecd",
+        "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把输入换成相反数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知条件",
+                  "math": "\\begin{gathered}f(-1)+f(2)=3\\\\f\\text{ 是奇函数}\\end{gathered}"
+                },
+                {
+                  "label": "改写所求式",
+                  "math": "f(1)+f(-2)=-f(-1)-f(2)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "4362c875b4e07448b6069c48#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(1)+f(-2)=-f(-1)-f(2)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(1)+f(-2)=f(-1)+f(2)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "题给 $f$ 是奇函数，已知 $f(-1)+f(2)=3$。利用奇偶性，把所求式中的函数值都改写成题给等式中出现的函数值，所求式可以改写成什么？",
+            "stem_board": {
+              "caption": "把输入换成相反数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知条件",
+                  "math": "\\begin{gathered}f(-1)+f(2)=3\\\\f\\text{ 是奇函数}\\end{gathered}"
+                },
+                {
+                  "label": "改写所求式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把输入换成相反数"
+          }
+        ],
+        "route_id": "function-symmetry",
+        "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c3d64c8779752c45f00aec25af837d9842ea384860d410eb9583ec64d8e8da8e",
+            "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "bebeed07d61a5c48a1ca6d37",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "8d70eacdc9f44b68c855c035512df8ca82e76051aac87fe637f0d7749ad5cb13",
+        "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "求出所求的值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与改写",
+                  "math": "\\begin{gathered}f(1)+f(-2)=-f(-1)-f(2)\\\\f(-1)+f(2)=3\\\\f\\text{ 是奇函数}\\end{gathered}"
+                },
+                {
+                  "label": "结论",
+                  "math": "f(1)+f(-2)=-3"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "bebeed07d61a5c48a1ca6d37#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(1)+f(-2)\\text{ 不能唯一确定}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(1)+f(-2)=-3$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(1)+f(-2)=3$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由上一步，$f(1)+f(-2)=-f(-1)-f(2)$。对照已知条件，看改写后的式子能否由已知整体得到。所求的结论是什么？",
+            "stem_board": {
+              "caption": "求出所求的值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知与改写",
+                  "math": "\\begin{gathered}f(1)+f(-2)=-f(-1)-f(2)\\\\f(-1)+f(2)=3\\\\f\\text{ 是奇函数}\\end{gathered}"
+                },
+                {
+                  "label": "结论",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求出所求的值"
+          }
+        ],
+        "route_id": "function-symmetry",
+        "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "38302113717f2ff4d657c3633695706f97365f9821f757be8f9b5accf7b9d5bb",
+            "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

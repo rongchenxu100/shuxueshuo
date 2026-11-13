@@ -24,12 +24,12 @@
       "groupBy": "method",
       "description": "从分式函数的最值，到量词比较求参、指定点最值条件求参。",
       "problems": [
-        "function-monotonicity-a16-v2",
-        "function-monotonicity-a07-v2",
-        "function-monotonicity-a18-v2",
-        "function-monotonicity-b16-v2",
-        "function-monotonicity-b11-v2",
-        "function-monotonicity-b10-v2",
+        "function-monotonicity-a16-v3",
+        "function-monotonicity-a07-v3",
+        "function-monotonicity-a18-v3",
+        "function-monotonicity-b16-v3",
+        "function-monotonicity-b11-v3",
+        "function-monotonicity-b10-v3",
         "function-monotonicity-b08-v3",
         "function-monotonicity-b14-v3"
       ]
@@ -855,11 +855,11 @@
         }
       }
     },
-    "function-monotonicity-a16-v2": {
+    "function-monotonicity-a16-v3": {
       "label": "分式函数的最大值 · A16",
       "path": "/topics/function-monotonicity/q16/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-a16-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-a16-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ],
@@ -890,7 +890,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "31fe2c4f48400325e5d41a2a#1": {
+            "084dc43f9730abff98d02819#1": {
               "title": "分离分式",
               "position": 4,
               "refs": [
@@ -899,7 +899,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "9a20bcc1562966aa69251de5#1": {
+            "088eaee06fe1ca3991ace98d#1": {
               "title": "一次函数在 $\\left[-2, 2\\right]$ 上的增减",
               "position": 5,
               "refs": [
@@ -909,7 +909,7 @@
                 "function-monotonicity-operations#sum-difference"
               ]
             },
-            "a43dea55f22d1e05c4807eec#1": {
+            "baa245b4cb33c84d16237d06#1": {
               "title": "取倒数后的增减",
               "position": 6,
               "refs": [
@@ -919,7 +919,7 @@
                 "function-monotonicity-operations#sum-difference"
               ]
             },
-            "a43dea55f22d1e05c4807eec#2": {
+            "baa245b4cb33c84d16237d06#2": {
               "title": "乘常数后的增减",
               "position": 7,
               "refs": [
@@ -929,7 +929,7 @@
                 "function-monotonicity-operations#sum-difference"
               ]
             },
-            "a43dea55f22d1e05c4807eec#3": {
+            "baa245b4cb33c84d16237d06#3": {
               "title": "加常数后的增减",
               "position": 8,
               "refs": [
@@ -939,7 +939,7 @@
                 "function-monotonicity-operations#sum-difference"
               ]
             },
-            "2a7922e511c938536707879f#1": {
+            "75f57dca7826180ab5fbd502#1": {
               "title": "选择最大值的位置",
               "position": 9,
               "refs": [
@@ -948,7 +948,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "2a7922e511c938536707879f#2": {
+            "75f57dca7826180ab5fbd502#2": {
               "title": "求出最大值",
               "position": 10,
               "refs": [
@@ -961,11 +961,11 @@
         }
       }
     },
-    "function-monotonicity-a07-v2": {
+    "function-monotonicity-a07-v3": {
       "label": "用值域包含求参数 · A07",
       "path": "/topics/function-monotonicity/q07/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-a07-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-a07-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ],
@@ -996,7 +996,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "8a35db11a3830c03b672bed5#1": {
+            "b688e330af630f3ed54bfec9#1": {
               "title": "由图像读出 g 的值域",
               "position": 4,
               "refs": [
@@ -1004,7 +1004,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "8a35db11a3830c03b672bed5#2": {
+            "b688e330af630f3ed54bfec9#2": {
               "title": "求 f 的值域：配成顶点式",
               "position": 5,
               "refs": [
@@ -1012,7 +1012,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "8a35db11a3830c03b672bed5#3": {
+            "b688e330af630f3ed54bfec9#3": {
               "title": "由图像读出 f 的值域",
               "position": 6,
               "refs": [
@@ -1020,7 +1020,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "e0c573177373663674bc3b53#1": {
+            "e7edc6be890a01da3bbe9a12#1": {
               "title": "讨论 g 与 f 的取值关系",
               "position": 7,
               "refs": [
@@ -1030,7 +1030,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "e0c573177373663674bc3b53#2": {
+            "e7edc6be890a01da3bbe9a12#2": {
               "title": "建立参数条件",
               "position": 8,
               "refs": [
@@ -1040,7 +1040,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "e0c573177373663674bc3b53#3": {
+            "e7edc6be890a01da3bbe9a12#3": {
               "title": "解参数条件",
               "position": 9,
               "refs": [
@@ -1050,7 +1050,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "476932af4040ad5a206103b7#1": {
+            "e4fa817e8ad1b803ef3e7dcc#1": {
               "title": "回到原题，汇总参数范围",
               "position": 10,
               "refs": [
@@ -1063,11 +1063,11 @@
         }
       }
     },
-    "function-monotonicity-a18-v2": {
+    "function-monotonicity-a18-v3": {
       "label": "分段函数的量词比较 · A18",
       "path": "/topics/function-monotonicity/q18/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-a18-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-a18-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ],
@@ -1098,7 +1098,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "48a889f500e0e3380bade8b8#1": {
+            "5395874d6de8c7fd32aec139#1": {
               "title": "先把量词关系化成最值比较",
               "position": 4,
               "refs": [
@@ -1107,7 +1107,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "48a889f500e0e3380bade8b8#2": {
+            "5395874d6de8c7fd32aec139#2": {
               "title": "由图像读出 f 的最大值：第 1 段",
               "position": 5,
               "refs": [
@@ -1116,7 +1116,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "48a889f500e0e3380bade8b8#3": {
+            "5395874d6de8c7fd32aec139#3": {
               "title": "由图像读出 f 的最大值：第 2 段",
               "position": 6,
               "refs": [
@@ -1125,7 +1125,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "48a889f500e0e3380bade8b8#4": {
+            "5395874d6de8c7fd32aec139#4": {
               "title": "汇总 f 的最大值",
               "position": 7,
               "refs": [
@@ -1134,7 +1134,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "48a889f500e0e3380bade8b8#5": {
+            "5395874d6de8c7fd32aec139#5": {
               "title": "由图像读出 g 的最大值",
               "position": 8,
               "refs": [
@@ -1143,7 +1143,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "b4f2a1a9c4ac9b2eb2610368#1": {
+            "b0c6bf7d897ecbf740abe5e3#1": {
               "title": "代入最值，写出参数条件",
               "position": 9,
               "refs": [
@@ -1153,7 +1153,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "b4f2a1a9c4ac9b2eb2610368#2": {
+            "b0c6bf7d897ecbf740abe5e3#2": {
               "title": "解参数条件",
               "position": 10,
               "refs": [
@@ -1163,7 +1163,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "1e05017790caea6ccbc886a0#1": {
+            "297af2a24eb624faf96513c5#1": {
               "title": "回到原题，汇总参数范围",
               "position": 11,
               "refs": [
@@ -1176,11 +1176,11 @@
         }
       }
     },
-    "function-monotonicity-b16-v2": {
+    "function-monotonicity-b16-v3": {
       "label": "严格比较与最值见证 · B16",
       "path": "/topics/function-monotonicity/q16b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-b16-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-b16-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ],
@@ -1211,7 +1211,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "bf70d0efc0ab743db430fd91#1": {
+            "7bb257e54f7b4b0f05ea192c#1": {
               "title": "先给两边的式子取名",
               "position": 4,
               "refs": [
@@ -1219,7 +1219,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "bf70d0efc0ab743db430fd91#2": {
+            "7bb257e54f7b4b0f05ea192c#2": {
               "title": "先把量词关系化成最值比较",
               "position": 5,
               "refs": [
@@ -1227,7 +1227,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "bf70d0efc0ab743db430fd91#3": {
+            "7bb257e54f7b4b0f05ea192c#3": {
               "title": "由图像读出 g 的最大值",
               "position": 6,
               "refs": [
@@ -1235,7 +1235,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "bf70d0efc0ab743db430fd91#4": {
+            "7bb257e54f7b4b0f05ea192c#4": {
               "title": "求 f 的最大值：配成顶点式",
               "position": 7,
               "refs": [
@@ -1243,7 +1243,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "bf70d0efc0ab743db430fd91#5": {
+            "7bb257e54f7b4b0f05ea192c#5": {
               "title": "由图像读出 f 的最大值",
               "position": 8,
               "refs": [
@@ -1251,7 +1251,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "b14c4b5debeca01eb8f4649f#1": {
+            "ad131b1603742c7a7c99fcda#1": {
               "title": "代入最值，写出参数条件",
               "position": 9,
               "refs": [
@@ -1261,7 +1261,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "b14c4b5debeca01eb8f4649f#2": {
+            "ad131b1603742c7a7c99fcda#2": {
               "title": "解参数条件",
               "position": 10,
               "refs": [
@@ -1271,7 +1271,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "6b61ca2fd3da2c98f3adbc7a#1": {
+            "cdd2fd5a72717e8a350c4001#1": {
               "title": "回到原题，汇总参数范围",
               "position": 11,
               "refs": [
@@ -1284,11 +1284,11 @@
         }
       }
     },
-    "function-monotonicity-b11-v2": {
+    "function-monotonicity-b11-v3": {
       "label": "按斜率分类求值域 · B11",
       "path": "/topics/function-monotonicity/q11b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-b11-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-b11-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ],
@@ -1319,7 +1319,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "8c1d20bc26bc469daa1a7bbf#1": {
+            "cb380639276048098b818c42#1": {
               "title": "求 f 的值域：配成顶点式",
               "position": 4,
               "refs": [
@@ -1327,7 +1327,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "8c1d20bc26bc469daa1a7bbf#2": {
+            "cb380639276048098b818c42#2": {
               "title": "由图像读出 f 的值域",
               "position": 5,
               "refs": [
@@ -1335,7 +1335,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "8c1d20bc26bc469daa1a7bbf#3": {
+            "cb380639276048098b818c42#3": {
               "title": "求 g 的值域：按斜率分类（↑）",
               "position": 6,
               "refs": [
@@ -1343,7 +1343,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "8c1d20bc26bc469daa1a7bbf#4": {
+            "cb380639276048098b818c42#4": {
               "title": "由图像读出 g 的值域（$a > 0$）",
               "position": 7,
               "refs": [
@@ -1351,7 +1351,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "8c1d20bc26bc469daa1a7bbf#5": {
+            "cb380639276048098b818c42#5": {
               "title": "求 g 的值域：按斜率分类（常值）",
               "position": 8,
               "refs": [
@@ -1359,7 +1359,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "8c1d20bc26bc469daa1a7bbf#6": {
+            "cb380639276048098b818c42#6": {
               "title": "由图像读出 g 的值域（$a=0$）",
               "position": 9,
               "refs": [
@@ -1367,7 +1367,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "8c1d20bc26bc469daa1a7bbf#7": {
+            "cb380639276048098b818c42#7": {
               "title": "求 g 的值域：按斜率分类（↓）",
               "position": 10,
               "refs": [
@@ -1375,7 +1375,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "8c1d20bc26bc469daa1a7bbf#8": {
+            "cb380639276048098b818c42#8": {
               "title": "由图像读出 g 的值域（$a < 0$）",
               "position": 11,
               "refs": [
@@ -1383,7 +1383,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "8c1d20bc26bc469daa1a7bbf#9": {
+            "cb380639276048098b818c42#9": {
               "title": "汇总 g 在各斜率下的值域",
               "position": 12,
               "refs": [
@@ -1391,7 +1391,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "5605d222a4209f0ea13b8a14#1": {
+            "72d485f0dec467d78a27d50f#1": {
               "title": "讨论 f 与 g 的取值关系",
               "position": 13,
               "refs": [
@@ -1401,7 +1401,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "5605d222a4209f0ea13b8a14#2": {
+            "72d485f0dec467d78a27d50f#2": {
               "title": "求参数（$a=0$）",
               "position": 14,
               "refs": [
@@ -1411,7 +1411,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "5605d222a4209f0ea13b8a14#3": {
+            "72d485f0dec467d78a27d50f#3": {
               "title": "求参数（$a > 0$）",
               "position": 15,
               "refs": [
@@ -1421,7 +1421,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "5605d222a4209f0ea13b8a14#4": {
+            "72d485f0dec467d78a27d50f#4": {
               "title": "求参数（$a < 0$）",
               "position": 16,
               "refs": [
@@ -1431,7 +1431,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "a6435ec3c173f84564854519#1": {
+            "b5aa3c5415c09460d935442b#1": {
               "title": "回到原题，汇总参数范围",
               "position": 17,
               "refs": [
@@ -1444,11 +1444,11 @@
         }
       }
     },
-    "function-monotonicity-b10-v2": {
+    "function-monotonicity-b10-v3": {
       "label": "动区间的最大值 · B10",
       "path": "/topics/function-monotonicity/q10b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-monotonicity-b10-v2.json",
+      "bundle": "/data/graph-walk/function-monotonicity-b10-v3.json",
       "types": [
         "type-monotonicity-extremum"
       ],
@@ -1479,7 +1479,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "284f182db4e0605ce2945c89#1": {
+            "7ef93f5ecc5306781be4883e#1": {
               "title": "先保证 g 有输入",
               "position": 4,
               "refs": [
@@ -1488,7 +1488,7 @@
                 "reciprocal-sum-function"
               ]
             },
-            "284f182db4e0605ce2945c89#2": {
+            "7ef93f5ecc5306781be4883e#2": {
               "title": "先把量词关系化成最值比较",
               "position": 5,
               "refs": [
@@ -1497,7 +1497,7 @@
                 "reciprocal-sum-function"
               ]
             },
-            "284f182db4e0605ce2945c89#3": {
+            "7ef93f5ecc5306781be4883e#3": {
               "title": "由图像读出 f 的最大值",
               "position": 6,
               "refs": [
@@ -1506,7 +1506,7 @@
                 "reciprocal-sum-function"
               ]
             },
-            "284f182db4e0605ce2945c89#4": {
+            "7ef93f5ecc5306781be4883e#4": {
               "title": "求 g 的最大值：配成顶点式",
               "position": 7,
               "refs": [
@@ -1515,7 +1515,7 @@
                 "reciprocal-sum-function"
               ]
             },
-            "284f182db4e0605ce2945c89#5": {
+            "7ef93f5ecc5306781be4883e#5": {
               "title": "求 g 的最大值：比较二次函数两端",
               "position": 8,
               "refs": [
@@ -1524,7 +1524,7 @@
                 "reciprocal-sum-function"
               ]
             },
-            "284f182db4e0605ce2945c89#6": {
+            "7ef93f5ecc5306781be4883e#6": {
               "title": "求 g 的最大值：按端点高低分成两类",
               "position": 9,
               "refs": [
@@ -1533,7 +1533,7 @@
                 "reciprocal-sum-function"
               ]
             },
-            "ea61e938929b79b6aed59171#1": {
+            "a0ee3a410e0046b7d26b1545#1": {
               "title": "求参数（$1 \\leq a \\leq 3$）",
               "position": 10,
               "refs": [
@@ -1543,7 +1543,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "ea61e938929b79b6aed59171#2": {
+            "a0ee3a410e0046b7d26b1545#2": {
               "title": "求参数（$a > 3$）",
               "position": 11,
               "refs": [
@@ -1553,7 +1553,7 @@
                 "function-range-extrema#extrema"
               ]
             },
-            "db8abeaf73d8213e56aa8303#1": {
+            "92b989b7fca9309e0a99f250#1": {
               "title": "回到原题，汇总参数范围",
               "position": 12,
               "refs": [

@@ -17,6 +17,9 @@
       ],
       "calls": [
         {
+          "ref": "method-domain-intersection"
+        },
+        {
           "ref": "skill-domain-symmetry"
         }
       ]

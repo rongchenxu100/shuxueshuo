@@ -3,7 +3,6 @@ from copy import deepcopy
 
 import pytest
 import sympy as sp
-
 from shuxueshuo_server.graph_lesson import parity_parameter_math as math
 from shuxueshuo_server.graph_lesson import parity_parameter_original as original
 from shuxueshuo_server.graph_lesson.stage_three.trajectory import (
@@ -117,3 +116,56 @@ def test_parameter_poles_and_quartic_roots_are_not_lost():
     result = math.solve(d)
     assert result['feasible_set'] == sp.Interval(-sp.sqrt(2), sp.sqrt(2))-sp.FiniteSet(-1, 1)
     assert math.verify(d, result)
+
+
+@pytest.mark.parametrize('expr,facts,value,domain', [
+    ('piecewise(m,x<0,1,x>0)', (), 0, sp.S.Reals-sp.FiniteSet(0)),
+    ('piecewise(m/(x-1),x<0,-1/(x+1),x>=0)', (), 1, sp.S.Reals),
+    ('piecewise(m/(x-1),x<0,1/(x-1),x>=0)', (), 1, sp.S.Reals-sp.FiniteSet(1)),
+    ('x/(m*x)', (), 0, sp.S.EmptySet),
+    ('x/(m*x)', (), 1, sp.S.Reals-sp.FiniteSet(0)),
+    ('m/x', ('Dom(f)={-1,1}',), 0, sp.FiniteSet(-1, 1)),
+    ('sqrt(m*x^2)', ('Dom(f)=ℝ',), 0, sp.S.Reals),
+    ('sqrt(x^2+m)', (), -2, sp.Interval(-sp.oo, -sp.sqrt(2)) | sp.Interval(sp.sqrt(2), sp.oo)),
+])
+def test_domain_submethod_preserves_original_scope_and_parameter_degeneracy(expr, facts, value, domain):
+    d = description(candidate(expr, facts=facts, goal_kind='find_range'))
+    proof = original.solve_domain(d)
+    assert original.verify_domain(d, proof)
+    assert original.verify_domain(d, decode_value(encode_value(proof)))
+    assert original.domain_at(d, proof, sp.sympify(value)) == domain
+
+
+@pytest.mark.parametrize('expr,facts', [
+    ('m/x', ('Dom(f)=[-1,1]',)),
+    ('piecewise(m,x<0,1,x>0)', ('Dom(f)=ℝ',)),
+    ('sqrt(m*x^2)', ('Dom(f)=ℝ',)),
+])
+def test_domain_submethod_rejects_illegal_declared_domains(expr, facts):
+    d = description(candidate(expr, facts=facts, goal_kind='find_range'))
+    proof = original.solve_domain(d)
+    with pytest.raises(ValueError, match='invalid_declared_domain'):
+        original.domain_at(d, proof, sp.S.NegativeOne)
+
+
+@pytest.mark.parametrize('expr', ['piecewise(m/(x-1),x<0,-1/(x+1),x>=0)', 'sqrt(m*x^2)'])
+def test_domain_submethod_certificate_is_checked_against_original_source(expr, monkeypatch):
+    from shuxueshuo_server.graph_lesson.stage_three.capabilities import LocalCheckFailed
+    from shuxueshuo_server.graph_lesson.stage_three.parity_parameter_runtime import (
+        solve_original_domain,
+    )
+    d = description(candidate(expr, goal_kind='find_range'))
+    proof = original.solve_domain(d)
+    def forbidden(*args, **kwargs):
+        pytest.fail('domain verification invoked a production solver')
+    monkeypatch.setattr(original, 'solve_domain', forbidden)
+    assert original.verify_domain(d, proof)
+    corrupted = deepcopy(proof)
+    if corrupted['kind'] == 'radical':
+        corrupted['cases'].pop()
+    else:
+        corrupted['rows'][0]['input_atoms'][0]['member'] = False
+    assert not original.verify_domain(d, corrupted)
+    monkeypatch.setattr(original, 'solve_domain', lambda _: corrupted)
+    with pytest.raises(LocalCheckFailed, match='original_domain_certificate_failed'):
+        solve_original_domain(d)

@@ -36,14 +36,14 @@
             "method-parity-parameter"
           ]
         },
-        "c441f0d7816f0e7bb9a5f8d2#1": {
+        "39b07482ed252c247ea6bf86#1": {
           "title": "检查定义域",
           "position": 4,
           "refs": [
             "method-parity-parameter#prepare"
           ]
         },
-        "804b631cb58ded5bd0060c7f#1": {
+        "c432141d9bb9fc68deb74f79#1": {
           "title": "把奇偶性写成关系",
           "position": 5,
           "refs": [
@@ -52,7 +52,7 @@
             "skill-simplify"
           ]
         },
-        "b7de6f8b9f14cd77b0e60d97#1": {
+        "c8a11cf315c1520001978b39#1": {
           "title": "比较对应项的系数",
           "position": 6,
           "refs": [
@@ -61,14 +61,14 @@
             "equality-properties#polynomial-coefficients"
           ]
         },
-        "0aa93e268d6ebf9fe651396a#1": {
+        "bddc21b953120f0def9ef94f#1": {
           "title": "合并全部参数条件",
           "position": 7,
           "refs": [
             "method-parity-parameter#solve"
           ]
         },
-        "8441b24844f923ed2601440b#1": {
+        "54705bb50d9df2aa7e1ec172#1": {
           "title": "代回核验",
           "position": 8,
           "refs": [
@@ -78,6 +78,6 @@
       }
     }
   },
-  "page_contract_hash": "a9d39fa5f49f2e74478dc093284924d0fb8033aa24162d58262a81671073bbe7",
-  "practice_version": "015db1e452e44cb4fe4c825a888ed9a7bb98005d2e945fe25183cbf8c2d6921f"
+  "page_contract_hash": "6237a8500d73bf370b4135a499b4091663d325d576d3cdc550251d1dd2fa6e92",
+  "practice_version": "8262c9135cacc84c0cbd9fec108480d858ad1189a9e62ec889024997e520a59e"
 }

@@ -1,0 +1,83 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-c05",
+  "label": "根式的自然定义域 · C05",
+  "path": "/topics/function-parity/variant5/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-c05.json",
+  "types": [
+    "type-parity-parameter"
+  ],
+  "statement": "已知函数 $f(x)=\\sqrt{px^2}$ 为奇函数，求实数 $p$ 的取值范围。",
+  "routes": {
+    "parity-parameter": {
+      "label": "奇偶性条件求参法",
+      "methods": [
+        "method-parity-parameter"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-parity-parameter"
+          ]
+        },
+        "8a4fa29f5cfac6adc47f0c82#1": {
+          "title": "求定义域",
+          "position": 4,
+          "refs": [
+            "method-parity-parameter#prepare",
+            "method-domain-intersection",
+            "function-concept#elements",
+            "set-intersection-union#intersection"
+          ]
+        },
+        "e7ccb2dc5b34b3a365dfd03c#1": {
+          "title": "把相反数代入原式",
+          "position": 5,
+          "refs": [
+            "method-parity-parameter#identity",
+            "method-function-evaluation"
+          ]
+        },
+        "41ee10fb1ebc3659ce2c4ce6#1": {
+          "title": "分情况讨论",
+          "position": 6,
+          "refs": [
+            "method-parity-parameter#compare"
+          ]
+        },
+        "f7b85d4976e335e6d8eae80e#1": {
+          "title": "取并集",
+          "position": 7,
+          "refs": [
+            "method-parity-parameter#solve"
+          ]
+        },
+        "5af82d4fdb584d35edffec44#1": {
+          "title": "代回核验",
+          "position": 8,
+          "refs": [
+            "method-parity-parameter#verify"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "b7a04d9750ed5df1fbf3316f3f71165aa8425c83103af9766c1eddf99b772de5",
+  "practice_version": "36d2bae8d49cfad85d29fd2d15d7d776275d9c73c4748cdd2380b977d2814984"
+}

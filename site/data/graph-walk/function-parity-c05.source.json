@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-c05",
+  "title": "根式的自然定义域 · C05",
+  "page": "/topics/function-parity/variant5/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c05.json",
+  "evidence": "site/data/graph-walk/function-parity-c05.evidence.json"
+}

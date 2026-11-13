@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a06",
+  "title": "奇函数与偶函数的差式求值 · A06",
+  "page": "/topics/function-parity/q06/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a06.json",
+  "evidence": "site/data/graph-walk/function-parity-a06.evidence.json"
+}

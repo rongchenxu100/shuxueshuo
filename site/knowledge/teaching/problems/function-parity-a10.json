@@ -1,0 +1,120 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-a10",
+  "label": "对称轴与奇性求和 · A10",
+  "path": "/topics/function-parity/q10/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-a10.json",
+  "types": [
+    "type-function-symmetry"
+  ],
+  "statement": "设函数 $f(x)$ 是定义在 $R$ 上的奇函数，且关于直线 $x=1$ 对称，$f(1)=1$，则 $f(1)+f(2)+f(3)+f(4)=$____；$f(1)+f(2)+\\cdots+f(54)$ 的值为____。",
+  "routes": {
+    "function-symmetry": {
+      "label": "对称关系法",
+      "methods": [
+        "method-function-symmetry"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-graph-symmetry"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-function-symmetry"
+          ]
+        },
+        "242e4c2a5df665d5e3271bac#1": {
+          "title": "找出配对的输入",
+          "position": 4,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "242e4c2a5df665d5e3271bac#2": {
+          "title": "找出配对的输入",
+          "position": 5,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "242e4c2a5df665d5e3271bac#3": {
+          "title": "连续使用两次对称关系",
+          "position": 6,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "5d72945c92cbd6e0d0fc71d1#1": {
+          "title": "求出所求的值",
+          "position": 7,
+          "refs": [
+            "method-function-symmetry#conclude"
+          ]
+        },
+        "goal-2-D1": {
+          "title": "求前 54 项之和",
+          "position": 8,
+          "refs": [
+            "function-graph-symmetry"
+          ]
+        },
+        "02658af8eae76ada249a94fd#1": {
+          "title": "找出配对的输入",
+          "position": 9,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "02658af8eae76ada249a94fd#2": {
+          "title": "找出配对的输入",
+          "position": 10,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "02658af8eae76ada249a94fd#3": {
+          "title": "连续使用两次对称关系",
+          "position": 11,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "c87d103ddedcadc5d02d43da#1": {
+          "title": "分组并保留余项",
+          "position": 12,
+          "refs": [
+            "method-function-symmetry#conclude"
+          ]
+        },
+        "c87d103ddedcadc5d02d43da#2": {
+          "title": "求出函数值之和",
+          "position": 13,
+          "refs": [
+            "method-function-symmetry#conclude"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "79a707cf04e0adf612b7f6239452a5fd4b178f8e3df2e6b9a5f1a6d5b6964776",
+  "practice_version": "f6290f7500787b1f1f1ad7d0afc637a7d670c5fbf682ac421d326b224490c4cf"
+}

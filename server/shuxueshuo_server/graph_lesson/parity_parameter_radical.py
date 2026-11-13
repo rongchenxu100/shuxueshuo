@@ -21,8 +21,8 @@ def source(desc):
     return {'kind': 'radical', 'alpha': a, 'beta': b, 'conditions': conditions(desc)}
 
 
-def compare(desc, src, *, independent=False):
-    from .parity_parameter_original import symbols
+def domain_proof(desc, src, *, independent=False):
+    from .parity_parameter_original import cell_set, symbols
     _, p = symbols(desc)
     a, b = src['alpha'], src['beta']
     cases = []
@@ -51,24 +51,37 @@ def compare(desc, src, *, independent=False):
                     and (sp.simplify(alpha*radius**2+beta) != 0 or endpoints['left']+endpoints['right'] != 0)):
                 raise ValueError('parity_param.r2_radical_endpoint_identity')
             cases.append({'alpha_sign': sa, 'beta_sign': sb, 'condition': condition,
+                          'parameter_cell': cell_set([condition], p) if independent else base.condition_set(condition, p),
                           'domain_kind': kind, 'endpoints': endpoints,
                           'coefficient_bindings': {'alpha': a, 'beta': b},
                           'nonempty': kind != 'empty', 'symmetric': kind != 'empty',
                           'zero_on_domain': kind == 'singleton_zero' or sa == sb == 0})
     declared = desc['domain_role'] == 'declared'
     domain = sp.And(a >= 0, b >= 0) if declared else sp.Or(a > 0, b >= 0)
+    if independent:
+        case_domain = sp.Or(*(c['condition'] for c in cases if c['nonempty']
+                             and (not declared or c['domain_kind'] == 'real')))
+        if cell_set([domain], p) != cell_set([case_domain], p):
+            raise ValueError('parity_param.r2_radical_case_coverage')
+    return {'kind': 'radical', 'source': src, 'cases': cases, 'domain_conditions': [domain]}
+
+
+def compare(desc, src, *, independent=False):
+    from .parity_parameter_original import cell_set, symbols
+    proof = domain_proof(desc, src, independent=independent)
+    a, b = src['alpha'], src['beta']
+    _, p = symbols(desc)
+    cases = proof['cases']
+    domain, = proof['domain_conditions']
+    declared = desc['domain_role'] == 'declared'
     zero = sp.And(sp.Eq(a, 0), sp.Eq(b, 0)) if declared else sp.And(a <= 0, sp.Eq(b, 0))
     odd = any(-1 in base.PROPERTIES[f['property']] for f in desc['parity_facts'])
     # Independent reasoning: a nonnegative odd function is zero on its entire
     # symmetric domain. Check the union of the exhaustive zero/domain cases.
     if independent:
-        from .parity_parameter_original import cell_set
-        case_domain = sp.Or(*(c['condition'] for c in cases if c['nonempty']
-                             and (not declared or c['domain_kind'] == 'real')))
         case_zero = sp.Or(*(c['condition'] for c in cases if c['zero_on_domain']
                            and (not declared or c['domain_kind'] == 'real')))
-        if cell_set([domain], p) != cell_set([case_domain], p) or cell_set([zero], p) != cell_set([case_zero], p):
+        if cell_set([zero], p) != cell_set([case_zero], p):
             raise ValueError('parity_param.r2_radical_case_coverage')
-    return {'kind': 'radical', 'source': src, 'cases': cases,
-            'domain_conditions': [domain], 'zero_conditions': [zero],
+    return {**proof, 'zero_conditions': [zero],
             'parity_conditions': [zero if odd else domain]}

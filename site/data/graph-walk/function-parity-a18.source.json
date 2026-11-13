@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a18",
+  "title": "奇函数差商单调与两值比较 · A18",
+  "page": "/topics/function-parity/q18/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a18.json",
+  "evidence": "site/data/graph-walk/function-parity-a18.evidence.json"
+}

@@ -40,7 +40,7 @@ uv run --project server python server/tools/run_site.py
 
 知识图谱的个人状态和目录进度是服务端按节点 ID 返回的实时只读数据，不再要求静态页面带相同的整体发布版本。五题检测从 `/api/learning/nodes` 取得本节点 `drill_version`，开始时核对该节点有效题目的身份、条目归属与内容摘要；修改其他知识点或题池不阻断本节点。修改本题池仍拒绝过期的新建请求，已返回的轮次保留冻结题目和首答记录。旧客户端的 `content_version` 协议暂时兼容；更新后的公共脚本使用按题或按题池协议。这些调整不改变拍题识别流程。
 
-1. 若已有题目的步骤或判定规则发生变化，沿用课程版本惯例分配新的内部 ID（例如 `function-concepts-q23b-v2`），更新专题登记与页面课包引用，保留学生使用的页面地址。仅标题、反馈和提示等展示修订可沿用 ID。旧 ID 的发布内容和学习记录保留；不能直接改数据库摘要绕过检查。
+1. 目前尚无用户，题目的步骤、顺序、选项或判定规则发生变化时，直接在原课程 ID 下重建并发布，无需另建版本 ID。构建器仍为兼容的课包保留稳定标识；不兼容的修改使用新的 `bundleVersion`。服务端原地更新课程并关闭受影响的进行中记录，旧记录的冻结快照仍可读取。页面和判题版本不匹配时仍要求刷新，避免用新规则判定旧答案；数学验证和发布文件一致性检查照常执行。
 2. 编译本次改动的课程，再运行 `node tools/build-public-knowledge-graph.mjs` 和 `node tools/build-topic-overviews.mjs`。用两条命令的 `--check` 确认生成文件与源码一致。
 3. 停止连接日常实例的网站和产品服务，运行 `./deploy/product/manage.sh --mode local deploy`。该命令先备份，再事务发布；不要使用清空个人记录的重建操作。
 4. 运行 `./deploy/product/manage.sh --mode local verify-release --site-version site/knowledge/teaching/version.json`，确认返回 `site: match` 后重新启动网站，并刷新原题页。

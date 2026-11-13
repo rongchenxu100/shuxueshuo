@@ -1253,7 +1253,11 @@
                     {
                       "properties": {
                         "math": {
-                          "type": "null"
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "minLength": 1
                         }
                       }
                     }
@@ -1975,6 +1979,29 @@
             "properties": {
               "expected_answer": {
                 "minProperties": 1
+              },
+              "stem_board": {
+                "if": {
+                  "required": [
+                    "layout"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "items": {
+                      "prefixItems": [
+                        {},
+                        {
+                          "properties": {
+                            "math": {
+                              "type": "null"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             }
           }

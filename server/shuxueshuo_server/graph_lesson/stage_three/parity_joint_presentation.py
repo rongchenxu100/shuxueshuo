@@ -11,6 +11,7 @@ from .parity_parameter_presentation import (
     PROPERTY,
     _display_ast,
     _read,
+    compare_view,
     condition_latex,
 )
 
@@ -49,6 +50,22 @@ def answer_for(desc, model):
                           'nonzero': [math_value(e) for e in f['nonzero']]} for f in families]}
 
 
+def _point_rows(desc, proof):
+    """One row per pair ±q: f(-q)=±f(q) with both sides evaluated."""
+    x, _, expression, _, _, _ = source(desc)
+    f = desc['function']
+    rows = []
+    for row in proof['rows']:
+        q, sign = row['point'], row['sign']
+        if q < 0 and any(r['point'] == -q and r['sign'] == sign for r in proof['rows']):
+            continue
+        left, right = (sp.expand(expression.subs(x, v)) for v in (-q, q))
+        shown = latex(right) if sign == 1 else ('-' + (latex(right) if right.is_Atom else '('+latex(right)+')'))
+        rows += [f+'('+latex(-q)+')='+('' if sign == 1 else '-')+f+'('+latex(q)+')',
+                 latex(left)+'='+shown]
+    return rows
+
+
 def phase_views(values):
     desc, phase = values['description'], values['phase']
     x, parameters, _, domain, _, signs = source(desc)
@@ -68,7 +85,7 @@ def phase_views(values):
         reflected = fneg+'='+expression_latex(reflect_ast(_display_ast(desc['expression_ast'])), desc['variable'])
         wrong = [fneg+('=-' if signs == [1] else '=')+fx] if len(signs) == 1 else []
         view = choice_card('写出相反输入的关系', '在完整定义域内整体代入相反数，再按已知性质建立关系。',
-                           '原式及代入', _lines([original[0], reflected]), '要恒成立的关系',
+                           '原式及代入', _lines([original[0], original[1], reflected]), '要恒成立的关系',
                            _lines(relations), wrong, _lines([reflected, *relations]))
         if not wrong:
             view.update(interaction={'type': 'read'}, expected_answer={})
@@ -76,14 +93,17 @@ def phase_views(values):
     if phase == 'compare':
         proof = values['evidence']
         finite = proof['mode'] == 'finite_points'
-        rows = [('x='+latex(r['point'])+r':\quad ' if finite else
-                 (r'\text{常数项：}' if r['degree'] == 0 else 'x^{'+str(r['degree'])+r'}\text{ 项：}'))
-                +latex(r['residual'])+'=0' for r in proof['rows']]
+        if finite:
+            rows = _point_rows(desc, proof)
+        else:
+            rows = [(r'\text{常数项：}' if r['degree'] == 0 else 'x^{'+str(r['degree'])+r'}\text{ 项：}')
+                    + latex(r['residual'])+'=0' for r in proof['rows']]
         conditions = [latex(e)+'=0' for e in proof['equations']] or [r'\text{关系对所有参数都成立}']
         question = ('把定义域中的每一个输入都代入，保留两个参数之间的关系。' if finite else
                     '多项式在非退化区间上恒等，各次项的系数分别相等；不要补加另一种奇偶性。')
-        return [_read('逐点列条件' if finite else '比较对应项的系数', question,
-                      '需要满足的关系', _lines(relations), '联合条件', _lines(conditions), _lines(rows+conditions))]
+        return [compare_view('逐点列条件' if finite else '比较对应项的系数', question,
+                             _lines(rows if finite else relations), rows, '联合条件', _lines(conditions),
+                             relation_label='逐点代入' if finite else '需要满足的关系', rows_label='逐点代入' if finite else '逐项比较')]
     model = values['evidence']
     answer = family_latex(parameters, model['solution'])
     conditions = [latex(e)+'=0' for e in model['comparison']['equations']]
@@ -101,11 +121,23 @@ def phase_views(values):
         other = r'\varnothing' if model['solution'] else r'('+','.join(desc['parameters'])+r')\in\mathbb R^2'
         return [choice_card('合并联合参数条件', '解方程时保留自由参数，并将非零限制代回；答案可以是一族参数。',
                             '全部条件', _lines(conditions), '参数的联合取值', answer, [other], proof)]
-    substitutions = []
     expression = source(desc)[2]
+    if not model['solution']:
+        return [_read('代回全部解族', '没有参数同时满足全部条件。', '原函数与完整域', _lines(original),
+                      '最终联合条件', answer, proof)]
+    many = len(model['solution']) > 1
+    given, checks = [], []
     for index, family in enumerate(model['solution'], 1):
+        prefix = r'\text{解族 '+str(index)+r'：}' if many else ''
         value = sp.expand(expression.subs(dict(zip(parameters, family['values'], strict=True)), simultaneous=True))
-        substitutions.append(r'\text{解族 '+str(index)+r'：}\quad '+fx+'='+latex(value))
-    return [_read('代回全部解族', '将联合解代回原式；自由参数仍保留，不能任取一个值代替整个解族。',
-                  '原函数与完整域', _lines(original), '最终联合条件', answer,
-                  _lines([proof, *substitutions, r'\text{已核验完整定义域、可逆消元和全部非零限制}']))]
+        given.append(prefix+fx+'='+latex(value))
+        if isinstance(domain, sp.FiniteSet):
+            checks.append(prefix+r',\ '.join(f+'('+latex(q)+')='+latex(sp.expand(value.subs(x, q)))
+                                            for q in sorted(domain)))
+        else:
+            checks.append(prefix+fneg+'='+latex(sp.expand(value.subs(x, -x))))
+        checks += [prefix+latex(e)+r'\ne 0' for e in family['nonzero']]
+    given.append('D='+latex(domain))
+    checks.append(r'\Rightarrow\ '+r'\text{、}'.join(relations))
+    return [_read('代回核验', '把联合解代入原式检查；自由参数保留为字母。', '代入联合解', _lines(given),
+                  '检验', _lines(checks), _lines([*given, *checks, answer]))]

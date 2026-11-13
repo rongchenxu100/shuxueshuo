@@ -390,7 +390,21 @@ A15 的已验证返回为 $m=-4$、$D=[-9,9]$。T3 随后检查目标输入 $-4$
 
 等 T2–T5 全部完成后，统一刷新全部当前 authored 课程的执行证据、课包和教学目录，再进行全量构建及 `--check`，同时核对公开目录与学习库同步。按课程计算依赖指纹仍是后续优化，不作为 T3 的前置工作，也不承诺无关单调性课程天然不受共享改动影响。
 
-全量重建不等于全部升版本或清空学习记录。沿用[课程身份兼容检查](../tools/lib/graph-walk-course-identity.mjs)：教学／作答合同兼容时保留身份，合同变化时分配新版本并保留旧课包与历史记录；统一发布必须回归旧页面、保存进度与回放恢复。
+全量重建不等于全部升版本或清空学习记录。课程身份规则（2026-11-12 起）：
+
+- **原 ID 原地重建。** [preserveCourseIdentity](../tools/lib/graph-walk-course-identity.mjs) 比较步骤、题干、选项、答案等教学／作答合同；兼容时沿用旧 `bundleVersion`，合同变化时在同一题目 ID 下重建并生成新 `bundleVersion`。原先“合同变化必须改用新课程 ID”的构建期保护（`requireCourseIdentity`）及服务端对应拒绝已删除：它只为避免学生学到一半时课程变化，代价是每次改题都要换 ID，收益不足。
+- **发布时收口进行中的作答。** [content.publish](../server/shuxueshuo_server/learning/content.py) 将合同变化的题目记入 `regraded`：其进行中的 `student_practice_attempts` 关闭并保留冻结作答上下文；仍发布的路线删除已不存在的步骤，并在同一事务中暂移保留步骤的位置，再写入新顺序，避免交换、插入和恢复旧版时触发位置唯一约束。
+- **保留的保护。** 历史作答仍由作答快照保留；`require_attempt` 的 409 仍阻止把旧答案恢复到新步骤。摘要变化不再阻断发布；是否关闭进行中记录按实际判题内容和能力关联判断。步骤增删、调整顺序及恢复旧版本均可在原 ID 下发布。
+- **测试。** [graph-walk-course-identity.test.mjs](../tools/tests/graph-walk-course-identity.test.mjs)、[test_practice_compatibility.py](../server/tests/auth/test_practice_compatibility.py)（`test_cosmetic_publish_preserves_snapshot_and_grading_change_replaces_in_place`）、[test_learning_publish.py](../server/tests/auth/test_learning_publish.py)、[test_parity_topic_publication.py](../server/tests/auth/test_parity_topic_publication.py)（同 ID 交换、增删步骤、重复发布与恢复旧版）。
+
+统一发布仍须回归旧页面、保存进度与回放恢复。[参数设计文档](function-parity-parameter-problem-type-design.md)中“合同变化时分配新课程版本”的旧表述以本节为准。
+
+按上述规则已在本地重发布的课程：
+
+| 课程 | 变化 | 发布后内容版本 |
+|---|---|---|
+| A17、C02、C06 | 比较卡改为“逐项比较 ⇒ 条件”左右推导板，去掉配对数轴 | `2426a271…` |
+| C01 | 定义域路线重设计：标题改为“检查定义域是否关于原点对称”，选项写成“端点和为 0 ⇒ 参数值”，无解析式时跳过函数值关系与合并卡，核验改为一行 | `50b4b314…`（练习步骤 1518 → 1515，无进行中作答受影响） |
 
 ## 8. 必要测试与真实验收
 

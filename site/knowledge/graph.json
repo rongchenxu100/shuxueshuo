@@ -1125,26 +1125,29 @@
       "id": "method-function-symmetry",
       "kind": "method",
       "label": "对称关系法",
-      "summary": "利用奇偶性把函数值的输入换成相反数，找出与已知规则或已知组合的关系，直接求出所求函数值或其组合。",
+      "summary": "利用奇偶性、对称轴、对称中心或题给的局部等式，变换输入与函数值，再求值、配对求和或判断同域最值之和。",
       "aliases": [],
       "steps": [
         {
           "id": "prepare",
           "title": "读清已知与所求",
-          "calls": []
+          "calls": [
+            "skill-domain-symmetry"
+          ]
         },
         {
           "id": "rewrite",
-          "title": "把输入换成相反数",
+          "title": "变换输入与函数值",
           "calls": [
             "skill-function-symmetry-transform"
           ]
         },
         {
           "id": "evaluate",
-          "title": "代入已知解析式",
+          "title": "代入或迭代后求值",
           "calls": [
-            "method-function-evaluation"
+            "method-function-evaluation",
+            "skill-function-shift-iteration"
           ]
         },
         {
@@ -1646,6 +1649,7 @@
           "id": "prepare",
           "title": "检查定义域",
           "calls": [
+            "method-domain-intersection",
             "skill-domain-symmetry"
           ]
         },
@@ -2734,10 +2738,17 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "skill-function-shift-iteration",
+      "kind": "skill",
+      "label": "迭代平移关系与整理有限和",
+      "summary": "在关系适用的范围内重复变换输入，逐项保留函数值的符号与常数。",
+      "aliases": []
+    },
+    {
       "id": "skill-function-symmetry-transform",
       "kind": "skill",
       "label": "利用对称关系变换输入与函数值",
-      "summary": "按题给的奇偶关系，把输入换成相反数，并相应地变换函数值。",
+      "summary": "在题给范围内，把输入按对称位置配对，并相应地变换函数值。",
       "aliases": []
     },
     {
@@ -2992,6 +3003,14 @@
       "home": "compulsory-1-ch3"
     },
     {
+      "id": "type-function-symmetry",
+      "kind": "problem_type",
+      "label": "利用图像对称关系求值与求和",
+      "summary": "依据对称轴、对称中心或限定范围的对称等式，变换输入并求值或求和。",
+      "aliases": [],
+      "status": "active"
+    },
+    {
       "id": "type-monotonicity-abstract-proof",
       "kind": "problem_type",
       "label": "证明抽象函数的单调性",
@@ -3093,6 +3112,14 @@
       "summary": "解分母含 x 的不等式，写出全部解，别忘了分母不能为 0。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "type-shifted-odd-application",
+      "kind": "problem_type",
+      "label": "奇函数＋常数结论的应用",
+      "summary": "先明确奇函数与原函数的关系，再求相反输入的值、配对和或最值之和。",
+      "aliases": [],
+      "status": "active"
     },
     {
       "id": "type-solution-parameters",
@@ -4295,6 +4322,30 @@
       ]
     },
     {
+      "id": "method-function-symmetry|calls|skill-domain-symmetry",
+      "from": "method-function-symmetry",
+      "to": "skill-domain-symmetry",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "prepare",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-symmetry|calls|skill-function-shift-iteration",
+      "from": "method-function-symmetry",
+      "to": "skill-function-shift-iteration",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "evaluate",
+          "when": ""
+        }
+      ]
+    },
+    {
       "id": "method-function-symmetry|calls|skill-function-symmetry-transform",
       "from": "method-function-symmetry",
       "to": "skill-function-symmetry-transform",
@@ -4681,6 +4732,18 @@
       "occurrences": [
         {
           "step": "direction",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-parameter|calls|method-domain-intersection",
+      "from": "method-parity-parameter",
+      "to": "method-domain-intersection",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "prepare",
           "when": ""
         }
       ]
@@ -6893,6 +6956,17 @@
       ]
     },
     {
+      "id": "skill-domain-symmetry|uses|function-graph-symmetry",
+      "from": "skill-domain-symmetry",
+      "to": "function-graph-symmetry",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "paired-arguments"
+        }
+      ]
+    },
+    {
       "id": "skill-domain-symmetry|uses|function-parity",
       "from": "skill-domain-symmetry",
       "to": "function-parity",
@@ -6975,6 +7049,31 @@
       "occurrences": [
         {
           "entry": "vieta"
+        }
+      ]
+    },
+    {
+      "id": "skill-function-shift-iteration|uses|function-graph-symmetry",
+      "from": "skill-function-shift-iteration",
+      "to": "function-graph-symmetry",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "iteration"
+        }
+      ]
+    },
+    {
+      "id": "skill-function-symmetry-transform|uses|function-graph-symmetry",
+      "from": "skill-function-symmetry-transform",
+      "to": "function-graph-symmetry",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "axis"
+        },
+        {
+          "entry": "center"
         }
       ]
     },
@@ -8154,6 +8253,33 @@
       ]
     },
     {
+      "id": "type-function-symmetry|candidate|method-function-symmetry",
+      "from": "type-function-symmetry",
+      "to": "method-function-symmetry",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-symmetry|involves|function-graph-symmetry",
+      "from": "type-function-symmetry",
+      "to": "function-graph-symmetry",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-symmetry|involves|function-parity",
+      "from": "type-function-symmetry",
+      "to": "function-parity",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-monotonicity-abstract-proof|candidate|method-monotonicity-definition",
       "from": "type-monotonicity-abstract-proof",
       "to": "method-monotonicity-definition",
@@ -8580,6 +8706,33 @@
       "id": "type-rational-inequality|involves|quadratic-inequality",
       "from": "type-rational-inequality",
       "to": "quadratic-inequality",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-shifted-odd-application|candidate|method-function-symmetry",
+      "from": "type-shifted-odd-application",
+      "to": "method-function-symmetry",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-shifted-odd-application|involves|function-graph-symmetry",
+      "from": "type-shifted-odd-application",
+      "to": "function-graph-symmetry",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-shifted-odd-application|involves|function-parity",
+      "from": "type-shifted-odd-application",
+      "to": "function-parity",
       "type": "involves",
       "occurrences": [
         {}

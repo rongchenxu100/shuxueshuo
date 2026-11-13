@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a03",
+  "title": "奇函数与偶函数的和式求值 · A03",
+  "page": "/topics/function-parity/q03/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a03.json",
+  "evidence": "site/data/graph-walk/function-parity-a03.evidence.json"
+}

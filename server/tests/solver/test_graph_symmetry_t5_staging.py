@@ -1,4 +1,4 @@
-"""Original T5 questions stay internal and compile all targets into an isolated course."""
+"""Published T5 questions preserve their original goals and verified course recipe."""
 import json
 import subprocess
 
@@ -12,10 +12,12 @@ STAGING = ROOT/'internal/senior-high/authored-courses/function-parity-t5-staged-
 MANIFEST = json.loads(STAGING.read_text())
 
 
-def test_unpublished_staging_preserves_all_original_goals():
+def test_published_staging_preserves_all_original_goals():
     topic = json.loads((ROOT/'site/data/knowledge-next/topics/function-parity.json').read_text())
+    assert MANIFEST['publish_state'] == 'published'
     for entry in MANIFEST['pending']:
-        assert entry['id'] not in topic['problems']
+        assert topic['problems'][entry['id']] == entry['topic_entry']
+        assert json.loads((ROOT/f"site/data/graph-walk/{entry['id']}.source.json").read_text()) == entry['course_source']
         record = json.loads((ROOT/entry['authored_source']).read_text())
         goals = record['candidate']['root']['goals']
         source = entry['course_source']

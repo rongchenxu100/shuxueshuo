@@ -1,0 +1,112 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-b16-v3",
+  "label": "严格比较与最值见证 · B16",
+  "path": "/topics/function-monotonicity/q16b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-b16-v3.json",
+  "types": [
+    "type-monotonicity-extremum"
+  ],
+  "statement": "已知 $A=\\{x\\mid 1\\le x\\le3\\}$，对任意 $x_1\\in A$，都存在 $x_2\\in A$，使 $x_2^2-3x_2>mx_1+1$ 成立，其中 $m<0$，求实数 $m$ 的取值范围。",
+  "routes": {
+    "quantified-range-comparison": {
+      "label": "量词比较求参法",
+      "methods": [
+        "method-quantified-range-comparison"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-range-extrema"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "7bb257e54f7b4b0f05ea192c#1": {
+          "title": "先给两边的式子取名",
+          "position": 4,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "7bb257e54f7b4b0f05ea192c#2": {
+          "title": "先把量词关系化成最值比较",
+          "position": 5,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "7bb257e54f7b4b0f05ea192c#3": {
+          "title": "由图像读出 g 的最大值",
+          "position": 6,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "7bb257e54f7b4b0f05ea192c#4": {
+          "title": "求 f 的最大值：配成顶点式",
+          "position": 7,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "7bb257e54f7b4b0f05ea192c#5": {
+          "title": "由图像读出 f 的最大值",
+          "position": 8,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "ad131b1603742c7a7c99fcda#1": {
+          "title": "代入最值，写出参数条件",
+          "position": 9,
+          "refs": [
+            "method-quantified-range-comparison#conditions",
+            "skill-quantified-range",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "ad131b1603742c7a7c99fcda#2": {
+          "title": "解参数条件",
+          "position": 10,
+          "refs": [
+            "method-quantified-range-comparison#conditions",
+            "skill-quantified-range",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "cdd2fd5a72717e8a350c4001#1": {
+          "title": "回到原题，汇总参数范围",
+          "position": 11,
+          "refs": [
+            "method-quantified-range-comparison#conclude",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "73174c5312f3bf239f26f5900040d702ac9c62734843cd8fb5a0ca672498dde4",
+  "practice_version": "1241db6962cc834a19f999d8d4471ea75c9a75b8c043aa68f037df9f9df37afd"
+}

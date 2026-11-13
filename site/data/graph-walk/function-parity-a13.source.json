@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a13",
+  "title": "奇函数整组相反输入求值 · A13",
+  "page": "/topics/function-parity/q13/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a13.json",
+  "evidence": "site/data/graph-walk/function-parity-a13.evidence.json"
+}

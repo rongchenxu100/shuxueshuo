@@ -1,14 +1,14 @@
 # 函数奇偶性：专题题目、方法与技能建设计划
 
-更新：2026-11-12。状态：**T1 已在 `c990af90` 交付显式函数判定，T2 R0–R3 已提交到 `5776ebbe`，T3 已提交到 `ee9747bd`，T4 已提交到 `976a7f82`；T5 已提交到 `10b87e95`，A10、A14 原照片真实拍题与课程集成通过；T6 已在工作区接通 A16、B01–B04 共 5 题的独立执行与隔离课包，五题原照片真实拍题与课程集成通过，正式发布仍待验收。** 保留教材对应的 3 个知识节点及详情页可视化；T1 的实际能力见 [修复与验证记录](function-parity-t1-generalization-acceptance.md)。A01 两问已通过[原照片真实 OCR、模型与课程 API 验收](function-parity-t1-photo-acceptance.md)，T2 的实际范围见 [R3 记录](function-parity-t2-r3-acceptance.md)，A17 重新调用及七道代表题隔离正式页面的结果见[照片与页面验收](function-parity-t2-photo-page-acceptance.md)，T3、T4 分别见[九道原题照片集成记录](function-parity-t3-photo-acceptance.md)和[六道原题照片集成记录](function-parity-t4-photo-acceptance.md)，T5 见[实现与集成记录](function-parity-t5-implementation-acceptance.md)和[两道原题照片集成记录](function-parity-t5-photo-acceptance.md)，T6 见[实现与集成记录](function-parity-t6-implementation-acceptance.md)和[五道原题照片集成记录](function-parity-t6-photo-acceptance.md)。公开课程仍待 T2–T5 统一重建，这些记录不表示整个专题或独立留出新题已完成拍题验收。
+更新：2026-11-12。状态：**T1–T6 均已实现，T6 已提交到 `1f4cdb60`；本轮按六类统一发布专题，共 31 个练习页面、35 个作答目标，涵盖 A01–A20、B01–B04 及六道求参补充题。** 保留教材对应的 3 个知识节点及详情页可视化；统一构建、课程版本、学习目录和页面检查见[专题发布记录](function-parity-topic-publication-20261112.md)。T1 的实际能力见[修复与验证记录](function-parity-t1-generalization-acceptance.md)。A01 两问已通过[原照片真实 OCR、模型与课程 API 验收](function-parity-t1-photo-acceptance.md)，T2 的实际范围见 [R3 记录](function-parity-t2-r3-acceptance.md)，A17 重新调用及七道代表题隔离正式页面的结果见[照片与页面验收](function-parity-t2-photo-page-acceptance.md)，T3、T4 分别见[九道原题照片集成记录](function-parity-t3-photo-acceptance.md)和[六道原题照片集成记录](function-parity-t4-photo-acceptance.md)，T5 见[实现与集成记录](function-parity-t5-implementation-acceptance.md)和[两道原题照片集成记录](function-parity-t5-photo-acceptance.md)，T6 见[实现与集成记录](function-parity-t6-implementation-acceptance.md)和[五道原题照片集成记录](function-parity-t6-photo-acceptance.md)。本轮课程发布沿用这些已验收题源，不把 authored 课程重建计作新的 OCR 调用或独立留出照片验收。
 
-本专题按六类组织：**判断函数的奇偶性、根据奇偶性求参、根据奇偶性求解析式、利用奇偶性解不等式、非奇偶的对称性、奇函数＋常数结论的应用**。原两张练习页共 **20 道原题、25 个作答目标**；本次教材页补充 **4 道题、4 个目标**，已收集题源合计 **24 道题、29 个作答目标**，全部进入能力台账。专题首页从验收通过的题中精选，题源增加不等于已上架课程。
+本专题按六类组织：**判断函数的奇偶性、根据奇偶性求参、根据奇偶性求解析式、利用奇偶性解不等式、非奇偶的对称性、奇函数＋常数结论的应用**。原两张练习页共 **20 道原题、25 个作答目标**；教材页补充 **4 道题、4 个目标**，题源合计 **24 道题、29 个作答目标**。本轮全部发布，另加入 T2 的六道补充练习；A01 分成两个独立页面，其余多问题整题发布，因而共 31 页、35 个目标。
 
-结构参照[函数单调性建设计划](function-monotonicity-topic-plan.md)，执行遵循[公共知识图谱本体](public-knowledge-graph-ontology-design.md)和[专题及拍题学共用开发流程](topic-and-photo-learning-development-workflow.md)。先完成本计划，再逐型写开发设计、实现和验收。T1–T5 已注册的身份与实际范围以实现记录为准，其余拟新增 ID 仍为候选，不视为已支持能力。
+结构参照[函数单调性建设计划](function-monotonicity-topic-plan.md)，执行遵循[公共知识图谱本体](public-knowledge-graph-ontology-design.md)和[专题及拍题学共用开发流程](topic-and-photo-learning-development-workflow.md)。下文保留逐型建设的设计依据；T1–T6 已注册的身份与实际范围以实现、验收和发布记录为准，超出已验收范围的扩展不能视为已支持能力。
 
 ## 1. 专题身份、分类与边界
 
-专题拟用 ID `function-parity`，入口 `/topics/function-parity/`，归属第三章 `chapter-functions`、3.2 `section-3-2`，教材范围为 **3.2.2 奇偶性**。已有 `/knowledge/function-parity/` 是知识详情页，与专题入口分别保留。
+专题 ID 为 `function-parity`，入口 `/topics/function-parity/`，归属第三章 `chapter-functions`、3.2 `section-3-2`，教材范围为 **3.2.2 奇偶性**。已有 `/knowledge/function-parity/` 是知识详情页，与专题入口分别保留。
 
 知识层严格沿用教材的三个节点：**函数的奇偶性、奇偶函数的图像特征、函数图像的对称性**。运算、复合、对称求值、单调性、最值等作为这些节点的内部条目，不另拆知识节点。
 
@@ -90,7 +90,7 @@ A01、A05、A09、A10、A11 各有两个作答目标，原两页共 $20+5=25$ �
 
 ### 3.4 补充教材页：B01–B04
 
-以下四题归入 T6，完整规范题面保存在[补充题源清单](../internal/senior-high/source-images/function-parity-t6-planning-20261112/manifest.json)的 `student_statement`；题干、标题均不含原书栏目和例题标签。五题已经接入 T6 执行与隔离课程验收，并通过原照片真实 OCR／模型及课程集成；全部调用与修复见[照片验收记录](function-parity-t6-photo-acceptance.md)，尚未写入正式专题题目列表。
+以下四题归入 T6，完整规范题面保存在[补充题源清单](../internal/senior-high/source-images/function-parity-t6-planning-20261112/manifest.json)的 `student_statement`；题干、标题均不含原书栏目和例题标签。五题已经接入 T6 执行与隔离课程验收，并通过原照片真实 OCR／模型及课程集成；全部调用与修复见[照片验收记录](function-parity-t6-photo-acceptance.md)。现已随统一构建写入正式专题题目列表。
 
 | 编号／标题 | 印刷题意与原目标 | 方法路线 | 校核结果与边界 |
 | --- | --- | --- | --- |
@@ -165,13 +165,13 @@ A01、A05、A09、A10、A11 各有两个作答目标，原两页共 $20+5=25$ �
 
 ### 5.3 T2：根据奇偶性求参
 
-详细合同、参数分类、父子任务返回、可视化及验收要求见 [FP-T2 设计与实现方案](function-parity-parameter-problem-type-design.md)。T2 R0–R3 已随 `5776ebbe` 提交，数学、临时教学及隔离正式页面已验收，R3 仅支持固定域多项式的两参数仿射联合条件。公开专题仍为 A17；C01–C06 六道新编代表题已列入内部待发布登记，待 T2–T5 完成后统一验收重建。连续参数交互控件、独立新照片及公开发布仍待完成。实际范围见各批开发记录。
+详细合同、参数分类、父子任务返回、可视化及验收要求见 [FP-T2 设计与实现方案](function-parity-parameter-problem-type-design.md)。T2 R0–R3 已随 `5776ebbe` 提交，数学、临时教学及隔离正式页面已验收，R3 仅支持固定域多项式的两参数仿射联合条件。A17 与 C01–C06 六道新编代表题现已统一发布；连续参数交互控件、独立新照片不在本次发布范围内。实际范围见各批开发记录。
 
 **R0 只开放一个实参数、关于自变量至多二次、定义域为 $\mathbb R$ 的多项式路线；各系数是参数的至多二次有理系数多项式。** 直接复用 `skill-polynomial-coefficient-comparison`，覆盖奇／偶条件、零函数、次数退化及全部／多个／无解；四次扩展放到 R2，不为 A17 改动旧待定系数法合同。
 
 R0 即建立 T2／T3／T4 共用的题给奇偶性事实，区别于 T1 的 `determine_function_parity` 目标。沿用 `declared`／`restriction` 的域语义，“仅保证某段有意义”新增独立合法性条件。R0 保留单一方法的选法卡，只交付卡片和完整推导；域配对图在 R1、系数参数及镜像图在 R2 建设。
 
-课程版本仍按当前全局依赖处理。按 2026-11-11 用户要求，开发期间不重建课程，待 T2–T5 完成后统一重建当前 authored 课程；教学／作答合同兼容时保留身份，改变时分配新版本并保留旧记录。按课程计算依赖指纹另列优化，不作为 T2 前置；不承诺共享改动对无关课程天然无影响。
+课程版本仍按当前全局依赖处理。按 2026-11-11 用户要求，开发期间暂缓公开课程重建；本轮根据“在专题里把题目都发布”的要求统一重建当前 authored 课程。教学／作答合同兼容时保留身份，改变时按[课程身份规则](function-parity-formula-problem-type-design.md)在原 ID 下重建、关闭进行中的作答并保留历史记录。按课程计算依赖指纹另列优化，不作为 T2 前置；不承诺共享改动对无关课程天然无影响。
 
 M2 同时组织两类条件，按题目需要调用：
 
@@ -186,7 +186,7 @@ A17 是系数路线代表题；A15、A20 提供端点参数路线。参数子任
 
 ### 5.4 T3：根据奇偶性求解析式及对称求值
 
-详细合同、确定范围与自由部分、双函数分离、交互及验收要求见 [FP-T3 设计与实现方案](function-parity-formula-problem-type-design.md)。开发复用基线为 `5776ebbe`，交付提交为 `ee9747bd`；T3 的数学执行、教学卡与隔离课包已实现，九道完整原题的真实 OCR、模型复核、课程 API 及作答状态机集成通过；浏览器账号流程、独立新照片及公开专题仍待验收。Review 修复及泛化范围见设计 §8.5：多条局部规则、绝对值、既奇又偶、实二次代数数，以及整组关系的全范围相容检查；模型转写兼容修复及真实调用记录见 §8.6。具体题型逻辑由代码处理，T3 交付未修改 prompt；课程仍待 T2–T5 完成后统一重建。
+详细合同、确定范围与自由部分、双函数分离、交互及验收要求见 [FP-T3 设计与实现方案](function-parity-formula-problem-type-design.md)。开发复用基线为 `5776ebbe`，交付提交为 `ee9747bd`；九道完整原题的真实 OCR、模型复核、课程 API 及作答状态机集成通过，现已统一发布。Review 修复及泛化范围见设计 §8.5：多条局部规则、绝对值、既奇又偶、实二次代数数，以及整组关系的全范围相容检查；模型转写兼容修复及真实调用记录见 §8.6。具体题型逻辑由代码处理，T3 交付未修改 prompt；本轮不新增独立照片验收。
 
 T3 从 **A07 → A08** 开始：保留单方法选法卡，R0 复用 `condition_number_lines` 显示已知范围、目标范围与 $x\mapsto-x$，拖动和连续动画后续建设。补全规则用 `type-parity-formula`；A12、A13 等求值题在既有 `type-function-evaluation` 下新增 M5 分支。A15 直接调用 `borrow_domain_parameter`、`verify_borrowed_parameter`，处理剩余条件后继续原求值目标。T2 的单条局部规则相容性判定抽为共享能力，再扩展到 T3 多条规则，不各自复制重叠／零点判定。
 
@@ -213,7 +213,7 @@ $$
 
 ### 5.5 T4：利用奇偶性解不等式
 
-详细设计及交付范围见 [FP-T4 利用奇偶性解不等式：设计与实现方案](function-parity-inequality-problem-type-design.md)。三条路线、Review 修复及泛化支持已在 `976a7f82` 提交，六道原题、八个目标完成真实 OCR／模型、课程 API 与作答集成，见[照片验收记录](function-parity-t4-photo-acceptance.md)。公开课程仍待 T2–T5 统一重建，未验收范围不因这些原题通过而自动开放。
+详细设计及交付范围见 [FP-T4 利用奇偶性解不等式：设计与实现方案](function-parity-inequality-problem-type-design.md)。三条路线、Review 修复及泛化支持已在 `976a7f82` 提交，六道原题、八个目标完成真实 OCR／模型、课程 API 与作答集成，见[照片验收记录](function-parity-t4-photo-acceptance.md)。现已整题统一发布，未验收范围不因这些原题通过而自动开放。
 
 M4 按已有证据选择三条路线，而不是把所有题都改造成全域单调比较。
 
@@ -365,6 +365,8 @@ T3 沿用 T1／T2 的单方法选法卡；原式用源 AST，化简只出现在�
 
 父方法只给子目标、输入和返回用途，完整调用已有定义域、单调性、不等式流程，不复制选项和步骤。简单多项式的全实数定义域可 `fold`；首次出现的域对称、零点、跨段比较默认展开；重复使用同一已验证结果可折叠引用。
 
+子方法调用分[简单调用与转化为问题后辨别调用](topic-and-photo-learning-development-workflow.md#532-子方法的两种调用方式2026-11-13)两种。2026-11-13 起，T2 原式路线（有理式、分段、根式，如 C03–C05）在「检查定义域」步按简单调用借用 `method-domain-intersection`（能力 `solve_parity_parameter_domain`，保留约分前的原限制）：学生只看到一张「求定义域」只读卡，不判断转化成了什么问题；题给固定 $D$（C06、domain 模式）不调用；含参域的对称分类仍由 `skill-domain-symmetry` 处理。
+
 同一数学状态驱动当前卡、完成卡、图形和 AI 回放；公式排版后不通过反复销毁重建卡片更新图像，保持高度与滚动位置稳定。刷新恢复、前问依赖失效及返回父任务均按共同题页契约处理。
 
 ## 8. 题意表示、执行与验证要求
@@ -399,7 +401,7 @@ T3 沿用 T1／T2 的单方法选法卡；原式用源 AST，化简只出现在�
 
 **prompt 保持简洁，题型逻辑在代码。** 本计划不修改 prompt。后续只有现有表示确实不足时，才调整最小的字段含义／忠实转录规则，并同步提取、复核、修复三阶段契约；不加入本题集的提示、答案、分类口诀、支持白名单或逐题解法。`>`／`\ge`、原域、函数身份等要求已被通用源规则覆盖的，不重复追加奇偶性专用说明。
 
-新增结构进入公共题目身份与课程版本依赖：域开闭、奇／偶对象、外层常数、关系符号和目标不同的题不得误合并；等价记法规范化须能保留来源。当前执行指纹是全局共享依赖，共享代码变动会使依赖该修订的 authored 证据过期。开发期只用指定 T3 题源构建临时课包／隔离页面；`--source` 仅限定构建对象，不隔离指纹。T2–T5 全部完成后统一刷新执行证据、全量构建及 `--check`，再同步公开目录与学习库。沿用课程身份兼容检查，兼容时保留身份，教学／作答合同改变时升版本并保留历史记录，不通过清空记录或跳过校验处理过期证据。
+新增结构进入公共题目身份与课程版本依赖：域开闭、奇／偶对象、外层常数、关系符号和目标不同的题不得误合并；等价记法规范化须能保留来源。当前执行指纹是全局共享依赖，共享代码变动会使依赖该修订的 authored 证据过期。开发期只用指定 T3 题源构建临时课包／隔离页面；`--source` 仅限定构建对象，不隔离指纹。T2–T5 全部完成后统一刷新执行证据、全量构建及 `--check`，再同步公开目录与学习库。沿用课程身份兼容检查，兼容时保留身份，教学／作答合同改变时在原 ID 下重建并保留历史记录（见[课程身份规则](function-parity-formula-problem-type-design.md)），不通过清空记录或跳过校验处理过期证据。
 
 ### 8.3 独立验证与目标依赖
 

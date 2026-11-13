@@ -1,0 +1,1492 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-c06",
+  "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
+  "problem": {
+    "text": "已知函数 $f(x)=ax^2+b$，定义域为 $\\{-1,1\\}$ 为奇函数，求实数 $a,b$ 的取值范围。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "这一问的已知条件和目标是什么？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "根据题给奇偶性，求参数 $(a,b)$ 的全部取值"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "判断函数是奇函数还是偶函数",
+            "feedback": "奇偶性是已知条件；要确定哪些 $(a,b)$ 使这个条件成立。"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o0"
+        ]
+      },
+      "feedback": {
+        "answer": "奇偶性是已知条件；要确定哪些 $(a,b)$ 使这个条件成立。"
+      },
+      "candidateNodes": [
+        "function-parity",
+        "type-function-parity",
+        "type-parity-parameter",
+        "type-function-symmetry",
+        "type-parity-formula",
+        "type-parity-inequality",
+        "type-shifted-odd-application"
+      ],
+      "effects": {
+        "nodes": [
+          "function-parity"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "$f(x)=a\\cdot x^{2}+b$；$D=\\left\\{-1, 1\\right\\}$；$\\text{奇函数}$。根据题给奇偶性，求参数 $(a,b)$ 的全部取值。"
+        ],
+        "log": "图谱查询：从 1 个知识线索反查，找到 6 个相关题型；最高覆盖 1/1。"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-function-parity",
+            "label": "判断函数的奇偶性",
+            "note": "原目标是判断一个已给解析式的函数的奇偶性",
+            "feedback": "判断函数的奇偶性，目标是性质；本型的性质已给，目标是参数。"
+          },
+          {
+            "value": "type-parity-parameter",
+            "label": "根据奇偶性求参",
+            "note": "已知奇偶性，所求是函数中的参数"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-parity-parameter"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-function-parity",
+        "type-parity-parameter"
+      ],
+      "effects": {
+        "nodes": [
+          "type-parity-parameter"
+        ],
+        "edges": [
+          "type-parity-parameter|involves|function-parity"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：题目给出含参函数和奇偶性，要求参数的值或范围。"
+        ],
+        "log": "作答判断：选择主要题型「根据奇偶性求参」；另外 1 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read",
+        "methods": [
+          {
+            "value": "direct",
+            "label": "奇偶性条件求参法",
+            "target": "method-parity-parameter",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "parity-parameter"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-parity-parameter",
+        "op": "methods"
+      },
+      "question": "使用奇偶性条件求参法：先核对定义域，再把已知奇偶性写成函数值关系。比较对应项的系数，求出满足全部条件的参数，并代回检查。",
+      "submit_label": "用奇偶性条件求参法解题",
+      "title": "选择解题方法",
+      "verdicts": {},
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "method-parity-parameter"
+      ],
+      "effects": {
+        "nodes": [
+          "method-parity-parameter"
+        ],
+        "edges": [
+          "type-parity-parameter|candidate|method-parity-parameter"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "本题可直接使用这条已验证的方法路线。"
+      },
+      "route_by_answer": {
+        "read": "parity-parameter"
+      }
+    }
+  ],
+  "routes": {
+    "parity-parameter": {
+      "id": "parity-parameter",
+      "method": "method-parity-parameter",
+      "label": "奇偶性条件求参法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "检查完整定义域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原函数及性质",
+                "math": "\\begin{gathered}f(x)=a\\cdot x^{2}+b\\\\D=\\left\\{-1, 1\\right\\}\\\\\\text{奇函数}\\end{gathered}"
+              },
+              {
+                "label": "定义域检查",
+                "math": "\\text{定义域非空且关于原点对称}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "097e8435da6d5e8a5e94abcb#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "先检查给定的完整定义域；有限个输入不能当成整个实数集。",
+          "stem_board": {
+            "caption": "检查完整定义域",
+            "lines": [
+              "$$f(x)=a\\cdot x^{2}+b$$",
+              "$$D=\\left\\{-1, 1\\right\\}$$",
+              "奇函数",
+              "$$-D=\\left\\{-1, 1\\right\\}$$",
+              "定义域非空且关于原点对称"
+            ]
+          },
+          "submit_label": "继续",
+          "title": "检查完整定义域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "e79d1f5b2ef5ef1506da25862b6c6d9ac3b31242175d3a1de45b003717bcfc0a",
+              "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_joint_prepare"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "91231d1ff49e68782b9a2f2c",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "检查完整定义域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：检查完整定义域"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "写出相反输入的关系",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式及代入",
+                "math": "\\begin{gathered}f(x)=a\\cdot x^{2}+b\\\\D=\\left\\{-1, 1\\right\\}\\\\f(-x)=a\\cdot (-x)^{2}+b\\end{gathered}"
+              },
+              {
+                "label": "要恒成立的关系",
+                "math": "f(-x)=-f(x)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "e726a5b8167c7b3b685d80e9#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(-x)=f(x)$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(-x)=-f(x)$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "在完整定义域内整体代入相反数，再按已知性质建立关系。",
+          "stem_board": {
+            "caption": "写出相反输入的关系",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式及代入",
+                "math": "\\begin{gathered}f(x)=a\\cdot x^{2}+b\\\\D=\\left\\{-1, 1\\right\\}\\\\f(-x)=a\\cdot (-x)^{2}+b\\end{gathered}"
+              },
+              {
+                "label": "要恒成立的关系",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "写出相反输入的关系",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "ee6bd951a3c0a8b997d48d3a4374bac441578cabc3e90edd368e9d2983ee0619",
+              "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "02f4bda9f6dc45c2db4fb091",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "写出相反输入的关系",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：写出相反输入的关系"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "逐点列条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "逐点代入",
+                "math": "\\begin{gathered}f(-1)=-f(1)\\\\a + b=-(a + b)\\end{gathered}"
+              },
+              {
+                "label": "联合条件",
+                "math": "a + b=0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "b5fd6ce7cb32910c2eb1d7e9#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "把定义域中的每一个输入都代入，保留两个参数之间的关系。",
+          "stem_board": {
+            "caption": "逐点列条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "逐点代入",
+                "math": "\\begin{gathered}f(-1)=-f(1)\\\\a + b=-(a + b)\\end{gathered}"
+              },
+              {
+                "label": "联合条件",
+                "math": "a + b=0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "继续",
+          "title": "逐点列条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "a8a03eda7615163d8c2486b66dc6caf6280de9f193cb2405d19ef69b8cf2a342",
+              "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "43afaadf2ddb8d5fb281fc2e",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "逐点列条件",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：逐点列条件"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "合并联合参数条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "全部条件",
+                "math": "a + b=0"
+              },
+              {
+                "label": "参数的联合取值",
+                "math": "\\left\\{\\begin{gathered}a=- b\\\\b\\in\\mathbb R\\end{gathered}\\right."
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "d19c8e7a80ab31009b5b6878#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\varnothing$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left\\{\\begin{gathered}a=- b\\\\b\\in\\mathbb R\\end{gathered}\\right.$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "解方程时保留自由参数，并将非零限制代回；答案可以是一族参数。",
+          "stem_board": {
+            "caption": "合并联合参数条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "全部条件",
+                "math": "a + b=0"
+              },
+              {
+                "label": "参数的联合取值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "合并联合参数条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "7df5df2348d71f17cf3d4f9dbe379a9237f5aa02712ee60fa977f0da3a769fed",
+              "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "f1bedfd43b3a4adfbfa0aeea",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "合并联合参数条件",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：合并联合参数条件"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "代回核验",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "代入联合解",
+                "math": "\\begin{gathered}f(x)=- b x^{2} + b\\\\D=\\left\\{-1, 1\\right\\}\\end{gathered}"
+              },
+              {
+                "label": "检验",
+                "math": "\\begin{gathered}f(-1)=0,\\ f(1)=0\\\\\\Rightarrow\\ f(-x)=-f(x)\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "1c74e53423a73b4be1402e99#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "把联合解代入原式检查；自由参数保留为字母。",
+          "stem_board": {
+            "caption": "代回核验",
+            "lines": [
+              "$$f(x)=- b x^{2} + b$$",
+              "$$D=\\left\\{-1, 1\\right\\}$$",
+              "$$f(-1)=0,\\ f(1)=0$$",
+              "$$\\Rightarrow\\ f(-x)=-f(x)$$",
+              "$$\\left\\{\\begin{gathered}a=- b\\\\b\\in\\mathbb R\\end{gathered}\\right.$$"
+            ]
+          },
+          "submit_label": "继续",
+          "title": "代回核验",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b1abd027ebca88b0201f9ef97bb1a47647165a58f8584b50c1708126f3a1c5fb",
+              "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "fcfccf7e34d6bee8e74922fc",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "代回核验",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：代回核验"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "conditions": {
+            "expression": "Eq(a + b, 0)",
+            "latex": "\\left\\{\\begin{gathered}a=- b\\\\b\\in\\mathbb R\\end{gathered}\\right."
+          },
+          "families": [
+            {
+              "assignments": [
+                {
+                  "parameter": "a",
+                  "value": {
+                    "expression": "-b",
+                    "latex": "- b"
+                  }
+                },
+                {
+                  "parameter": "b",
+                  "value": {
+                    "expression": "b",
+                    "latex": "b"
+                  }
+                }
+              ],
+              "equations": [
+                {
+                  "expression": "a + b",
+                  "latex": "a + b"
+                }
+              ],
+              "free_parameters": [
+                "b"
+              ],
+              "nonzero": []
+            }
+          ],
+          "kind": "find_range",
+          "parameters": [
+            "a",
+            "b"
+          ],
+          "result_type": "parameter_family",
+          "status": "complete"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "math_steps": [
+          {
+            "math_step_sha256": "e79d1f5b2ef5ef1506da25862b6c6d9ac3b31242175d3a1de45b003717bcfc0a",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_joint_prepare"
+          },
+          {
+            "math_step_sha256": "ee6bd951a3c0a8b997d48d3a4374bac441578cabc3e90edd368e9d2983ee0619",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
+          },
+          {
+            "math_step_sha256": "a8a03eda7615163d8c2486b66dc6caf6280de9f193cb2405d19ef69b8cf2a342",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
+          },
+          {
+            "math_step_sha256": "7df5df2348d71f17cf3d4f9dbe379a9237f5aa02712ee60fa977f0da3a769fed",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
+          },
+          {
+            "math_step_sha256": "b1abd027ebca88b0201f9ef97bb1a47647165a58f8584b50c1708126f3a1c5fb",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "b01b4d848cae965d122b2dd9d92c868e2b1c634f9ef58e8df834c46fa88ad924",
+        "verified_route_sha256": "1b37ead09ef1811701d52bff67ddc17ad87a66803388aeca9ffedb820e7f833e"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-parity/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "function-parity",
+        "kind": "knowledge",
+        "label": "函数的奇偶性",
+        "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-parity",
+        "kind": "problem_type",
+        "label": "判断函数的奇偶性",
+        "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-parity-parameter",
+        "kind": "problem_type",
+        "label": "根据奇偶性求参",
+        "summary": "已知函数的奇偶性，求使定义域与函数值关系同时满足要求的参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-symmetry",
+        "kind": "problem_type",
+        "label": "利用图像对称关系求值与求和",
+        "summary": "依据对称轴、对称中心或限定范围的对称等式，变换输入并求值或求和。",
+        "aliases": [],
+        "status": "active"
+      },
+      {
+        "id": "type-parity-formula",
+        "kind": "problem_type",
+        "label": "根据奇偶性求解析式",
+        "summary": "已知奇偶性和一侧的解析式，求另一侧指定范围内的解析式。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-parity-inequality",
+        "kind": "problem_type",
+        "label": "利用奇偶性解不等式",
+        "summary": "已知奇偶性，以及一侧的解析式、单调性或零点，解关于函数值的不等式。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-shifted-odd-application",
+        "kind": "problem_type",
+        "label": "奇函数＋常数结论的应用",
+        "summary": "先明确奇函数与原函数的关系，再求相反输入的值、配对和或最值之和。",
+        "aliases": [],
+        "status": "active"
+      },
+      {
+        "id": "method-parity-parameter",
+        "kind": "method",
+        "label": "奇偶性条件求参法",
+        "summary": "保留原式与参数限制，把奇偶性转为恒等条件，求出全部参数并回验。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "prepare",
+            "title": "检查定义域",
+            "calls": [
+              "method-domain-intersection",
+              "skill-domain-symmetry"
+            ]
+          },
+          {
+            "id": "identity",
+            "title": "把奇偶性写成关系",
+            "calls": [
+              "method-function-evaluation"
+            ]
+          },
+          {
+            "id": "compare",
+            "title": "检查函数值关系",
+            "calls": [
+              "skill-polynomial-coefficient-comparison"
+            ]
+          },
+          {
+            "id": "solve",
+            "title": "合并全部参数条件",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "代回核验",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-function-evaluation",
+        "kind": "method",
+        "label": "代入法",
+        "summary": "把完整输入放进已有函数规则，按内到外计算并保留原输入限制；可验证定值与有限配对求和。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "evaluate",
+            "title": "代入并计算",
+            "calls": [
+              "skill-expression-defined",
+              "skill-simplify",
+              "skill-equality-transform",
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "核验原式与目标结果",
+            "calls": []
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "method-parity-parameter|calls|method-function-evaluation",
+        "from": "method-parity-parameter",
+        "to": "method-function-evaluation",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "identity",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "type-function-parity|involves|function-parity",
+        "from": "type-function-parity",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-symmetry|involves|function-parity",
+        "from": "type-function-symmetry",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-parity-formula|involves|function-parity",
+        "from": "type-parity-formula",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-parity-inequality|involves|function-parity",
+        "from": "type-parity-inequality",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-parity-parameter|candidate|method-parity-parameter",
+        "from": "type-parity-parameter",
+        "to": "method-parity-parameter",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-parity-parameter|involves|function-parity",
+        "from": "type-parity-parameter",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-shifted-odd-application|involves|function-parity",
+        "from": "type-shifted-odd-application",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "function-parity"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"b2eb66487f409643968c0edc10371bb4c49f002dfaffacfeac6a2b64479273e6\",\"e5612d81f47220a1ed33f2b8dc0d7364db4fd45737e15c70ba77b7463ec11735\",\"1e48793657f3480c8669f97a1e5903a8\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+    "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+    "stream_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "52876693673426311e67a03c1ee5077008437c990274ccdc6dc270a17440c636",
+    "d3": {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read"
+      },
+      "query": {
+        "from": "type-parity-parameter",
+        "op": "methods"
+      },
+      "question": "先核对定义域，再把已知奇偶性写成函数值关系。比较对应项的系数，求出满足全部条件的参数，并代回检查。",
+      "submit_label": "用奇偶性条件求参法解题",
+      "title": "选择解题方法",
+      "verdicts": {}
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "direct",
+          "message": "开始解题",
+          "method": "method-parity-parameter",
+          "recommendation": "preferred",
+          "route_id": "parity-parameter",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_joint_prepare",
+        "explanation": "$$\\begin{gathered}f(x)=a\\cdot x^{2}+b\\\\D=\\left\\{-1, 1\\right\\}\\\\\\text{奇函数}\\\\-D=\\left\\{-1, 1\\right\\}\\\\\\text{定义域非空且关于原点对称}\\end{gathered}$$",
+        "highlight": {
+          "caption": "检查完整定义域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原函数及性质",
+              "math": "\\begin{gathered}f(x)=a\\cdot x^{2}+b\\\\D=\\left\\{-1, 1\\right\\}\\\\\\text{奇函数}\\end{gathered}"
+            },
+            {
+              "label": "定义域检查",
+              "math": "\\text{定义域非空且关于原点对称}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "local_check": "passed",
+        "math_step_sha256": "e79d1f5b2ef5ef1506da25862b6c6d9ac3b31242175d3a1de45b003717bcfc0a",
+        "method_ref": "method-parity-parameter#prepare",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_joint_prepare",
+        "target_ref": "/root/goals/0",
+        "title": "检查完整定义域",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_identity",
+        "explanation": "$$\\begin{gathered}f(-x)=a\\cdot (-x)^{2}+b\\\\f(-x)=-f(x)\\end{gathered}$$",
+        "highlight": {
+          "caption": "写出相反输入的关系",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原式及代入",
+              "math": "\\begin{gathered}f(x)=a\\cdot x^{2}+b\\\\D=\\left\\{-1, 1\\right\\}\\\\f(-x)=a\\cdot (-x)^{2}+b\\end{gathered}"
+            },
+            {
+              "label": "要恒成立的关系",
+              "math": "f(-x)=-f(x)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "local_check": "passed",
+        "math_step_sha256": "ee6bd951a3c0a8b997d48d3a4374bac441578cabc3e90edd368e9d2983ee0619",
+        "method_ref": "method-parity-parameter#identity",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity",
+        "target_ref": "/root/goals/0",
+        "title": "写出相反输入的关系",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_compare",
+        "explanation": "$$\\begin{gathered}f(-1)=-f(1)\\\\a + b=-(a + b)\\\\a + b=0\\end{gathered}$$",
+        "highlight": {
+          "caption": "逐点列条件",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "逐点代入",
+              "math": "\\begin{gathered}f(-1)=-f(1)\\\\a + b=-(a + b)\\end{gathered}"
+            },
+            {
+              "label": "联合条件",
+              "math": "a + b=0"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "local_check": "passed",
+        "math_step_sha256": "a8a03eda7615163d8c2486b66dc6caf6280de9f193cb2405d19ef69b8cf2a342",
+        "method_ref": "method-parity-parameter#compare",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/skipped_calls/2",
+          "/steps/2/skipped_calls/3",
+          "/steps/2/merges/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare",
+        "target_ref": "/root/goals/0",
+        "title": "逐点列条件",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_solve",
+        "explanation": "$$\\begin{gathered}a + b=0\\\\\\left\\{\\begin{gathered}a=- b\\\\b\\in\\mathbb R\\end{gathered}\\right.\\end{gathered}$$",
+        "highlight": {
+          "caption": "合并联合参数条件",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "全部条件",
+              "math": "a + b=0"
+            },
+            {
+              "label": "参数的联合取值",
+              "math": "\\left\\{\\begin{gathered}a=- b\\\\b\\in\\mathbb R\\end{gathered}\\right."
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "local_check": "passed",
+        "math_step_sha256": "7df5df2348d71f17cf3d4f9dbe379a9237f5aa02712ee60fa977f0da3a769fed",
+        "method_ref": "method-parity-parameter#solve",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "source_refs": [
+          "/steps/3/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve",
+        "target_ref": "/root/goals/0",
+        "title": "合并联合参数条件",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_verify",
+        "explanation": "$$\\begin{gathered}f(x)=- b x^{2} + b\\\\D=\\left\\{-1, 1\\right\\}\\\\f(-1)=0,\\ f(1)=0\\\\\\Rightarrow\\ f(-x)=-f(x)\\\\\\left\\{\\begin{gathered}a=- b\\\\b\\in\\mathbb R\\end{gathered}\\right.\\end{gathered}$$",
+        "highlight": {
+          "caption": "代回核验",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "代入联合解",
+              "math": "\\begin{gathered}f(x)=- b x^{2} + b\\\\D=\\left\\{-1, 1\\right\\}\\end{gathered}"
+            },
+            {
+              "label": "检验",
+              "math": "\\begin{gathered}f(-1)=0,\\ f(1)=0\\\\\\Rightarrow\\ f(-x)=-f(x)\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "local_check": "passed",
+        "math_step_sha256": "b1abd027ebca88b0201f9ef97bb1a47647165a58f8584b50c1708126f3a1c5fb",
+        "method_ref": "method-parity-parameter#verify",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "ccce52e7e7ccf35ce1ef85938130f69110e152470045fffabe5f7077894360fc",
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify",
+        "target_ref": "/root/goals/0",
+        "title": "代回核验",
+        "used_basis": []
+      }
+    ],
+    "step_calls": {
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-001-parity_parameter_joint_prepare\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "prepare",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-002-parity_parameter_identity\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "identity",
+          "ref": "method-function-evaluation",
+          "usedBasis": [],
+          "source": "/steps/1/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-003-parity_parameter_compare\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "compare",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-004-parity_parameter_solve\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/3/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-005-parity_parameter_verify\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "verify",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/4/calls/0"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_joint_prepare",
+        "ordinal": 1,
+        "math_step_sha256": "e79d1f5b2ef5ef1506da25862b6c6d9ac3b31242175d3a1de45b003717bcfc0a",
+        "status": "interactive",
+        "interaction_id": "91231d1ff49e68782b9a2f2c"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity",
+        "ordinal": 2,
+        "math_step_sha256": "ee6bd951a3c0a8b997d48d3a4374bac441578cabc3e90edd368e9d2983ee0619",
+        "status": "interactive",
+        "interaction_id": "02f4bda9f6dc45c2db4fb091"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare",
+        "ordinal": 3,
+        "math_step_sha256": "a8a03eda7615163d8c2486b66dc6caf6280de9f193cb2405d19ef69b8cf2a342",
+        "status": "interactive",
+        "interaction_id": "43afaadf2ddb8d5fb281fc2e"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve",
+        "ordinal": 4,
+        "math_step_sha256": "7df5df2348d71f17cf3d4f9dbe379a9237f5aa02712ee60fa977f0da3a769fed",
+        "status": "interactive",
+        "interaction_id": "f1bedfd43b3a4adfbfa0aeea"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify",
+        "ordinal": 5,
+        "math_step_sha256": "b1abd027ebca88b0201f9ef97bb1a47647165a58f8584b50c1708126f3a1c5fb",
+        "status": "interactive",
+        "interaction_id": "fcfccf7e34d6bee8e74922fc"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "91231d1ff49e68782b9a2f2c",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "4bdeaddd6cd565206149338cced0181821e9ffadb1722e796ffcde2ebfcacc87",
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "检查完整定义域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数及性质",
+                  "math": "\\begin{gathered}f(x)=a\\cdot x^{2}+b\\\\D=\\left\\{-1, 1\\right\\}\\\\\\text{奇函数}\\end{gathered}"
+                },
+                {
+                  "label": "定义域检查",
+                  "math": "\\text{定义域非空且关于原点对称}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "91231d1ff49e68782b9a2f2c#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "先检查给定的完整定义域；有限个输入不能当成整个实数集。",
+            "stem_board": {
+              "caption": "检查完整定义域",
+              "lines": [
+                "$$f(x)=a\\cdot x^{2}+b$$",
+                "$$D=\\left\\{-1, 1\\right\\}$$",
+                "奇函数",
+                "$$-D=\\left\\{-1, 1\\right\\}$$",
+                "定义域非空且关于原点对称"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "检查完整定义域"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "e79d1f5b2ef5ef1506da25862b6c6d9ac3b31242175d3a1de45b003717bcfc0a",
+            "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_joint_prepare"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "02f4bda9f6dc45c2db4fb091",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "7bba2a88d0638cec742157535984860be00a9ecbaf88adb8341a7b69c15d0d8b",
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "写出相反输入的关系",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原式及代入",
+                  "math": "\\begin{gathered}f(x)=a\\cdot x^{2}+b\\\\D=\\left\\{-1, 1\\right\\}\\\\f(-x)=a\\cdot (-x)^{2}+b\\end{gathered}"
+                },
+                {
+                  "label": "要恒成立的关系",
+                  "math": "f(-x)=-f(x)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "02f4bda9f6dc45c2db4fb091#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(-x)=-f(x)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(-x)=f(x)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "在完整定义域内整体代入相反数，再按已知性质建立关系。",
+            "stem_board": {
+              "caption": "写出相反输入的关系",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原式及代入",
+                  "math": "\\begin{gathered}f(x)=a\\cdot x^{2}+b\\\\D=\\left\\{-1, 1\\right\\}\\\\f(-x)=a\\cdot (-x)^{2}+b\\end{gathered}"
+                },
+                {
+                  "label": "要恒成立的关系",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "写出相反输入的关系"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "ee6bd951a3c0a8b997d48d3a4374bac441578cabc3e90edd368e9d2983ee0619",
+            "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "43afaadf2ddb8d5fb281fc2e",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "0bde968bbfd504fedb4b0aaa39125160ac1ed168f7d2d9728835bb06ae58d38a",
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "逐点列条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "逐点代入",
+                  "math": "\\begin{gathered}f(-1)=-f(1)\\\\a + b=-(a + b)\\end{gathered}"
+                },
+                {
+                  "label": "联合条件",
+                  "math": "a + b=0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "43afaadf2ddb8d5fb281fc2e#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "把定义域中的每一个输入都代入，保留两个参数之间的关系。",
+            "stem_board": {
+              "caption": "逐点列条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "逐点代入",
+                  "math": "\\begin{gathered}f(-1)=-f(1)\\\\a + b=-(a + b)\\end{gathered}"
+                },
+                {
+                  "label": "联合条件",
+                  "math": "a + b=0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "继续",
+            "title": "逐点列条件"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "a8a03eda7615163d8c2486b66dc6caf6280de9f193cb2405d19ef69b8cf2a342",
+            "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "f1bedfd43b3a4adfbfa0aeea",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "4b4a49cdf1717d751a285b6631c5728a415d9b235381212667080919ec796670",
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "合并联合参数条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "全部条件",
+                  "math": "a + b=0"
+                },
+                {
+                  "label": "参数的联合取值",
+                  "math": "\\left\\{\\begin{gathered}a=- b\\\\b\\in\\mathbb R\\end{gathered}\\right."
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "f1bedfd43b3a4adfbfa0aeea#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\varnothing$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left\\{\\begin{gathered}a=- b\\\\b\\in\\mathbb R\\end{gathered}\\right.$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "解方程时保留自由参数，并将非零限制代回；答案可以是一族参数。",
+            "stem_board": {
+              "caption": "合并联合参数条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "全部条件",
+                  "math": "a + b=0"
+                },
+                {
+                  "label": "参数的联合取值",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "合并联合参数条件"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "7df5df2348d71f17cf3d4f9dbe379a9237f5aa02712ee60fa977f0da3a769fed",
+            "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "fcfccf7e34d6bee8e74922fc",
+        "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+        "interaction_sha256": "fcd55862b56e65548343d5c9f76753c4c92bb21748d7ff40f318f2af96b539a5",
+        "lesson_version": "7c8257f5d0b96d9a147b71f3aa35f2018c9438481cb55902da50a5a9ee344bd9",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "代回核验",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "代入联合解",
+                  "math": "\\begin{gathered}f(x)=- b x^{2} + b\\\\D=\\left\\{-1, 1\\right\\}\\end{gathered}"
+                },
+                {
+                  "label": "检验",
+                  "math": "\\begin{gathered}f(-1)=0,\\ f(1)=0\\\\\\Rightarrow\\ f(-x)=-f(x)\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "fcfccf7e34d6bee8e74922fc#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "把联合解代入原式检查；自由参数保留为字母。",
+            "stem_board": {
+              "caption": "代回核验",
+              "lines": [
+                "$$f(x)=- b x^{2} + b$$",
+                "$$D=\\left\\{-1, 1\\right\\}$$",
+                "$$f(-1)=0,\\ f(1)=0$$",
+                "$$\\Rightarrow\\ f(-x)=-f(x)$$",
+                "$$\\left\\{\\begin{gathered}a=- b\\\\b\\in\\mathbb R\\end{gathered}\\right.$$"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "代回核验"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "d1ea653dd5d34abcba28cacfe89ecbc4",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "b1abd027ebca88b0201f9ef97bb1a47647165a58f8584b50c1708126f3a1c5fb",
+            "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

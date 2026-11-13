@@ -68,7 +68,7 @@ def test_unrelated_publication_preserves_start_submit_retry_restore(isolated, au
         assert session.lesson == a['problem_context']['_lesson']
 
 
-def test_cosmetic_publish_preserves_snapshot_but_grading_change_requires_new_identity(isolated, authored):
+def test_cosmetic_publish_preserves_snapshot_and_grading_change_replaces_in_place(isolated, authored):
     db, c, user = isolated
     original = compatibility.metadata(compatibility.published(c, PID))
     first = practice.start(db, user, PID, 'direct', uuid4(), practice_version=original['practice_version'])
@@ -86,8 +86,15 @@ def test_cosmetic_publish_preserves_snapshot_but_grading_change_requires_new_ide
     assert session.lesson == frozen['_lesson']
     step['expected_answer']['fixed'] = 'product'
     p['contract_hash'] = 'changed-grading'
-    with pytest.raises(ValueError, match='teaching contract changed'):
-        content.publish(c, version(changed))
+    content.publish(c, version(changed))
+    updated = compatibility.metadata(compatibility.published(c, PID))
+    assert updated['practice_version'] != original['practice_version']
+    old = practice.owned(c, first['id'], user)
+    assert old['problem_context'] == frozen
+    assert practice.result(c, old)['status'] == 'closed'
+    with pytest.raises(HTTPException) as error:
+        practice.restore_session(db, user, first['id'], Session(load_lesson(PID)), practice_version=updated['practice_version'])
+    assert error.value.status_code == 409
 
 
 def test_only_the_changed_question_is_rejected_and_history_remains_readable(isolated):

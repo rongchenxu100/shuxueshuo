@@ -1,0 +1,271 @@
+{
+  "content_version": "651ce5e821ddd01ea284a8da733b3d757a16a21841cdc4a6c5a41bd82b92c111",
+  "site": "match",
+  "http_pages": 31,
+  "problem_contracts": [
+    {
+      "id": "function-parity-a01-1-v2",
+      "path": "/topics/function-parity/q01a/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a01-2-v2",
+      "path": "/topics/function-parity/q01b/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a17",
+      "path": "/topics/function-parity/q17/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-c01",
+      "path": "/topics/function-parity/variant1/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-c02",
+      "path": "/topics/function-parity/variant2/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-c03",
+      "path": "/topics/function-parity/variant3/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-c04",
+      "path": "/topics/function-parity/variant4/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-c05",
+      "path": "/topics/function-parity/variant5/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-c06",
+      "path": "/topics/function-parity/variant6/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a04",
+      "path": "/topics/function-parity/q04/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a07",
+      "path": "/topics/function-parity/q07/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a08",
+      "path": "/topics/function-parity/q08/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a09",
+      "path": "/topics/function-parity/q09/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a12",
+      "path": "/topics/function-parity/q12/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a13",
+      "path": "/topics/function-parity/q13/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a03",
+      "path": "/topics/function-parity/q03/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a06",
+      "path": "/topics/function-parity/q06/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a15",
+      "path": "/topics/function-parity/q15/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a02",
+      "path": "/topics/function-parity/q02/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a05",
+      "path": "/topics/function-parity/q05/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a11",
+      "path": "/topics/function-parity/q11/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a18",
+      "path": "/topics/function-parity/q18/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a20",
+      "path": "/topics/function-parity/q20/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a19",
+      "path": "/topics/function-parity/q19/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a10",
+      "path": "/topics/function-parity/q10/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a14",
+      "path": "/topics/function-parity/q14/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-a16",
+      "path": "/topics/function-parity/q16/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-b01",
+      "path": "/topics/function-parity/q21/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-b02",
+      "path": "/topics/function-parity/q22/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-b03",
+      "path": "/topics/function-parity/q23/",
+      "page_contract": "match",
+      "http_status": 200
+    },
+    {
+      "id": "function-parity-b04",
+      "path": "/topics/function-parity/q24/",
+      "page_contract": "match",
+      "http_status": 200
+    }
+  ],
+  "history_before": {
+    "student_practice_attempts": 28,
+    "student_practice_events": 566,
+    "student_step_results": 177,
+    "student_learning_marks": 23,
+    "knowledge_drill_attempts": 1,
+    "knowledge_drill_answers": 5
+  },
+  "history_after": {
+    "student_practice_attempts": 28,
+    "student_practice_events": 566,
+    "student_step_results": 177,
+    "student_learning_marks": 23,
+    "knowledge_drill_attempts": 1,
+    "knowledge_drill_answers": 5
+  },
+  "old_course_records_retained": [
+    "function-monotonicity-a16-v2",
+    "function-monotonicity-a07-v2",
+    "function-monotonicity-a18-v2",
+    "function-monotonicity-b16-v2",
+    "function-monotonicity-b11-v2",
+    "function-monotonicity-b10-v2"
+  ],
+  "date": "2026-11-12",
+  "scope": "local",
+  "topic": "/topics/function-parity/",
+  "pages": 31,
+  "goal_targets": 35,
+  "new_pages": 28,
+  "source_images_reused": true,
+  "new_ocr_calls": 0,
+  "prompt_changed": false,
+  "test_results": {
+    "routing_and_generalization": 126,
+    "frontend_and_exports": 95,
+    "postgres_publication_and_contracts": 4
+  },
+  "course_identity_upgrades": {
+    "function-monotonicity-a16-v2": "function-monotonicity-a16-v3",
+    "function-monotonicity-a07-v2": "function-monotonicity-a07-v3",
+    "function-monotonicity-a18-v2": "function-monotonicity-a18-v3",
+    "function-monotonicity-b16-v2": "function-monotonicity-b16-v3",
+    "function-monotonicity-b11-v2": "function-monotonicity-b11-v3",
+    "function-monotonicity-b10-v2": "function-monotonicity-b10-v3"
+  },
+  "groups": [
+    {
+      "id": "judgment",
+      "pages": 2,
+      "goal_targets": 2
+    },
+    {
+      "id": "parameter",
+      "pages": 7,
+      "goal_targets": 7
+    },
+    {
+      "id": "formula",
+      "pages": 9,
+      "goal_targets": 10
+    },
+    {
+      "id": "inequality",
+      "pages": 6,
+      "goal_targets": 8
+    },
+    {
+      "id": "symmetry",
+      "pages": 2,
+      "goal_targets": 3
+    },
+    {
+      "id": "shifted-odd",
+      "pages": 5,
+      "goal_targets": 5
+    }
+  ]
+}

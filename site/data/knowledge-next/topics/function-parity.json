@@ -4,7 +4,7 @@
   "label": "函数奇偶性",
   "path": "/topics/function-parity/",
   "presentation": "topic-overview",
-  "introduction": "先查定义域是否关于原点对称，再把自变量的相反数整体代入，分别核对奇函数和偶函数的条件。",
+  "introduction": "从定义域和相反输入出发，判断奇偶性、求参数、补全解析式，再用奇偶性与图像对称关系求值、解不等式。",
   "chapter": {
     "book": "人教 A 版 · 必修第一册",
     "number": "第三章",
@@ -15,6 +15,7 @@
   "knowledge": [
     "function-parity",
     "function-parity-graph",
+    "function-graph-symmetry",
     "function-concept",
     "absolute-value-concept",
     "rational-expression"
@@ -22,11 +23,12 @@
   "knowledgeGroups": [
     {
       "id": "parity",
-      "label": "定义与图像",
-      "description": "定义域关于原点对称是前提；奇函数满足 $f(-x)=-f(x)$，偶函数满足 $f(-x)=f(x)$。",
+      "label": "奇偶性与图像对称",
+      "description": "先理解奇偶性的定义和图像特征，再认识一般对称轴与对称中心。",
       "refs": [
         "function-parity",
-        "function-parity-graph"
+        "function-parity-graph",
+        "function-graph-symmetry"
       ]
     },
     {
@@ -57,9 +59,73 @@
       "label": "根据奇偶性求参",
       "type": "type-parity-parameter",
       "groupBy": "method",
-      "description": "将已知的奇偶性写成恒等关系，比较系数后求参数并核验。",
+      "description": "从定义域对称和函数值关系列出条件，求满足奇偶性要求的参数，并检查端点与禁取值。",
       "problems": [
-        "function-parity-a17"
+        "function-parity-a17",
+        "function-parity-c01",
+        "function-parity-c02",
+        "function-parity-c03",
+        "function-parity-c04",
+        "function-parity-c05",
+        "function-parity-c06"
+      ]
+    },
+    {
+      "id": "formula",
+      "label": "根据奇偶性求解析式",
+      "type": "type-parity-formula",
+      "groupBy": "method",
+      "description": "利用相反输入补全解析式、求函数值，或分离已知关系中的奇函数与偶函数。",
+      "problems": [
+        "function-parity-a04",
+        "function-parity-a07",
+        "function-parity-a08",
+        "function-parity-a09",
+        "function-parity-a12",
+        "function-parity-a13",
+        "function-parity-a03",
+        "function-parity-a06",
+        "function-parity-a15"
+      ]
+    },
+    {
+      "id": "inequality",
+      "label": "利用奇偶性解不等式",
+      "type": "type-parity-inequality",
+      "groupBy": "method",
+      "description": "用奇偶性转换函数值关系，结合已知一侧的解析式、单调性或符号解不等式，保留输入范围。",
+      "problems": [
+        "function-parity-a02",
+        "function-parity-a05",
+        "function-parity-a11",
+        "function-parity-a18",
+        "function-parity-a20",
+        "function-parity-a19"
+      ]
+    },
+    {
+      "id": "symmetry",
+      "label": "利用图像的对称性",
+      "type": "type-function-symmetry",
+      "groupBy": "method",
+      "description": "写出对称配对，组合反射得到平移关系，逐项求值或分组求和。",
+      "problems": [
+        "function-parity-a10",
+        "function-parity-a14"
+      ]
+    },
+    {
+      "id": "shifted-odd",
+      "label": "奇函数＋常数结论的应用",
+      "type": "type-shifted-odd-application",
+      "groupBy": "method",
+      "description": "先找到奇函数与常数的关系，再求相反输入的函数值、配对和或最值之和。",
+      "problems": [
+        "function-parity-a16",
+        "function-parity-b01",
+        "function-parity-b02",
+        "function-parity-b03",
+        "function-parity-b04"
       ]
     }
   ],
@@ -89,6 +155,261 @@
       "bundle": "/data/graph-walk/function-parity-a17.json",
       "types": [
         "type-parity-parameter"
+      ]
+    },
+    "function-parity-c01": {
+      "label": "定义域端点配对 · C01",
+      "path": "/topics/function-parity/variant1/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c01.json",
+      "types": [
+        "type-parity-parameter"
+      ]
+    },
+    "function-parity-c02": {
+      "label": "四次式中的一次项 · C02",
+      "path": "/topics/function-parity/variant2/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c02.json",
+      "types": [
+        "type-parity-parameter"
+      ]
+    },
+    "function-parity-c03": {
+      "label": "约分后仍保留原孔洞 · C03",
+      "path": "/topics/function-parity/variant3/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c03.json",
+      "types": [
+        "type-parity-parameter"
+      ]
+    },
+    "function-parity-c04": {
+      "label": "分段函数的零点条件 · C04",
+      "path": "/topics/function-parity/variant4/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c04.json",
+      "types": [
+        "type-parity-parameter"
+      ]
+    },
+    "function-parity-c05": {
+      "label": "根式的自然定义域 · C05",
+      "path": "/topics/function-parity/variant5/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c05.json",
+      "types": [
+        "type-parity-parameter"
+      ]
+    },
+    "function-parity-c06": {
+      "label": "有限定义域中的联合参数 · C06",
+      "path": "/topics/function-parity/variant6/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-c06.json",
+      "types": [
+        "type-parity-parameter"
+      ]
+    },
+    "function-parity-a04": {
+      "label": "偶函数在原定义域上的解析式 · A04",
+      "path": "/topics/function-parity/q04/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a04.json",
+      "types": [
+        "type-parity-formula"
+      ]
+    },
+    "function-parity-a07": {
+      "label": "偶函数补全负半轴 · A07",
+      "path": "/topics/function-parity/q07/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a07.json",
+      "types": [
+        "type-parity-formula"
+      ]
+    },
+    "function-parity-a08": {
+      "label": "奇函数补全负半轴 · A08",
+      "path": "/topics/function-parity/q08/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a08.json",
+      "types": [
+        "type-parity-formula"
+      ]
+    },
+    "function-parity-a09": {
+      "label": "奇函数求值与补全负半轴 · A09",
+      "path": "/topics/function-parity/q09/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a09.json",
+      "types": [
+        "type-function-evaluation",
+        "type-parity-formula"
+      ]
+    },
+    "function-parity-a12": {
+      "label": "奇函数零点与相反输入求值 · A12",
+      "path": "/topics/function-parity/q12/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a12.json",
+      "types": [
+        "type-function-evaluation"
+      ]
+    },
+    "function-parity-a13": {
+      "label": "奇函数整组相反输入求值 · A13",
+      "path": "/topics/function-parity/q13/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a13.json",
+      "types": [
+        "type-function-evaluation"
+      ]
+    },
+    "function-parity-a03": {
+      "label": "奇函数与偶函数的和式求值 · A03",
+      "path": "/topics/function-parity/q03/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a03.json",
+      "types": [
+        "type-function-evaluation"
+      ]
+    },
+    "function-parity-a06": {
+      "label": "奇函数与偶函数的差式求值 · A06",
+      "path": "/topics/function-parity/q06/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a06.json",
+      "types": [
+        "type-function-evaluation"
+      ]
+    },
+    "function-parity-a15": {
+      "label": "含参定义域的奇函数求值 · A15",
+      "path": "/topics/function-parity/q15/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a15.json",
+      "types": [
+        "type-function-evaluation"
+      ]
+    },
+    "function-parity-a02": {
+      "label": "偶函数半轴解析式解不等式 · A02",
+      "path": "/topics/function-parity/q02/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a02.json",
+      "types": [
+        "type-parity-inequality"
+      ]
+    },
+    "function-parity-a05": {
+      "label": "奇函数半轴解析式与两值比较 · A05",
+      "path": "/topics/function-parity/q05/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a05.json",
+      "types": [
+        "type-parity-formula",
+        "type-parity-inequality"
+      ]
+    },
+    "function-parity-a11": {
+      "label": "奇函数半轴解析式与两值比较 · A11",
+      "path": "/topics/function-parity/q11/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a11.json",
+      "types": [
+        "type-parity-formula",
+        "type-parity-inequality"
+      ]
+    },
+    "function-parity-a18": {
+      "label": "奇函数差商单调与两值比较 · A18",
+      "path": "/topics/function-parity/q18/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a18.json",
+      "types": [
+        "type-parity-inequality"
+      ]
+    },
+    "function-parity-a20": {
+      "label": "含参定义域偶函数两值比较 · A20",
+      "path": "/topics/function-parity/q20/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a20.json",
+      "types": [
+        "type-parity-inequality"
+      ]
+    },
+    "function-parity-a19": {
+      "label": "奇函数符号表与分母 · A19",
+      "path": "/topics/function-parity/q19/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a19.json",
+      "types": [
+        "type-parity-inequality"
+      ]
+    },
+    "function-parity-a10": {
+      "label": "对称轴与奇性求和 · A10",
+      "path": "/topics/function-parity/q10/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a10.json",
+      "types": [
+        "type-function-symmetry"
+      ]
+    },
+    "function-parity-a14": {
+      "label": "对称轴与整数点取值 · A14",
+      "path": "/topics/function-parity/q14/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a14.json",
+      "types": [
+        "type-function-symmetry"
+      ]
+    },
+    "function-parity-a16": {
+      "label": "从辅助函数还原函数值",
+      "path": "/topics/function-parity/q16/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a16.json",
+      "types": [
+        "type-shifted-odd-application"
+      ]
+    },
+    "function-parity-b01": {
+      "label": "由奇函数平移求值",
+      "path": "/topics/function-parity/q21/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-b01.json",
+      "types": [
+        "type-shifted-odd-application"
+      ]
+    },
+    "function-parity-b02": {
+      "label": "相反输入的函数值之和",
+      "path": "/topics/function-parity/q22/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-b02.json",
+      "types": [
+        "type-shifted-odd-application"
+      ]
+    },
+    "function-parity-b03": {
+      "label": "拆分有理式求相反输入值",
+      "path": "/topics/function-parity/q23/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-b03.json",
+      "types": [
+        "type-shifted-odd-application"
+      ]
+    },
+    "function-parity-b04": {
+      "label": "对称区间上的最大值与最小值之和",
+      "path": "/topics/function-parity/q24/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-b04.json",
+      "types": [
+        "type-shifted-odd-application"
       ]
     }
   }

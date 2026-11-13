@@ -19,8 +19,38 @@ def admitted(context):
 def prepare(context):
     if not admitted(context):
         raise CapabilityGap('parity_param.unsupported_source')
-    return result({'description': deepcopy(context['parity_parameter_goal'])}, [],
+    description = deepcopy(context['parity_parameter_goal'])
+    return result({'description': description, 'card_plan': card_plan(description)}, [],
                   [{'kind': 'original_parameter_statement_bound', 'passed': True}])
+
+
+def domain_only(description):
+    """Neither formula nor local rule: the domain alone decides the parameter."""
+    return (description.get('analysis_mode') == 'domain' and description['expression_ast'] is None
+            and not description['local_rules'])
+
+
+def domain_decides(description):
+    """An original formula whose symmetric-domain parameters already all work."""
+    if description.get('analysis_mode') != 'original':
+        return False
+    from ..parity_parameter_original import solve as solve_original
+    try:
+        model = solve_original(description)
+    except (ValueError, NotImplementedError):
+        return False
+    solution = model['feasible_set']
+    return (model['comparison']['kind'] == 'rational_cells' and isinstance(solution, sp.FiniteSet)
+            and solution != sp.S.EmptySet and solution == model['domain_parameters'])
+
+
+def card_plan(description):
+    if domain_decides(description):
+        return {'value': False, 'merge': False}
+    alone = domain_only(description)
+    return {'value': not alone, 'merge': not alone or bool(
+        description['constraints'] or description['degrees']
+        or any(fact['property'].endswith('_only') for fact in description['parity_facts']))}
 
 
 def form_identities(description):
@@ -68,6 +98,21 @@ def compare_quartic(identities, variable, parameters, domain):
     from ..function_coefficients import compare_quartic_coefficients
     return result({'comparison': compare_quartic_coefficients(identities, variable, parameters, domain)},
                   ['polynomial_coefficient_identity'], [{'kind': 'all_degrees_through_four', 'passed': True}])
+
+
+def solve_original_domain(description):
+    """Borrow method-domain-intersection and check its complete, branch-scoped domain proof."""
+    if description.get('analysis_mode') != 'original':
+        raise CapabilityGap('parity_param.original_domain_mode_required')
+    from ..parity_parameter_original import solve_domain, verify_domain
+    try:
+        domain = solve_domain(description)
+    except (ValueError, NotImplementedError) as exc:
+        raise CapabilityGap(str(exc)) from exc
+    if not verify_domain(description, domain):
+        raise LocalCheckFailed('parity_param.original_domain_certificate_failed')
+    return result({'original_domain': domain}, ['domain_intersection'],
+                  [{'kind': 'complete_original_domain_cells', 'passed': True}])
 
 
 def compare_original(description):

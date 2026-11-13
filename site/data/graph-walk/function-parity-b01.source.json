@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-b01",
+  "title": "由奇函数平移求值",
+  "page": "/topics/function-parity/q21/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t6-staged-20261112/b01.json",
+  "evidence": "site/data/graph-walk/function-parity-b01.evidence.json"
+}

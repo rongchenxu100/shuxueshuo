@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a04",
+  "title": "偶函数在原定义域上的解析式 · A04",
+  "page": "/topics/function-parity/q04/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a04.json",
+  "evidence": "site/data/graph-walk/function-parity-a04.evidence.json"
+}

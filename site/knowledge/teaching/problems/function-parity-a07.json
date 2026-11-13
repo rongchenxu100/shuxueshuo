@@ -1,0 +1,76 @@
+{
+  "topic": "function-parity",
+  "id": "function-parity-a07",
+  "label": "偶函数补全负半轴 · A07",
+  "path": "/topics/function-parity/q07/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-parity-a07.json",
+  "types": [
+    "type-parity-formula"
+  ],
+  "statement": "已知函数 $f(x)$ 是定义域为 $\\mathbf R$ 的偶函数，当 $x\\ge 0$ 时，$f(x)=x(1+x)$．则当 $x<0$ 时，$f(x)=$____．",
+  "routes": {
+    "parity-extension": {
+      "label": "对称补全法",
+      "methods": [
+        "method-parity-extension"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-parity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-parity-extension"
+          ]
+        },
+        "a5cd6a4684711539b0209da0#1": {
+          "title": "把输入换到已知一侧",
+          "position": 4,
+          "refs": [
+            "method-parity-extension#map",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "6af6087b8dfdf1bee5837513#1": {
+          "title": "代入相反输入",
+          "position": 5,
+          "refs": [
+            "method-parity-extension#substitute",
+            "method-function-evaluation",
+            "skill-simplify"
+          ]
+        },
+        "8dc3f3dc850cb3aace61544e#1": {
+          "title": "用奇偶性换回 f(x)",
+          "position": 6,
+          "refs": [
+            "method-parity-extension#write-back",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "969b9c111f36a70f63555a56#1": {
+          "title": "写出带范围的结论",
+          "position": 7,
+          "refs": [
+            "method-parity-extension#conclude"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "cb7b1b7784bd073f873cb0495de3d1caf1de0d3280049f2aee7cc01249a76044",
+  "practice_version": "e0e0820a191b72f1f1289c42b80f7dd11d19d7fed9043b23c1f1f93a85fea90d"
+}
