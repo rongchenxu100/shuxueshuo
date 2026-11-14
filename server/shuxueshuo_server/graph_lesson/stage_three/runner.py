@@ -84,6 +84,7 @@ def fingerprint():
         Path(__file__).parent.parent / 'shifted_odd_identity.py',
         Path(__file__).parent.parent / 'symmetry_relation_math.py',
         Path(__file__).parent.parent / 'function_symmetry_iteration.py',
+        Path(__file__).parent.parent / 'symmetry_walk.py',
         Path(__file__).parent / 'symmetry_runtime.py',
         Path(__file__).parent / 'symmetry_presentation.py',
         Path(__file__).parent.parent / 'linear_parameter_family.py',

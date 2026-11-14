@@ -524,4 +524,8 @@ def compile_cards(seeds, interaction_id):
         for key in ('condition_number_lines', 'graph', 'completion_graph', 'card_group', 'card_group_title'):
             if view.get(key):
                 parts[-1][key] = deepcopy(view[key])
+        parts[-1]['completion_proof'] = view['proof']
+    for part, after in zip(parts, [*parts[1:], None]):
+        if 'card_group' not in part or (after is not None and after.get('card_group') == part['card_group']) or after is None:
+            del part['completion_proof']
     return {'parts': parts, 'diagnostics': []}

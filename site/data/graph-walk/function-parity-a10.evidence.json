@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
-    "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
-    "input_sha256": "71066f5cedf870ece81441c7276b6ef73d0ce9b47c754ec6510c41bbe960e157",
-    "checkpoint_sha256": "5fcee68d2c63bb8ae980a2d67538b90fb93189abd3699e26351e45890fd7e7ee",
-    "result_sha256": "e74772064e5a3768f367022035ae6bea0c19f9bc86ba199d722b8c9346dc235b",
+    "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+    "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+    "input_sha256": "09c325c8b14da1e92ab3f57d19ce1dbf8b092ff9ece1abf1a706163d80e5e40a",
+    "checkpoint_sha256": "4173af48459be214016a4f92042b305f9c1c65843113a01f25eb70163b239d34",
+    "result_sha256": "b17a38c58f0141b5982da4ee68da41526fcd1f66da7d01aff99306b9c1abfc8f",
     "stage_one_sha256": "c26c6c0451cee939c9def7dad81093a36d74cf4ca5051b8d047bb2ebfe239abd",
-    "stage_two_sha256": "13b82ab02e11f1f63796115039ab4c2ff38b7c25240a4d09c489ae667054e592",
+    "stage_two_sha256": "627785709fbdad0f5955197c86e36b8e140bcbe1482d80b01d9482de0236e238",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "1b005c16f15a37f1f7aaccf16493ff1a8bf8a85b67553703eb83c07e6bdc4491",
-    "teaching_revision": "21fa7844bba2e1f031cb0346a86d24da47c409d661bf15049cdd220508816d2a"
+    "teaching_revision": "28fb1792d0dd882ebc72c98e33da34eece2c810e0dbe232b02e9102d89c16045"
   },
   "lesson": {
     "status": "completed",
@@ -772,10 +772,10 @@
     ]
   },
   "stream": {
-    "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
-    "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
-    "input_sha256": "71066f5cedf870ece81441c7276b6ef73d0ce9b47c754ec6510c41bbe960e157",
-    "stream_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+    "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+    "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+    "input_sha256": "09c325c8b14da1e92ab3f57d19ce1dbf8b092ff9ece1abf1a706163d80e5e40a",
+    "stream_id": "4a35724fbdd94bc5b19a5fd061f73c33",
     "last_seq": 36,
     "minimum_seq": 1,
     "math_steps": [
@@ -785,37 +785,37 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_rewrite",
-        "explanation": "$$\\begin{gathered}f(x + 4)=-f(x + 2)=-\\left(-f(x)\\right)=f(x)\\\\\\Rightarrow \\text{周期为 }4\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}\\dfrac{2+\\left(-2\\right)}{2}=0\\\\f(-2)=-f(2)=0\\\\\\dfrac{-2+4}{2}=1\\\\f(4)=f(-2)=0\\end{gathered}$$",
         "highlight": {
-          "caption": "从 $x + 2$ 再走到 $x + 4$",
+          "caption": "利用图像关于直线 $x=1$ 对称",
           "connector": "⇒",
           "items": [
             {
-              "label": "已知条件",
-              "math": "\\begin{gathered}f(x + 2)=-f(x)\\\\f(x + 2)=-m\\end{gathered}"
+              "label": "已知",
+              "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(-2)=0\\end{gathered}"
             },
             {
-              "label": "函数值",
-              "math": "f(x + 4)=m"
+              "label": "对称点",
+              "math": "(4,0)"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
+        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
         "local_check": "passed",
-        "math_step_sha256": "5b0346e7c040a59a7eb3e39fe5aacefeaf4c3b05005a317f04f1d9c9d6657224",
+        "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "b1ee955a21c6a91e4ba7d3ad5cfd495948c6b4882b6d286b4900614b5180debf",
+        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
         "route_id": "function-symmetry",
-        "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
         "source_refs": [
           "/steps/1/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "target_ref": "/root/goals/0",
-        "title": "从 $x + 2$ 再走到 $x + 4$",
+        "title": "利用图像关于直线 $x=1$ 对称",
         "used_basis": []
       },
       {
@@ -824,14 +824,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_conclude",
-        "explanation": "$$\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(2)=-f(0)\\\\f(3)=-f(1)\\\\f(4)=f(0)\\\\f{\\left(1 \\right)}=1\\\\2 f{\\left(0 \\right)}=0\\\\f(1)+f(2)+f(3)+f(4)=0\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}f(1)=1\\\\f(2)=0\\\\f(3)=-1\\\\f(4)=0\\\\f(1)+f(2)+f(3)+f(4)=1+0+\\left(-1\\right)+0=0\\end{gathered}$$",
         "highlight": {
           "caption": "求出所求的值",
           "connector": "⇒",
           "items": [
             {
-              "label": "已知与改写",
-              "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\\\f(2)=-f(0)\\\\f(3)=-f(1)\\\\f(4)=f(0)\\\\f{\\left(1 \\right)}=1\\\\2 f{\\left(0 \\right)}=0\\end{gathered}"
+              "label": "已求出的函数值",
+              "math": "\\begin{gathered}f(1)=1\\\\f(2)=0\\\\f(3)=-1\\\\f(4)=0\\end{gathered}"
             },
             {
               "label": "结论",
@@ -840,15 +840,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
+        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
         "local_check": "passed",
-        "math_step_sha256": "669170ef6a398969ce64ca5bfc2f65a0f016ee0d1724aa6d82e96a9645047b1a",
+        "math_step_sha256": "c89dee301b3b3763762a2b4c98d0d108abf5d607cb4009f8265a69634f858889",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "b1ee955a21c6a91e4ba7d3ad5cfd495948c6b4882b6d286b4900614b5180debf",
+        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
         "route_id": "function-symmetry",
-        "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -863,37 +863,37 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_rewrite",
-        "explanation": "$$\\begin{gathered}f(x + 4)=-f(x + 2)=-\\left(-f(x)\\right)=f(x)\\\\\\Rightarrow \\text{周期为 }4\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}f(2)=f(0)=0\\\\f(3)=f(-1)=-f(1)=-1\\\\f(4)=f(-2)=-f(2)=0\\end{gathered}$$",
         "highlight": {
-          "caption": "从 $x + 2$ 再走到 $x + 4$",
+          "caption": "求出一个周期内需要的函数值",
           "connector": "⇒",
           "items": [
             {
               "label": "已知条件",
-              "math": "\\begin{gathered}f(x + 2)=-f(x)\\\\f(x + 2)=-m\\end{gathered}"
+              "math": "\\begin{gathered}f(1)=1\\\\f(0)=0\\quad(\\text{奇函数})\\end{gathered}"
             },
             {
-              "label": "函数值",
-              "math": "f(x + 4)=m"
+              "label": "关系",
+              "math": "\\begin{gathered}f(2)=f(0)=0\\\\f(3)=f(-1)=-f(1)=-1\\\\f(4)=f(-2)=-f(2)=0\\end{gathered}"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
+        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
         "local_check": "passed",
-        "math_step_sha256": "06cc54d6eeb849050a73075c0a183d1bb058e8625bc1c9d4cf367645452c7662",
+        "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "b1ee955a21c6a91e4ba7d3ad5cfd495948c6b4882b6d286b4900614b5180debf",
+        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
         "route_id": "function-symmetry",
-        "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
         "source_refs": [
           "/steps/1/calls/0"
         ],
         "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite",
         "target_ref": "/root/goals/1",
-        "title": "从 $x + 2$ 再走到 $x + 4$",
+        "title": "求出一个周期内需要的函数值",
         "used_basis": []
       },
       {
@@ -902,14 +902,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_conclude",
-        "explanation": "$$\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(2)=-f(0)\\\\f(3)=-f(1)\\\\f(4)=f(0)\\\\f(5)=f(1)\\\\f(6)=-f(0)\\\\f(7)=-f(1)\\\\f(8)=f(0)\\\\f(9)=f(1)\\\\f(10)=-f(0)\\\\f(11)=-f(1)\\\\f(12)=f(0)\\\\f{\\left(1 \\right)}=1\\\\2 f{\\left(0 \\right)}=0\\\\\\sum_{k=1}^{54}f(k)=- f{\\left(0 \\right)} + f{\\left(1 \\right)}\\\\\\sum_{k=1}^{54}f(k)=1\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}f(5)=f(1)\\\\\\cdots\\\\f(53)=f(1)\\\\f(54)=f(2)\\\\f(1)=1\\\\f(2)=0\\\\f(3)=-1\\\\f(4)=0\\\\\\sum_{k=1}^{54}f(k)=1\\end{gathered}$$",
         "highlight": {
           "caption": "求出函数值之和",
           "connector": "⇒",
           "items": [
             {
-              "label": "已知与改写",
-              "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\\\f(2)=-f(0)\\\\f(3)=-f(1)\\\\f(4)=f(0)\\\\f(5)=f(1)\\\\f(6)=-f(0)\\\\f(7)=-f(1)\\\\f(8)=f(0)\\\\f(9)=f(1)\\\\f(10)=-f(0)\\\\f(11)=-f(1)\\\\f(12)=f(0)\\\\f{\\left(1 \\right)}=1\\\\2 f{\\left(0 \\right)}=0\\end{gathered}"
+              "label": "周期 $4$ 与一个周期内的值",
+              "math": "\\begin{gathered}f(5)=f(1)\\\\\\cdots\\\\f(53)=f(1)\\\\f(54)=f(2)\\\\f(1)=1\\\\f(2)=0\\\\f(3)=-1\\\\f(4)=0\\end{gathered}"
             },
             {
               "label": "结论",
@@ -918,15 +918,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
+        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
         "local_check": "passed",
-        "math_step_sha256": "8f1ff9c3679a34873a3d87ea9c3629db0921f93973ea7f0274ea2623d6a575bf",
+        "math_step_sha256": "93c24d448f1f29c08dcc14a4a96ac46d09fe982557407a6ed0e967435faf2315",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "b1ee955a21c6a91e4ba7d3ad5cfd495948c6b4882b6d286b4900614b5180debf",
+        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
         "route_id": "function-symmetry",
-        "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1001,25 +1001,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
+        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
         "math_steps": [
           {
-            "math_step_sha256": "5b0346e7c040a59a7eb3e39fe5aacefeaf4c3b05005a317f04f1d9c9d6657224",
+            "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "669170ef6a398969ce64ca5bfc2f65a0f016ee0d1724aa6d82e96a9645047b1a",
+            "math_step_sha256": "c89dee301b3b3763762a2b4c98d0d108abf5d607cb4009f8265a69634f858889",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "6f092c7777fa890af887b55f2c14a5a2e20cac67ab872467a13588979a0cf6c1",
-        "verified_route_sha256": "d41624ba5296a8f5db65b72e08472efe08f6bc41d906cbebbd6d27411eba3dfe"
+        "task_id": "1dd62ee5cfe8f1e723cc68b9db1daa9546b96b80d083401da1ed899efeb94e5d",
+        "verified_route_sha256": "9eb04a812e21c12bb7bf6ae5eaace4463b35a08787dbadbb5549f5c70536dfd3"
       },
       {
         "answer": {
@@ -1041,25 +1041,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
+        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
         "math_steps": [
           {
-            "math_step_sha256": "06cc54d6eeb849050a73075c0a183d1bb058e8625bc1c9d4cf367645452c7662",
+            "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
             "ordinal": 1,
             "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "8f1ff9c3679a34873a3d87ea9c3629db0921f93973ea7f0274ea2623d6a575bf",
+            "math_step_sha256": "93c24d448f1f29c08dcc14a4a96ac46d09fe982557407a6ed0e967435faf2315",
             "ordinal": 2,
             "step_id": "cbd98ea750-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
         "status": "pending",
         "target_ref": "/root/goals/1",
-        "task_id": "18696aa7e25d098a9876057cc1716e551431e8c4ce4255bd2eddeb25fb986f94",
-        "verified_route_sha256": "8bc9e76b62aca8ee8d9d976c137ea84c979da89ef48190d16b950b9e441af701"
+        "task_id": "d99a544fa67e2de3be71c142c921259032a143e548d80a2061c7e08b69b348ce",
+        "verified_route_sha256": "fe96365616a36de39ea8e4d9f1b8e1532f36e35542c977df5b4a39ba36cc58bc"
       }
     ],
     "qa": [],
@@ -1146,40 +1146,40 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "5b0346e7c040a59a7eb3e39fe5aacefeaf4c3b05005a317f04f1d9c9d6657224",
+        "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
         "status": "interactive",
-        "interaction_id": "27a119244306408a304fe91d"
+        "interaction_id": "7284ddfe06ac9bd478b85c4a"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "669170ef6a398969ce64ca5bfc2f65a0f016ee0d1724aa6d82e96a9645047b1a",
+        "math_step_sha256": "c89dee301b3b3763762a2b4c98d0d108abf5d607cb4009f8265a69634f858889",
         "status": "interactive",
-        "interaction_id": "2c2fad7056f73246006fff92"
+        "interaction_id": "960b7c587eec68eac10f715c"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "function-symmetry",
         "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "06cc54d6eeb849050a73075c0a183d1bb058e8625bc1c9d4cf367645452c7662",
+        "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
         "status": "interactive",
-        "interaction_id": "5ca554a26c93bb7e3f2e967c"
+        "interaction_id": "bf4c61e1d49fb843591fc420"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "function-symmetry",
         "step_id": "cbd98ea750-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "8f1ff9c3679a34873a3d87ea9c3629db0921f93973ea7f0274ea2623d6a575bf",
+        "math_step_sha256": "93c24d448f1f29c08dcc14a4a96ac46d09fe982557407a6ed0e967435faf2315",
         "status": "interactive",
-        "interaction_id": "489535da7e7b04c18f03fab2"
+        "interaction_id": "88ebc0e9a330596b195edecf"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "b1ee955a21c6a91e4ba7d3ad5cfd495948c6b4882b6d286b4900614b5180debf",
+    "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -1187,7 +1187,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:function-symmetry:complete",
-        "last_seq": 18
+        "last_seq": 16
       },
       {
         "target_ref": "/root/goals/1",
@@ -1381,14 +1381,16 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "27a119244306408a304fe91d",
+        "interaction_id": "7284ddfe06ac9bd478b85c4a",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "440f32fcbe4990e5d4fcc8565c5f6c13e06d5c3f0aefb8140e6a8660e02f782f",
-        "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
+        "interaction_sha256": "57654a7690aacb1890b7370d8d5bca907a682c16a43fd2e1f2689c246fe68982",
+        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
         "parts": [
           {
+            "card_group": "known-0",
+            "card_group_title": "先找出图像上确定的点",
             "completion_board": {
-              "caption": "利用关于原点对称找配对的输入",
+              "caption": "先找出图像上确定的点",
               "connector": "⇒",
               "items": [
                 {
@@ -1396,38 +1398,26 @@
                   "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\end{gathered}"
                 },
                 {
-                  "label": "输入配对",
-                  "math": "1\\mapsto -1"
+                  "label": "函数值",
+                  "math": "f(0)=0"
                 }
               ],
               "layout": "derivation"
             },
             "completion_graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$1$ 与 $-1$ 的中点是 $0$，函数值互为相反数。",
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像过点 $(0,0)$。",
               "kind": "piecewise_curve",
               "params": {
                 "bounds": [
-                  -2.0,
-                  4.0,
+                  -3.0,
+                  5.0,
                   -2.0,
                   2.0
                 ],
                 "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "1",
-                    "value_label": "f(1)",
-                    "x": 1.0
-                  },
-                  {
-                    "label": "-1",
-                    "value_label": "f(-1)",
-                    "x": -1.0
-                  }
-                ],
                 "interval": [
-                  -2.0,
-                  4.0
+                  -3.0,
+                  5.0
                 ],
                 "interval_closed": [
                   true,
@@ -1435,9 +1425,14 @@
                 ],
                 "points": [
                   {
-                    "label": "对称中心",
-                    "place": "below-right",
+                    "label": "(0,0)",
+                    "place": "above",
                     "x": 0.0
+                  },
+                  {
+                    "label": "(1,1)",
+                    "place": "above",
+                    "x": 1.0
                   }
                 ],
                 "segments": [
@@ -1448,7 +1443,7 @@
                       -2.0
                     ],
                     "interval": [
-                      -2.0,
+                      -3.0,
                       -1.0
                     ],
                     "interval_closed": [
@@ -1494,7 +1489,595 @@
                     ],
                     "interval": [
                       3.0,
-                      4.0
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "completion_proof": "\\begin{gathered}f(-0)=-f(0)\\\\f(0)=-f(0)\\\\2f(0)=0\\\\f(0)=0\\end{gathered}",
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；已知图像上的点 $(1,1)$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3.0,
+                  5.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -3.0,
+                  5.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(1,1)",
+                    "place": "above",
+                    "x": 1.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "7284ddfe06ac9bd478b85c4a#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(0)\\text{ 不能确定}$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$f(0)=0$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(0)=-1$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(0)=1$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "$f(x)$ 是奇函数，且 $0$ 在定义域内。$f(0)$ 等于多少？",
+            "stem_board": {
+              "caption": "先找出图像上确定的点",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知条件",
+                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\end{gathered}"
+                },
+                {
+                  "label": "函数值",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "先找出图像上确定的点"
+          },
+          {
+            "card_group": "walk-0",
+            "card_group_title": "求 $f(2)$",
+            "completion_board": {
+              "caption": "利用图像关于直线 $x=1$ 对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(0)=0\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": "(2,0)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$0$ 与 $2$ 的中点是 $1$，函数值相同，得到点 $(2,0)$，即 $f(2)=0$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1",
+                    "x": 1.0
+                  }
+                ],
+                "bounds": [
+                  -3.0,
+                  5.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -3.0,
+                  5.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(0,0)",
+                    "place": "above",
+                    "x": 0.0
+                  },
+                  {
+                    "x": 1.0
+                  },
+                  {
+                    "label": "(2,0)",
+                    "place": "above",
+                    "x": 2.0
+                  }
+                ],
+                "reflections": [
+                  {
+                    "center": 1.0,
+                    "from": 0.0,
+                    "kind": "axis",
+                    "to": 2.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "completion_proof": "\\begin{gathered}\\dfrac{0+2}{2}=1\\\\f(2)=f(0)=0\\end{gathered}",
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于直线 $x=1$ 对称。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1",
+                    "x": 1.0
+                  }
+                ],
+                "bounds": [
+                  -3.0,
+                  5.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -3.0,
+                  5.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(0,0)",
+                    "place": "above",
+                    "x": 0.0
+                  },
+                  {
+                    "x": 1.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "id": "7284ddfe06ac9bd478b85c4a#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$(-2,0)$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$(2,1)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(0,0)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$(2,0)$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "图像关于直线 $x=1$ 对称，点 $(0,0)$ 的对称点是哪个点？",
+            "stem_board": {
+              "caption": "利用图像关于直线 $x=1$ 对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(0)=0\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "利用图像关于直线 $x=1$ 对称"
+          },
+          {
+            "card_group": "walk-1",
+            "card_group_title": "求 $f(3)$",
+            "completion_board": {
+              "caption": "利用图像关于原点对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(1)=1\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": "(-1,-1)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$1$ 与 $-1$ 的中点是 $0$，函数值互为相反数，得到点 $(-1,-1)$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3.0,
+                  5.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -3.0,
+                  5.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(-1,-1)",
+                    "place": "below",
+                    "x": -1.0
+                  },
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "label": "(1,1)",
+                    "place": "above",
+                    "x": 1.0
+                  },
+                  {
+                    "x": 2.0
+                  }
+                ],
+                "reflections": [
+                  {
+                    "center": 0.0,
+                    "from": 1.0,
+                    "kind": "center",
+                    "to": -1.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
                     ],
                     "interval_closed": [
                       true,
@@ -1525,22 +2108,15 @@
               "kind": "piecewise_curve",
               "params": {
                 "bounds": [
-                  -2.0,
-                  4.0,
+                  -3.0,
+                  5.0,
                   -2.0,
                   2.0
                 ],
                 "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "1",
-                    "value_label": "f(1)",
-                    "x": 1.0
-                  }
-                ],
                 "interval": [
-                  -2.0,
-                  4.0
+                  -3.0,
+                  5.0
                 ],
                 "interval_closed": [
                   true,
@@ -1548,9 +2124,15 @@
                 ],
                 "points": [
                   {
-                    "label": "对称中心",
-                    "place": "below-right",
                     "x": 0.0
+                  },
+                  {
+                    "label": "(1,1)",
+                    "place": "above",
+                    "x": 1.0
+                  },
+                  {
+                    "x": 2.0
                   }
                 ],
                 "segments": [
@@ -1561,7 +2143,7 @@
                       -2.0
                     ],
                     "interval": [
-                      -2.0,
+                      -3.0,
                       -1.0
                     ],
                     "interval_closed": [
@@ -1607,7 +2189,7 @@
                     ],
                     "interval": [
                       3.0,
-                      4.0
+                      5.0
                     ],
                     "interval_closed": [
                       true,
@@ -1625,62 +2207,68 @@
                 ]
               }
             },
-            "id": "27a119244306408a304fe91d#1",
+            "id": "7284ddfe06ac9bd478b85c4a#3",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$1\\mapsto 1$",
+                  "label": "$(-1,1)$",
                   "value": "o2"
                 },
                 {
-                  "label": "$1\\mapsto 0$",
-                  "value": "o3"
+                  "label": "$(-1,0)$",
+                  "value": "o4"
                 },
                 {
-                  "label": "$1\\mapsto -1$",
+                  "label": "$(-1,-1)$",
                   "value": "o1"
+                },
+                {
+                  "label": "$(1,-1)$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
             },
-            "question": "图像关于原点对称：输入 $x$ 与 $-x$ 的中点是 $0$，函数值互为相反数。输入为 $1$ 时，配对的输入是多少？",
+            "question": "由图像关于直线 $x=1$ 对称，$3$ 与 $-1$ 配对，先求 $f(-1)$。图像关于原点对称，点 $(1,1)$ 的对称点是哪个点？",
             "stem_board": {
-              "caption": "利用关于原点对称找配对的输入",
+              "caption": "利用图像关于原点对称",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(1)=1\\end{gathered}"
                 },
                 {
-                  "label": "输入配对",
+                  "label": "对称点",
                   "math": null
                 }
               ],
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "利用关于原点对称找配对的输入"
+            "title": "利用图像关于原点对称"
           },
           {
+            "card_group": "walk-1",
+            "card_group_title": "求 $f(3)$",
             "completion_board": {
-              "caption": "利用关于直线 $x=1$ 对称找配对的输入",
+              "caption": "利用图像关于直线 $x=1$ 对称",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(-1)=-1\\end{gathered}"
                 },
                 {
-                  "label": "输入配对",
-                  "math": "2\\mapsto 0"
+                  "label": "对称点",
+                  "math": "(3,-1)"
                 }
               ],
               "layout": "derivation"
             },
             "completion_graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$2$ 与 $0$ 的中点是 $1$，函数值相同。",
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$-1$ 与 $3$ 的中点是 $1$，函数值相同，得到点 $(3,-1)$，即 $f(3)=-1$。",
               "kind": "piecewise_curve",
               "params": {
                 "axes": [
@@ -1690,33 +2278,49 @@
                   }
                 ],
                 "bounds": [
-                  -2.0,
-                  4.0,
+                  -3.0,
+                  5.0,
                   -2.0,
                   2.0
                 ],
                 "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "2",
-                    "value_label": "f(2)",
-                    "x": 2.0
-                  },
-                  {
-                    "label": "0",
-                    "value_label": "f(0)",
-                    "x": 0.0
-                  }
-                ],
                 "interval": [
-                  -2.0,
-                  4.0
+                  -3.0,
+                  5.0
                 ],
                 "interval_closed": [
                   true,
                   true
                 ],
-                "points": [],
+                "points": [
+                  {
+                    "label": "(-1,-1)",
+                    "place": "below",
+                    "x": -1.0
+                  },
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 1.0
+                  },
+                  {
+                    "x": 2.0
+                  },
+                  {
+                    "label": "(3,-1)",
+                    "place": "below",
+                    "x": 3.0
+                  }
+                ],
+                "reflections": [
+                  {
+                    "center": 1.0,
+                    "from": -1.0,
+                    "kind": "axis",
+                    "to": 3.0
+                  }
+                ],
                 "segments": [
                   {
                     "coefficients": [
@@ -1725,7 +2329,7 @@
                       -2.0
                     ],
                     "interval": [
-                      -2.0,
+                      -3.0,
                       -1.0
                     ],
                     "interval_closed": [
@@ -1771,7 +2375,630 @@
                     ],
                     "interval": [
                       3.0,
-                      4.0
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "completion_proof": "\\begin{gathered}\\dfrac{1+\\left(-1\\right)}{2}=0\\\\f(-1)=-f(1)=-1\\\\\\dfrac{-1+3}{2}=1\\\\f(3)=f(-1)=-1\\end{gathered}",
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于直线 $x=1$ 对称。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1",
+                    "x": 1.0
+                  }
+                ],
+                "bounds": [
+                  -3.0,
+                  5.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -3.0,
+                  5.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(-1,-1)",
+                    "place": "below",
+                    "x": -1.0
+                  },
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 1.0
+                  },
+                  {
+                    "x": 2.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "id": "7284ddfe06ac9bd478b85c4a#4",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$(3,-1)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$(1,-1)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(-1,-1)$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$(3,1)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "再由图像关于直线 $x=1$ 对称，点 $(-1,-1)$ 的对称点是哪个点？",
+            "stem_board": {
+              "caption": "利用图像关于直线 $x=1$ 对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(-1)=-1\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "利用图像关于直线 $x=1$ 对称"
+          },
+          {
+            "card_group": "walk-2",
+            "card_group_title": "求 $f(4)$",
+            "completion_board": {
+              "caption": "利用图像关于原点对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(2)=0\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": "(-2,0)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$2$ 与 $-2$ 的中点是 $0$，函数值互为相反数，得到点 $(-2,0)$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3.0,
+                  5.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -3.0,
+                  5.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(-2,0)",
+                    "place": "above",
+                    "x": -2.0
+                  },
+                  {
+                    "x": -1.0
+                  },
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 1.0
+                  },
+                  {
+                    "label": "(2,0)",
+                    "place": "above",
+                    "x": 2.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "reflections": [
+                  {
+                    "center": 0.0,
+                    "from": 2.0,
+                    "kind": "center",
+                    "to": -2.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于原点对称。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -3.0,
+                  5.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -3.0,
+                  5.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": -1.0
+                  },
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 1.0
+                  },
+                  {
+                    "label": "(2,0)",
+                    "place": "above",
+                    "x": 2.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "7284ddfe06ac9bd478b85c4a#5",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$(-2,1)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(2,0)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$(-2,0)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$(-2,-1)$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由图像关于直线 $x=1$ 对称，$4$ 与 $-2$ 配对，先求 $f(-2)$。图像关于原点对称，点 $(2,0)$ 的对称点是哪个点？",
+            "stem_board": {
+              "caption": "利用图像关于原点对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(2)=0\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "利用图像关于原点对称"
+          },
+          {
+            "card_group": "walk-2",
+            "card_group_title": "求 $f(4)$",
+            "completion_board": {
+              "caption": "利用图像关于直线 $x=1$ 对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(-2)=0\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": "(4,0)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$-2$ 与 $4$ 的中点是 $1$，函数值相同，得到点 $(4,0)$，即 $f(4)=0$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1",
+                    "x": 1.0
+                  }
+                ],
+                "bounds": [
+                  -3.0,
+                  5.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -3.0,
+                  5.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(-2,0)",
+                    "place": "above",
+                    "x": -2.0
+                  },
+                  {
+                    "x": -1.0
+                  },
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 1.0
+                  },
+                  {
+                    "x": 2.0
+                  },
+                  {
+                    "x": 3.0
+                  },
+                  {
+                    "label": "(4,0)",
+                    "place": "above",
+                    "x": 4.0
+                  }
+                ],
+                "reflections": [
+                  {
+                    "center": 1.0,
+                    "from": -2.0,
+                    "kind": "axis",
+                    "to": 4.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
                     ],
                     "interval_closed": [
                       true,
@@ -1812,203 +3039,15 @@
                   }
                 ],
                 "bounds": [
-                  -2.0,
-                  4.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "2",
-                    "value_label": "f(2)",
-                    "x": 2.0
-                  }
-                ],
-                "interval": [
-                  -2.0,
-                  4.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      -2.0
-                    ],
-                    "interval": [
-                      -2.0,
-                      -1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      4.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ],
-                  [
-                    1.0,
-                    "1"
-                  ]
-                ]
-              }
-            },
-            "id": "27a119244306408a304fe91d#2",
-            "interaction": {
-              "field": "answer",
-              "options": [
-                {
-                  "label": "$2\\mapsto -2$",
-                  "value": "o3"
-                },
-                {
-                  "label": "$2\\mapsto 0$",
-                  "value": "o1"
-                },
-                {
-                  "label": "$2\\mapsto -1$",
-                  "value": "o4"
-                },
-                {
-                  "label": "$2\\mapsto 2$",
-                  "value": "o2"
-                }
-              ],
-              "type": "choice"
-            },
-            "question": "图像关于直线 $x=1$ 对称：输入 $x$ 与 $2-x$ 的中点是 $1$，函数值相同。输入为 $2$ 时，配对的输入是多少？",
-            "stem_board": {
-              "caption": "利用关于直线 $x=1$ 对称找配对的输入",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\end{gathered}"
-                },
-                {
-                  "label": "输入配对",
-                  "math": null
-                }
-              ],
-              "layout": "derivation"
-            },
-            "submit_label": "确认判断",
-            "title": "利用关于直线 $x=1$ 对称找配对的输入"
-          },
-          {
-            "completion_board": {
-              "caption": "连续使用两次对称关系",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 2\\end{gathered}"
-                },
-                {
-                  "label": "关系",
-                  "math": "f(x + 2)=-f(x)"
-                }
-              ],
-              "layout": "derivation"
-            },
-            "expected_answer": {},
-            "feedback": {
-              "answer": "结合卡片中的式子和范围，再核对一次。"
-            },
-            "graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；取 $x=\\frac{1}{2}$：先关于原点对称，到 $- \\frac{1}{2}$，函数值互为相反数；再关于直线 $x=1$ 对称，到 $\\frac{5}{2}$，函数值相同；所以 $f(x + 2)=-f(x)$。",
-              "kind": "piecewise_curve",
-              "params": {
-                "axes": [
-                  {
-                    "label": "x=1",
-                    "x": 1.0
-                  }
-                ],
-                "bounds": [
-                  -2.0,
-                  4.0,
+                  -3.0,
+                  5.0,
                   -2.0,
                   2.0
                 ],
                 "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "x",
-                    "value_label": "f(x)",
-                    "x": 0.5
-                  },
-                  {
-                    "label": "-x",
-                    "value_label": "f(-x)",
-                    "x": -0.5
-                  },
-                  {
-                    "label": "x+2",
-                    "value_label": "f(x+2)",
-                    "x": 2.5
-                  }
-                ],
                 "interval": [
-                  -2.0,
-                  4.0
+                  -3.0,
+                  5.0
                 ],
                 "interval_closed": [
                   true,
@@ -2016,7 +3055,24 @@
                 ],
                 "points": [
                   {
+                    "label": "(-2,0)",
+                    "place": "above",
+                    "x": -2.0
+                  },
+                  {
+                    "x": -1.0
+                  },
+                  {
                     "x": 0.0
+                  },
+                  {
+                    "x": 1.0
+                  },
+                  {
+                    "x": 2.0
+                  },
+                  {
+                    "x": 3.0
                   }
                 ],
                 "segments": [
@@ -2027,7 +3083,7 @@
                       -2.0
                     ],
                     "interval": [
-                      -2.0,
+                      -3.0,
                       -1.0
                     ],
                     "interval_closed": [
@@ -2073,7 +3129,7 @@
                     ],
                     "interval": [
                       3.0,
-                      4.0
+                      5.0
                     ],
                     "interval_closed": [
                       true,
@@ -2095,583 +3151,55 @@
                 ]
               }
             },
-            "id": "27a119244306408a304fe91d#3",
-            "interaction": {
-              "type": "read"
-            },
-            "question": "按顺序使用两条关系，同时记录输入的变化和函数值的变化。",
-            "stem_board": {
-              "caption": "连续使用两次对称关系",
-              "lines": [
-                "$$x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 2$$",
-                "$$f(- x)=-f(x)\\quad(x\\in \\mathbb{R})$$",
-                "$$f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})$$",
-                "$$f(x + 2)=-f(x)$$"
-              ]
-            },
-            "submit_label": "继续",
-            "title": "连续使用两次对称关系"
-          },
-          {
-            "card_group": "period",
-            "card_group_title": "再用一次关系，看出周期",
-            "completion_board": {
-              "caption": "从 $x$ 走到 $x + 2$",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "f(x + 2)=-f(x)"
-                },
-                {
-                  "label": "函数值",
-                  "math": "f(x + 2)=-m"
-                }
-              ],
-              "layout": "derivation"
-            },
-            "completion_graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；由 $f(x + 2)=-f(x)$，横坐标为 $x + 2$ 的点函数值是 $-m$。",
-              "kind": "piecewise_curve",
-              "params": {
-                "bounds": [
-                  -1.0,
-                  6.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "x",
-                    "value_label": "m",
-                    "x": 0.5
-                  },
-                  {
-                    "label": "x+2",
-                    "value_label": "-m",
-                    "x": 2.5
-                  }
-                ],
-                "interval": [
-                  -1.0,
-                  6.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      5.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      6.0
-                    ],
-                    "interval": [
-                      5.0,
-                      6.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ]
-                ]
-              }
-            },
-            "expected_answer": {
-              "one_of": [
-                "o1"
-              ]
-            },
-            "feedback": {
-              "answer": "结合卡片中的式子和范围，再核对一次。"
-            },
-            "graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；在示意图上取横坐标为 $x$ 的点（取 $x=\\frac{1}{2}$），记 $f(x)=m$。",
-              "kind": "piecewise_curve",
-              "params": {
-                "bounds": [
-                  -1.0,
-                  6.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "x",
-                    "value_label": "m",
-                    "x": 0.5
-                  }
-                ],
-                "interval": [
-                  -1.0,
-                  6.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      5.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      6.0
-                    ],
-                    "interval": [
-                      5.0,
-                      6.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ]
-                ]
-              }
-            },
-            "id": "27a119244306408a304fe91d#4",
+            "id": "7284ddfe06ac9bd478b85c4a#6",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(x + 2)=0$",
+                  "label": "$(2,0)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$(-2,0)$",
                   "value": "o3"
                 },
                 {
-                  "label": "$f(x + 2)=-m$",
-                  "value": "o1"
-                },
-                {
-                  "label": "$f(x + 2)=-2m$",
+                  "label": "$(4,1)$",
                   "value": "o4"
                 },
                 {
-                  "label": "$f(x + 2)=m$",
-                  "value": "o2"
+                  "label": "$(4,0)$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
             },
-            "question": "在示意图上取横坐标为 $x$ 的点（取 $x=\\frac{1}{2}$），记 $f(x)=m$。由 $f(x + 2)=-f(x)$，横坐标为 $x + 2$ 的点函数值是多少？",
+            "question": "再由图像关于直线 $x=1$ 对称，点 $(-2,0)$ 的对称点是哪个点？",
             "stem_board": {
-              "caption": "从 $x$ 走到 $x + 2$",
+              "caption": "利用图像关于直线 $x=1$ 对称",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "f(x + 2)=-f(x)"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(-2)=0\\end{gathered}"
                 },
                 {
-                  "label": "函数值",
+                  "label": "对称点",
                   "math": null
                 }
               ],
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "从 $x$ 走到 $x + 2$"
-          },
-          {
-            "card_group": "period",
-            "card_group_title": "再用一次关系，看出周期",
-            "completion_board": {
-              "caption": "从 $x + 2$ 再走到 $x + 4$",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(x + 2)=-f(x)\\\\f(x + 2)=-m\\end{gathered}"
-                },
-                {
-                  "label": "函数值",
-                  "math": "f(x + 4)=m"
-                }
-              ],
-              "layout": "derivation"
-            },
-            "completion_graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；横坐标为 $x$ 与 $x + 4$ 的两点一样高（水平虚线），即 $f(x + 4)=f(x)$；对每个 $x$ 都成立，所以周期为 $4$。",
-              "kind": "piecewise_curve",
-              "params": {
-                "bounds": [
-                  -1.0,
-                  6.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "x",
-                    "value_label": "m",
-                    "x": 0.5
-                  },
-                  {
-                    "label": "x+2",
-                    "value_label": "-m",
-                    "x": 2.5
-                  },
-                  {
-                    "label": "x+4",
-                    "value_label": "m",
-                    "x": 4.5
-                  }
-                ],
-                "interval": [
-                  -1.0,
-                  6.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "level": 0.5,
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      5.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      6.0
-                    ],
-                    "interval": [
-                      5.0,
-                      6.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ]
-                ]
-              }
-            },
-            "expected_answer": {
-              "one_of": [
-                "o1"
-              ]
-            },
-            "feedback": {
-              "answer": "结合卡片中的式子和范围，再核对一次。"
-            },
-            "graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；由 $f(x + 2)=-f(x)$，横坐标为 $x + 2$ 的点函数值是 $-m$。",
-              "kind": "piecewise_curve",
-              "params": {
-                "bounds": [
-                  -1.0,
-                  6.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "x",
-                    "value_label": "m",
-                    "x": 0.5
-                  },
-                  {
-                    "label": "x+2",
-                    "value_label": "-m",
-                    "x": 2.5
-                  }
-                ],
-                "interval": [
-                  -1.0,
-                  6.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      5.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      6.0
-                    ],
-                    "interval": [
-                      5.0,
-                      6.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ]
-                ]
-              }
-            },
-            "id": "27a119244306408a304fe91d#5",
-            "interaction": {
-              "field": "answer",
-              "options": [
-                {
-                  "label": "$f(x + 4)=-m$",
-                  "value": "o2"
-                },
-                {
-                  "label": "$f(x + 4)=m$",
-                  "value": "o1"
-                },
-                {
-                  "label": "$f(x + 4)=2m$",
-                  "value": "o4"
-                },
-                {
-                  "label": "$f(x + 4)=0$",
-                  "value": "o3"
-                }
-              ],
-              "type": "choice"
-            },
-            "question": "把 $f(x + 2)=-f(x)$ 中的 $x$ 换成 $x + 2$ 再用一次，横坐标为 $x + 4$ 的点函数值是多少？",
-            "stem_board": {
-              "caption": "从 $x + 2$ 再走到 $x + 4$",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(x + 2)=-f(x)\\\\f(x + 2)=-m\\end{gathered}"
-                },
-                {
-                  "label": "函数值",
-                  "math": null
-                }
-              ],
-              "layout": "derivation"
-            },
-            "submit_label": "确认判断",
-            "title": "从 $x + 2$ 再走到 $x + 4$"
+            "title": "利用图像关于直线 $x=1$ 对称"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "5b0346e7c040a59a7eb3e39fe5aacefeaf4c3b05005a317f04f1d9c9d6657224",
+            "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -2679,10 +3207,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "2c2fad7056f73246006fff92",
+        "interaction_id": "960b7c587eec68eac10f715c",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "61e83b67ffd6cbc718bfb834c72bca6676f84da358fe29177c5abadf888b00f2",
-        "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
+        "interaction_sha256": "1b50a3d391597a814b391a96079b135901543383c138654e95d89123cf5e9068",
+        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
         "parts": [
           {
             "completion_board": {
@@ -2690,8 +3218,8 @@
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知与改写",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\\\f(2)=-f(0)\\\\f(3)=-f(1)\\\\f(4)=f(0)\\\\f{\\left(1 \\right)}=1\\\\2 f{\\left(0 \\right)}=0\\end{gathered}"
+                  "label": "已求出的函数值",
+                  "math": "\\begin{gathered}f(1)=1\\\\f(2)=0\\\\f(3)=-1\\\\f(4)=0\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -2708,33 +3236,37 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "2c2fad7056f73246006fff92#1",
+            "id": "960b7c587eec68eac10f715c#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(1)+f(2)+f(3)+f(4)=1$",
-                  "value": "o2"
+                  "label": "$f(1)+f(2)+f(3)+f(4)=0$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(1)+f(2)+f(3)+f(4)=2$",
+                  "value": "o4"
                 },
                 {
                   "label": "$f(1)+f(2)+f(3)+f(4)=-1$",
                   "value": "o3"
                 },
                 {
-                  "label": "$f(1)+f(2)+f(3)+f(4)=0$",
-                  "value": "o1"
+                  "label": "$f(1)+f(2)+f(3)+f(4)=1$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
             },
-            "question": "把每一项换成对应的基准函数值，再合并系数和常数；所求结果是什么？",
+            "question": "把求出的函数值代入所求式，结果是什么？",
             "stem_board": {
               "caption": "求出所求的值",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知与改写",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\\\f(2)=-f(0)\\\\f(3)=-f(1)\\\\f(4)=f(0)\\\\f{\\left(1 \\right)}=1\\\\2 f{\\left(0 \\right)}=0\\end{gathered}"
+                  "label": "已求出的函数值",
+                  "math": "\\begin{gathered}f(1)=1\\\\f(2)=0\\\\f(3)=-1\\\\f(4)=0\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -2748,11 +3280,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "669170ef6a398969ce64ca5bfc2f65a0f016ee0d1724aa6d82e96a9645047b1a",
+            "math_step_sha256": "c89dee301b3b3763762a2b4c98d0d108abf5d607cb4009f8265a69634f858889",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
@@ -2760,53 +3292,43 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "5ca554a26c93bb7e3f2e967c",
+        "interaction_id": "bf4c61e1d49fb843591fc420",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "bd69c2ca38ad869dbc3ab003d409bbe9174a2ca836418945897221a1c3f10128",
-        "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
+        "interaction_sha256": "51eaedc1a6a744666782a77fedca79767a45979800b948d4de627cf1098ae623",
+        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
         "parts": [
           {
+            "card_group": "period",
+            "card_group_title": "用对称找出周期",
             "completion_board": {
-              "caption": "利用关于原点对称找配对的输入",
+              "caption": "利用图像关于原点对称",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(x)=m\\end{gathered}"
                 },
                 {
-                  "label": "输入配对",
-                  "math": "1\\mapsto -1"
+                  "label": "对称点",
+                  "math": "(-x,-m)"
                 }
               ],
               "layout": "derivation"
             },
             "completion_graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$1$ 与 $-1$ 的中点是 $0$，函数值互为相反数。",
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$x$ 与 $- x$ 的中点是 $0$，函数值互为相反数，得到点 $(-x,-m)$（图中取 $x=\\frac{1}{2}$，$x$ 取任意值都一样）。",
               "kind": "piecewise_curve",
               "params": {
                 "bounds": [
-                  -2.0,
-                  4.0,
+                  -4.0,
+                  6.0,
                   -2.0,
                   2.0
                 ],
                 "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "1",
-                    "value_label": "f(1)",
-                    "x": 1.0
-                  },
-                  {
-                    "label": "-1",
-                    "value_label": "f(-1)",
-                    "x": -1.0
-                  }
-                ],
                 "interval": [
-                  -2.0,
-                  4.0
+                  -4.0,
+                  6.0
                 ],
                 "interval_closed": [
                   true,
@@ -2814,12 +3336,43 @@
                 ],
                 "points": [
                   {
-                    "label": "对称中心",
-                    "place": "below-right",
                     "x": 0.0
+                  },
+                  {
+                    "label": "(-x,-m)",
+                    "place": "below",
+                    "x": -0.5
+                  },
+                  {
+                    "label": "(x,m)",
+                    "place": "above",
+                    "x": 0.5
+                  }
+                ],
+                "reflections": [
+                  {
+                    "center": 0.0,
+                    "from": 0.5,
+                    "kind": "center",
+                    "to": -0.5
                   }
                 ],
                 "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      4.0
+                    ],
+                    "interval": [
+                      -4.0,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
                   {
                     "coefficients": [
                       0,
@@ -2827,7 +3380,7 @@
                       -2.0
                     ],
                     "interval": [
-                      -2.0,
+                      -3.0,
                       -1.0
                     ],
                     "interval_closed": [
@@ -2873,7 +3426,22 @@
                     ],
                     "interval": [
                       3.0,
-                      4.0
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      6.0
+                    ],
+                    "interval": [
+                      5.0,
+                      6.0
                     ],
                     "interval_closed": [
                       true,
@@ -2900,26 +3468,19 @@
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
             "graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于原点对称。",
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于原点对称（图中取 $x=\\frac{1}{2}$，$x$ 取任意值都一样）。",
               "kind": "piecewise_curve",
               "params": {
                 "bounds": [
-                  -2.0,
-                  4.0,
+                  -4.0,
+                  6.0,
                   -2.0,
                   2.0
                 ],
                 "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "1",
-                    "value_label": "f(1)",
-                    "x": 1.0
-                  }
-                ],
                 "interval": [
-                  -2.0,
-                  4.0
+                  -4.0,
+                  6.0
                 ],
                 "interval_closed": [
                   true,
@@ -2927,12 +3488,30 @@
                 ],
                 "points": [
                   {
-                    "label": "对称中心",
-                    "place": "below-right",
                     "x": 0.0
+                  },
+                  {
+                    "label": "(x,m)",
+                    "place": "above",
+                    "x": 0.5
                   }
                 ],
                 "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      4.0
+                    ],
+                    "interval": [
+                      -4.0,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
                   {
                     "coefficients": [
                       0,
@@ -2940,7 +3519,7 @@
                       -2.0
                     ],
                     "interval": [
-                      -2.0,
+                      -3.0,
                       -1.0
                     ],
                     "interval_closed": [
@@ -2986,7 +3565,22 @@
                     ],
                     "interval": [
                       3.0,
-                      4.0
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      6.0
+                    ],
+                    "interval": [
+                      5.0,
+                      6.0
                     ],
                     "interval_closed": [
                       true,
@@ -3004,345 +3598,1509 @@
                 ]
               }
             },
-            "id": "5ca554a26c93bb7e3f2e967c#1",
+            "id": "bf4c61e1d49fb843591fc420#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$1\\mapsto -1$",
-                  "value": "o1"
-                },
-                {
-                  "label": "$1\\mapsto 1$",
-                  "value": "o2"
-                },
-                {
-                  "label": "$1\\mapsto 0$",
-                  "value": "o3"
-                }
-              ],
-              "type": "choice"
-            },
-            "question": "图像关于原点对称：输入 $x$ 与 $-x$ 的中点是 $0$，函数值互为相反数。输入为 $1$ 时，配对的输入是多少？",
-            "stem_board": {
-              "caption": "利用关于原点对称找配对的输入",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\end{gathered}"
-                },
-                {
-                  "label": "输入配对",
-                  "math": null
-                }
-              ],
-              "layout": "derivation"
-            },
-            "submit_label": "确认判断",
-            "title": "利用关于原点对称找配对的输入"
-          },
-          {
-            "completion_board": {
-              "caption": "利用关于直线 $x=1$ 对称找配对的输入",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\end{gathered}"
-                },
-                {
-                  "label": "输入配对",
-                  "math": "2\\mapsto 0"
-                }
-              ],
-              "layout": "derivation"
-            },
-            "completion_graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$2$ 与 $0$ 的中点是 $1$，函数值相同。",
-              "kind": "piecewise_curve",
-              "params": {
-                "axes": [
-                  {
-                    "label": "x=1",
-                    "x": 1.0
-                  }
-                ],
-                "bounds": [
-                  -2.0,
-                  4.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "2",
-                    "value_label": "f(2)",
-                    "x": 2.0
-                  },
-                  {
-                    "label": "0",
-                    "value_label": "f(0)",
-                    "x": 0.0
-                  }
-                ],
-                "interval": [
-                  -2.0,
-                  4.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      -2.0
-                    ],
-                    "interval": [
-                      -2.0,
-                      -1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      4.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ],
-                  [
-                    1.0,
-                    "1"
-                  ]
-                ]
-              }
-            },
-            "expected_answer": {
-              "one_of": [
-                "o1"
-              ]
-            },
-            "feedback": {
-              "answer": "结合卡片中的式子和范围，再核对一次。"
-            },
-            "graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于直线 $x=1$ 对称。",
-              "kind": "piecewise_curve",
-              "params": {
-                "axes": [
-                  {
-                    "label": "x=1",
-                    "x": 1.0
-                  }
-                ],
-                "bounds": [
-                  -2.0,
-                  4.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "2",
-                    "value_label": "f(2)",
-                    "x": 2.0
-                  }
-                ],
-                "interval": [
-                  -2.0,
-                  4.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      -2.0
-                    ],
-                    "interval": [
-                      -2.0,
-                      -1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      4.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ],
-                  [
-                    1.0,
-                    "1"
-                  ]
-                ]
-              }
-            },
-            "id": "5ca554a26c93bb7e3f2e967c#2",
-            "interaction": {
-              "field": "answer",
-              "options": [
-                {
-                  "label": "$2\\mapsto -2$",
-                  "value": "o3"
-                },
-                {
-                  "label": "$2\\mapsto 2$",
-                  "value": "o2"
-                },
-                {
-                  "label": "$2\\mapsto -1$",
+                  "label": "$(-x,1-m)$",
                   "value": "o4"
                 },
                 {
-                  "label": "$2\\mapsto 0$",
+                  "label": "$(-x,-m)$",
                   "value": "o1"
+                },
+                {
+                  "label": "$(x,-m)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(-x,m)$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
             },
-            "question": "图像关于直线 $x=1$ 对称：输入 $x$ 与 $2-x$ 的中点是 $1$，函数值相同。输入为 $2$ 时，配对的输入是多少？",
+            "question": "在图像上任取一点 $(x,m)$。求横坐标为 $x+2$ 的点：先由图像关于原点对称，点 $(x,m)$ 的对称点是哪个点？",
             "stem_board": {
-              "caption": "利用关于直线 $x=1$ 对称找配对的输入",
+              "caption": "利用图像关于原点对称",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(x)=m\\end{gathered}"
                 },
                 {
-                  "label": "输入配对",
+                  "label": "对称点",
                   "math": null
                 }
               ],
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "利用关于直线 $x=1$ 对称找配对的输入"
+            "title": "利用图像关于原点对称"
           },
           {
+            "card_group": "period",
+            "card_group_title": "用对称找出周期",
             "completion_board": {
-              "caption": "连续使用两次对称关系",
+              "caption": "利用图像关于直线 $x=1$ 对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x)=- m\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": "(x+2,-m)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$- x$ 与 $x + 2$ 的中点是 $1$，函数值相同，得到点 $(x+2,-m)$（图中取 $x=\\frac{1}{2}$，$x$ 取任意值都一样）。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1",
+                    "x": 1.0
+                  }
+                ],
+                "bounds": [
+                  -4.0,
+                  6.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -4.0,
+                  6.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(-x,-m)",
+                    "place": "below",
+                    "x": -0.5
+                  },
+                  {
+                    "x": 0.5
+                  },
+                  {
+                    "label": "(x+2,-m)",
+                    "place": "below",
+                    "x": 2.5
+                  }
+                ],
+                "reflections": [
+                  {
+                    "center": 1.0,
+                    "from": -0.5,
+                    "kind": "axis",
+                    "to": 2.5
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      4.0
+                    ],
+                    "interval": [
+                      -4.0,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      6.0
+                    ],
+                    "interval": [
+                      5.0,
+                      6.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于直线 $x=1$ 对称（图中取 $x=\\frac{1}{2}$，$x$ 取任意值都一样）。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1",
+                    "x": 1.0
+                  }
+                ],
+                "bounds": [
+                  -4.0,
+                  6.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -4.0,
+                  6.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(-x,-m)",
+                    "place": "below",
+                    "x": -0.5
+                  },
+                  {
+                    "x": 0.5
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      4.0
+                    ],
+                    "interval": [
+                      -4.0,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      6.0
+                    ],
+                    "interval": [
+                      5.0,
+                      6.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "id": "bf4c61e1d49fb843591fc420#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$(x+2,m)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$(x,-m)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(x+2,-m)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$(-x,-m)$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "再由图像关于直线 $x=1$ 对称，点 $(-x,-m)$ 的对称点是哪个点？",
+            "stem_board": {
+              "caption": "利用图像关于直线 $x=1$ 对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x)=- m\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "利用图像关于直线 $x=1$ 对称"
+          },
+          {
+            "card_group": "period",
+            "card_group_title": "用对称找出周期",
+            "completion_board": {
+              "caption": "利用图像关于原点对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(x + 2)=- m\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": "(-x-2,m)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$x + 2$ 与 $- x - 2$ 的中点是 $0$，函数值互为相反数，得到点 $(-x-2,m)$（图中取 $x=\\frac{1}{2}$，$x$ 取任意值都一样）。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  6.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -4.0,
+                  6.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "label": "(-x-2,m)",
+                    "place": "above",
+                    "x": -2.5
+                  },
+                  {
+                    "x": -0.5
+                  },
+                  {
+                    "x": 0.5
+                  },
+                  {
+                    "label": "(x+2,-m)",
+                    "place": "below",
+                    "x": 2.5
+                  }
+                ],
+                "reflections": [
+                  {
+                    "center": 0.0,
+                    "from": 2.5,
+                    "kind": "center",
+                    "to": -2.5
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      4.0
+                    ],
+                    "interval": [
+                      -4.0,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      6.0
+                    ],
+                    "interval": [
+                      5.0,
+                      6.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于原点对称（图中取 $x=\\frac{1}{2}$，$x$ 取任意值都一样）。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  6.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -4.0,
+                  6.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": -0.5
+                  },
+                  {
+                    "x": 0.5
+                  },
+                  {
+                    "label": "(x+2,-m)",
+                    "place": "below",
+                    "x": 2.5
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      4.0
+                    ],
+                    "interval": [
+                      -4.0,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      6.0
+                    ],
+                    "interval": [
+                      5.0,
+                      6.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "bf4c61e1d49fb843591fc420#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$(-x-2,m)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$(x+2,m)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(-x-2,-m)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$(-x-2,m+1)$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "求横坐标为 $x+4$ 的点：先由图像关于原点对称，点 $(x+2,-m)$ 的对称点是哪个点？",
+            "stem_board": {
+              "caption": "利用图像关于原点对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(x + 2)=- m\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "利用图像关于原点对称"
+          },
+          {
+            "card_group": "period",
+            "card_group_title": "用对称找出周期",
+            "completion_board": {
+              "caption": "利用图像关于直线 $x=1$ 对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x - 2)=m\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": "(x+4,m)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；$- x - 2$ 与 $x + 4$ 的中点是 $1$，函数值相同，得到点 $(x+4,m)$（图中取 $x=\\frac{1}{2}$，$x$ 取任意值都一样）。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1",
+                    "x": 1.0
+                  }
+                ],
+                "bounds": [
+                  -4.0,
+                  6.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -4.0,
+                  6.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(-x-2,m)",
+                    "place": "above",
+                    "x": -2.5
+                  },
+                  {
+                    "x": -0.5
+                  },
+                  {
+                    "x": 0.5
+                  },
+                  {
+                    "x": 2.5
+                  },
+                  {
+                    "label": "(x+4,m)",
+                    "place": "above",
+                    "x": 4.5
+                  }
+                ],
+                "reflections": [
+                  {
+                    "center": 1.0,
+                    "from": -2.5,
+                    "kind": "axis",
+                    "to": 4.5
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      4.0
+                    ],
+                    "interval": [
+                      -4.0,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      6.0
+                    ],
+                    "interval": [
+                      5.0,
+                      6.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；图像关于直线 $x=1$ 对称（图中取 $x=\\frac{1}{2}$，$x$ 取任意值都一样）。",
+              "kind": "piecewise_curve",
+              "params": {
+                "axes": [
+                  {
+                    "label": "x=1",
+                    "x": 1.0
+                  }
+                ],
+                "bounds": [
+                  -4.0,
+                  6.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -4.0,
+                  6.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(-x-2,m)",
+                    "place": "above",
+                    "x": -2.5
+                  },
+                  {
+                    "x": -0.5
+                  },
+                  {
+                    "x": 0.5
+                  },
+                  {
+                    "x": 2.5
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      4.0
+                    ],
+                    "interval": [
+                      -4.0,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      6.0
+                    ],
+                    "interval": [
+                      5.0,
+                      6.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "id": "bf4c61e1d49fb843591fc420#4",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$(-x-2,m)$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$(x+4,m)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$(x+4,-m)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$(x+2,m)$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "再由图像关于直线 $x=1$ 对称，点 $(-x-2,m)$ 的对称点是哪个点？",
+            "stem_board": {
+              "caption": "利用图像关于直线 $x=1$ 对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x - 2)=m\\end{gathered}"
+                },
+                {
+                  "label": "对称点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "利用图像关于直线 $x=1$ 对称"
+          },
+          {
+            "card_group": "period",
+            "card_group_title": "用对称找出周期",
+            "completion_board": {
+              "caption": "两点一样高，得出周期",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=m\\\\f(x+4)=m\\end{gathered}"
+                },
+                {
+                  "label": "结论",
+                  "math": "f(x+4)=f(x)\\text{，周期为 }4"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；水平虚线：两点一样高，$f(x+4)=f(x)$（图中取 $x=\\frac{1}{2}$，$x$ 取任意值都一样）。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  6.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -4.0,
+                  6.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "level": 0.5,
+                "points": [
+                  {
+                    "x": -2.5
+                  },
+                  {
+                    "x": -0.5
+                  },
+                  {
+                    "label": "(x,m)",
+                    "place": "above",
+                    "x": 0.5
+                  },
+                  {
+                    "x": 2.5
+                  },
+                  {
+                    "label": "(x+4,m)",
+                    "place": "above",
+                    "x": 4.5
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      4.0
+                    ],
+                    "interval": [
+                      -4.0,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      6.0
+                    ],
+                    "interval": [
+                      5.0,
+                      6.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "completion_proof": "\\begin{gathered}f(x+4)=f(-x-2)=-f(x+2)=-f(-x)=f(x)\\\\f(x+4)=f(x)\\text{，周期为 }4\\end{gathered}",
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；点 $(x,m)$ 与点 $(x+4,m)$（图中取 $x=\\frac{1}{2}$，$x$ 取任意值都一样）。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  6.0,
+                  -2.0,
+                  2.0
+                ],
+                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
+                "interval": [
+                  -4.0,
+                  6.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": -2.5
+                  },
+                  {
+                    "x": -0.5
+                  },
+                  {
+                    "label": "(x,m)",
+                    "place": "above",
+                    "x": 0.5
+                  },
+                  {
+                    "x": 2.5
+                  },
+                  {
+                    "label": "(x+4,m)",
+                    "place": "above",
+                    "x": 4.5
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      4.0
+                    ],
+                    "interval": [
+                      -4.0,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      0.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      2.0
+                    ],
+                    "interval": [
+                      1.0,
+                      3.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      1.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      3.0,
+                      5.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      0,
+                      -1.0,
+                      6.0
+                    ],
+                    "interval": [
+                      5.0,
+                      6.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      true
+                    ]
+                  }
+                ],
+                "title": "f(x) 的示意图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "bf4c61e1d49fb843591fc420#5",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x+2)=f(x)\\text{，周期为 }2$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x+8)=-f(x)$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$f(x+4)=f(x)\\text{，周期为 }4$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(x+4)=-f(x)$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "点 $(x,m)$ 与点 $(x+4,m)$ 一样高，而且 $x$ 取任意值都如此。由此得到什么？",
+            "stem_board": {
+              "caption": "两点一样高，得出周期",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=m\\\\f(x+4)=m\\end{gathered}"
+                },
+                {
+                  "label": "结论",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "两点一样高，得出周期"
+          },
+          {
+            "card_group": "values",
+            "card_group_title": "求出一个周期内需要的函数值",
+            "completion_board": {
+              "caption": "求出一个周期内需要的函数值",
               "connector": "⇒",
               "items": [
                 {
                   "label": "已知条件",
-                  "math": "\\begin{gathered}f(- x)=-f(x)\\quad(x\\in \\mathbb{R})\\\\f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})\\\\x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 2\\end{gathered}"
+                  "math": "\\begin{gathered}f(1)=1\\\\f(0)=0\\quad(\\text{奇函数})\\end{gathered}"
                 },
                 {
                   "label": "关系",
-                  "math": "f(x + 2)=-f(x)"
+                  "math": "\\begin{gathered}f(2)=f(0)=0\\\\f(3)=f(-1)=-f(1)=-1\\\\f(4)=f(-2)=-f(2)=0\\end{gathered}"
                 }
               ],
               "layout": "derivation"
@@ -3352,42 +5110,19 @@
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
             "graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；取 $x=\\frac{1}{2}$：先关于原点对称，到 $- \\frac{1}{2}$，函数值互为相反数；再关于直线 $x=1$ 对称，到 $\\frac{5}{2}$，函数值相同；所以 $f(x + 2)=-f(x)$。",
+              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；一个周期内需要的点。",
               "kind": "piecewise_curve",
               "params": {
-                "axes": [
-                  {
-                    "label": "x=1",
-                    "x": 1.0
-                  }
-                ],
                 "bounds": [
-                  -2.0,
-                  4.0,
+                  -3.0,
+                  5.0,
                   -2.0,
                   2.0
                 ],
                 "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "x",
-                    "value_label": "f(x)",
-                    "x": 0.5
-                  },
-                  {
-                    "label": "-x",
-                    "value_label": "f(-x)",
-                    "x": -0.5
-                  },
-                  {
-                    "label": "x+2",
-                    "value_label": "f(x+2)",
-                    "x": 2.5
-                  }
-                ],
                 "interval": [
-                  -2.0,
-                  4.0
+                  -3.0,
+                  5.0
                 ],
                 "interval_closed": [
                   true,
@@ -3395,7 +5130,33 @@
                 ],
                 "points": [
                   {
+                    "x": -2.0
+                  },
+                  {
+                    "x": -1.0
+                  },
+                  {
                     "x": 0.0
+                  },
+                  {
+                    "label": "(1,1)",
+                    "place": "above",
+                    "x": 1.0
+                  },
+                  {
+                    "label": "(2,0)",
+                    "place": "above",
+                    "x": 2.0
+                  },
+                  {
+                    "label": "(3,-1)",
+                    "place": "below",
+                    "x": 3.0
+                  },
+                  {
+                    "label": "(4,0)",
+                    "place": "above",
+                    "x": 4.0
                   }
                 ],
                 "segments": [
@@ -3406,7 +5167,7 @@
                       -2.0
                     ],
                     "interval": [
-                      -2.0,
+                      -3.0,
                       -1.0
                     ],
                     "interval_closed": [
@@ -3452,7 +5213,7 @@
                     ],
                     "interval": [
                       3.0,
-                      4.0
+                      5.0
                     ],
                     "interval_closed": [
                       true,
@@ -3466,591 +5227,33 @@
                   [
                     0.0,
                     "0"
-                  ],
-                  [
-                    1.0,
-                    "1"
                   ]
                 ]
               }
             },
-            "id": "5ca554a26c93bb7e3f2e967c#3",
+            "id": "bf4c61e1d49fb843591fc420#6",
             "interaction": {
               "type": "read"
             },
-            "question": "按顺序使用两条关系，同时记录输入的变化和函数值的变化。",
+            "question": "由周期 $4$，只需求出 $f(1), f(2), f(3), f(4)$；从已知点出发逐点找对称点。",
             "stem_board": {
-              "caption": "连续使用两次对称关系",
+              "caption": "求出一个周期内需要的函数值",
               "lines": [
-                "$$x\\xrightarrow{\\text{第一次对称}}- x\\xrightarrow{\\text{第二次对称}}x + 2$$",
-                "$$f(- x)=-f(x)\\quad(x\\in \\mathbb{R})$$",
-                "$$f(- x + 2)=f(x)\\quad(x\\in \\mathbb{R})$$",
-                "$$f(x + 2)=-f(x)$$"
+                "$$f(2)=f(0)=0$$",
+                "$$f(3)=f(-1)=-f(1)=-1$$",
+                "$$f(4)=f(-2)=-f(2)=0$$"
               ]
             },
             "submit_label": "继续",
-            "title": "连续使用两次对称关系"
-          },
-          {
-            "card_group": "period",
-            "card_group_title": "再用一次关系，看出周期",
-            "completion_board": {
-              "caption": "从 $x$ 走到 $x + 2$",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "f(x + 2)=-f(x)"
-                },
-                {
-                  "label": "函数值",
-                  "math": "f(x + 2)=-m"
-                }
-              ],
-              "layout": "derivation"
-            },
-            "completion_graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；由 $f(x + 2)=-f(x)$，横坐标为 $x + 2$ 的点函数值是 $-m$。",
-              "kind": "piecewise_curve",
-              "params": {
-                "bounds": [
-                  -1.0,
-                  6.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "x",
-                    "value_label": "m",
-                    "x": 0.5
-                  },
-                  {
-                    "label": "x+2",
-                    "value_label": "-m",
-                    "x": 2.5
-                  }
-                ],
-                "interval": [
-                  -1.0,
-                  6.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      5.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      6.0
-                    ],
-                    "interval": [
-                      5.0,
-                      6.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ]
-                ]
-              }
-            },
-            "expected_answer": {
-              "one_of": [
-                "o1"
-              ]
-            },
-            "feedback": {
-              "answer": "结合卡片中的式子和范围，再核对一次。"
-            },
-            "graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；在示意图上取横坐标为 $x$ 的点（取 $x=\\frac{1}{2}$），记 $f(x)=m$。",
-              "kind": "piecewise_curve",
-              "params": {
-                "bounds": [
-                  -1.0,
-                  6.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "x",
-                    "value_label": "m",
-                    "x": 0.5
-                  }
-                ],
-                "interval": [
-                  -1.0,
-                  6.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      5.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      6.0
-                    ],
-                    "interval": [
-                      5.0,
-                      6.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ]
-                ]
-              }
-            },
-            "id": "5ca554a26c93bb7e3f2e967c#4",
-            "interaction": {
-              "field": "answer",
-              "options": [
-                {
-                  "label": "$f(x + 2)=0$",
-                  "value": "o3"
-                },
-                {
-                  "label": "$f(x + 2)=-2m$",
-                  "value": "o4"
-                },
-                {
-                  "label": "$f(x + 2)=-m$",
-                  "value": "o1"
-                },
-                {
-                  "label": "$f(x + 2)=m$",
-                  "value": "o2"
-                }
-              ],
-              "type": "choice"
-            },
-            "question": "在示意图上取横坐标为 $x$ 的点（取 $x=\\frac{1}{2}$），记 $f(x)=m$。由 $f(x + 2)=-f(x)$，横坐标为 $x + 2$ 的点函数值是多少？",
-            "stem_board": {
-              "caption": "从 $x$ 走到 $x + 2$",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "f(x + 2)=-f(x)"
-                },
-                {
-                  "label": "函数值",
-                  "math": null
-                }
-              ],
-              "layout": "derivation"
-            },
-            "submit_label": "确认判断",
-            "title": "从 $x$ 走到 $x + 2$"
-          },
-          {
-            "card_group": "period",
-            "card_group_title": "再用一次关系，看出周期",
-            "completion_board": {
-              "caption": "从 $x + 2$ 再走到 $x + 4$",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(x + 2)=-f(x)\\\\f(x + 2)=-m\\end{gathered}"
-                },
-                {
-                  "label": "函数值",
-                  "math": "f(x + 4)=m"
-                }
-              ],
-              "layout": "derivation"
-            },
-            "completion_graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；横坐标为 $x$ 与 $x + 4$ 的两点一样高（水平虚线），即 $f(x + 4)=f(x)$；对每个 $x$ 都成立，所以周期为 $4$。",
-              "kind": "piecewise_curve",
-              "params": {
-                "bounds": [
-                  -1.0,
-                  6.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "x",
-                    "value_label": "m",
-                    "x": 0.5
-                  },
-                  {
-                    "label": "x+2",
-                    "value_label": "-m",
-                    "x": 2.5
-                  },
-                  {
-                    "label": "x+4",
-                    "value_label": "m",
-                    "x": 4.5
-                  }
-                ],
-                "interval": [
-                  -1.0,
-                  6.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "level": 0.5,
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      5.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      6.0
-                    ],
-                    "interval": [
-                      5.0,
-                      6.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ]
-                ]
-              }
-            },
-            "expected_answer": {
-              "one_of": [
-                "o1"
-              ]
-            },
-            "feedback": {
-              "answer": "结合卡片中的式子和范围，再核对一次。"
-            },
-            "graph": {
-              "caption": "示意图：取一个满足题设的折线函数（在 $\\left[0, 1\\right]$ 上是一次函数，再按对称关系延拓），只用来看对称，不代表 $f$ 的解析式；由 $f(x + 2)=-f(x)$，横坐标为 $x + 2$ 的点函数值是 $-m$。",
-              "kind": "piecewise_curve",
-              "params": {
-                "bounds": [
-                  -1.0,
-                  6.0,
-                  -2.0,
-                  2.0
-                ],
-                "description": "折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。",
-                "guides": [
-                  {
-                    "label": "x",
-                    "value_label": "m",
-                    "x": 0.5
-                  },
-                  {
-                    "label": "x+2",
-                    "value_label": "-m",
-                    "x": 2.5
-                  }
-                ],
-                "interval": [
-                  -1.0,
-                  6.0
-                ],
-                "interval_closed": [
-                  true,
-                  true
-                ],
-                "points": [],
-                "segments": [
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      0.0
-                    ],
-                    "interval": [
-                      -1.0,
-                      1.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      2.0
-                    ],
-                    "interval": [
-                      1.0,
-                      3.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      1.0,
-                      -4.0
-                    ],
-                    "interval": [
-                      3.0,
-                      5.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  },
-                  {
-                    "coefficients": [
-                      0,
-                      -1.0,
-                      6.0
-                    ],
-                    "interval": [
-                      5.0,
-                      6.0
-                    ],
-                    "interval_closed": [
-                      true,
-                      true
-                    ]
-                  }
-                ],
-                "title": "f(x) 的示意图像",
-                "variable": "x",
-                "xTicks": [
-                  [
-                    0.0,
-                    "0"
-                  ]
-                ]
-              }
-            },
-            "id": "5ca554a26c93bb7e3f2e967c#5",
-            "interaction": {
-              "field": "answer",
-              "options": [
-                {
-                  "label": "$f(x + 4)=0$",
-                  "value": "o3"
-                },
-                {
-                  "label": "$f(x + 4)=-m$",
-                  "value": "o2"
-                },
-                {
-                  "label": "$f(x + 4)=m$",
-                  "value": "o1"
-                },
-                {
-                  "label": "$f(x + 4)=2m$",
-                  "value": "o4"
-                }
-              ],
-              "type": "choice"
-            },
-            "question": "把 $f(x + 2)=-f(x)$ 中的 $x$ 换成 $x + 2$ 再用一次，横坐标为 $x + 4$ 的点函数值是多少？",
-            "stem_board": {
-              "caption": "从 $x + 2$ 再走到 $x + 4$",
-              "connector": "⇒",
-              "items": [
-                {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(x + 2)=-f(x)\\\\f(x + 2)=-m\\end{gathered}"
-                },
-                {
-                  "label": "函数值",
-                  "math": null
-                }
-              ],
-              "layout": "derivation"
-            },
-            "submit_label": "确认判断",
-            "title": "从 $x + 2$ 再走到 $x + 4$"
+            "title": "求出一个周期内需要的函数值"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "06cc54d6eeb849050a73075c0a183d1bb058e8625bc1c9d4cf367645452c7662",
+            "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
             "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -4058,10 +5261,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "489535da7e7b04c18f03fab2",
+        "interaction_id": "88ebc0e9a330596b195edecf",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "ea7dd33644e2911f0cffee3695a9f0657975a41e55dcc39360c1ed8210bad383",
-        "lesson_version": "f50bd9c085af7332000edeaddfb5e20f9e4294cd1b27a3f978cea9ad6b89a08a",
+        "interaction_sha256": "f6cf38d47e8c28f0a75c795af6fa3beb0bd04a17a94491f6df3a9a597d3dcb2e",
+        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
         "parts": [
           {
             "completion_board": {
@@ -4297,7 +5500,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "489535da7e7b04c18f03fab2#1",
+            "id": "88ebc0e9a330596b195edecf#1",
             "interaction": {
               "type": "read"
             },
@@ -4318,8 +5521,8 @@
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知与改写",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\\\f(2)=-f(0)\\\\f(3)=-f(1)\\\\f(4)=f(0)\\\\f(5)=f(1)\\\\f(6)=-f(0)\\\\f(7)=-f(1)\\\\f(8)=f(0)\\\\f(9)=f(1)\\\\f(10)=-f(0)\\\\f(11)=-f(1)\\\\f(12)=f(0)\\\\f{\\left(1 \\right)}=1\\\\2 f{\\left(0 \\right)}=0\\end{gathered}"
+                  "label": "周期 $4$ 与一个周期内的值",
+                  "math": "\\begin{gathered}f(5)=f(1)\\\\\\cdots\\\\f(53)=f(1)\\\\f(54)=f(2)\\\\f(1)=1\\\\f(2)=0\\\\f(3)=-1\\\\f(4)=0\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -4336,37 +5539,37 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "489535da7e7b04c18f03fab2#2",
+            "id": "88ebc0e9a330596b195edecf#2",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\sum_{k=1}^{54}f(k)=2$",
-                  "value": "o2"
+                  "label": "$\\sum_{k=1}^{54}f(k)=0$",
+                  "value": "o3"
                 },
                 {
                   "label": "$\\sum_{k=1}^{54}f(k)=1$",
                   "value": "o1"
                 },
                 {
-                  "label": "$\\sum_{k=1}^{54}f(k)=0$",
-                  "value": "o3"
-                },
-                {
                   "label": "$\\sum_{k=1}^{54}f(k)=-1$",
                   "value": "o4"
+                },
+                {
+                  "label": "$\\sum_{k=1}^{54}f(k)=2$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
             },
-            "question": "把每一项换成对应的基准函数值，再合并系数和常数；所求结果是什么？",
+            "question": "由周期 $4$ 把各项化到一个周期内，再代入函数值，结果是什么？",
             "stem_board": {
               "caption": "求出函数值之和",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知与改写",
-                  "math": "\\begin{gathered}D=\\mathbb{R}\\\\f\\text{ 为奇函数}\\\\\\text{图像关于 }x=1\\text{ 对称}\\\\f(1)=1\\\\f(2)=-f(0)\\\\f(3)=-f(1)\\\\f(4)=f(0)\\\\f(5)=f(1)\\\\f(6)=-f(0)\\\\f(7)=-f(1)\\\\f(8)=f(0)\\\\f(9)=f(1)\\\\f(10)=-f(0)\\\\f(11)=-f(1)\\\\f(12)=f(0)\\\\f{\\left(1 \\right)}=1\\\\2 f{\\left(0 \\right)}=0\\end{gathered}"
+                  "label": "周期 $4$ 与一个周期内的值",
+                  "math": "\\begin{gathered}f(5)=f(1)\\\\\\cdots\\\\f(53)=f(1)\\\\f(54)=f(2)\\\\f(1)=1\\\\f(2)=0\\\\f(3)=-1\\\\f(4)=0\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -4380,11 +5583,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "39f19099ce8d4f15ae234e1ea0e05c00",
+        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "8f1ff9c3679a34873a3d87ea9c3629db0921f93973ea7f0274ea2623d6a575bf",
+            "math_step_sha256": "93c24d448f1f29c08dcc14a4a96ac46d09fe982557407a6ed0e967435faf2315",
             "step_id": "cbd98ea750-function-symmetry-002-function_symmetry_conclude"
           }
         ],

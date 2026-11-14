@@ -1087,6 +1087,11 @@
         "card_group_title": {
           "$ref": "#/$defs/text"
         },
+        "completion_proof": {
+          "type": "string",
+          "minLength": 1,
+          "description": "LaTeX derivation shown when this card group completes; the interaction's last group uses the shared math card."
+        },
         "condition_number_lines": {
           "type": "array",
           "items": {
@@ -2710,6 +2715,37 @@
               "label": {
                 "type": "string",
                 "minLength": 1
+              }
+            }
+          }
+        },
+        "reflections": {
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "to",
+              "center",
+              "kind"
+            ],
+            "properties": {
+              "from": {
+                "type": "number"
+              },
+              "to": {
+                "type": "number"
+              },
+              "center": {
+                "type": "number"
+              },
+              "kind": {
+                "enum": [
+                  "axis",
+                  "center"
+                ]
               }
             }
           }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "problemId": "function-parity-a01-2-v2",
-  "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+  "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
   "problem": {
     "text": "判断函数的奇偶性：$f(x)=|x|+x^2$。"
   },
@@ -215,12 +215,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "645ee345b4bb2baf475047e878504b53c51e7dcbd083706e62f2988ba7be9b20",
+              "math_step_sha256": "c6991875de118e5feda6ec81981713672ba8670df653345683f2889beee244f6",
               "step_id": "39e5646dcb-parity-definition-001-parity_domain"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "a38f41e260fe0aedea359748",
+          "stream_interaction_id": "15d01a1189a6ce9ceaeb15eb",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "检查定义域的对称性",
@@ -298,12 +298,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "10fcaed95bb3b781218325d756216383e03fd047012851c36051faac9a29724d",
+              "math_step_sha256": "ef060538f1683a5c0086da142406b872d94131d846372b01bdde4a6f02bb8e44",
               "step_id": "39e5646dcb-parity-definition-002-parity_reflect"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "b54e358b38c18b621903727f",
+          "stream_interaction_id": "c2466393ceefec998e9308ae",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "代入相反数",
@@ -377,12 +377,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "d96a72a5efac77a04e2313552653358d519cfdb7c20a451ede75dff3f276869f",
+              "math_step_sha256": "b87c9ecfb909f7db5291e6818a1d185c3fde4ebb5b66df8dcc15ce2c4b36cc64",
               "step_id": "39e5646dcb-parity-definition-003-parity_compare"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "328e9a184af8933472a5c887",
+          "stream_interaction_id": "27774d344e921180b404ae42",
           "stream_part_index": 0,
           "stream_part_count": 2,
           "stream_group_title": "核对奇函数的条件",
@@ -456,12 +456,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "d96a72a5efac77a04e2313552653358d519cfdb7c20a451ede75dff3f276869f",
+              "math_step_sha256": "b87c9ecfb909f7db5291e6818a1d185c3fde4ebb5b66df8dcc15ce2c4b36cc64",
               "step_id": "39e5646dcb-parity-definition-003-parity_compare"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "328e9a184af8933472a5c887",
+          "stream_interaction_id": "27774d344e921180b404ae42",
           "stream_part_index": 1,
           "stream_part_count": 2,
           "stream_group_title": "核对奇函数的条件",
@@ -544,12 +544,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "dbe6ebef4a8a81f9aae316324d6ee2207230fbab23341f71af5fbd1f38ef228d",
+              "math_step_sha256": "5e0cbd83e73165fce0c9a0409370739e4918a42b0ac18e8385f88f4fe34c3898",
               "step_id": "39e5646dcb-parity-definition-004-parity_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "3098741ed8be0c38fa155ef9",
+          "stream_interaction_id": "68c82c424017db2cc6e11995",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "得出结论",
@@ -578,35 +578,35 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "5b8b796168abff71a7d1f66856facb0b80d934c446f5086f663d9c2dabdf3eee",
+        "lesson_version": "191772a730c7011cb89a81066682318fe55cc4aa0cda44c7c0657d2912a711ee",
         "math_steps": [
           {
-            "math_step_sha256": "645ee345b4bb2baf475047e878504b53c51e7dcbd083706e62f2988ba7be9b20",
+            "math_step_sha256": "c6991875de118e5feda6ec81981713672ba8670df653345683f2889beee244f6",
             "ordinal": 1,
             "step_id": "39e5646dcb-parity-definition-001-parity_domain"
           },
           {
-            "math_step_sha256": "10fcaed95bb3b781218325d756216383e03fd047012851c36051faac9a29724d",
+            "math_step_sha256": "ef060538f1683a5c0086da142406b872d94131d846372b01bdde4a6f02bb8e44",
             "ordinal": 2,
             "step_id": "39e5646dcb-parity-definition-002-parity_reflect"
           },
           {
-            "math_step_sha256": "d96a72a5efac77a04e2313552653358d519cfdb7c20a451ede75dff3f276869f",
+            "math_step_sha256": "b87c9ecfb909f7db5291e6818a1d185c3fde4ebb5b66df8dcc15ce2c4b36cc64",
             "ordinal": 3,
             "step_id": "39e5646dcb-parity-definition-003-parity_compare"
           },
           {
-            "math_step_sha256": "dbe6ebef4a8a81f9aae316324d6ee2207230fbab23341f71af5fbd1f38ef228d",
+            "math_step_sha256": "5e0cbd83e73165fce0c9a0409370739e4918a42b0ac18e8385f88f4fe34c3898",
             "ordinal": 4,
             "step_id": "39e5646dcb-parity-definition-004-parity_conclude"
           }
         ],
         "route_id": "parity-definition",
-        "run_id": "9870242d1fd54896976d0444c59f2829",
+        "run_id": "6c65b55e2be74cbbbefdbbcd4614257c",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "30f3a35f788e390a00c2de1b2b1e1b24e4fda7540e69ecdf00ba806a995a5f45",
-        "verified_route_sha256": "f3afd99e7544b8377675b7231f9ec472b70d38c26d16dc0351be2ecc4b280f6f"
+        "task_id": "745b3743cc005dd4f38f9390950628dd79df6e5de5756c51d37fd22e69010852",
+        "verified_route_sha256": "904c894cda4fdc587b0d12f93a190505532504489cccdcd43914c765be7b10ad"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -938,11 +938,11 @@
   },
   "bundleVersion": "[\"stream\",\"730a03b5864b7b0b9fbb819ada13e67b6a57c9430ca16b6aa571d9966d1e606c\",\"fb300c88df7cfb61d976590391a2a00264816972d5d5bf573c8d7cdab8e0759d\",\"1ed01fffccae4fa39337e3b4d983dffa\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "9870242d1fd54896976d0444c59f2829",
-    "lesson_version": "5b8b796168abff71a7d1f66856facb0b80d934c446f5086f663d9c2dabdf3eee",
-    "stream_id": "9870242d1fd54896976d0444c59f2829",
+    "run_id": "6c65b55e2be74cbbbefdbbcd4614257c",
+    "lesson_version": "191772a730c7011cb89a81066682318fe55cc4aa0cda44c7c0657d2912a711ee",
+    "stream_id": "6c65b55e2be74cbbbefdbbcd4614257c",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "72b02f572775a8b81cade3d92644ba7ba76d388bc5a3728d90d2f9f863b270c3",
+    "base_bundle_version": "97f8402afeb7265cd7cc44fc620a5210d8055a49671517ddb4d1b5360de0b31f",
     "d3": {
       "expected_answer": {},
       "id": "D3",
@@ -995,15 +995,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "5b8b796168abff71a7d1f66856facb0b80d934c446f5086f663d9c2dabdf3eee",
+        "lesson_version": "191772a730c7011cb89a81066682318fe55cc4aa0cda44c7c0657d2912a711ee",
         "local_check": "passed",
-        "math_step_sha256": "645ee345b4bb2baf475047e878504b53c51e7dcbd083706e62f2988ba7be9b20",
+        "math_step_sha256": "c6991875de118e5feda6ec81981713672ba8670df653345683f2889beee244f6",
         "method_ref": "method-parity-definition#symmetry",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
         "route_id": "parity-definition",
-        "run_id": "9870242d1fd54896976d0444c59f2829",
+        "run_id": "6c65b55e2be74cbbbefdbbcd4614257c",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -1036,15 +1036,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "5b8b796168abff71a7d1f66856facb0b80d934c446f5086f663d9c2dabdf3eee",
+        "lesson_version": "191772a730c7011cb89a81066682318fe55cc4aa0cda44c7c0657d2912a711ee",
         "local_check": "passed",
-        "math_step_sha256": "10fcaed95bb3b781218325d756216383e03fd047012851c36051faac9a29724d",
+        "math_step_sha256": "ef060538f1683a5c0086da142406b872d94131d846372b01bdde4a6f02bb8e44",
         "method_ref": "method-parity-definition#reflect",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
         "route_id": "parity-definition",
-        "run_id": "9870242d1fd54896976d0444c59f2829",
+        "run_id": "6c65b55e2be74cbbbefdbbcd4614257c",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1077,15 +1077,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "5b8b796168abff71a7d1f66856facb0b80d934c446f5086f663d9c2dabdf3eee",
+        "lesson_version": "191772a730c7011cb89a81066682318fe55cc4aa0cda44c7c0657d2912a711ee",
         "local_check": "passed",
-        "math_step_sha256": "d96a72a5efac77a04e2313552653358d519cfdb7c20a451ede75dff3f276869f",
+        "math_step_sha256": "b87c9ecfb909f7db5291e6818a1d185c3fde4ebb5b66df8dcc15ce2c4b36cc64",
         "method_ref": "method-parity-definition#compare",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
         "route_id": "parity-definition",
-        "run_id": "9870242d1fd54896976d0444c59f2829",
+        "run_id": "6c65b55e2be74cbbbefdbbcd4614257c",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -1118,15 +1118,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "5b8b796168abff71a7d1f66856facb0b80d934c446f5086f663d9c2dabdf3eee",
+        "lesson_version": "191772a730c7011cb89a81066682318fe55cc4aa0cda44c7c0657d2912a711ee",
         "local_check": "passed",
-        "math_step_sha256": "dbe6ebef4a8a81f9aae316324d6ee2207230fbab23341f71af5fbd1f38ef228d",
+        "math_step_sha256": "5e0cbd83e73165fce0c9a0409370739e4918a42b0ac18e8385f88f4fe34c3898",
         "method_ref": "method-parity-definition#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
         "route_id": "parity-definition",
-        "run_id": "9870242d1fd54896976d0444c59f2829",
+        "run_id": "6c65b55e2be74cbbbefdbbcd4614257c",
         "source_refs": [
           "/steps/5/calls/0"
         ],
@@ -1193,45 +1193,45 @@
         "route_id": "parity-definition",
         "step_id": "39e5646dcb-parity-definition-001-parity_domain",
         "ordinal": 1,
-        "math_step_sha256": "645ee345b4bb2baf475047e878504b53c51e7dcbd083706e62f2988ba7be9b20",
+        "math_step_sha256": "c6991875de118e5feda6ec81981713672ba8670df653345683f2889beee244f6",
         "status": "interactive",
-        "interaction_id": "a38f41e260fe0aedea359748"
+        "interaction_id": "15d01a1189a6ce9ceaeb15eb"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-definition",
         "step_id": "39e5646dcb-parity-definition-002-parity_reflect",
         "ordinal": 2,
-        "math_step_sha256": "10fcaed95bb3b781218325d756216383e03fd047012851c36051faac9a29724d",
+        "math_step_sha256": "ef060538f1683a5c0086da142406b872d94131d846372b01bdde4a6f02bb8e44",
         "status": "interactive",
-        "interaction_id": "b54e358b38c18b621903727f"
+        "interaction_id": "c2466393ceefec998e9308ae"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-definition",
         "step_id": "39e5646dcb-parity-definition-003-parity_compare",
         "ordinal": 3,
-        "math_step_sha256": "d96a72a5efac77a04e2313552653358d519cfdb7c20a451ede75dff3f276869f",
+        "math_step_sha256": "b87c9ecfb909f7db5291e6818a1d185c3fde4ebb5b66df8dcc15ce2c4b36cc64",
         "status": "interactive",
-        "interaction_id": "328e9a184af8933472a5c887"
+        "interaction_id": "27774d344e921180b404ae42"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-definition",
         "step_id": "39e5646dcb-parity-definition-004-parity_conclude",
         "ordinal": 4,
-        "math_step_sha256": "dbe6ebef4a8a81f9aae316324d6ee2207230fbab23341f71af5fbd1f38ef228d",
+        "math_step_sha256": "5e0cbd83e73165fce0c9a0409370739e4918a42b0ac18e8385f88f4fe34c3898",
         "status": "interactive",
-        "interaction_id": "3098741ed8be0c38fa155ef9"
+        "interaction_id": "68c82c424017db2cc6e11995"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "a38f41e260fe0aedea359748",
+        "interaction_id": "15d01a1189a6ce9ceaeb15eb",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "9cd1a0388626537adc1ec47543e950466d16e7e3b935866aa69ed4d9f4aa1a25",
-        "lesson_version": "5b8b796168abff71a7d1f66856facb0b80d934c446f5086f663d9c2dabdf3eee",
+        "interaction_sha256": "ae7f9a8851535b92b18b31de39205dcd993bba8064379dad45353d0ef75b9f7c",
+        "lesson_version": "191772a730c7011cb89a81066682318fe55cc4aa0cda44c7c0657d2912a711ee",
         "parts": [
           {
             "completion_board": {
@@ -1257,19 +1257,19 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "a38f41e260fe0aedea359748#1",
+            "id": "15d01a1189a6ce9ceaeb15eb#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "feedback": "找一找：是否有某个数在定义域内，而它的相反数不在？端点的开闭和挖去的点都要换成相反数再比较。",
-                  "label": "$D\\ \\text{关于原点对称}$",
-                  "value": "o1"
-                },
-                {
                   "feedback": "把定义域内每个数取相反数后，得到的集合与原定义域相同。",
                   "label": "$D\\ \\text{不关于原点对称}$",
                   "value": "o2"
+                },
+                {
+                  "feedback": "找一找：是否有某个数在定义域内，而它的相反数不在？端点的开闭和挖去的点都要换成相反数再比较。",
+                  "label": "$D\\ \\text{关于原点对称}$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1295,11 +1295,11 @@
           }
         ],
         "route_id": "parity-definition",
-        "run_id": "9870242d1fd54896976d0444c59f2829",
+        "run_id": "6c65b55e2be74cbbbefdbbcd4614257c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "645ee345b4bb2baf475047e878504b53c51e7dcbd083706e62f2988ba7be9b20",
+            "math_step_sha256": "c6991875de118e5feda6ec81981713672ba8670df653345683f2889beee244f6",
             "step_id": "39e5646dcb-parity-definition-001-parity_domain"
           }
         ],
@@ -1307,10 +1307,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "b54e358b38c18b621903727f",
+        "interaction_id": "c2466393ceefec998e9308ae",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "8e20ab3b428d36351b45d70adc4dab9be4fa4b70fc545ae921168549b942a801",
-        "lesson_version": "5b8b796168abff71a7d1f66856facb0b80d934c446f5086f663d9c2dabdf3eee",
+        "interaction_sha256": "f62aeda66839d6284b6dfd706de263d17aed78c0264fcb614c52f0257329f69b",
+        "lesson_version": "191772a730c7011cb89a81066682318fe55cc4aa0cda44c7c0657d2912a711ee",
         "parts": [
           {
             "completion_board": {
@@ -1336,14 +1336,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "b54e358b38c18b621903727f#1",
+            "id": "c2466393ceefec998e9308ae#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$f\\left(-x\\right)=\\left|(-x)\\right|+(-x)^{2}$",
-                  "value": "o1"
-                },
                 {
                   "feedback": "$\\left(-x\\right)$ 要整体乘方：偶数次幂没有负号，奇数次幂才有。",
                   "label": "$f\\left(-x\\right)=\\left|(-x)\\right|+(-x^{2})$",
@@ -1353,6 +1349,10 @@
                   "feedback": "代入是把每一处 $x$ 都换成 $-x$，不是在整个式子前加负号。",
                   "label": "$f\\left(-x\\right)=-(\\left|x\\right|+x^{2})$",
                   "value": "o2"
+                },
+                {
+                  "label": "$f\\left(-x\\right)=\\left|(-x)\\right|+(-x)^{2}$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1378,11 +1378,11 @@
           }
         ],
         "route_id": "parity-definition",
-        "run_id": "9870242d1fd54896976d0444c59f2829",
+        "run_id": "6c65b55e2be74cbbbefdbbcd4614257c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "10fcaed95bb3b781218325d756216383e03fd047012851c36051faac9a29724d",
+            "math_step_sha256": "ef060538f1683a5c0086da142406b872d94131d846372b01bdde4a6f02bb8e44",
             "step_id": "39e5646dcb-parity-definition-002-parity_reflect"
           }
         ],
@@ -1390,10 +1390,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "328e9a184af8933472a5c887",
+        "interaction_id": "27774d344e921180b404ae42",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "6ac53b6a695d20b071db599bca20c16e0a4d930016bb771df9a94ad3b1a627ac",
-        "lesson_version": "5b8b796168abff71a7d1f66856facb0b80d934c446f5086f663d9c2dabdf3eee",
+        "interaction_sha256": "c9645c98d3a137f4fbbf93e7080bf7441dcbac456a371a8085d68cb53c461b57",
+        "lesson_version": "191772a730c7011cb89a81066682318fe55cc4aa0cda44c7c0657d2912a711ee",
         "parts": [
           {
             "completion_board": {
@@ -1419,19 +1419,19 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "328e9a184af8933472a5c887#1",
+            "id": "27774d344e921180b404ae42#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "feedback": "化简后两边恒等，定义域内每个数都满足这个关系。",
-                  "label": "$\\text{存在}\\ x\\ \\text{使}\\ f\\left(-x\\right)\\ne -f\\left(x\\right)$",
-                  "value": "o1"
-                },
-                {
                   "feedback": "代入一个具体的数，比较两边的值；只要有一个数不满足，条件就不成立。",
                   "label": "$f\\left(-x\\right)=-f\\left(x\\right)\\ \\text{对定义域内每个}\\ x\\ \\text{成立}$",
                   "value": "o2"
+                },
+                {
+                  "feedback": "化简后两边恒等，定义域内每个数都满足这个关系。",
+                  "label": "$\\text{存在}\\ x\\ \\text{使}\\ f\\left(-x\\right)\\ne -f\\left(x\\right)$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1479,7 +1479,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "328e9a184af8933472a5c887#2",
+            "id": "27774d344e921180b404ae42#2",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1517,11 +1517,11 @@
           }
         ],
         "route_id": "parity-definition",
-        "run_id": "9870242d1fd54896976d0444c59f2829",
+        "run_id": "6c65b55e2be74cbbbefdbbcd4614257c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d96a72a5efac77a04e2313552653358d519cfdb7c20a451ede75dff3f276869f",
+            "math_step_sha256": "b87c9ecfb909f7db5291e6818a1d185c3fde4ebb5b66df8dcc15ce2c4b36cc64",
             "step_id": "39e5646dcb-parity-definition-003-parity_compare"
           }
         ],
@@ -1529,10 +1529,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "3098741ed8be0c38fa155ef9",
+        "interaction_id": "68c82c424017db2cc6e11995",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "cd057990e9e122357ddfe0499e70902ad7ae81984ac0ee5e682acae5c16f8b9a",
-        "lesson_version": "5b8b796168abff71a7d1f66856facb0b80d934c446f5086f663d9c2dabdf3eee",
+        "interaction_sha256": "fd591b15cc12010ce2fb8ccb68ed72e85eeefbae8acce6507ed90f6233ea0990",
+        "lesson_version": "191772a730c7011cb89a81066682318fe55cc4aa0cda44c7c0657d2912a711ee",
         "parts": [
           {
             "completion_board": {
@@ -1558,15 +1558,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "3098741ed8be0c38fa155ef9#1",
+            "id": "68c82c424017db2cc6e11995#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "feedback": "回到定义：奇函数要求 $f(-x)=-f(x)$，偶函数要求 $f(-x)=f(x)$，且定义域关于原点对称。",
-                  "label": "$f\\left(x\\right)\\ \\text{是奇函数，不是偶函数}$",
-                  "value": "o2"
-                },
                 {
                   "feedback": "回到定义：奇函数要求 $f(-x)=-f(x)$，偶函数要求 $f(-x)=f(x)$，且定义域关于原点对称。",
                   "label": "$f\\left(x\\right)\\ \\text{既是奇函数又是偶函数}$",
@@ -1574,12 +1569,17 @@
                 },
                 {
                   "feedback": "回到定义：奇函数要求 $f(-x)=-f(x)$，偶函数要求 $f(-x)=f(x)$，且定义域关于原点对称。",
-                  "label": "$f\\left(x\\right)\\ \\text{既不是奇函数也不是偶函数}$",
-                  "value": "o4"
+                  "label": "$f\\left(x\\right)\\ \\text{是奇函数，不是偶函数}$",
+                  "value": "o2"
                 },
                 {
                   "label": "$f\\left(x\\right)\\ \\text{是偶函数，不是奇函数}$",
                   "value": "o1"
+                },
+                {
+                  "feedback": "回到定义：奇函数要求 $f(-x)=-f(x)$，偶函数要求 $f(-x)=f(x)$，且定义域关于原点对称。",
+                  "label": "$f\\left(x\\right)\\ \\text{既不是奇函数也不是偶函数}$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -1605,11 +1605,11 @@
           }
         ],
         "route_id": "parity-definition",
-        "run_id": "9870242d1fd54896976d0444c59f2829",
+        "run_id": "6c65b55e2be74cbbbefdbbcd4614257c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "dbe6ebef4a8a81f9aae316324d6ee2207230fbab23341f71af5fbd1f38ef228d",
+            "math_step_sha256": "5e0cbd83e73165fce0c9a0409370739e4918a42b0ac18e8385f88f4fe34c3898",
             "step_id": "39e5646dcb-parity-definition-004-parity_conclude"
           }
         ],

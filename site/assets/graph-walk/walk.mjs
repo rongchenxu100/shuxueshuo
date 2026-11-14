@@ -433,6 +433,12 @@ function completedFeedbackHTML(decision) {
     ? `<p class="gw-result" data-math-text>${escapeHTML(decision.feedback.answer)}</p>` : '';
 }
 
+// The interaction's shared math card lands in its last card group only.
+function groupProofHTML(decision) {
+  return typeof decision?.completion_proof === 'string' && decision.completion_proof.trim()
+    ? `<details class="details stage-three-derivation" open><summary>完整推导</summary><p class="stage-three-explanation" data-math-text>${escapeHTML(`$$${decision.completion_proof}$$`)}</p></details>` : '';
+}
+
 function streamCompletedAnswerHTML(decision, answer) {
   // The verified board owns the conclusion. Do not repeat its answer and
   // feedback above it; choices without a mathematical conclusion still need them.
@@ -458,7 +464,7 @@ function completedHTML(record, number, runId, route) {
     : decision.interaction.type === 'plane' ? planeHTML(decision, record.answer, false)
     : decision.interaction.type === 'method_cards' ? methodCardsHTML(decision, record.answer, false)
     : decision.source === 'stream' && decision.stream_last_part
-    ? `${completionBoardHTML(decision)}${streamCompletedAnswerHTML(decision, record.answer)}<div data-stream-completed="${escapeHTML(decision.id)}"></div>`
+    ? `${completionBoardHTML(decision)}${streamCompletedAnswerHTML(decision, record.answer)}<div data-stream-completed="${escapeHTML(decision.id)}"></div>${groupProofHTML(decision)}`
     : decision.completion_board ? completionBoardHTML(decision)
     : decision.interaction.type === 'grid' ? gridHTML(decision, record.answer, false) + derivation()
     : decision.display ? template(decision.display, uid)
@@ -561,7 +567,7 @@ function groupCompletedHTML(unit, number) {
     const explanation = completedFeedbackHTML(decision);
     return explanation ? `<div class="gw-part-row"><p class="gw-part-label" data-math-text>${escapeHTML(decision.title || '')}</p>${explanation}</div>` : '';
   }).join('');
-  return `<details class="gw-completed" data-completed-decision="${escapeHTML(last.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(stepTitle(last))}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${body}<div data-stream-completed="${escapeHTML(last.id)}"></div>${feedback}</div></details>`;
+  return `<details class="gw-completed" data-completed-decision="${escapeHTML(last.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(stepTitle(last))}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${body}<div data-stream-completed="${escapeHTML(last.id)}"></div>${groupProofHTML(last)}${feedback}</div></details>`;
 }
 
 /* Within the card: every part as a numbered stop, the answered ones folded into rows above the current one. */

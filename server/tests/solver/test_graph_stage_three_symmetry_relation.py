@@ -22,6 +22,16 @@ def center():
                      text=r'已知函数 $f(x)$ 定义域为 $\mathbb R$，图像关于点 $(1,2)$ 中心对称，且 $f(0)=5$，求 $f(2)$ 的值。')
 
 
+def center_pair():
+    return candidate(['Dom(f)=ℝ', 'graph_symmetry(f,center,1,2)'], 'f(0)+f(2)',
+                     text=r'已知函数 $f(x)$ 定义域为 $\mathbb R$，图像关于点 $(1,2)$ 中心对称，求 $f(0)+f(2)$ 的值。')
+
+
+def known_values():
+    return candidate(expression='2*f(1)+1',
+                     text=r'已知函数 $f(x)$ 定义在 $\mathbb R$ 上，图像关于直线 $x=2$ 对称，且 $f(1)=3$，求 $2f(1)+1$ 的值。')
+
+
 def local():
     return candidate(['Dom(f)=ℝ', '∀t∈(0,1): f(-t)=f(t)+1', 'f(-1/2)=3'], 'f(1/2)',
                      text=r'已知函数 $f(x)$ 定义域为 $\mathbb R$，对任意 $t\in(0,1)$，有 $f(-t)=f(t)+1$，且 $f(-1/2)=3$，求 $f(1/2)$ 的值。')
@@ -57,7 +67,8 @@ def nominal_center():
 @pytest.mark.parametrize('build,answer', [(candidate, '3'), (a10, '0'), (lambda: a10(True), '1'),
                                         (center, '-1'), (local, '2'), (unknown, None),
                                         (paired_axes, '7'), (repeated_quantifiers, '7'),
-                                        (affine, '3'), (nominal_center, '-1'), (compound_sum, '11')])
+                                        (affine, '3'), (nominal_center, '-1'), (compound_sum, '11'),
+                                        (known_values, '7'), (center_pair, '4')])
 def test_general_symmetry_pipeline(build, answer, tmp_path):
     problem = build()
     _prepared, recognized = recognize(problem, tmp_path)
@@ -83,14 +94,15 @@ def test_general_symmetry_pipeline(build, answer, tmp_path):
         rendered = json.dumps(evidence, ensure_ascii=False)
         assert json.dumps(r'\sum_{k=1}^{10}\left(f(k)+1\right)')[1:-1] in rendered
         assert json.dumps(r'\sum_{k=1}^{10}f(k)+1')[1:-1] not in rendered
-    if build in (affine, compound_sum):
+    if build in (affine, compound_sum, known_values, center_pair):
         course_source = {'schemaVersion': 1, 'problemId': 't5-review', 'title': '对称关系 · 开发题',
                          'page': '/topics/function-parity/variant99/', 'topicHref': '/topics/function-parity/',
                          'targetRef': '/root/goals/0'}
         (tmp_path/'evidence.json').write_text(json.dumps(evidence, ensure_ascii=False))
         (tmp_path/'source.json').write_text(json.dumps(course_source, ensure_ascii=False))
         rendered = subprocess.run(['node', str(ROOT/'tools/tests/fixtures/parity-parameter-course-check.mjs'),
-                                   str(tmp_path/'evidence.json'), str(tmp_path/'source.json'), 'function-symmetry', 'number-lines'],
+                                   str(tmp_path/'evidence.json'), str(tmp_path/'source.json'), 'function-symmetry',
+                                   *(['number-lines'] if build is not known_values else [])],
                                   capture_output=True, text=True, check=False)
         assert rendered.returncode == 0, rendered.stdout+rendered.stderr
     assert runner.resume_sample(output)['goals'][0]['answer'] == goal['answer']

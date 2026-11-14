@@ -2013,110 +2013,126 @@
                 "method-function-symmetry"
               ]
             },
-            "27a119244306408a304fe91d#1": {
-              "title": "利用关于原点对称找配对的输入",
+            "3a1cad02208a9a8d62e1cac3#1": {
+              "title": "先找出图像上确定的点",
               "position": 4,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "27a119244306408a304fe91d#2": {
-              "title": "利用关于直线 $x=1$ 对称找配对的输入",
+            "3a1cad02208a9a8d62e1cac3#2": {
+              "title": "利用图像关于直线 $x=1$ 对称",
               "position": 5,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "27a119244306408a304fe91d#3": {
-              "title": "连续使用两次对称关系",
+            "3a1cad02208a9a8d62e1cac3#3": {
+              "title": "利用图像关于原点对称",
               "position": 6,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "27a119244306408a304fe91d#4": {
-              "title": "从 $x$ 走到 $x + 2$",
+            "3a1cad02208a9a8d62e1cac3#4": {
+              "title": "利用图像关于直线 $x=1$ 对称",
               "position": 7,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "27a119244306408a304fe91d#5": {
-              "title": "从 $x + 2$ 再走到 $x + 4$",
+            "3a1cad02208a9a8d62e1cac3#5": {
+              "title": "利用图像关于原点对称",
               "position": 8,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "2c2fad7056f73246006fff92#1": {
-              "title": "求出所求的值",
+            "3a1cad02208a9a8d62e1cac3#6": {
+              "title": "利用图像关于直线 $x=1$ 对称",
               "position": 9,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "609df7e6ae104db601f816c1#1": {
+              "title": "求出所求的值",
+              "position": 10,
               "refs": [
                 "method-function-symmetry#conclude"
               ]
             },
             "goal-2-D1": {
               "title": "求前 54 项之和",
-              "position": 10,
+              "position": 11,
               "refs": [
                 "function-graph-symmetry"
               ]
             },
-            "5ca554a26c93bb7e3f2e967c#1": {
-              "title": "利用关于原点对称找配对的输入",
-              "position": 11,
-              "refs": [
-                "method-function-symmetry#rewrite",
-                "skill-function-symmetry-transform"
-              ]
-            },
-            "5ca554a26c93bb7e3f2e967c#2": {
-              "title": "利用关于直线 $x=1$ 对称找配对的输入",
+            "69d5b9662e33ad2a6717efec#1": {
+              "title": "利用图像关于原点对称",
               "position": 12,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "5ca554a26c93bb7e3f2e967c#3": {
-              "title": "连续使用两次对称关系",
+            "69d5b9662e33ad2a6717efec#2": {
+              "title": "利用图像关于直线 $x=1$ 对称",
               "position": 13,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "5ca554a26c93bb7e3f2e967c#4": {
-              "title": "从 $x$ 走到 $x + 2$",
+            "69d5b9662e33ad2a6717efec#3": {
+              "title": "利用图像关于原点对称",
               "position": 14,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "5ca554a26c93bb7e3f2e967c#5": {
-              "title": "从 $x + 2$ 再走到 $x + 4$",
+            "69d5b9662e33ad2a6717efec#4": {
+              "title": "利用图像关于直线 $x=1$ 对称",
               "position": 15,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "489535da7e7b04c18f03fab2#1": {
-              "title": "分组并保留余项",
+            "69d5b9662e33ad2a6717efec#5": {
+              "title": "两点一样高，得出周期",
               "position": 16,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "69d5b9662e33ad2a6717efec#6": {
+              "title": "求出一个周期内需要的函数值",
+              "position": 17,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "0289f5483e43ebdcc3cd1537#1": {
+              "title": "分组并保留余项",
+              "position": 18,
               "refs": [
                 "method-function-symmetry#conclude"
               ]
             },
-            "489535da7e7b04c18f03fab2#2": {
+            "0289f5483e43ebdcc3cd1537#2": {
               "title": "求出函数值之和",
-              "position": 17,
+              "position": 19,
               "refs": [
                 "method-function-symmetry#conclude"
               ]
@@ -2161,49 +2177,57 @@
                 "method-function-symmetry"
               ]
             },
-            "9dd0a9bd031b2cbedb9a96f1#1": {
-              "title": "利用关于原点对称找配对的输入",
+            "389db5e190cfd79a05ebb7cb#1": {
+              "title": "利用图像关于原点对称",
               "position": 4,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "9dd0a9bd031b2cbedb9a96f1#2": {
-              "title": "利用关于直线 $x=\\frac{1}{2}$ 对称找配对的输入",
+            "389db5e190cfd79a05ebb7cb#2": {
+              "title": "利用图像关于直线 $x=\\frac{1}{2}$ 对称",
               "position": 5,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "9dd0a9bd031b2cbedb9a96f1#3": {
-              "title": "连续使用两次对称关系",
+            "389db5e190cfd79a05ebb7cb#3": {
+              "title": "利用图像关于原点对称",
               "position": 6,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "9dd0a9bd031b2cbedb9a96f1#4": {
-              "title": "从 $x$ 走到 $x + 1$",
+            "389db5e190cfd79a05ebb7cb#4": {
+              "title": "利用图像关于直线 $x=\\frac{1}{2}$ 对称",
               "position": 7,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "9dd0a9bd031b2cbedb9a96f1#5": {
-              "title": "从 $x + 1$ 再走到 $x + 2$",
+            "389db5e190cfd79a05ebb7cb#5": {
+              "title": "两点一样高，得出周期",
               "position": 8,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "32dc7da497b0c2991ee04c38#1": {
-              "title": "求出所求的值",
+            "389db5e190cfd79a05ebb7cb#6": {
+              "title": "求出一个周期内需要的函数值",
               "position": 9,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "ef60a4cec2be16b4b6088e91#1": {
+              "title": "求出所求的值",
+              "position": 10,
               "refs": [
                 "method-function-symmetry#conclude"
               ]

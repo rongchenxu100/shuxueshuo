@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "e28c0a7303204636a8de8c3750bcfb71",
-    "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
-    "input_sha256": "10fa67d94d59099ec78b5dcbb36da87a7d5f3d222421ff061d36a79d8b125bfc",
-    "checkpoint_sha256": "3ddf8381d8af53aa5c8ee74573168568465eef0b4a920c2b0524c9bfd7c8a34f",
-    "result_sha256": "8c9b70ee102abdc3841bb8f549321774d77bf5822b3f9a8623a5955091d71e1d",
+    "run_id": "a8ffa41db0b14d7795a6828f9018b161",
+    "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
+    "input_sha256": "07620ccaa1299b3e6bfc8731913c6f5c339bfb6d0a6e2e744b60b85ed9f0de59",
+    "checkpoint_sha256": "a509c17b987ccbf729f025acfd65b9673c6c00c0207019e251a85cfab0969122",
+    "result_sha256": "26e5c41fba499b462b74328582ca18c20a5f12438cdb2d72e30a762230e77c8d",
     "stage_one_sha256": "acd696f5e594d90910ec680fcb1bc15c4fda85d4dfd6300a39220a874e734d7c",
-    "stage_two_sha256": "1d86a14f77deebb8956c478424581500516523b610d3fe55d4055a4142d2a2e2",
+    "stage_two_sha256": "b5509fc30739f5f7399d80c628eb6b58b7c6d70380de28397ce9f6c9975e1ac0",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "379c3dab3865e649d0be314ceffaacdb9c3af0f141e5cc3c8e1642488a6c64aa",
-    "teaching_revision": "b4ffa779f0ad42f6a703380afe08d586ba3e5ee58f69bc84dfd97322c31cdab5"
+    "teaching_revision": "28fb1792d0dd882ebc72c98e33da34eece2c810e0dbe232b02e9102d89c16045"
   },
   "lesson": {
     "status": "completed",
@@ -122,7 +122,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-parity-a13//root/goals/0",
-            "graphVersion": "5c571beaf774da2da145364109727b8b860d74a59f9788145ce9c12af6842ee7",
+            "graphVersion": "885283a35671fc58838ef8119919072517c79cabf590f4fdefa5d01bfe52faee",
             "problem": {
               "text": "已知函数 $f(x)$ 是定义在 $\\mathbf R$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____．"
             },
@@ -500,12 +500,12 @@
                 }
               ]
             },
-            "bundleVersion": "42b789bb462912a76aaae133cf47ba70698e93fcb580e16de07b6921247ff697"
+            "bundleVersion": "18affb80023001441fa17d839bb695c4499ee6bc0748fdbce78d8f72548e7264"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-parity-a13//root/goals/0",
-            "bundleVersion": "42b789bb462912a76aaae133cf47ba70698e93fcb580e16de07b6921247ff697",
+            "bundleVersion": "18affb80023001441fa17d839bb695c4499ee6bc0748fdbce78d8f72548e7264",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -526,10 +526,10 @@
     ]
   },
   "stream": {
-    "run_id": "e28c0a7303204636a8de8c3750bcfb71",
-    "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
-    "input_sha256": "10fa67d94d59099ec78b5dcbb36da87a7d5f3d222421ff061d36a79d8b125bfc",
-    "stream_id": "e28c0a7303204636a8de8c3750bcfb71",
+    "run_id": "a8ffa41db0b14d7795a6828f9018b161",
+    "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
+    "input_sha256": "07620ccaa1299b3e6bfc8731913c6f5c339bfb6d0a6e2e744b60b85ed9f0de59",
+    "stream_id": "a8ffa41db0b14d7795a6828f9018b161",
     "last_seq": 17,
     "minimum_seq": 1,
     "math_steps": [
@@ -555,15 +555,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+        "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
         "local_check": "passed",
-        "math_step_sha256": "c3d64c8779752c45f00aec25af837d9842ea384860d410eb9583ec64d8e8da8e",
+        "math_step_sha256": "44d687f6ff897224b26c283cc6cdefbb9657ae981e04938abfcaab2a514f8ad8",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
         "route_id": "function-symmetry",
-        "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+        "run_id": "a8ffa41db0b14d7795a6828f9018b161",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -594,15 +594,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+        "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
         "local_check": "passed",
-        "math_step_sha256": "38302113717f2ff4d657c3633695706f97365f9821f757be8f9b5accf7b9d5bb",
+        "math_step_sha256": "0539e03a6e800ad23480c4b22fda45b3d43b063ae4592e4821fecbd6662f1ea7",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
         "route_id": "function-symmetry",
-        "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+        "run_id": "a8ffa41db0b14d7795a6828f9018b161",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -656,25 +656,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+        "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
         "math_steps": [
           {
-            "math_step_sha256": "c3d64c8779752c45f00aec25af837d9842ea384860d410eb9583ec64d8e8da8e",
+            "math_step_sha256": "44d687f6ff897224b26c283cc6cdefbb9657ae981e04938abfcaab2a514f8ad8",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "38302113717f2ff4d657c3633695706f97365f9821f757be8f9b5accf7b9d5bb",
+            "math_step_sha256": "0539e03a6e800ad23480c4b22fda45b3d43b063ae4592e4821fecbd6662f1ea7",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+        "run_id": "a8ffa41db0b14d7795a6828f9018b161",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "65cc8dd44ba36072bbc4fcdee9be3a500f8c9c8645e1c9b2a4c82785e0b1c24e",
-        "verified_route_sha256": "6a7cb3024fbbde286222128a2cceac1680d82cd259be22067c2f8e2a5d033bb2"
+        "task_id": "6d265b7c60d88613d0b548345d33128e01937fe2411622512caa5009ccab73ac",
+        "verified_route_sha256": "87bb4982d8c17fa8e5b6eef705eedca4b4f515612b87513957c0f062246c866f"
       }
     ],
     "qa": [],
@@ -724,22 +724,22 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "c3d64c8779752c45f00aec25af837d9842ea384860d410eb9583ec64d8e8da8e",
+        "math_step_sha256": "44d687f6ff897224b26c283cc6cdefbb9657ae981e04938abfcaab2a514f8ad8",
         "status": "interactive",
-        "interaction_id": "4362c875b4e07448b6069c48"
+        "interaction_id": "da01a95787ee25d8a2dc58ec"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "38302113717f2ff4d657c3633695706f97365f9821f757be8f9b5accf7b9d5bb",
+        "math_step_sha256": "0539e03a6e800ad23480c4b22fda45b3d43b063ae4592e4821fecbd6662f1ea7",
         "status": "interactive",
-        "interaction_id": "bebeed07d61a5c48a1ca6d37"
+        "interaction_id": "dcabcc679d90c97b38d37d93"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "98254794d6b7d31b0625c2d72f484fa93f6baa46bd241d55602e58f44e0addb2",
+    "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -747,7 +747,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:function-symmetry:complete",
-        "last_seq": 17
+        "last_seq": 15
       }
     ],
     "trajectories": [
@@ -834,10 +834,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "4362c875b4e07448b6069c48",
+        "interaction_id": "da01a95787ee25d8a2dc58ec",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "49e87afec64cfd566e685d0f2a5b9f0b41e4e8cc87ff23bdb31871f8593c6ecd",
-        "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+        "interaction_sha256": "ef1d764c6fccbcf6c073d41c02e917071f2d641ee75c4bea0b7b9e6a540b744b",
+        "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
         "parts": [
           {
             "completion_board": {
@@ -863,7 +863,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "4362c875b4e07448b6069c48#1",
+            "id": "da01a95787ee25d8a2dc58ec#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -899,11 +899,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+        "run_id": "a8ffa41db0b14d7795a6828f9018b161",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "c3d64c8779752c45f00aec25af837d9842ea384860d410eb9583ec64d8e8da8e",
+            "math_step_sha256": "44d687f6ff897224b26c283cc6cdefbb9657ae981e04938abfcaab2a514f8ad8",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -911,10 +911,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "bebeed07d61a5c48a1ca6d37",
+        "interaction_id": "dcabcc679d90c97b38d37d93",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "8d70eacdc9f44b68c855c035512df8ca82e76051aac87fe637f0d7749ad5cb13",
-        "lesson_version": "bb9397a0da5eab6633dc33f5b4c7f45b39fb295458e9571816ee3ba966eb86e4",
+        "interaction_sha256": "690a7207cba881b4deb6845e42e9899b0925ed15d67c96a6008816de9016097e",
+        "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
         "parts": [
           {
             "completion_board": {
@@ -940,17 +940,17 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "bebeed07d61a5c48a1ca6d37#1",
+            "id": "dcabcc679d90c97b38d37d93#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(1)+f(-2)\\text{ 不能唯一确定}$",
-                  "value": "o3"
-                },
-                {
                   "label": "$f(1)+f(-2)=-3$",
                   "value": "o1"
+                },
+                {
+                  "label": "$f(1)+f(-2)\\text{ 不能唯一确定}$",
+                  "value": "o3"
                 },
                 {
                   "label": "$f(1)+f(-2)=3$",
@@ -980,11 +980,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "e28c0a7303204636a8de8c3750bcfb71",
+        "run_id": "a8ffa41db0b14d7795a6828f9018b161",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "38302113717f2ff4d657c3633695706f97365f9821f757be8f9b5accf7b9d5bb",
+            "math_step_sha256": "0539e03a6e800ad23480c4b22fda45b3d43b063ae4592e4821fecbd6662f1ea7",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],

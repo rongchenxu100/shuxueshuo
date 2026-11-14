@@ -81,7 +81,7 @@ function visit(value) {
       assert.match(svg, /^<svg/);
       assert.doesNotMatch(svg, /NaN|Infinity/);
     }
-    if (key === 'math' && typeof item === 'string') render(item);
+    if (['math', 'completion_proof'].includes(key) && typeof item === 'string') render(item);
     else if (typeof item === 'string') for (const match of item.matchAll(/\$\$([\s\S]*?)\$\$|\$([^$]+)\$/g)) render(match[1] ?? match[2]);
     else visit(item);
   }

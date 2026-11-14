@@ -648,7 +648,7 @@
       </g>
     </svg>`;
   }
-  function piecewiseCurveGraph({segments, reference = [], highlights = [], interval_marks = [], guides = [], axes = [], bounds, interval, xTicks, yTicks = [], level, variable, title, description, uid, points}) {
+  function piecewiseCurveGraph({segments, reference = [], highlights = [], interval_marks = [], guides = [], axes = [], reflections = [], bounds, interval, xTicks, yTicks = [], level, variable, title, description, uid, points}) {
     const [xmin, xmax, ymin, ymax] = bounds, id = escape(uid);
     const x = v => 48 + (v - xmin) / (xmax - xmin) * 270;
     const y = v => 222 - (v - ymin) / (ymax - ymin) * 174;
@@ -747,6 +747,30 @@
     // A symmetry axis x = a: a dashed vertical line across the plot, labelled at the top.
     const axisLines = axes.filter(a => a.x > xmin && a.x < xmax).map(a => `<path class="piecewise-axis" d="M${x(a.x)} 48V222" stroke="#5b6fb0" stroke-width="1.5" stroke-dasharray="6 4"/>`).join('');
     const axisLabels = axes.filter(a => a.x > xmin && a.x < xmax).map(a => `<text x="${x(a.x) + 5}" y="60" fill="#5b6fb0" font-size="12">${escape(a.label)}</text>`).join('');
+    // A reflection joins a point to its image: the dashed segment is halved by the axis or the center,
+    // each half carries an equal-length tick. Two points on the x-axis would hide the segment, so they get an arc.
+    const reflectArrow = `${id}-reflect-arrow`;
+    const reflectionMarks = reflections.map(r => {
+      const s1 = segmentAt(r.from), s2 = segmentAt(r.to);
+      if (!s1 || !s2) return '';
+      const [x1, y1, x2, y2] = [x(r.from), y(value(s1, r.from)), x(r.to), y(value(s2, r.to))];
+      const cx = x(r.center), cy = (y1 + y2) / 2;
+      const hub = r.kind === 'center' ? `<circle class="piecewise-reflection-center" cx="${cx}" cy="${cy}" r="4" fill="#fff" stroke="#5b6fb0" stroke-width="1.8"/>` : '';
+      if (Math.abs(y1 - y(0)) < 2 && Math.abs(y2 - y(0)) < 2) {
+        const lift = Math.min(46, Math.abs(x2 - x1) / 2 + 12);
+        return `<g class="piecewise-reflection" data-kind="${r.kind}"><path d="M${x1} ${y1 - 6}Q${(x1 + x2) / 2} ${y1 - 6 - 2 * lift} ${x2} ${y2 - 6}" fill="none" stroke="#5b6fb0" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#${reflectArrow})"/>${hub}</g>`;
+      }
+      const length = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / length, uy = (y2 - y1) / length;
+      const tick = t => {
+        const qx = x1 + (x2 - x1) * t, qy = y1 + (y2 - y1) * t;
+        return `M${qx - uy * 5} ${qy + ux * 5}L${qx + uy * 5} ${qy - ux * 5}`;
+      };
+      // A white halo keeps the segment readable where it runs along the curve itself.
+      const chord = `M${x1} ${y1}L${x2 - ux * 7} ${y2 - uy * 7}`;
+      return `<g class="piecewise-reflection" data-kind="${r.kind}"><path d="${chord}" fill="none" stroke="#fff" stroke-width="5" opacity=".85"/>` +
+        `<path d="${chord}" fill="none" stroke="#5b6fb0" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#${reflectArrow})"/>` +
+        `<path d="${tick(.25)}${tick(.75)}" stroke="#5b6fb0" stroke-width="1.8"/>${hub}</g>`;
+    }).join('');
     const height = marks.length ? 276 + (marks.length - 1) * 27 : 270;
     const arrowId = `${id}-point-arrow`;
     return `<svg viewBox="0 0 360 ${height}" role="img" aria-labelledby="${id}-title ${id}-description">
@@ -755,6 +779,9 @@
         <clipPath id="${id}-clip"><rect x="48" y="48" width="270" height="174"/></clipPath>
         <marker id="${arrowId}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
           <path d="M0 0L8 4L0 8Z" fill="#a04c36"/>
+        </marker>
+        <marker id="${reflectArrow}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0L8 4L0 8Z" fill="#5b6fb0"/>
         </marker>
       </defs>
       <rect x="48" y="48" width="270" height="174" rx="5" fill="#f0f7f4"/>
@@ -767,6 +794,7 @@
         ${axisLines}
         ${segments.map(s => curve(s, 'piecewise-segment', '#07847d', 2.8)).join('')}
         ${guideLines}
+        ${reflectionMarks}
         ${marks.filter(m => m.trend === 'pending').map(m => segments.map(s => curve(s, 'piecewise-active-curve', m.color, 4, '', m.left, m.right)).join('')).join('')}
         ${Number.isFinite(level) ? `<path class="piecewise-level" d="M48 ${y(level)}H318" stroke="#b6782c" stroke-width="1.5" stroke-dasharray="5 4"/>` : ''}
         ${highlights.map(h => segments.map(s => curve(s, 'piecewise-highlight', '#b65c42', 4.5, '', h.from ?? xmin, h.to ?? xmax)).join('')).join('')}
@@ -884,7 +912,9 @@
           ['pending', 'increasing', 'decreasing', 'constant'].includes(m.trend)) && v.length <= 12) &&
         optional(p, 'guides', v => array(v, g => object(g) && Number.isFinite(g.x) && string(g.label) && g.label.length > 0 &&
           optional(g, 'value_label', string)) && v.length <= 4) &&
-        optional(p, 'axes', v => array(v, a => object(a) && Number.isFinite(a.x) && string(a.label) && a.label.length > 0) && v.length <= 2);
+        optional(p, 'axes', v => array(v, a => object(a) && Number.isFinite(a.x) && string(a.label) && a.label.length > 0) && v.length <= 2) &&
+        optional(p, 'reflections', v => array(v, r => object(r) && [r.from, r.to, r.center].every(Number.isFinite) &&
+          ['axis', 'center'].includes(r.kind)) && v.length <= 6);
     }
     if (spec.kind === 'linear') return Number.isFinite(p.slope) && Number.isFinite(p.intercept);
     if (spec.kind === 'absolute_affine') return Number.isFinite(p.a) && p.a !== 0 &&

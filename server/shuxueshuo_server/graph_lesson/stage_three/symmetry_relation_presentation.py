@@ -5,6 +5,7 @@ from ...problem_understanding.notation_parser import parse
 from ..function_symmetry_iteration import Orbit
 from ..parity_extension_math import ARGUMENT, _replace
 from ..symmetry_relation_math import X, _equation, _substitute, domain_set, image, rational, solve
+from ..symmetry_walk import teaching_plan
 from .absolute_graph_presentation import choice_card
 from .domain_visuals import exact_math
 from .interaction_graph_contract import validate_graph
@@ -113,11 +114,13 @@ def _marks(e):
     return {'points': [{'x': float(e['a']), 'label': '对称中心', 'place': 'below-right'}]}
 
 
-def _example_graph(d, m, example, caption, guides=(), edges=(), span=(), level=False):
+def _example_graph(d, m, example, caption, guides=(), edges=(), span=(), level=False,
+                   points=(), reflections=(), level_at=None):
     f_ex, xs, step = example
     a = xs[0]
-    anchors = [g[0] for g in guides] + [e['a'] for e in edges] + [a, *span]
-    lo, hi = sp.floor(min(anchors)) - 1, sp.ceiling(max(anchors)) + 1
+    anchors = [g[0] for g in guides] + [e['a'] for e in edges] + [a, *span] + [p for p, _ in points]
+    pad = min(sp.S.One, step/2)
+    lo, hi = sp.floor(min(anchors) - pad), sp.ceiling(max(anchors) + pad)
     if hi - lo < 2*step:
         hi = lo + 2*step
     spans, samples = [], 2
@@ -152,14 +155,22 @@ def _example_graph(d, m, example, caption, guides=(), edges=(), span=(), level=F
               'description': '折线是满足题设的一个示意函数；虚线标出配对的输入和它们的函数值。'}
     for e in edges:
         for key, value in _marks(e).items():
-            if key == 'points' and len(guides) > 2:
-                value = [{k: v for k, v in p.items() if k not in ('label', 'place')} for p in value]
+            if key == 'points' and (len(guides) > 2 or points):
+                value = [{k: v for k, v in p.items() if k not in ('label', 'place')} for p in value
+                         if all(float(q) != p['x'] for q, _ in points)]
             params[key] = params.get(key, []) + value
     if guides:
         params['guides'] = [{'x': float(g[0]), 'label': g[1],
                              'value_label': g[2] if len(g) > 2 else f'{d["function"]}({g[1]})'} for g in guides]
     if level:
         params['level'] = float(f_ex(guides[0][0]))
+    if level_at is not None:
+        params['level'] = float(f_ex(level_at))
+    params['points'] += [{'x': float(p), **({'label': label, 'place': 'above' if f_ex(p) >= 0 else 'below'}
+                                            if label else {})} for p, label in points]
+    if reflections:
+        params['reflections'] = [{'from': float(r['from']), 'to': float(r['to']), 'center': float(r['center']),
+                                  'kind': r['kind']} for r in reflections]
     caption = (rf'示意图：取一个满足题设的折线函数（在 ${latex(sp.Interval(*xs[::len(xs)-1]))}$ 上是一次函数，'
                '再按对称关系延拓），只用来看对称，不代表 $' + d['function'] + '$ 的解析式；' + caption + '。')
     try:
@@ -297,11 +308,284 @@ def _sum_groups(d, m):
     return views
 
 
+def _tex(e):
+    """2-x, not sympy's leading-negative -x+2."""
+    e = sp.expand(e)
+    if not e.free_symbols:
+        return latex(e)
+    terms = sorted(sp.Add.make_args(e), key=lambda t: (t.could_extract_minus_sign(), not t.free_symbols))
+    out = ''
+    for t in terms:
+        piece = latex(t)
+        out += piece if not out or piece.startswith('-') else '+' + piece
+    return out.replace(' ', '')
+
+
+def _paren(e):
+    e = sp.expand(e)
+    return rf'\left({_tex(e)}\right)' if e.could_extract_minus_sign() or isinstance(e, sp.Add) else _tex(e)
+
+
+def _coord(p, v, plain=False):
+    show = _plain if plain else _tex
+    return '(' + show(p) + ',' + show(v) + ')'
+
+
+def _reflection(s):
+    e = s['edge']
+    return {'from': s['from'], 'to': s['to'], 'center': e['a'], 'kind': 'axis' if e['sign'] == 1 else 'center'}
+
+
+def _wrong_points(s):
+    u, v, fv = s['from'], s['to'], s['value_to']
+    out = []
+    for p, q in [(v, -fv), (-u, fv), (u, fv), (v, fv+1), (-v, fv), (v, fv-1)]:
+        key = (sp.expand(p), sp.expand(q))
+        if key != (sp.expand(v), sp.expand(fv)) and key not in out:
+            out.append(key)
+    return [_coord(p, q) for p, q in out[:3]]
+
+
+def _call(f, k, p, c):
+    """k·f(p) + c with k = ±1."""
+    return ('-' if k == -1 else '') + f + '(' + _tex(p) + ')' + ('' if c == 0 else ('+' if c > 0 else '') + latex(c))
+
+
+def _chain(f, steps, start_value=None):
+    """f(target) = … back along the reflections … = value at the start point."""
+    k, p, c = sp.S.One, steps[-1]['to'], sp.S.Zero
+    shown = [_call(f, k, p, c)]
+    for s in reversed(steps):
+        e = s['edge']
+        k, p, c = k*e['sign'], s['from'], c + k*e['offset']
+        shown.append(_call(f, k, p, c))
+    if start_value is not None:
+        shown.append(_tex(k*start_value + c))
+    return '='.join(dict.fromkeys(shown))
+
+
+def _step_card(d, f, s, question, title, known_lines, picture, shown, labels, caption_tail=''):
+    e = s['edge']
+    name, change = _edge_text(e, f)
+    img = _coord(s['to'], s['value_to'])
+    proof = [rf'\dfrac{{{_tex(s["from"])}+{_paren(s["to"])}}}{{2}}={latex(e["a"])}', _chain(f, [s], s['value_from'])]
+    view = choice_card(title, question, '已知', _lines([_relation(e, f), *known_lines]), '对称点', img,
+                       _wrong_points(s), _lines(proof))
+    stem = picture(shown | {s['from']}, labels | {s['from']}, [], [e], rf'图像{name}')
+    done = picture(shown | {s['from'], s['to']}, {s['from'], s['to']}, [_reflection(s)], [e],
+                   rf'${latex(s["from"])}$ 与 ${latex(s["to"])}$ 的中点是 ${latex(e["a"])}$，{change}，'
+                   rf'得到点 ${img}$' + caption_tail)
+    if stem is not None and done is not None:
+        view['graph'], view['completion_graph'] = stem, done
+    elif not sp.sympify(s['from']).free_symbols:
+        view['condition_number_lines'] = _pair_lines(e, s['from'])
+    return view
+
+
+def _group(views, key, title):
+    for view in views:
+        view.update(card_group=key, card_group_title=title)
+    return views
+
+
+def _walk_views(d, m, plan, example, source):
+    f, known = d['function'], plan['known']
+    values = {k: v['value'] for k, v in known.items()}
+    for w in plan['walks']:
+        values[w['target']] = w['value']
+        for s in w['steps']:
+            values.setdefault(s['to'], s['value_to'])
+    span = sorted({*values, *(e['a'] for e in m['edges'])})
+
+    def picture(marked, labelled, reflections, edges, caption, level_at=None):
+        if example is None:
+            return None
+        return _example_graph(d, m, example, caption, edges=edges, span=span, level_at=level_at,
+                              points=[(p, _coord(p, values[p], True) if p in labelled else None) for p in sorted(marked)],
+                              reflections=reflections)
+
+    views, shown = [], {k for k, v in known.items() if v['reason'] == 'given'}
+    used = set(plan['inputs']) | {w['steps'][0]['from'] for w in plan['walks'] if w['steps']}
+    for k in [k for k, v in known.items() if v['reason'] == 'center' and k in used]:
+        e, b = known[k]['edge'], known[k]['value']
+        if e['a'] == 0 and e['offset'] == 0:
+            lead = rf'${f}(x)$ 是奇函数，且 $0$ 在定义域内'
+            proof = [rf'{f}(-0)=-{f}(0)', rf'{f}(0)=-{f}(0)', rf'2{f}(0)=0', rf'{f}(0)=0']
+        else:
+            lead = rf'图像关于点 $({latex(e["a"])},{latex(b)})$ 对称，且 ${latex(e["a"])}$ 在定义域内'
+            proof = [f + '(' + latex(k) + ')=' + _value(f, k, -1, e['offset']), f + '(' + latex(k) + ')=' + latex(b)]
+        wrong = [f'{f}({latex(k)})={latex(v)}' for v in dict.fromkeys([b+1, b-1, -b-2]) if v != b][:2]
+        view = choice_card('先找出图像上确定的点', lead + rf'。${f}({latex(k)})$ 等于多少？', '已知条件', _lines(source),
+                           '函数值', f'{f}({latex(k)})={latex(b)}', [*wrong, rf'{f}({latex(k)})\text{{ 不能确定}}'],
+                           _lines(proof))
+        given = '、'.join(rf'$({latex(p)},{latex(values[p])})$' for p in sorted(shown))
+        stem = picture(shown, shown, [], [], rf'已知图像上的点 {given}' if given else '还没有确定的点')
+        shown.add(k)
+        done = picture(shown, shown, [], [], rf'图像过点 $({latex(k)},{latex(b)})$')
+        if stem is not None and done is not None:
+            view['graph'], view['completion_graph'] = stem, done
+        views += _group([view], f'known-{k}', '先找出图像上确定的点')
+    for i, w in enumerate(plan['walks']):
+        t = w['target']
+        if not w['steps']:
+            view = _read(rf'记 ${f}({latex(t)})={latex(w["value"])}$', '这个值由已知条件求不出，先用字母表示，再看最后能否消去。',
+                         source, f'{f}({latex(t)})={latex(w["value"])}', [f'{f}({latex(t)})={latex(w["value"])}'])
+            shown.add(t)
+            views += _group([view], f'walk-{i}', rf'记 ${f}({latex(t)})={latex(w["value"])}$')
+            continue
+        steps, cards = w['steps'], []
+        for j, s in enumerate(steps):
+            name, _ = _edge_text(s['edge'], f)
+            src = _coord(s['from'], s['value_from'])
+            if len(steps) == 1:
+                question = rf'图像{name}，点 ${src}$ 的对称点是哪个点？'
+            elif j == 0:
+                last = steps[-1]
+                question = (rf'由图像{_edge_text(last["edge"], f)[0]}，${latex(t)}$ 与 ${latex(last["from"])}$ 配对，'
+                            rf'先求 ${f}({latex(last["from"])})$。图像{name}，点 ${src}$ 的对称点是哪个点？')
+            else:
+                question = rf'再由图像{name}，点 ${src}$ 的对称点是哪个点？'
+            tail = rf'，即 ${f}({latex(t)})={latex(w["value"])}$' if j == len(steps)-1 else ''
+            cards.append(_step_card(d, f, s, question, '利用图像' + name, [rf'{f}({latex(s["from"])})={latex(s["value_from"])}'],
+                                    picture, shown, set(), tail))
+            shown |= {s['from'], s['to']}
+        cards[-1]['proof'] = _lines([c['proof'] for c in cards])
+        views += _group(cards, f'walk-{i}', rf'求 ${f}({latex(t)})$')
+    return views
+
+
+def _period_views(d, m, plan, example, source):
+    f, c = d['function'], plan['cycle']
+    x, v, period = c['x'], c['m'], plan['period']
+    ext = m['extension']
+    t = (ext['base_interval'].start + ext['base_interval'].end)/2
+    at = {x: v, **{s['to']: s['value_to'] for s in c['steps']}}
+    span = [p.subs(x, t) for p in at]
+
+    def picture(marked, labelled, reflections, edges, caption, level=False):
+        if example is None:
+            return None
+        caption += rf'（图中取 $x={latex(t)}$，$x$ 取任意值都一样）'
+        moved = [{**r, 'from': r['from'].subs(x, t), 'to': r['to'].subs(x, t)} for r in reflections]
+        return _example_graph(d, m, example, caption, edges=edges, span=span, level_at=t if level else None,
+                              points=[(p.subs(x, t), _coord(p, at[p], True) if p in labelled else None)
+                                      for p in sorted(marked, key=lambda p: p.subs(x, t))],
+                              reflections=moved)
+
+    cards, shown = [], {x}
+    for j, s in enumerate(c['steps']):
+        name = _edge_text(s['edge'], f)[0]
+        src = _coord(s['from'], s['value_from'])
+        if j % 2 == 0:
+            goal = c['steps'][j+1]['to']
+            question = ('在图像上任取一点 $(x,m)$。' if j == 0 else '') + \
+                rf'求横坐标为 ${_tex(goal)}$ 的点：先由图像{name}，点 ${src}$ 的对称点是哪个点？'
+        else:
+            question = rf'再由图像{name}，点 ${src}$ 的对称点是哪个点？'
+        cards.append(_step_card(d, f, s, question, '利用图像' + name, [rf'{f}({latex(s["from"])})={latex(s["value_from"])}'],
+                                picture, shown, set()))
+        shown |= {s['from'], s['to']}
+    end = x + period
+    law = rf'{f}({_tex(end)})={f}(x)\text{{，周期为 }}{latex(period)}'
+    half = period/2
+    wrong = [rf'{f}({_tex(x+half)})={f}(x)\text{{，周期为 }}{latex(half)}', rf'{f}({_tex(end)})=-{f}(x)',
+             rf'{f}({_tex(x+2*period)})=-{f}(x)']
+    proof = [_chain(f, c['steps']), law]
+    view = choice_card('两点一样高，得出周期', rf'点 $(x,m)$ 与点 $({_tex(end)},m)$ 一样高，而且 $x$ 取任意值都如此。由此得到什么？',
+                       '已知', _lines([rf'{f}(x)=m', rf'{f}({_tex(end)})=m']), '结论', law, wrong, _lines(proof))
+    stem = picture(shown, {x, end}, [], [], rf'点 $(x,m)$ 与点 $({_tex(end)},m)$')
+    done = picture(shown, {x, end}, [], [], rf'水平虚线：两点一样高，${f}({_tex(end)})={f}(x)$', level=True)
+    if stem is not None and done is not None:
+        view['graph'], view['completion_graph'] = stem, done
+    cards.append(view)
+    views = _group(cards, 'period', '用对称找出周期')
+    if plan['walks']:
+        values = {k: w['value'] for k, w in plan['known'].items()}
+        lines, steps = [], []
+        for w in plan['walks']:
+            if w['steps']:
+                lines.append(_chain(f, w['steps'], values[w['steps'][0]['from']]))
+                steps += w['steps']
+                for s in w['steps']:
+                    values.setdefault(s['to'], s['value_to'])
+            else:
+                lines.append(f'{f}({latex(w["target"])})={latex(w["value"])}')
+            values[w['target']] = w['value']
+        reps = ', '.join(f'{f}({latex(r)})' for r in plan['reps'])
+        given = []
+        for k, w in plan['known'].items():
+            e = w.get('edge')
+            why = ('' if e is None else r'\quad(\text{奇函数})' if e['a'] == 0 and e['offset'] == 0
+                   else r'\quad(\text{对称中心})')
+            given.append(rf'{f}({latex(k)})={latex(w["value"])}' + why)
+        view = _read('求出一个周期内需要的函数值', rf'由周期 ${latex(period)}$，只需求出 ${reps}$；从已知点出发逐点找对称点。',
+                     given, _lines(lines), lines)
+        if example is not None:
+            span2 = sorted({*values, *(e['a'] for e in m['edges'])})
+            graph = _example_graph(d, m, example, '一个周期内需要的点', span=span2,
+                                   points=[(p, _coord(p, values[p], True) if p in plan['reps'] else None) for p in sorted(values)])
+            if graph is not None:
+                view['graph'] = graph
+        views += _group([view], 'values', '求出一个周期内需要的函数值')
+    return views
+
+
+def _substituted(d, value_of):
+    from ..symmetry_relation_math import target_terms
+    rows = target_terms(d)
+    if len(rows) != 1:
+        return None
+    row, text = rows[0], ''
+    for (_, q), k in row['terms'].items():
+        v = sp.expand(value_of(rational(q)))
+        term = rf'\left({latex(v)}\right)' if v.could_extract_minus_sign() or isinstance(v, sp.Add) else latex(v)
+        coef = '' if k == 1 else '-' if k == -1 else latex(k) + r'\cdot '
+        text += ('' if not text or coef.startswith('-') else '+') + coef + term
+    if row['constant']:
+        text += ('+' if row['constant'] > 0 else '') + latex(row['constant'])
+    return text
+
+
+def _plan_conclusion(d, m, plan):
+    from ..symmetry_walk import representative
+    f, target, value = d['function'], target_math(d), m['proof']['value']
+    values = {k: w['value'] for k, w in plan['known'].items()} | {w['target']: w['value'] for w in plan['walks']}
+    if plan['mode'] == 'walk':
+        value_of = values.__getitem__
+        lines = [f'{f}({latex(k)})={latex(values[k])}' for k in plan['inputs']]
+        label, question = '已求出的函数值', '把求出的函数值代入所求式，结果是什么？'
+    else:
+        low, period = plan['low'], plan['period']
+        value_of = lambda k: values[representative(k, low, period)]
+        moved = [f'{f}({latex(k)})={f}({latex(representative(k, low, period))})' for k in plan['inputs']
+                 if representative(k, low, period) != k]
+        if len(moved) > 4:
+            moved = [moved[0], r'\cdots', *moved[-2:]]
+        lines = [*moved, *(f'{f}({latex(r)})={latex(values[r])}' for r in plan['reps'])]
+        label = rf'周期 ${latex(period)}$ 与一个周期内的值'
+        question = rf'由周期 ${latex(period)}$ 把各项化到一个周期内，再代入函数值，结果是什么？'
+    middle = _substituted(d, value_of)
+    answer = target + '=' + latex(value)
+    candidates = [value+1, value-1, -value, value+2]
+    wrong = [target + '=' + latex(w) for w in dict.fromkeys(candidates) if w != value]
+    proof = [*lines, target + ('=' + middle if middle else '') + '=' + latex(value)]
+    return choice_card('求出函数值之和' if d['source']['kind'] == 'finite_sum' else '求出所求的值', question,
+                       label, _lines(lines), '结论', answer, wrong[:3], _lines(proof))
+
+
 def phase_views(values):
     d, phase = values['description'], values['phase']
     m, f = solve(d), d['function']
     source = source_math(d)
     laws = [_relation(e, f) for e in m['edges']]
+    plan = teaching_plan(d, m)
+    if plan is not None and phase == 'rewrite':
+        build = _walk_views if plan['mode'] == 'walk' else _period_views
+        views = build(d, m, plan, _example(d, m), source)
+        return views or [_read('整理已知条件', '所求式中的函数值已经给出，可以直接代入。',
+                              source, _lines(source), source)]
+    if plan is not None:
+        return [*(_sum_groups(d, m) if plan['mode'] == 'period' else []), _plan_conclusion(d, m, plan)]
     if phase == 'rewrite':
         views = []
         example = _example(d, m)
