@@ -30,6 +30,7 @@ internal/review-analysis/
 
 # Local Xiaohongshu content packages and generated outputs.
 /internal/marketing/xiaohongshu*/
+/internal/media/
 /site/assets/xiaohongshu/
 
 # Large acceptance evidence archives (keep locally / out of band; not for Git)
