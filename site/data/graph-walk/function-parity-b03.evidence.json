@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "e3b8d137b0c546ee8ed0e92d92db1c96",
-    "lesson_version": "837a7469e756aac72cfd735e85605472a5e23ec61fa10ed8247d5eccf3eeb716",
-    "input_sha256": "3f2dda6763f75886ffb8b21d8b6c558407090d0152697e0596b84f12507622b5",
-    "checkpoint_sha256": "7515f9c89cf6a44455333dbdd3e14c943bb030bd5f88f9947931e29edbece067",
-    "result_sha256": "07646e432c4588b21e064a15f452ede61352464afc9a17c3eac2fbb06cc310af",
+    "run_id": "3fb23def3d0f4008befa093c2e1991ab",
+    "lesson_version": "e1f7a908a126f47084b005bce2d4d4a7e0e3004b68e8d542e7e1b082ea15c14f",
+    "input_sha256": "040cd27ff83d340a0a656bca568f4fcc82618dec147aec13ba9250b0f536058a",
+    "checkpoint_sha256": "14fd1ecda254bcf5d033b0237664af8fe8215a83439b0fc5e3418322fc939711",
+    "result_sha256": "93bff35abcbc09830ded74b2fbdac26d3f98358e8af450338da045d4fdcfd8ec",
     "stage_one_sha256": "e1a252f2e9b6f3606f232f268efd94cce9e6246f7a36dbfa819323e98931452e",
-    "stage_two_sha256": "b435ada368583d58b415496bc75a6503072ee76b0b4274cab7feeb81d21cda4f",
+    "stage_two_sha256": "30093171fed9493f390949b8f3ea2c7a2a4a539a9babefac523b07bb5bbb80e8",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "db1c8810c8340175a68dd7f4bf1611f0a39f0fa2035fab5c3f0ab99a09141636",
-    "teaching_revision": "28fb1792d0dd882ebc72c98e33da34eece2c810e0dbe232b02e9102d89c16045"
+    "teaching_revision": "e3878d59fec81712ccdc3362084345c5e3efee4a6b5687b85b97aa8809f498a3"
   },
   "lesson": {
     "status": "completed",
@@ -457,10 +457,10 @@
     ]
   },
   "stream": {
-    "run_id": "e3b8d137b0c546ee8ed0e92d92db1c96",
-    "lesson_version": "837a7469e756aac72cfd735e85605472a5e23ec61fa10ed8247d5eccf3eeb716",
-    "input_sha256": "3f2dda6763f75886ffb8b21d8b6c558407090d0152697e0596b84f12507622b5",
-    "stream_id": "e3b8d137b0c546ee8ed0e92d92db1c96",
+    "run_id": "3fb23def3d0f4008befa093c2e1991ab",
+    "lesson_version": "e1f7a908a126f47084b005bce2d4d4a7e0e3004b68e8d542e7e1b082ea15c14f",
+    "input_sha256": "040cd27ff83d340a0a656bca568f4fcc82618dec147aec13ba9250b0f536058a",
+    "stream_id": "3fb23def3d0f4008befa093c2e1991ab",
     "last_seq": 18,
     "minimum_seq": 1,
     "math_steps": [
@@ -470,37 +470,37 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_rewrite",
-        "explanation": "$$\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\\\f(x)=\\left(-2 + \\frac{2024 x^{3} + 2 x^{2} + 3 x + 6}{x^{2} + 3}\\right)+2\\\\f(x)+f(-x)=4\\\\\\frac{f(x)+f(-x)}{2}=2\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}\\because\\ 2024x^{3}+2x^{2}+3x+6=2\\left(x^{2}+3\\right)+\\left(2024 x^{3}+3 x\\right)\\\\\\therefore\\ f(x)=2+\\frac{2024 x^{3}+3 x}{x^{2}+3}\\\\h(-x)=\\frac{2024(-x)^{3}+3(-x)}{(-x)^{2}+3}\\\\h(-x)=\\frac{- 2024 x^{3}- 3 x}{x^{2}+3}=-h(x)\\\\\\therefore\\ h(x)\\text{ 是奇函数}\\\\\\therefore\\ f(x)+f(-x)=\\left(2+h(x)\\right)+\\left(2-h(x)\\right)=4\\end{gathered}$$",
         "highlight": {
-          "caption": "求相反输入的函数值之和",
+          "caption": "求 $f(x)+f(-x)$",
           "connector": "⇒",
           "items": [
             {
-              "label": "原式与条件",
-              "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+              "label": "已知",
+              "math": "\\begin{gathered}f(x)=2+h(x)\\\\h(-x)=-h(x)\\end{gathered}"
             },
             {
-              "label": "对称和值",
+              "label": "f(x)+f(-x)",
               "math": "f(x)+f(-x)=4"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "837a7469e756aac72cfd735e85605472a5e23ec61fa10ed8247d5eccf3eeb716",
+        "lesson_version": "e1f7a908a126f47084b005bce2d4d4a7e0e3004b68e8d542e7e1b082ea15c14f",
         "local_check": "passed",
-        "math_step_sha256": "671def9ae29ff5d01d90c3b8281d55e33a0c76fd7d741ea4b9bed888f9c0a662",
+        "math_step_sha256": "fa40311fe52b9e1e9e9583b5e725b76469778576f4b6d63996ec4f08018d915c",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "e3b8d137b0c546ee8ed0e92d92db1c96",
+        "run_id": "3fb23def3d0f4008befa093c2e1991ab",
         "source_refs": [
           "/steps/1/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "target_ref": "/root/goals/0",
-        "title": "求相反输入的函数值之和",
+        "title": "求 $f(x)+f(-x)$",
         "used_basis": []
       },
       {
@@ -509,14 +509,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_conclude",
-        "explanation": "$$\\begin{gathered}f(x)+f(-x)=4\\\\f(- a)=-10\\\\f(a)=14\\\\f(-a)=-10\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}\\text{取 }x=- a\\text{，得 }f(- a)+f(a)=4\\\\\\because\\ f(a)=14\\\\\\therefore\\ f(- a)=4-14=-10\\end{gathered}$$",
         "highlight": {
-          "caption": "回答原题所求",
+          "caption": "代入题目中的数",
           "connector": "⇒",
           "items": [
             {
-              "label": "已知条件",
-              "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+              "label": "已知",
+              "math": "\\begin{gathered}f(x)+f(-x)=4\\\\f(a)=14\\end{gathered}"
             },
             {
               "label": "结论",
@@ -525,21 +525,21 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "837a7469e756aac72cfd735e85605472a5e23ec61fa10ed8247d5eccf3eeb716",
+        "lesson_version": "e1f7a908a126f47084b005bce2d4d4a7e0e3004b68e8d542e7e1b082ea15c14f",
         "local_check": "passed",
-        "math_step_sha256": "809f85efc95a4ca120014b4485fc749e5f282ae18ef97b8cfcb1a419132c955d",
+        "math_step_sha256": "582fa683dd88c8ac826b274bf88ff8ffff44def298ad18d941182835c02dbfee",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "e3b8d137b0c546ee8ed0e92d92db1c96",
+        "run_id": "3fb23def3d0f4008befa093c2e1991ab",
         "source_refs": [
           "/steps/3/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "target_ref": "/root/goals/0",
-        "title": "回答原题所求",
+        "title": "代入题目中的数",
         "used_basis": []
       }
     ],
@@ -587,25 +587,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "837a7469e756aac72cfd735e85605472a5e23ec61fa10ed8247d5eccf3eeb716",
+        "lesson_version": "e1f7a908a126f47084b005bce2d4d4a7e0e3004b68e8d542e7e1b082ea15c14f",
         "math_steps": [
           {
-            "math_step_sha256": "671def9ae29ff5d01d90c3b8281d55e33a0c76fd7d741ea4b9bed888f9c0a662",
+            "math_step_sha256": "fa40311fe52b9e1e9e9583b5e725b76469778576f4b6d63996ec4f08018d915c",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "809f85efc95a4ca120014b4485fc749e5f282ae18ef97b8cfcb1a419132c955d",
+            "math_step_sha256": "582fa683dd88c8ac826b274bf88ff8ffff44def298ad18d941182835c02dbfee",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "e3b8d137b0c546ee8ed0e92d92db1c96",
+        "run_id": "3fb23def3d0f4008befa093c2e1991ab",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "45e4d2d4d75aa53de9dc067bf14f170c0fac7ef141d760dab9d1fe9578eb0204",
-        "verified_route_sha256": "e45bf3c436ce8c68864a2a92c23bdac5dbd2daf5be92e526e26e9bface8d42ec"
+        "task_id": "f6478fd896ddef28f5710bd3b0a67eeeb92918a5cb9d740fbfaf58d2da585cd3",
+        "verified_route_sha256": "11cc47b0b22b7e5ea52d5cc716fed21b2aedb28df2bea29af2deeb7394561669"
       }
     ],
     "qa": [],
@@ -655,22 +655,22 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "671def9ae29ff5d01d90c3b8281d55e33a0c76fd7d741ea4b9bed888f9c0a662",
+        "math_step_sha256": "fa40311fe52b9e1e9e9583b5e725b76469778576f4b6d63996ec4f08018d915c",
         "status": "interactive",
-        "interaction_id": "1091087870e1df661b654185"
+        "interaction_id": "cd63ebd55b7bad83665d473a"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "809f85efc95a4ca120014b4485fc749e5f282ae18ef97b8cfcb1a419132c955d",
+        "math_step_sha256": "582fa683dd88c8ac826b274bf88ff8ffff44def298ad18d941182835c02dbfee",
         "status": "interactive",
-        "interaction_id": "10a71804a30e8b0cbe4d711a"
+        "interaction_id": "02b20ae01b8720f6cfaaffab"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+    "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -775,101 +775,29 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "1091087870e1df661b654185",
+        "interaction_id": "cd63ebd55b7bad83665d473a",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "325c89418aab08e0d85b3b9cdb6819a39d9ac3c91e129d1a98057edf8ce8f9da",
-        "lesson_version": "837a7469e756aac72cfd735e85605472a5e23ec61fa10ed8247d5eccf3eeb716",
+        "interaction_sha256": "ae3ed9145a11da4244b7b1295702fe31b51595d699fe2e7cdfcf2451bf2cb715",
+        "lesson_version": "e1f7a908a126f47084b005bce2d4d4a7e0e3004b68e8d542e7e1b082ea15c14f",
         "parts": [
           {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
             "completion_board": {
-              "caption": "求相反输入的函数值之和",
+              "caption": "拆出常数项",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "原式与条件",
-                  "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\D=\\mathbb{R}\\end{gathered}"
                 },
                 {
-                  "label": "对称和值",
-                  "math": "f(x)+f(-x)=4"
+                  "label": "拆分结果",
+                  "math": "f(x)=2+\\frac{2024 x^{3}+3 x}{x^{2}+3}"
                 }
               ],
               "layout": "derivation"
             },
-            "condition_number_lines": [
-              {
-                "bounds": [
-                  -1.0,
-                  1.0
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Reals"
-                  },
-                  "expression": "Reals",
-                  "latex": "\\mathbb{R}"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-oo, oo)",
-                      "latex": "\\left(-\\infty, \\infty\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "原函数的对称定义域",
-                "points": [
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  }
-                ],
-                "variable": "x"
-              }
-            ],
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -878,13 +806,149 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "1091087870e1df661b654185#1",
+            "id": "cd63ebd55b7bad83665d473a#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(x)+f(-x)=-4$",
+                  "label": "$f(x)=2+\\frac{2024 x^{3}+2 x^{2}+3 x+6}{x^{2}+3}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(x)=2+\\frac{2024 x^{3}+2 x^{2}+3 x}{x^{2}+3}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x)=2+\\frac{2024 x^{3}+3 x}{x^{2}+3}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(x)=-2+\\frac{2024 x^{3}+3 x}{x^{2}+3}$",
                   "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把分子凑出分母的倍数，将 $f(x)$ 拆成「常数 + 分式」。哪一种拆法正确？",
+            "stem_board": {
+              "caption": "拆出常数项",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\D=\\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "拆分结果",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "拆出常数项"
+          },
+          {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
+            "completion_board": {
+              "caption": "判断剩余部分是奇函数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=2+h(x)\\\\h(x)=\\frac{2024 x^{3}+3 x}{x^{2}+3}\\end{gathered}"
+                },
+                {
+                  "label": "h(-x)",
+                  "math": "h(-x)=\\frac{- 2024 x^{3}- 3 x}{x^{2}+3}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "cd63ebd55b7bad83665d473a#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$h(-x)=\\frac{2024 x^{3}+3 x}{x^{2}+3}$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$h(-x)=\\frac{2024 x^{3}- 3 x}{x^{2}+3}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$h(-x)=\\frac{- 2024 x^{3}+3 x}{x^{2}+3}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$h(-x)=\\frac{- 2024 x^{3}- 3 x}{x^{2}+3}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "记 $h(x)=\\frac{2024 x^{3}+3 x}{x^{2}+3}$。把 $x$ 换成 $-x$，$h(-x)$ 等于什么？",
+            "stem_board": {
+              "caption": "判断剩余部分是奇函数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=2+h(x)\\\\h(x)=\\frac{2024 x^{3}+3 x}{x^{2}+3}\\end{gathered}"
+                },
+                {
+                  "label": "h(-x)",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "判断剩余部分是奇函数"
+          },
+          {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
+            "completion_board": {
+              "caption": "求 $f(x)+f(-x)$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=2+h(x)\\\\h(-x)=-h(x)\\end{gathered}"
+                },
+                {
+                  "label": "f(x)+f(-x)",
+                  "math": "f(x)+f(-x)=4"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "cd63ebd55b7bad83665d473a#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x)+f(-x)=4$",
+                  "value": "o1"
                 },
                 {
                   "label": "$f(x)+f(-x)=3$",
@@ -895,38 +959,38 @@
                   "value": "o2"
                 },
                 {
-                  "label": "$f(x)+f(-x)=4$",
-                  "value": "o1"
+                  "label": "$f(x)+f(-x)=-4$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
             },
-            "question": "先明确奇函数，再将结论还原到所求的函数。",
+            "question": "由 $f(x)=2+h(x)$，$f(x)+f(-x)$ 等于多少？",
             "stem_board": {
-              "caption": "求相反输入的函数值之和",
+              "caption": "求 $f(x)+f(-x)$",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "原式与条件",
-                  "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=2+h(x)\\\\h(-x)=-h(x)\\end{gathered}"
                 },
                 {
-                  "label": "对称和值",
+                  "label": "f(x)+f(-x)",
                   "math": null
                 }
               ],
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "求相反输入的函数值之和"
+            "title": "求 $f(x)+f(-x)$"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "e3b8d137b0c546ee8ed0e92d92db1c96",
+        "run_id": "3fb23def3d0f4008befa093c2e1991ab",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "671def9ae29ff5d01d90c3b8281d55e33a0c76fd7d741ea4b9bed888f9c0a662",
+            "math_step_sha256": "fa40311fe52b9e1e9e9583b5e725b76469778576f4b6d63996ec4f08018d915c",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -934,19 +998,19 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "10a71804a30e8b0cbe4d711a",
+        "interaction_id": "02b20ae01b8720f6cfaaffab",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "efebf990a48f4a5270eec397e1e824d04f72212311519d2b33ea07c508bab516",
-        "lesson_version": "837a7469e756aac72cfd735e85605472a5e23ec61fa10ed8247d5eccf3eeb716",
+        "interaction_sha256": "3f9e6d91e1ba093b938468492e0962d065f4e983a248ed3dae231e789b7651c6",
+        "lesson_version": "e1f7a908a126f47084b005bce2d4d4a7e0e3004b68e8d542e7e1b082ea15c14f",
         "parts": [
           {
             "completion_board": {
-              "caption": "回答原题所求",
+              "caption": "代入题目中的数",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)+f(-x)=4\\\\f(a)=14\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -955,80 +1019,6 @@
               ],
               "layout": "derivation"
             },
-            "condition_number_lines": [
-              {
-                "bounds": [
-                  -1.0,
-                  1.0
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Reals"
-                  },
-                  "expression": "Reals",
-                  "latex": "\\mathbb{R}"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-oo, oo)",
-                      "latex": "\\left(-\\infty, \\infty\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "原函数的对称定义域",
-                "points": [
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  }
-                ],
-                "variable": "x"
-              }
-            ],
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1037,7 +1027,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "10a71804a30e8b0cbe4d711a#1",
+            "id": "02b20ae01b8720f6cfaaffab#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1046,28 +1036,28 @@
                   "value": "o4"
                 },
                 {
-                  "label": "$f(-a)=-9$",
-                  "value": "o2"
-                },
-                {
                   "label": "$f(-a)=-11$",
                   "value": "o3"
                 },
                 {
                   "label": "$f(-a)=-10$",
                   "value": "o1"
+                },
+                {
+                  "label": "$f(-a)=-9$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
             },
-            "question": "使用对称和值，检查每项的系数、出现次数及取值范围。",
+            "question": "已知$f(a)=14$，求 $f(-a)$ 的值。",
             "stem_board": {
-              "caption": "回答原题所求",
+              "caption": "代入题目中的数",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(x)=\\frac{2024x^{3}+2x^{2}+3x+6}{x^{2}+3}\\\\f(a)=14\\\\D=\\mathbb{R}\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)+f(-x)=4\\\\f(a)=14\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -1077,15 +1067,15 @@
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "回答原题所求"
+            "title": "代入题目中的数"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "e3b8d137b0c546ee8ed0e92d92db1c96",
+        "run_id": "3fb23def3d0f4008befa093c2e1991ab",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "809f85efc95a4ca120014b4485fc749e5f282ae18ef97b8cfcb1a419132c955d",
+            "math_step_sha256": "582fa683dd88c8ac826b274bf88ff8ffff44def298ad18d941182835c02dbfee",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],

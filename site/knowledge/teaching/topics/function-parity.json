@@ -2272,17 +2272,33 @@
                 "method-function-symmetry"
               ]
             },
-            "75477f7bdff05d115768251c#1": {
-              "title": "求相反输入的函数值之和",
+            "b1e395235674489b89ff68a1#1": {
+              "title": "代入 $-x$",
               "position": 4,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "9e35167000748de2fdbfe8e6#1": {
-              "title": "回答原题所求",
+            "b1e395235674489b89ff68a1#2": {
+              "title": "由奇函数列出等式",
               "position": 5,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "b1e395235674489b89ff68a1#3": {
+              "title": "求 $f(x)+f(-x)$",
+              "position": 6,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "3362c6b9f18484c699a96c81#1": {
+              "title": "代入题目中的数",
+              "position": 7,
               "refs": [
                 "method-function-symmetry#conclude"
               ]
@@ -2327,17 +2343,33 @@
                 "method-function-symmetry"
               ]
             },
-            "3a11dd04866ee83836e9966c#1": {
-              "title": "求相反输入的函数值之和",
+            "1eea8b00158f4322881ed1a9#1": {
+              "title": "代入 $-x$",
               "position": 4,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "10690727413f9e50bc4e5365#1": {
-              "title": "回答原题所求",
+            "1eea8b00158f4322881ed1a9#2": {
+              "title": "由奇函数列出等式",
               "position": 5,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "1eea8b00158f4322881ed1a9#3": {
+              "title": "求 $f(x)+f(-x)$",
+              "position": 6,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "bccc0f9f952e3ae9387f522b#1": {
+              "title": "代入题目中的数",
+              "position": 7,
               "refs": [
                 "method-function-symmetry#conclude"
               ]
@@ -2382,17 +2414,25 @@
                 "method-function-symmetry"
               ]
             },
-            "5cba67c64c0452fe3f71462a#1": {
-              "title": "求相反输入的函数值之和",
+            "0d2afada699b34ccee0ebbda#1": {
+              "title": "写出 $f(-x)$",
               "position": 4,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "5f4105118bf1b2730d9ae102#1": {
-              "title": "回答原题所求",
+            "0d2afada699b34ccee0ebbda#2": {
+              "title": "求 $f(x)+f(-x)$",
               "position": 5,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "56fe0044d703f8939effd103#1": {
+              "title": "代入题目中的数",
+              "position": 6,
               "refs": [
                 "method-function-symmetry#conclude"
               ]
@@ -2437,17 +2477,33 @@
                 "method-function-symmetry"
               ]
             },
-            "9584f865addeee7f6b31590f#1": {
-              "title": "求相反输入的函数值之和",
+            "6d76b4bb9e35fcf06e802bfa#1": {
+              "title": "拆出常数项",
               "position": 4,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "5576c40ecd04f467ef7c6bb2#1": {
-              "title": "回答原题所求",
+            "6d76b4bb9e35fcf06e802bfa#2": {
+              "title": "判断剩余部分是奇函数",
               "position": 5,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "6d76b4bb9e35fcf06e802bfa#3": {
+              "title": "求 $f(x)+f(-x)$",
+              "position": 6,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "9d6d88917328a2e8240270db#1": {
+              "title": "代入题目中的数",
+              "position": 7,
               "refs": [
                 "method-function-symmetry#conclude"
               ]
@@ -2492,17 +2548,40 @@
                 "method-function-symmetry"
               ]
             },
-            "976b2e0d17baab8548e413c7#1": {
-              "title": "求相反输入的函数值之和",
+            "fceaeeb24b80e9ff2abcf5c6#1": {
+              "title": "拆出常数项",
               "position": 4,
               "refs": [
                 "method-function-symmetry#rewrite",
                 "skill-function-symmetry-transform"
               ]
             },
-            "f2ce9d7a328b8c062d9bf8c5#1": {
-              "title": "回答原题所求",
+            "fceaeeb24b80e9ff2abcf5c6#2": {
+              "title": "判断剩余部分是奇函数",
               "position": 5,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "fceaeeb24b80e9ff2abcf5c6#3": {
+              "title": "求 $f(x)+f(-x)$",
+              "position": 6,
+              "refs": [
+                "method-function-symmetry#rewrite",
+                "skill-function-symmetry-transform"
+              ]
+            },
+            "30562effc65beb19f3575a9c#1": {
+              "title": "$h(x)$ 的最值关于原点对称",
+              "position": 7,
+              "refs": [
+                "method-function-symmetry#conclude"
+              ]
+            },
+            "30562effc65beb19f3575a9c#2": {
+              "title": "求 $M+m$",
+              "position": 8,
               "refs": [
                 "method-function-symmetry#conclude"
               ]

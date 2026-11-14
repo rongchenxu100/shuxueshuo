@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "2ccd056712364ec8901627d281c73cec",
-    "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
-    "input_sha256": "43a5dbc2aee75925f8652ba08bf120bc2b8fe469a6beaa8f0b97efec9744966b",
-    "checkpoint_sha256": "094f82df5b5ef835ca429e395c94bbc5ea65eec5a2882eb77d99d37c4544fc26",
-    "result_sha256": "7047477109552ecff247e5092d25de47a5e94b6c02328986be67dcee15f79715",
+    "run_id": "1565bcf7277746feb51c20355615eec8",
+    "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
+    "input_sha256": "45466beaf9c5989c03fa5d6451041166f7b3c568cd1b8ffbad7d5d7221bfd1c8",
+    "checkpoint_sha256": "3ec87164e1645bbd2bb990ab8e1a85795e85148470988a667406730fa47fc56e",
+    "result_sha256": "64382ed818f2af648c03d965ec2795d55ec3e9958497e9352814e5f50a6dfc1a",
     "stage_one_sha256": "99206fcc4407b3a664cc6affb52bc28d9b51bcf50cd55180f6a3386148ebc996",
-    "stage_two_sha256": "42ca14c4ba414c941faf9ed05709e2453a37eb55e02b693c9e737970a2df7c95",
+    "stage_two_sha256": "5380d97035bf0e6849ed71ab004a25a02ab190a008276a12fcc0e5c5709ab68b",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "ce3fd8df6bc35aaea1d72f37f9efd3938f229ba2b165e6a74d5e1e131b300b08",
-    "teaching_revision": "28fb1792d0dd882ebc72c98e33da34eece2c810e0dbe232b02e9102d89c16045"
+    "teaching_revision": "e3878d59fec81712ccdc3362084345c5e3efee4a6b5687b85b97aa8809f498a3"
   },
   "lesson": {
     "status": "completed",
@@ -332,10 +332,10 @@
     ]
   },
   "stream": {
-    "run_id": "2ccd056712364ec8901627d281c73cec",
-    "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
-    "input_sha256": "43a5dbc2aee75925f8652ba08bf120bc2b8fe469a6beaa8f0b97efec9744966b",
-    "stream_id": "2ccd056712364ec8901627d281c73cec",
+    "run_id": "1565bcf7277746feb51c20355615eec8",
+    "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
+    "input_sha256": "45466beaf9c5989c03fa5d6451041166f7b3c568cd1b8ffbad7d5d7221bfd1c8",
+    "stream_id": "1565bcf7277746feb51c20355615eec8",
     "last_seq": 32,
     "minimum_seq": 1,
     "math_steps": [
@@ -361,15 +361,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "local_check": "passed",
-        "math_step_sha256": "57144abbc2ab2c2d94b81462a0abe1d4347590d5c930fc40945ae92fa2da5756",
+        "math_step_sha256": "44f1697b97d84b6c0492130080358019b72cece6d2d76cf501e426f8e029f742",
         "method_ref": "method-piecewise-range-parameter#fixed",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "source_refs": [
           "/steps/0/calls/0"
         ],
@@ -404,15 +404,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "local_check": "passed",
-        "math_step_sha256": "4e7d4e4b8b167508a0ad8884fbfbdfafd55d4769b68def6b186cff420178fda7",
+        "math_step_sha256": "40c48d40390d3e5942ce23988f8e21fd8f9838f0244ce2815f474fbfb9bb3240",
         "method_ref": "method-piecewise-range-parameter#decide",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "source_refs": [
           "/steps/1/judgments/0"
         ],
@@ -444,17 +444,17 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "local_check": "passed",
-        "math_step_sha256": "98e025016e9301a3ae5b1e716b3c2e2dbda02923458daf5f336371ab65ddeef5",
+        "math_step_sha256": "53eaa29d9d8754a8ef6aab11b4bb2061195dd4ad9a58e53004a90166f9c91964",
         "method_ref": "method-piecewise-range-parameter#solve",
         "ordinal": 3,
         "premise_refs": [
           "/steps/1/judgments/0"
         ],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "source_refs": [
           "/steps/2/calls/0",
           "/steps/2/skipped_calls/0",
@@ -495,17 +495,17 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "local_check": "passed",
-        "math_step_sha256": "52d76332ae6edc14632b6624e1506a620d0a923c5eeba90b3184d55688632592",
+        "math_step_sha256": "02bd7112b84e21d9ff435e6a4dd2c634bb8f3d26459af9e2bb329316ffe791df",
         "method_ref": "method-piecewise-range-parameter#solve",
         "ordinal": 4,
         "premise_refs": [
           "/steps/1/judgments/0"
         ],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "source_refs": [
           "/steps/2/calls/0",
           "/steps/2/skipped_calls/0",
@@ -545,17 +545,17 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "local_check": "passed",
-        "math_step_sha256": "26e382e953a0def61816a01f268ec75ad32fc93c0f66f76086a7d4d8ea09aac7",
+        "math_step_sha256": "08ab3d9f0f7a60ea0cebb1b42e61533b4a58609c7bd2f72f5f345885e6377a86",
         "method_ref": "method-piecewise-range-parameter#solve",
         "ordinal": 5,
         "premise_refs": [
           "/steps/1/judgments/0"
         ],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "source_refs": [
           "/steps/2/calls/0",
           "/steps/2/skipped_calls/0",
@@ -595,17 +595,17 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "local_check": "passed",
-        "math_step_sha256": "851566fe64e39807970bbac20dd03eba4560bacaa16a64ceb8d4850f14415e81",
+        "math_step_sha256": "135c0674d2a7ea87bbf25ec34a8d634eda01476d304c439bd15da1b7eba53c48",
         "method_ref": "method-piecewise-range-parameter#solve",
         "ordinal": 6,
         "premise_refs": [
           "/steps/1/judgments/0"
         ],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "source_refs": [
           "/steps/2/calls/0",
           "/steps/2/skipped_calls/0",
@@ -646,17 +646,17 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "local_check": "passed",
-        "math_step_sha256": "9e2a6f2f6f7ceea102f4bc835064265beeb7bc0da8dd9815b8d5b02e99788bb1",
+        "math_step_sha256": "55d971e1d63ef951960981e1945fec900ba7075b8d41d1f81564c97c00adc662",
         "method_ref": "method-piecewise-range-parameter#solve",
         "ordinal": 7,
         "premise_refs": [
           "/steps/1/judgments/0"
         ],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "source_refs": [
           "/steps/2/calls/0",
           "/steps/2/skipped_calls/0",
@@ -696,17 +696,17 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "local_check": "passed",
-        "math_step_sha256": "6af46d3fbca01fd7ce44458ae52deef6c5a4d8134dd96bed03521ee19210a6d8",
+        "math_step_sha256": "12ce14f8860bad6b9f2eeedf14d52892bf87a9f00418bce4565d67fcc28f3290",
         "method_ref": "method-piecewise-range-parameter#solve",
         "ordinal": 8,
         "premise_refs": [
           "/steps/1/judgments/0"
         ],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "source_refs": [
           "/steps/2/calls/0",
           "/steps/2/skipped_calls/0",
@@ -747,17 +747,17 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "local_check": "passed",
-        "math_step_sha256": "ba0eabd5d20256f6da0eadae580b1c503f4393eeec60ba37e5273aadc7489409",
+        "math_step_sha256": "202672f04cd18379f02657dcf4a88fde5e80bd89e2a509edd25b78814d59d6f3",
         "method_ref": "method-piecewise-range-parameter#solve",
         "ordinal": 9,
         "premise_refs": [
           "/steps/1/judgments/0"
         ],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "source_refs": [
           "/steps/2/calls/0",
           "/steps/2/skipped_calls/0",
@@ -810,60 +810,60 @@
           "expression": "Interval.Ropen(-1/2, 0)",
           "latex": "\\left[- \\frac{1}{2}, 0\\right)"
         },
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "math_steps": [
           {
-            "math_step_sha256": "57144abbc2ab2c2d94b81462a0abe1d4347590d5c930fc40945ae92fa2da5756",
+            "math_step_sha256": "44f1697b97d84b6c0492130080358019b72cece6d2d76cf501e426f8e029f742",
             "ordinal": 1,
             "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed"
           },
           {
-            "math_step_sha256": "4e7d4e4b8b167508a0ad8884fbfbdfafd55d4769b68def6b186cff420178fda7",
+            "math_step_sha256": "40c48d40390d3e5942ce23988f8e21fd8f9838f0244ce2815f474fbfb9bb3240",
             "ordinal": 2,
             "step_id": "39e5646dcb-piecewise-range-parameter-002-decision"
           },
           {
-            "math_step_sha256": "98e025016e9301a3ae5b1e716b3c2e2dbda02923458daf5f336371ab65ddeef5",
+            "math_step_sha256": "53eaa29d9d8754a8ef6aab11b4bb2061195dd4ad9a58e53004a90166f9c91964",
             "ordinal": 3,
             "step_id": "39e5646dcb-piecewise-range-parameter-003-zero"
           },
           {
-            "math_step_sha256": "52d76332ae6edc14632b6624e1506a620d0a923c5eeba90b3184d55688632592",
+            "math_step_sha256": "02bd7112b84e21d9ff435e6a4dd2c634bb8f3d26459af9e2bb329316ffe791df",
             "ordinal": 4,
             "step_id": "39e5646dcb-piecewise-range-parameter-004-sign"
           },
           {
-            "math_step_sha256": "26e382e953a0def61816a01f268ec75ad32fc93c0f66f76086a7d4d8ea09aac7",
+            "math_step_sha256": "08ab3d9f0f7a60ea0cebb1b42e61533b4a58609c7bd2f72f5f345885e6377a86",
             "ordinal": 5,
             "step_id": "39e5646dcb-piecewise-range-parameter-005-vertex"
           },
           {
-            "math_step_sha256": "851566fe64e39807970bbac20dd03eba4560bacaa16a64ceb8d4850f14415e81",
+            "math_step_sha256": "135c0674d2a7ea87bbf25ec34a8d634eda01476d304c439bd15da1b7eba53c48",
             "ordinal": 6,
             "step_id": "39e5646dcb-piecewise-range-parameter-006-image"
           },
           {
-            "math_step_sha256": "9e2a6f2f6f7ceea102f4bc835064265beeb7bc0da8dd9815b8d5b02e99788bb1",
+            "math_step_sha256": "55d971e1d63ef951960981e1945fec900ba7075b8d41d1f81564c97c00adc662",
             "ordinal": 7,
             "step_id": "39e5646dcb-piecewise-range-parameter-007-join"
           },
           {
-            "math_step_sha256": "6af46d3fbca01fd7ce44458ae52deef6c5a4d8134dd96bed03521ee19210a6d8",
+            "math_step_sha256": "12ce14f8860bad6b9f2eeedf14d52892bf87a9f00418bce4565d67fcc28f3290",
             "ordinal": 8,
             "step_id": "39e5646dcb-piecewise-range-parameter-008-answer_cover"
           },
           {
-            "math_step_sha256": "ba0eabd5d20256f6da0eadae580b1c503f4393eeec60ba37e5273aadc7489409",
+            "math_step_sha256": "202672f04cd18379f02657dcf4a88fde5e80bd89e2a509edd25b78814d59d6f3",
             "ordinal": 9,
             "step_id": "39e5646dcb-piecewise-range-parameter-009-verify_cover"
           }
         ],
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "56b0fac4ba88d095314d75750b3aa4628d739a8518b4353f3ad07230d6a5623a",
-        "verified_route_sha256": "77c61aa31ec85e1dbe5644077bc8653f37661fcbc65f37487311e9d91819d5b4"
+        "task_id": "03d13143171b030952de9c396df9bfbe7bd0f41d61d8b3b12e26f779c0fb8245",
+        "verified_route_sha256": "b6a7c6071bbc77a3a1d3b757bfa2ae7e0cb3c279a90ab46360a81222fa54fd89"
       }
     ],
     "qa": [],
@@ -913,85 +913,85 @@
         "route_id": "piecewise-range-parameter",
         "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed",
         "ordinal": 1,
-        "math_step_sha256": "57144abbc2ab2c2d94b81462a0abe1d4347590d5c930fc40945ae92fa2da5756",
+        "math_step_sha256": "44f1697b97d84b6c0492130080358019b72cece6d2d76cf501e426f8e029f742",
         "status": "interactive",
-        "interaction_id": "fe556e2c41f408d0f27f71bf"
+        "interaction_id": "704cf90254053359b32a76cf"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-range-parameter",
         "step_id": "39e5646dcb-piecewise-range-parameter-002-decision",
         "ordinal": 2,
-        "math_step_sha256": "4e7d4e4b8b167508a0ad8884fbfbdfafd55d4769b68def6b186cff420178fda7",
+        "math_step_sha256": "40c48d40390d3e5942ce23988f8e21fd8f9838f0244ce2815f474fbfb9bb3240",
         "status": "interactive",
-        "interaction_id": "1e437217002a577e82f2239b"
+        "interaction_id": "d357d3ddf8a1934390bda429"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-range-parameter",
         "step_id": "39e5646dcb-piecewise-range-parameter-003-zero",
         "ordinal": 3,
-        "math_step_sha256": "98e025016e9301a3ae5b1e716b3c2e2dbda02923458daf5f336371ab65ddeef5",
+        "math_step_sha256": "53eaa29d9d8754a8ef6aab11b4bb2061195dd4ad9a58e53004a90166f9c91964",
         "status": "interactive",
-        "interaction_id": "7678424d58dd73eb41560e5e"
+        "interaction_id": "42b9023ab7216970042df235"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-range-parameter",
         "step_id": "39e5646dcb-piecewise-range-parameter-004-sign",
         "ordinal": 4,
-        "math_step_sha256": "52d76332ae6edc14632b6624e1506a620d0a923c5eeba90b3184d55688632592",
+        "math_step_sha256": "02bd7112b84e21d9ff435e6a4dd2c634bb8f3d26459af9e2bb329316ffe791df",
         "status": "interactive",
-        "interaction_id": "f2303c63ac7218148b35705b"
+        "interaction_id": "24c3728ae479a27d256ffb57"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-range-parameter",
         "step_id": "39e5646dcb-piecewise-range-parameter-005-vertex",
         "ordinal": 5,
-        "math_step_sha256": "26e382e953a0def61816a01f268ec75ad32fc93c0f66f76086a7d4d8ea09aac7",
+        "math_step_sha256": "08ab3d9f0f7a60ea0cebb1b42e61533b4a58609c7bd2f72f5f345885e6377a86",
         "status": "interactive",
-        "interaction_id": "2eb401ed96a155a83dccf19a"
+        "interaction_id": "e591c564bd5d9e61364211d6"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-range-parameter",
         "step_id": "39e5646dcb-piecewise-range-parameter-006-image",
         "ordinal": 6,
-        "math_step_sha256": "851566fe64e39807970bbac20dd03eba4560bacaa16a64ceb8d4850f14415e81",
+        "math_step_sha256": "135c0674d2a7ea87bbf25ec34a8d634eda01476d304c439bd15da1b7eba53c48",
         "status": "interactive",
-        "interaction_id": "6dec03e7a3bfa7bab1d252b9"
+        "interaction_id": "840b462a05702cb66511c2ac"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-range-parameter",
         "step_id": "39e5646dcb-piecewise-range-parameter-007-join",
         "ordinal": 7,
-        "math_step_sha256": "9e2a6f2f6f7ceea102f4bc835064265beeb7bc0da8dd9815b8d5b02e99788bb1",
+        "math_step_sha256": "55d971e1d63ef951960981e1945fec900ba7075b8d41d1f81564c97c00adc662",
         "status": "interactive",
-        "interaction_id": "c0e71caea22aca7a55776f85"
+        "interaction_id": "bc68ef3be5bcccf7603cddcc"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-range-parameter",
         "step_id": "39e5646dcb-piecewise-range-parameter-008-answer_cover",
         "ordinal": 8,
-        "math_step_sha256": "6af46d3fbca01fd7ce44458ae52deef6c5a4d8134dd96bed03521ee19210a6d8",
+        "math_step_sha256": "12ce14f8860bad6b9f2eeedf14d52892bf87a9f00418bce4565d67fcc28f3290",
         "status": "interactive",
-        "interaction_id": "140d32a63b4126e89885f8d9"
+        "interaction_id": "23ee2f996f36a381fec03e1c"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-range-parameter",
         "step_id": "39e5646dcb-piecewise-range-parameter-009-verify_cover",
         "ordinal": 9,
-        "math_step_sha256": "ba0eabd5d20256f6da0eadae580b1c503f4393eeec60ba37e5273aadc7489409",
+        "math_step_sha256": "202672f04cd18379f02657dcf4a88fde5e80bd89e2a509edd25b78814d59d6f3",
         "status": "interactive",
-        "interaction_id": "13195f4ebcd5212ae07a33a9"
+        "interaction_id": "875baa24953a3159484e7f1b"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+    "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -999,7 +999,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:piecewise-range-parameter:complete",
-        "last_seq": 23
+        "last_seq": 30
       }
     ],
     "trajectories": [
@@ -1110,10 +1110,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "fe556e2c41f408d0f27f71bf",
+        "interaction_id": "704cf90254053359b32a76cf",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "52ceb8806da4f9ea6c5c008060977289de75904c55fa085f2fb2d6279437afff",
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "interaction_sha256": "d609eff08e0c7a0530a0fb8cf6cddc9945f949bd0ed1136f0fef13ab231e9448",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "parts": [
           {
             "completion_board": {
@@ -1215,7 +1215,7 @@
                 ]
               }
             },
-            "id": "fe556e2c41f408d0f27f71bf#1",
+            "id": "704cf90254053359b32a76cf#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1224,12 +1224,12 @@
                   "value": "o3"
                 },
                 {
-                  "label": "$\\left(2, \\infty\\right)$",
-                  "value": "o1"
-                },
-                {
                   "label": "$\\left[2, \\infty\\right)$",
                   "value": "o2"
+                },
+                {
+                  "label": "$\\left(2, \\infty\\right)$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1255,11 +1255,11 @@
           }
         ],
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "57144abbc2ab2c2d94b81462a0abe1d4347590d5c930fc40945ae92fa2da5756",
+            "math_step_sha256": "44f1697b97d84b6c0492130080358019b72cece6d2d76cf501e426f8e029f742",
             "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed"
           }
         ],
@@ -1267,10 +1267,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "1e437217002a577e82f2239b",
+        "interaction_id": "d357d3ddf8a1934390bda429",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "55853eaebcfa8cde0370051b47fcce9842e384f25778e204e01d22595ec084d8",
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "interaction_sha256": "b740663646198adc4b34592de658a3c75d1ec91dbf1ebf27ce7d253b80c85d41",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "parts": [
           {
             "completion_board": {
@@ -1508,17 +1508,17 @@
             "feedback": {
               "answer": "$$\\begin{gathered}R_{1}=\\left(2, \\infty\\right),\\quad V=\\mathbb{R}\\\\V\\setminus R_{1}=\\left(-\\infty, 2\\right]\\Rightarrow \\left(-\\infty, 2\\right]\\subseteq R_{2}\\end{gathered}$$"
             },
-            "id": "1e437217002a577e82f2239b#1",
+            "id": "d357d3ddf8a1934390bda429#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "第 2 段函数必须取到第 1 段函数未取到的值，且不能超出 $V$",
-                  "value": "o1"
-                },
-                {
                   "label": "第 2 段函数的值都在 $V$ 内即可，无须补齐",
                   "value": "o2"
+                },
+                {
+                  "label": "第 2 段函数必须取到第 1 段函数未取到的值，且不能超出 $V$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1545,11 +1545,11 @@
           }
         ],
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "4e7d4e4b8b167508a0ad8884fbfbdfafd55d4769b68def6b186cff420178fda7",
+            "math_step_sha256": "40c48d40390d3e5942ce23988f8e21fd8f9838f0244ce2815f474fbfb9bb3240",
             "step_id": "39e5646dcb-piecewise-range-parameter-002-decision"
           }
         ],
@@ -1557,10 +1557,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "7678424d58dd73eb41560e5e",
+        "interaction_id": "42b9023ab7216970042df235",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "5796eb826423dfe311c5a644aa68d0cdd1bd3c5e31121c163f6c7705c127aea6",
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "interaction_sha256": "8a3942557abcb892421881c71b5b99bdc049b8dda05583a51dddcadf4ccaf527",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "parts": [
           {
             "completion_board": {
@@ -1661,7 +1661,7 @@
                 ]
               }
             },
-            "id": "7678424d58dd73eb41560e5e#1",
+            "id": "42b9023ab7216970042df235#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1698,11 +1698,11 @@
           }
         ],
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "98e025016e9301a3ae5b1e716b3c2e2dbda02923458daf5f336371ab65ddeef5",
+            "math_step_sha256": "53eaa29d9d8754a8ef6aab11b4bb2061195dd4ad9a58e53004a90166f9c91964",
             "step_id": "39e5646dcb-piecewise-range-parameter-003-zero"
           }
         ],
@@ -1710,10 +1710,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "f2303c63ac7218148b35705b",
+        "interaction_id": "24c3728ae479a27d256ffb57",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "7bbb9aadb665985cdea5c6ba2af1285896735762e4eaffa18e3d38b6c8d8374a",
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "interaction_sha256": "d120f10ed53ceedfcfd51b9b71c803625b1a232db0ed5e36180ccd61598f7837",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "parts": [
           {
             "completion_board": {
@@ -1733,52 +1733,6 @@
               "layout": "derivation"
             },
             "completion_graphs": [
-              {
-                "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
-                "kind": "quadratic",
-                "params": {
-                  "bounds": [
-                    -3.75,
-                    1.75,
-                    -3.75,
-                    1.75
-                  ],
-                  "coefficient": -1.0,
-                  "description": "x=1 处函数值为 -3（实心点）",
-                  "interval": [
-                    null,
-                    1.0
-                  ],
-                  "interval_closed": [
-                    false,
-                    true
-                  ],
-                  "points": [
-                    {
-                      "x": 1.0
-                    }
-                  ],
-                  "showVertex": true,
-                  "title": "第 2 段函数示意（a=-1） y=-x² - 2x，x∈(-∞, 1]",
-                  "variable": "x",
-                  "vertex": [
-                    -1.0,
-                    1.0
-                  ],
-                  "vertexLabel": "",
-                  "xTicks": [
-                    [
-                      1.0,
-                      "1"
-                    ],
-                    [
-                      -1.0,
-                      "-1"
-                    ]
-                  ],
-                  "yLabel": "1"
-                }
-              },
               {
                 "caption": "第 2 段函数示意：取 $a=2$：$y=2 x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
                 "kind": "quadratic",
@@ -1824,6 +1778,52 @@
                   ],
                   "yLabel": "-1/2"
                 }
+              },
+              {
+                "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+                "kind": "quadratic",
+                "params": {
+                  "bounds": [
+                    -3.75,
+                    1.75,
+                    -3.75,
+                    1.75
+                  ],
+                  "coefficient": -1.0,
+                  "description": "x=1 处函数值为 -3（实心点）",
+                  "interval": [
+                    null,
+                    1.0
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ],
+                  "points": [
+                    {
+                      "x": 1.0
+                    }
+                  ],
+                  "showVertex": true,
+                  "title": "第 2 段函数示意（a=-1） y=-x² - 2x，x∈(-∞, 1]",
+                  "variable": "x",
+                  "vertex": [
+                    -1.0,
+                    1.0
+                  ],
+                  "vertexLabel": "",
+                  "xTicks": [
+                    [
+                      1.0,
+                      "1"
+                    ],
+                    [
+                      -1.0,
+                      "-1"
+                    ]
+                  ],
+                  "yLabel": "1"
+                }
               }
             ],
             "expected_answer": {
@@ -1834,60 +1834,10 @@
             "feedback": {
               "answer": "$$\\begin{gathered}a>0:\\quad a x^{2} - 2 x=a(x+\\frac{-2}{2a})^2+0-\\frac{4}{4a}\\\\a>0\\Rightarrow R_{2}\\text{有下界，不能取到任意小的值}\\\\a<0,\\quad x\\to-\\infty\\Rightarrow f(x)\\to-\\infty\\end{gathered}$$"
             },
-            "id": "f2303c63ac7218148b35705b#1",
+            "id": "24c3728ae479a27d256ffb57#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "graph": {
-                    "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
-                    "kind": "quadratic",
-                    "params": {
-                      "bounds": [
-                        -3.75,
-                        1.75,
-                        -3.75,
-                        1.75
-                      ],
-                      "coefficient": -1.0,
-                      "description": "x=1 处函数值为 -3（实心点）",
-                      "interval": [
-                        null,
-                        1.0
-                      ],
-                      "interval_closed": [
-                        false,
-                        true
-                      ],
-                      "points": [
-                        {
-                          "x": 1.0
-                        }
-                      ],
-                      "showVertex": true,
-                      "title": "第 2 段函数示意（a=-1） y=-x² - 2x，x∈(-∞, 1]",
-                      "variable": "x",
-                      "vertex": [
-                        -1.0,
-                        1.0
-                      ],
-                      "vertexLabel": "",
-                      "xTicks": [
-                        [
-                          1.0,
-                          "1"
-                        ],
-                        [
-                          -1.0,
-                          "-1"
-                        ]
-                      ],
-                      "yLabel": "1"
-                    }
-                  },
-                  "label": "向下开口，参数小于零",
-                  "value": "o1"
-                },
                 {
                   "graph": {
                     "caption": "第 2 段函数示意：取 $a=2$：$y=2 x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
@@ -1937,6 +1887,56 @@
                   },
                   "label": "向上开口，参数大于零",
                   "value": "o2"
+                },
+                {
+                  "graph": {
+                    "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+                    "kind": "quadratic",
+                    "params": {
+                      "bounds": [
+                        -3.75,
+                        1.75,
+                        -3.75,
+                        1.75
+                      ],
+                      "coefficient": -1.0,
+                      "description": "x=1 处函数值为 -3（实心点）",
+                      "interval": [
+                        null,
+                        1.0
+                      ],
+                      "interval_closed": [
+                        false,
+                        true
+                      ],
+                      "points": [
+                        {
+                          "x": 1.0
+                        }
+                      ],
+                      "showVertex": true,
+                      "title": "第 2 段函数示意（a=-1） y=-x² - 2x，x∈(-∞, 1]",
+                      "variable": "x",
+                      "vertex": [
+                        -1.0,
+                        1.0
+                      ],
+                      "vertexLabel": "",
+                      "xTicks": [
+                        [
+                          1.0,
+                          "1"
+                        ],
+                        [
+                          -1.0,
+                          "-1"
+                        ]
+                      ],
+                      "yLabel": "1"
+                    }
+                  },
+                  "label": "向下开口，参数小于零",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1963,11 +1963,11 @@
           }
         ],
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "52d76332ae6edc14632b6624e1506a620d0a923c5eeba90b3184d55688632592",
+            "math_step_sha256": "02bd7112b84e21d9ff435e6a4dd2c634bb8f3d26459af9e2bb329316ffe791df",
             "step_id": "39e5646dcb-piecewise-range-parameter-004-sign"
           }
         ],
@@ -1975,10 +1975,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "2eb401ed96a155a83dccf19a",
+        "interaction_id": "e591c564bd5d9e61364211d6",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "fb82c022b1d2c4bee1a6b0f53785f5face049233923886c206d8ede718c58b8b",
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "interaction_sha256": "aec3bb1356bafa30d8a1bead5f5cc4de60e69f312488702a5de647eb323c1479",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "parts": [
           {
             "completion_board": {
@@ -2096,17 +2096,17 @@
                 "yLabel": "1"
               }
             },
-            "id": "2eb401ed96a155a83dccf19a#1",
+            "id": "e591c564bd5d9e61364211d6#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "不满足第 2 段函数的条件，只能看分界点",
-                  "value": "o2"
-                },
-                {
                   "label": "满足第 2 段函数的条件，最大值在顶点取得",
                   "value": "o1"
+                },
+                {
+                  "label": "不满足第 2 段函数的条件，只能看分界点",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -2132,11 +2132,11 @@
           }
         ],
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "26e382e953a0def61816a01f268ec75ad32fc93c0f66f76086a7d4d8ea09aac7",
+            "math_step_sha256": "08ab3d9f0f7a60ea0cebb1b42e61533b4a58609c7bd2f72f5f345885e6377a86",
             "step_id": "39e5646dcb-piecewise-range-parameter-005-vertex"
           }
         ],
@@ -2144,10 +2144,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "6dec03e7a3bfa7bab1d252b9",
+        "interaction_id": "840b462a05702cb66511c2ac",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "0d02a18da28dc02f62f6ff0f866100d3563ee1a6814cc66a39ead4ccab8d5471",
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "interaction_sha256": "c51afb60bc346b05719b2c1dc6adf853b41d5071c5fbcacffb2e54ef0aae7b63",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "parts": [
           {
             "completion_board": {
@@ -2265,17 +2265,17 @@
                 "yLabel": "1"
               }
             },
-            "id": "6dec03e7a3bfa7bab1d252b9#1",
+            "id": "840b462a05702cb66511c2ac#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$R_{2}=(-\\infty,- \\frac{1}{a} )$",
-                  "value": "o2"
-                },
-                {
                   "label": "$R_{2}=(-\\infty,- \\frac{1}{a}]$",
                   "value": "o1"
+                },
+                {
+                  "label": "$R_{2}=(-\\infty,- \\frac{1}{a} )$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -2301,11 +2301,11 @@
           }
         ],
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "851566fe64e39807970bbac20dd03eba4560bacaa16a64ceb8d4850f14415e81",
+            "math_step_sha256": "135c0674d2a7ea87bbf25ec34a8d634eda01476d304c439bd15da1b7eba53c48",
             "step_id": "39e5646dcb-piecewise-range-parameter-006-image"
           }
         ],
@@ -2313,10 +2313,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "c0e71caea22aca7a55776f85",
+        "interaction_id": "bc68ef3be5bcccf7603cddcc",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "48d6bcdc05183b0584d28a9b4580ca0b3e138cf001cb0aff2e627a83e9bbba8b",
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "interaction_sha256": "b73e3a4f9400d95a750cc4238f5321e593b4cea263e694df4a52bbcef6fb4168",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "parts": [
           {
             "completion_board": {
@@ -2343,17 +2343,17 @@
             "feedback": {
               "answer": "$$\\begin{gathered}(-\\infty,- \\frac{1}{a}]\\cup\\left(2, \\infty\\right)=\\mathbb R\\\\\\iff - \\frac{1}{a}\\ge2\\end{gathered}$$"
             },
-            "id": "c0e71caea22aca7a55776f85#1",
+            "id": "bc68ef3be5bcccf7603cddcc#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$- \\frac{1}{a}\\ge2$",
-                  "value": "o1"
-                },
-                {
                   "label": "$- \\frac{1}{a}\\le2$",
                   "value": "o3"
+                },
+                {
+                  "label": "$- \\frac{1}{a}\\ge2$",
+                  "value": "o1"
                 },
                 {
                   "label": "$- \\frac{1}{a}>2$",
@@ -2384,11 +2384,11 @@
           }
         ],
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "9e2a6f2f6f7ceea102f4bc835064265beeb7bc0da8dd9815b8d5b02e99788bb1",
+            "math_step_sha256": "55d971e1d63ef951960981e1945fec900ba7075b8d41d1f81564c97c00adc662",
             "step_id": "39e5646dcb-piecewise-range-parameter-007-join"
           }
         ],
@@ -2396,10 +2396,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "140d32a63b4126e89885f8d9",
+        "interaction_id": "23ee2f996f36a381fec03e1c",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "16007286ee4bdb060b5bd9b589ae26510c4b05ec61ea8dd48ffac1ceadda906b",
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "interaction_sha256": "408c009bc906200283ab3254a95e60c56ed542aff358cd1c9889b6566a7f2c6d",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "parts": [
           {
             "completion_board": {
@@ -2425,14 +2425,10 @@
             "feedback": {
               "answer": "$$\\begin{gathered}- \\frac{1}{a}\\ge2\\\\a<0\\Rightarrow -1\\le 2 a\\\\a\\ge- \\frac{1}{2}\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}$$"
             },
-            "id": "140d32a63b4126e89885f8d9#1",
+            "id": "23ee2f996f36a381fec03e1c#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$\\left(- \\frac{1}{2}, 0\\right)$",
-                  "value": "o2"
-                },
                 {
                   "label": "$\\left[- \\frac{1}{2}, 0\\right]$",
                   "value": "o3"
@@ -2440,6 +2436,10 @@
                 {
                   "label": "$\\left[- \\frac{1}{2}, 0\\right)$",
                   "value": "o1"
+                },
+                {
+                  "label": "$\\left(- \\frac{1}{2}, 0\\right)$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -2465,11 +2465,11 @@
           }
         ],
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "6af46d3fbca01fd7ce44458ae52deef6c5a4d8134dd96bed03521ee19210a6d8",
+            "math_step_sha256": "12ce14f8860bad6b9f2eeedf14d52892bf87a9f00418bce4565d67fcc28f3290",
             "step_id": "39e5646dcb-piecewise-range-parameter-008-answer_cover"
           }
         ],
@@ -2477,10 +2477,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "13195f4ebcd5212ae07a33a9",
+        "interaction_id": "875baa24953a3159484e7f1b",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "b46f977ebd41919d1fca363126c1a452f5c0494bfe565dcbd669010ed63f4173",
-        "lesson_version": "75df7de96f9f6200788eb20c80f591fc1b484d9b57ca3bfc3daa4e5e67832d62",
+        "interaction_sha256": "479d79b805221e5697acb4cab39b7b2e86147d0dca78906ee52fcb6ad2175d6a",
+        "lesson_version": "9eb629cd29d91699069e5857b753514339bb6b0109e0ab6b449a6e1c24bf5e9c",
         "parts": [
           {
             "completion_board": {
@@ -2507,7 +2507,7 @@
             "feedback": {
               "answer": "$$\\begin{gathered}a=- \\frac{1}{2}:\\quad x_0=-2\\le1,\\quad f(-2)=2\\\\R_{2}=(-\\infty,2],\\quad R_{1}\\cup R_{2}=\\mathbb R\\\\a=0:\\quad R=\\left[-2, \\infty\\right)\\ne\\mathbb R\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}$$"
             },
-            "id": "13195f4ebcd5212ae07a33a9#1",
+            "id": "875baa24953a3159484e7f1b#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -2548,11 +2548,11 @@
           }
         ],
         "route_id": "piecewise-range-parameter",
-        "run_id": "2ccd056712364ec8901627d281c73cec",
+        "run_id": "1565bcf7277746feb51c20355615eec8",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "ba0eabd5d20256f6da0eadae580b1c503f4393eeec60ba37e5273aadc7489409",
+            "math_step_sha256": "202672f04cd18379f02657dcf4a88fde5e80bd89e2a509edd25b78814d59d6f3",
             "step_id": "39e5646dcb-piecewise-range-parameter-009-verify_cover"
           }
         ],

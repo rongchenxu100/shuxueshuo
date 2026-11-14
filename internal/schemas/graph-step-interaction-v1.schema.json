@@ -2967,6 +2967,11 @@
                     },
                     "closed": {
                       "type": "boolean"
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 24
                     }
                   }
                 }

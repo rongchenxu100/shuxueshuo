@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "56a5388d78ef48eaaa3b3de518208827",
-    "lesson_version": "5e9ea9eea465e45442fb92b05a0721a0e84c50ad6cd8ba604f8527b4f3c16c19",
-    "input_sha256": "7cbce16b7b1a2fc34b77c7014fbbb9842798c9fd415e288af88e0e62da3a41e9",
-    "checkpoint_sha256": "11401aad1f5f13d6d7db677fe1e1532459f75c5523ae808082eb813e1210e46b",
-    "result_sha256": "053b6e8231b8c81b6d5eebf55069d9f84d54803deaeb3e9222cc6e87da6a0b04",
+    "run_id": "70aa1d2f20f943b9a6bd25205b804f2c",
+    "lesson_version": "eeb77743231693b38449b471b126b20c22759f86c44320423a438beb77a449eb",
+    "input_sha256": "65f0bd36f7c46f5af45ac91be6dd92ab61716401229d749558e1f576aceaae0c",
+    "checkpoint_sha256": "ca84a4bacf54863a677ea9e74b3b1baf2ad48443e6af81f02b48f862c70e18df",
+    "result_sha256": "4bb92337b63a22501aad3d623c47368dba0ba1b85ad7d9031db7694c5bb929ac",
     "stage_one_sha256": "e7bd9978350c8e868c08199d82be39fe6d6167185cb5ea641a9d009dde2503cf",
-    "stage_two_sha256": "d575ef52bb87fed8987e654763b037bf39ac66b2ea4eae75f65132d39a798c6e",
+    "stage_two_sha256": "c5e319d4d2d8ba6056d3a16f70f79c6a79fb0b7a928ab1a745562c3509d99c45",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "8fd3385953e44b88f2b7727c0376ff54c6ae614118ed69ecf565262d304b4a45",
-    "teaching_revision": "28fb1792d0dd882ebc72c98e33da34eece2c810e0dbe232b02e9102d89c16045"
+    "teaching_revision": "e3878d59fec81712ccdc3362084345c5e3efee4a6b5687b85b97aa8809f498a3"
   },
   "lesson": {
     "status": "completed",
@@ -450,10 +450,10 @@
     ]
   },
   "stream": {
-    "run_id": "56a5388d78ef48eaaa3b3de518208827",
-    "lesson_version": "5e9ea9eea465e45442fb92b05a0721a0e84c50ad6cd8ba604f8527b4f3c16c19",
-    "input_sha256": "7cbce16b7b1a2fc34b77c7014fbbb9842798c9fd415e288af88e0e62da3a41e9",
-    "stream_id": "56a5388d78ef48eaaa3b3de518208827",
+    "run_id": "70aa1d2f20f943b9a6bd25205b804f2c",
+    "lesson_version": "eeb77743231693b38449b471b126b20c22759f86c44320423a438beb77a449eb",
+    "input_sha256": "65f0bd36f7c46f5af45ac91be6dd92ab61716401229d749558e1f576aceaae0c",
+    "stream_id": "70aa1d2f20f943b9a6bd25205b804f2c",
     "last_seq": 18,
     "minimum_seq": 1,
     "math_steps": [
@@ -463,37 +463,37 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_rewrite",
-        "explanation": "$$\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\D=\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\\\f(x)=\\left(a x + \\frac{b}{x}\\right)-2\\\\f(x)+f(-x)=-4\\\\\\frac{f(x)+f(-x)}{2}=-2\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}f(-x)=a(-x)+\\frac{b}{(-x)}-2\\\\f(-x)=- a x- \\frac{b}{x}-2\\\\\\therefore\\ f(x)+f(-x)=\\left(ax+\\frac{b}{x}-2\\right)+\\left(- a x- \\frac{b}{x}-2\\right)=-4\\end{gathered}$$",
         "highlight": {
-          "caption": "求相反输入的函数值之和",
+          "caption": "求 $f(x)+f(-x)$",
           "connector": "⇒",
           "items": [
             {
-              "label": "原式与条件",
-              "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\D=\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\end{gathered}"
+              "label": "已知",
+              "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\f(-x)=- a x- \\frac{b}{x}-2\\end{gathered}"
             },
             {
-              "label": "对称和值",
+              "label": "f(x)+f(-x)",
               "math": "f(x)+f(-x)=-4"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "5e9ea9eea465e45442fb92b05a0721a0e84c50ad6cd8ba604f8527b4f3c16c19",
+        "lesson_version": "eeb77743231693b38449b471b126b20c22759f86c44320423a438beb77a449eb",
         "local_check": "passed",
-        "math_step_sha256": "bdd96135e06329b919deb10f456c122ec6c5cbe56f4eec910f59fca179c22d4f",
+        "math_step_sha256": "3fdec4401d0979277ade360d06eb33207b7d5561b60d81e1ee12b09a86e478e4",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "56a5388d78ef48eaaa3b3de518208827",
+        "run_id": "70aa1d2f20f943b9a6bd25205b804f2c",
         "source_refs": [
           "/steps/1/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "target_ref": "/root/goals/0",
-        "title": "求相反输入的函数值之和",
+        "title": "求 $f(x)+f(-x)$",
         "used_basis": []
       },
       {
@@ -502,14 +502,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_conclude",
-        "explanation": "$$\\begin{gathered}f(x)+f(-x)=-4\\\\f(2024)=2024 a + \\frac{b}{2024} - 2\\\\f(-2024)=- 2024 a - \\frac{b}{2024} - 2\\\\f(2024)+f(-2024)=-4\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}\\text{取 }x=2024\\\\\\therefore\\ f(2024)+f(-2024)=-4\\end{gathered}$$",
         "highlight": {
-          "caption": "回答原题所求",
+          "caption": "代入题目中的数",
           "connector": "⇒",
           "items": [
             {
-              "label": "已知条件",
-              "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\D=\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\end{gathered}"
+              "label": "已知",
+              "math": "f(x)+f(-x)=-4"
             },
             {
               "label": "结论",
@@ -518,21 +518,21 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "5e9ea9eea465e45442fb92b05a0721a0e84c50ad6cd8ba604f8527b4f3c16c19",
+        "lesson_version": "eeb77743231693b38449b471b126b20c22759f86c44320423a438beb77a449eb",
         "local_check": "passed",
-        "math_step_sha256": "1dccea378f01ff6c1a72fa122526c2fcdfd75ed2a7191c34551a6f7e6de83978",
+        "math_step_sha256": "042319202896e90434daebb1c9bf4f366352e1212df94b969b4cf35210645afd",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "56a5388d78ef48eaaa3b3de518208827",
+        "run_id": "70aa1d2f20f943b9a6bd25205b804f2c",
         "source_refs": [
           "/steps/3/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "target_ref": "/root/goals/0",
-        "title": "回答原题所求",
+        "title": "代入题目中的数",
         "used_basis": []
       }
     ],
@@ -580,25 +580,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "5e9ea9eea465e45442fb92b05a0721a0e84c50ad6cd8ba604f8527b4f3c16c19",
+        "lesson_version": "eeb77743231693b38449b471b126b20c22759f86c44320423a438beb77a449eb",
         "math_steps": [
           {
-            "math_step_sha256": "bdd96135e06329b919deb10f456c122ec6c5cbe56f4eec910f59fca179c22d4f",
+            "math_step_sha256": "3fdec4401d0979277ade360d06eb33207b7d5561b60d81e1ee12b09a86e478e4",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "1dccea378f01ff6c1a72fa122526c2fcdfd75ed2a7191c34551a6f7e6de83978",
+            "math_step_sha256": "042319202896e90434daebb1c9bf4f366352e1212df94b969b4cf35210645afd",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "56a5388d78ef48eaaa3b3de518208827",
+        "run_id": "70aa1d2f20f943b9a6bd25205b804f2c",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "1cc45030e8da472ee2bc789252f974987b05729d829df045742dc03b132f3b13",
-        "verified_route_sha256": "b59c75a8eef36ef51dc63b6e202d93605645f690c0b11018bbf16a560e025fc6"
+        "task_id": "cd3327cf9c7336bee0e40235c0fbd667441ee8530a3880662cef393d824c9538",
+        "verified_route_sha256": "a50386749c67aa060bc2efe6cfd80027b2d0096f267afb3fdaa43acddc5df43e"
       }
     ],
     "qa": [],
@@ -648,22 +648,22 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "bdd96135e06329b919deb10f456c122ec6c5cbe56f4eec910f59fca179c22d4f",
+        "math_step_sha256": "3fdec4401d0979277ade360d06eb33207b7d5561b60d81e1ee12b09a86e478e4",
         "status": "interactive",
-        "interaction_id": "e74d7e8f6c25e3acb661b2ad"
+        "interaction_id": "16cd05fab51878a59b270784"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "1dccea378f01ff6c1a72fa122526c2fcdfd75ed2a7191c34551a6f7e6de83978",
+        "math_step_sha256": "042319202896e90434daebb1c9bf4f366352e1212df94b969b4cf35210645afd",
         "status": "interactive",
-        "interaction_id": "c76b1f3ee36eaf64ace46b8a"
+        "interaction_id": "b7b70141725a175973706b61"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+    "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -671,7 +671,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:function-symmetry:complete",
-        "last_seq": 16
+        "last_seq": 18
       }
     ],
     "trajectories": [
@@ -768,355 +768,29 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "e74d7e8f6c25e3acb661b2ad",
+        "interaction_id": "16cd05fab51878a59b270784",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "966ce9b9a9129f0503dcfce1ab49124926c3b37de1e6823f4e65f447f85115a9",
-        "lesson_version": "5e9ea9eea465e45442fb92b05a0721a0e84c50ad6cd8ba604f8527b4f3c16c19",
+        "interaction_sha256": "cbbbca6b98af1adad0d48cbb5d2ebc94d4f33cfa9c30bc742c60b8dc760a6e19",
+        "lesson_version": "eeb77743231693b38449b471b126b20c22759f86c44320423a438beb77a449eb",
         "parts": [
           {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
             "completion_board": {
-              "caption": "求相反输入的函数值之和",
+              "caption": "写出 $f(-x)$",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "原式与条件",
-                  "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\D=\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\D=\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\\\\\text{定义域关于原点对称，}x\\text{ 与 }-x\\text{ 都能代入}\\end{gathered}"
                 },
                 {
-                  "label": "对称和值",
-                  "math": "f(x)+f(-x)=-4"
+                  "label": "f(-x)",
+                  "math": "f(-x)=- a x- \\frac{b}{x}-2"
                 }
               ],
               "layout": "derivation"
             },
-            "condition_number_lines": [
-              {
-                "bounds": [
-                  -3036.0,
-                  3036.0
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Union",
-                    "args": [
-                      {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
-                  "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval.open(-oo, 0)",
-                      "latex": "\\left(-\\infty, 0\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": 0.0,
-                    "right_closed": false
-                  },
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval.open(0, oo)",
-                      "latex": "\\left(0, \\infty\\right)"
-                    },
-                    "left": 0.0,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "原输入范围\\quad x=2024",
-                "points": [
-                  {
-                    "at": 2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "2024"
-                      },
-                      "expression": "2024",
-                      "latex": "2024"
-                    },
-                    "label": "2024"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-2024"
-                      },
-                      "expression": "-2024",
-                      "latex": "-2024"
-                    },
-                    "label": "-2024"
-                  },
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "2024"
-                      },
-                      "expression": "2024",
-                      "latex": "2024"
-                    },
-                    "label": "2024"
-                  }
-                ],
-                "variable": "x"
-              },
-              {
-                "bounds": [
-                  -3036.0,
-                  3036.0
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Union",
-                    "args": [
-                      {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
-                  "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval.open(-oo, 0)",
-                      "latex": "\\left(-\\infty, 0\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": 0.0,
-                    "right_closed": false
-                  },
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval.open(0, oo)",
-                      "latex": "\\left(0, \\infty\\right)"
-                    },
-                    "left": 0.0,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "配对后的范围\\quad x=-2024",
-                "points": [
-                  {
-                    "at": -2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-2024"
-                      },
-                      "expression": "-2024",
-                      "latex": "-2024"
-                    },
-                    "label": "-2024"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-2024"
-                      },
-                      "expression": "-2024",
-                      "latex": "-2024"
-                    },
-                    "label": "-2024"
-                  },
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "2024"
-                      },
-                      "expression": "2024",
-                      "latex": "2024"
-                    },
-                    "label": "2024"
-                  }
-                ],
-                "variable": "x"
-              }
-            ],
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1125,14 +799,78 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "e74d7e8f6c25e3acb661b2ad#1",
+            "id": "16cd05fab51878a59b270784#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(x)+f(-x)=-4$",
+                  "label": "$f(-x)=a x+\\frac{b}{x}-2$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$f(-x)=- a x- \\frac{b}{x}-2$",
                   "value": "o1"
                 },
+                {
+                  "label": "$f(-x)=- a x+\\frac{b}{x}-2$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(-x)=a x- \\frac{b}{x}-2$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把 $f(x)$ 中的 $x$ 换成 $-x$，$f(-x)$ 等于什么？",
+            "stem_board": {
+              "caption": "写出 $f(-x)$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\D=\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\\\\\text{定义域关于原点对称，}x\\text{ 与 }-x\\text{ 都能代入}\\end{gathered}"
+                },
+                {
+                  "label": "f(-x)",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "写出 $f(-x)$"
+          },
+          {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
+            "completion_board": {
+              "caption": "求 $f(x)+f(-x)$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\f(-x)=- a x- \\frac{b}{x}-2\\end{gathered}"
+                },
+                {
+                  "label": "f(x)+f(-x)",
+                  "math": "f(x)+f(-x)=-4"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "16cd05fab51878a59b270784#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
                 {
                   "label": "$f(x)+f(-x)=4$",
                   "value": "o4"
@@ -1144,36 +882,40 @@
                 {
                   "label": "$f(x)+f(-x)=-3$",
                   "value": "o2"
+                },
+                {
+                  "label": "$f(x)+f(-x)=-4$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
             },
-            "question": "先明确奇函数，再将结论还原到所求的函数。",
+            "question": "把 $f(x)$ 与 $f(-x)$ 相加，$f(x)+f(-x)$ 等于多少？",
             "stem_board": {
-              "caption": "求相反输入的函数值之和",
+              "caption": "求 $f(x)+f(-x)$",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "原式与条件",
-                  "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\D=\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\f(-x)=- a x- \\frac{b}{x}-2\\end{gathered}"
                 },
                 {
-                  "label": "对称和值",
+                  "label": "f(x)+f(-x)",
                   "math": null
                 }
               ],
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "求相反输入的函数值之和"
+            "title": "求 $f(x)+f(-x)$"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "56a5388d78ef48eaaa3b3de518208827",
+        "run_id": "70aa1d2f20f943b9a6bd25205b804f2c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "bdd96135e06329b919deb10f456c122ec6c5cbe56f4eec910f59fca179c22d4f",
+            "math_step_sha256": "3fdec4401d0979277ade360d06eb33207b7d5561b60d81e1ee12b09a86e478e4",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -1181,19 +923,19 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "c76b1f3ee36eaf64ace46b8a",
+        "interaction_id": "b7b70141725a175973706b61",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "add2f20fa7c39975a65be6020c6178f5de8048c1c258323e801f110e78d0a387",
-        "lesson_version": "5e9ea9eea465e45442fb92b05a0721a0e84c50ad6cd8ba604f8527b4f3c16c19",
+        "interaction_sha256": "4602bbefe632f2d080a4252fbaf8b031530227f59b4a9ea825df4293608a639a",
+        "lesson_version": "eeb77743231693b38449b471b126b20c22759f86c44320423a438beb77a449eb",
         "parts": [
           {
             "completion_board": {
-              "caption": "回答原题所求",
+              "caption": "代入题目中的数",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\D=\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\end{gathered}"
+                  "label": "已知",
+                  "math": "f(x)+f(-x)=-4"
                 },
                 {
                   "label": "结论",
@@ -1202,334 +944,6 @@
               ],
               "layout": "derivation"
             },
-            "condition_number_lines": [
-              {
-                "bounds": [
-                  -3036.0,
-                  3036.0
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Union",
-                    "args": [
-                      {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
-                  "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval.open(-oo, 0)",
-                      "latex": "\\left(-\\infty, 0\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": 0.0,
-                    "right_closed": false
-                  },
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval.open(0, oo)",
-                      "latex": "\\left(0, \\infty\\right)"
-                    },
-                    "left": 0.0,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "原输入范围\\quad x=2024",
-                "points": [
-                  {
-                    "at": 2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "2024"
-                      },
-                      "expression": "2024",
-                      "latex": "2024"
-                    },
-                    "label": "2024"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-2024"
-                      },
-                      "expression": "-2024",
-                      "latex": "-2024"
-                    },
-                    "label": "-2024"
-                  },
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "2024"
-                      },
-                      "expression": "2024",
-                      "latex": "2024"
-                    },
-                    "label": "2024"
-                  }
-                ],
-                "variable": "x"
-              },
-              {
-                "bounds": [
-                  -3036.0,
-                  3036.0
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Union",
-                    "args": [
-                      {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
-                  "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval.open(-oo, 0)",
-                      "latex": "\\left(-\\infty, 0\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": 0.0,
-                    "right_closed": false
-                  },
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "0"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval.open(0, oo)",
-                      "latex": "\\left(0, \\infty\\right)"
-                    },
-                    "left": 0.0,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "配对后的范围\\quad x=-2024",
-                "points": [
-                  {
-                    "at": -2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-2024"
-                      },
-                      "expression": "-2024",
-                      "latex": "-2024"
-                    },
-                    "label": "-2024"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-2024"
-                      },
-                      "expression": "-2024",
-                      "latex": "-2024"
-                    },
-                    "label": "-2024"
-                  },
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 2024.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "2024"
-                      },
-                      "expression": "2024",
-                      "latex": "2024"
-                    },
-                    "label": "2024"
-                  }
-                ],
-                "variable": "x"
-              }
-            ],
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1538,10 +952,14 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "c76b1f3ee36eaf64ace46b8a#1",
+            "id": "b7b70141725a175973706b61#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$f(2024)+f(-2024)=-3$",
+                  "value": "o2"
+                },
                 {
                   "label": "$f(2024)+f(-2024)=-5$",
                   "value": "o3"
@@ -1551,24 +969,20 @@
                   "value": "o1"
                 },
                 {
-                  "label": "$f(2024)+f(-2024)=-3$",
-                  "value": "o2"
-                },
-                {
                   "label": "$f(2024)+f(-2024)=4$",
                   "value": "o4"
                 }
               ],
               "type": "choice"
             },
-            "question": "使用对称和值，检查每项的系数、出现次数及取值范围。",
+            "question": "求 $f(2024)+f(-2024)$ 的值。",
             "stem_board": {
-              "caption": "回答原题所求",
+              "caption": "代入题目中的数",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(x)=ax+\\frac{b}{x}-2\\\\D=\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\end{gathered}"
+                  "label": "已知",
+                  "math": "f(x)+f(-x)=-4"
                 },
                 {
                   "label": "结论",
@@ -1578,15 +992,15 @@
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "回答原题所求"
+            "title": "代入题目中的数"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "56a5388d78ef48eaaa3b3de518208827",
+        "run_id": "70aa1d2f20f943b9a6bd25205b804f2c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "1dccea378f01ff6c1a72fa122526c2fcdfd75ed2a7191c34551a6f7e6de83978",
+            "math_step_sha256": "042319202896e90434daebb1c9bf4f366352e1212df94b969b4cf35210645afd",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],

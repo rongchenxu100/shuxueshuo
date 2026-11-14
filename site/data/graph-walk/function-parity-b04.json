@@ -160,250 +160,20 @@
       "steps": [
         {
           "completion_board": {
-            "caption": "求相反输入的函数值之和",
+            "caption": "拆出常数项",
             "connector": "⇒",
             "items": [
               {
-                "label": "原式与条件",
-                "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\end{gathered}"
+                "label": "已知",
+                "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\\\\\text{定义域关于原点对称，}x\\text{ 与 }-x\\text{ 都能代入}\\end{gathered}"
               },
               {
-                "label": "对称和值",
-                "math": "f(x)+f(-x)=2"
+                "label": "拆分结果",
+                "math": "f(x)=1+\\frac{a x^{5}+2 x}{x^{2}+1}"
               }
             ],
             "layout": "derivation"
           },
-          "condition_number_lines": [
-            {
-              "bounds": [
-                -2,
-                2
-              ],
-              "exact_set": {
-                "exact": {
-                  "$math": "Interval",
-                  "args": [
-                    {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    {
-                      "$math": "BooleanFalse"
-                    },
-                    {
-                      "$math": "BooleanFalse"
-                    }
-                  ]
-                },
-                "expression": "Interval(-1, 1)",
-                "latex": "\\left[-1, 1\\right]"
-              },
-              "intervals": [
-                {
-                  "exact": {
-                    "exact": {
-                      "$math": "Interval",
-                      "args": [
-                        {
-                          "$math": "Integer",
-                          "value": "-1"
-                        },
-                        {
-                          "$math": "Integer",
-                          "value": "1"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        }
-                      ]
-                    },
-                    "expression": "Interval(-1, 1)",
-                    "latex": "\\left[-1, 1\\right]"
-                  },
-                  "left": -1,
-                  "left_closed": true,
-                  "right": 1,
-                  "right_closed": true
-                }
-              ],
-              "label": "最值所在的同一范围",
-              "points": [
-                {
-                  "at": 1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    "expression": "1",
-                    "latex": "1"
-                  },
-                  "label": "1"
-                }
-              ],
-              "ticks": [
-                {
-                  "at": -1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    "expression": "-1",
-                    "latex": "-1"
-                  },
-                  "label": "-1"
-                },
-                {
-                  "at": 0,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "0"
-                    },
-                    "expression": "0",
-                    "latex": "0"
-                  },
-                  "label": "0"
-                },
-                {
-                  "at": 1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    "expression": "1",
-                    "latex": "1"
-                  },
-                  "label": "1"
-                }
-              ],
-              "variable": "x"
-            },
-            {
-              "bounds": [
-                -2,
-                2
-              ],
-              "exact_set": {
-                "exact": {
-                  "$math": "Interval",
-                  "args": [
-                    {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    {
-                      "$math": "BooleanFalse"
-                    },
-                    {
-                      "$math": "BooleanFalse"
-                    }
-                  ]
-                },
-                "expression": "Interval(-1, 1)",
-                "latex": "\\left[-1, 1\\right]"
-              },
-              "intervals": [
-                {
-                  "exact": {
-                    "exact": {
-                      "$math": "Interval",
-                      "args": [
-                        {
-                          "$math": "Integer",
-                          "value": "-1"
-                        },
-                        {
-                          "$math": "Integer",
-                          "value": "1"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        }
-                      ]
-                    },
-                    "expression": "Interval(-1, 1)",
-                    "latex": "\\left[-1, 1\\right]"
-                  },
-                  "left": -1,
-                  "left_closed": true,
-                  "right": 1,
-                  "right_closed": true
-                }
-              ],
-              "label": "最值所在的同一范围",
-              "points": [
-                {
-                  "at": -1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    "expression": "-1",
-                    "latex": "-1"
-                  },
-                  "label": "-1"
-                }
-              ],
-              "ticks": [
-                {
-                  "at": -1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    "expression": "-1",
-                    "latex": "-1"
-                  },
-                  "label": "-1"
-                },
-                {
-                  "at": 0,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "0"
-                    },
-                    "expression": "0",
-                    "latex": "0"
-                  },
-                  "label": "0"
-                },
-                {
-                  "at": 1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    "expression": "1",
-                    "latex": "1"
-                  },
-                  "label": "1"
-                }
-              ],
-              "variable": "x"
-            }
-          ],
           "expected_answer": {
             "one_of": [
               "o1"
@@ -412,7 +182,179 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "976b2e0d17baab8548e413c7#1",
+          "id": "fceaeeb24b80e9ff2abcf5c6#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(x)=-1+\\frac{a x^{5}+2 x}{x^{2}+1}$",
+                "value": "o4"
+              },
+              {
+                "label": "$f(x)=1+\\frac{a x^{5}+x^{2}+2 x+1}{x^{2}+1}$",
+                "value": "o3"
+              },
+              {
+                "label": "$f(x)=1+\\frac{a x^{5}+x^{2}+2 x}{x^{2}+1}$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(x)=1+\\frac{a x^{5}+2 x}{x^{2}+1}$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把分子凑出分母的倍数，将 $f(x)$ 拆成「常数 + 分式」。哪一种拆法正确？",
+          "stem_board": {
+            "caption": "拆出常数项",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知",
+                "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\\\\\text{定义域关于原点对称，}x\\text{ 与 }-x\\text{ 都能代入}\\end{gathered}"
+              },
+              {
+                "label": "拆分结果",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "拆出常数项",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "96cd4a334c73a8547b0e360897a339f41ec8dd74c387a1e2da15d7723b373f10",
+              "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "871df13fe2bb3446a2b7939c::opposite-sum",
+          "stream_card_group": "opposite-sum",
+          "stream_part_index": 0,
+          "stream_part_count": 3,
+          "stream_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：拆出常数项"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "判断剩余部分是奇函数",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知",
+                "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(x)=\\frac{a x^{5}+2 x}{x^{2}+1}\\end{gathered}"
+              },
+              {
+                "label": "h(-x)",
+                "math": "h(-x)=\\frac{- a x^{5}- 2 x}{x^{2}+1}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "fceaeeb24b80e9ff2abcf5c6#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$h(-x)=\\frac{- a x^{5}- 2 x}{x^{2}+1}$",
+                "value": "o1"
+              },
+              {
+                "label": "$h(-x)=\\frac{a x^{5}- 2 x}{x^{2}+1}$",
+                "value": "o2"
+              },
+              {
+                "label": "$h(-x)=\\frac{a x^{5}+2 x}{x^{2}+1}$",
+                "value": "o4"
+              },
+              {
+                "label": "$h(-x)=\\frac{- a x^{5}+2 x}{x^{2}+1}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "记 $h(x)=\\frac{a x^{5}+2 x}{x^{2}+1}$。把 $x$ 换成 $-x$，$h(-x)$ 等于什么？",
+          "stem_board": {
+            "caption": "判断剩余部分是奇函数",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知",
+                "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(x)=\\frac{a x^{5}+2 x}{x^{2}+1}\\end{gathered}"
+              },
+              {
+                "label": "h(-x)",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "判断剩余部分是奇函数",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "96cd4a334c73a8547b0e360897a339f41ec8dd74c387a1e2da15d7723b373f10",
+              "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "871df13fe2bb3446a2b7939c::opposite-sum",
+          "stream_card_group": "opposite-sum",
+          "stream_part_index": 1,
+          "stream_part_count": 3,
+          "stream_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：判断剩余部分是奇函数"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "求 $f(x)+f(-x)$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知",
+                "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(-x)=-h(x)\\end{gathered}"
+              },
+              {
+                "label": "f(x)+f(-x)",
+                "math": "f(x)+f(-x)=2"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "fceaeeb24b80e9ff2abcf5c6#3",
           "interaction": {
             "field": "answer",
             "options": [
@@ -421,304 +363,658 @@
                 "value": "o1"
               },
               {
-                "label": "$f(x)+f(-x)=1$",
-                "value": "o3"
+                "label": "$f(x)+f(-x)=3$",
+                "value": "o2"
               },
               {
                 "label": "$f(x)+f(-x)=-2$",
                 "value": "o4"
               },
               {
-                "label": "$f(x)+f(-x)=3$",
-                "value": "o2"
+                "label": "$f(x)+f(-x)=1$",
+                "value": "o3"
               }
             ],
             "type": "choice"
           },
-          "question": "先明确奇函数，再将结论还原到所求的函数。",
+          "question": "由 $f(x)=1+h(x)$，$f(x)+f(-x)$ 等于多少？",
           "stem_board": {
-            "caption": "求相反输入的函数值之和",
+            "caption": "求 $f(x)+f(-x)$",
             "connector": "⇒",
             "items": [
               {
-                "label": "原式与条件",
-                "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\end{gathered}"
+                "label": "已知",
+                "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(-x)=-h(x)\\end{gathered}"
               },
               {
-                "label": "对称和值",
+                "label": "f(x)+f(-x)",
                 "math": null
               }
             ],
             "layout": "derivation"
           },
           "submit_label": "确认判断",
-          "title": "求相反输入的函数值之和",
+          "title": "求 $f(x)+f(-x)$",
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "8242e7df27e4b28cac7fcdcffdaf7e92e87a3cac728e24b7849fd478e8d8e90b",
+              "math_step_sha256": "96cd4a334c73a8547b0e360897a339f41ec8dd74c387a1e2da15d7723b373f10",
               "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "f2b18bce9ee737517bdaf524",
-          "stream_part_index": 0,
-          "stream_part_count": 1,
-          "stream_group_title": "求相反输入的函数值之和",
+          "stream_interaction_id": "871df13fe2bb3446a2b7939c::opposite-sum",
+          "stream_card_group": "opposite-sum",
+          "stream_part_index": 2,
+          "stream_part_count": 3,
+          "stream_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
           "effects": {
             "nodes": [],
             "edges": [],
             "calls": [],
             "results": [],
-            "log": "完成判断：求相反输入的函数值之和"
+            "log": "完成判断：求 $f(x)+f(-x)$"
           }
         },
         {
           "completion_board": {
-            "caption": "回答原题所求",
+            "caption": "$h(x)$ 的最值关于原点对称",
             "connector": "⇒",
             "items": [
               {
-                "label": "已知条件",
-                "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\end{gathered}"
+                "label": "已知",
+                "math": "\\begin{gathered}h(x)=\\frac{a x^{5}+2 x}{x^{2}+1}\\\\h(-x)=-h(x)\\\\x\\in \\left[-1, 1\\right]\\\\h(x)_{\\max}=G\\end{gathered}"
               },
               {
-                "label": "结论",
-                "math": "M+m=2"
+                "label": "$h(x)$ 的最小值",
+                "math": "h(x)_{\\min}=-G"
               }
             ],
             "layout": "derivation"
           },
-          "condition_number_lines": [
-            {
+          "completion_graph": {
+            "caption": "示意图：取 $a=-3$ 时 $h(x)$ 的图像。参数取其他值时形状不同，但 $h$ 是奇函数，最高点 $(t,G)$ 与最低点 $(-t,-G)$ 总关于原点对称。",
+            "kind": "sampled_curve",
+            "params": {
               "bounds": [
-                -2,
-                2
+                -1.3,
+                1.3,
+                -0.9120413263790134,
+                0.9120413263790134
               ],
-              "exact_set": {
-                "exact": {
-                  "$math": "Interval",
-                  "args": [
+              "description": "实线为 h(x) 的图像；最高点 (t, G) 与最低点 (-t, -G) 关于原点对称。",
+              "dividers": [],
+              "interval": [
+                -1,
+                1
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "points": [],
+              "title": "奇函数的最值关于原点对称",
+              "traces": [
+                {
+                  "label": "h(x)",
+                  "markers": [
                     {
-                      "$math": "Integer",
-                      "value": "-1"
+                      "closed": true,
+                      "label": "(−t, −G)",
+                      "x": -0.53125,
+                      "y": -0.7296330611032107
                     },
                     {
-                      "$math": "Integer",
-                      "value": "1"
+                      "closed": true,
+                      "x": 0,
+                      "y": 0
                     },
                     {
-                      "$math": "BooleanFalse"
-                    },
-                    {
-                      "$math": "BooleanFalse"
+                      "closed": true,
+                      "label": "(t, G)",
+                      "x": 0.53125,
+                      "y": 0.7296330611032107
                     }
-                  ]
-                },
-                "expression": "Interval(-1, 1)",
-                "latex": "\\left[-1, 1\\right]"
-              },
-              "intervals": [
-                {
-                  "exact": {
-                    "exact": {
-                      "$math": "Interval",
-                      "args": [
-                        {
-                          "$math": "Integer",
-                          "value": "-1"
-                        },
-                        {
-                          "$math": "Integer",
-                          "value": "1"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        }
+                  ],
+                  "segments": [
+                    [
+                      [
+                        -1,
+                        0.5
+                      ],
+                      [
+                        -0.984375,
+                        0.40837382525297994
+                      ],
+                      [
+                        -0.96875,
+                        0.32094562059685927
+                      ],
+                      [
+                        -0.953125,
+                        0.23764073173149142
+                      ],
+                      [
+                        -0.9375,
+                        0.15838432708549896
+                      ],
+                      [
+                        -0.921875,
+                        0.0831013997060195
+                      ],
+                      [
+                        -0.90625,
+                        0.011716770039167225
+                      ],
+                      [
+                        -0.890625,
+                        -0.055844910311974826
+                      ],
+                      [
+                        -0.875,
+                        -0.11965915376106195
+                      ],
+                      [
+                        -0.859375,
+                        -0.17980163074949287
+                      ],
+                      [
+                        -0.84375,
+                        -0.2363481624971032
+                      ],
+                      [
+                        -0.828125,
+                        -0.289374712392267
+                      ],
+                      [
+                        -0.8125,
+                        -0.3389573759191176
+                      ],
+                      [
+                        -0.796875,
+                        -0.38517236901839064
+                      ],
+                      [
+                        -0.78125,
+                        -0.4280960147781326
+                      ],
+                      [
+                        -0.765625,
+                        -0.467804728351374
+                      ],
+                      [
+                        -0.75,
+                        -0.504375
+                      ],
+                      [
+                        -0.734375,
+                        -0.5378833761676544
+                      ],
+                      [
+                        -0.71875,
+                        -0.5684064384897678
+                      ],
+                      [
+                        -0.703125,
+                        -0.5960207806559019
+                      ],
+                      [
+                        -0.6875,
+                        -0.62080298304874
+                      ],
+                      [
+                        -0.671875,
+                        -0.6428295850954304
+                      ],
+                      [
+                        -0.65625,
+                        -0.6621770552807701
+                      ],
+                      [
+                        -0.640625,
+                        -0.6789217587880905
+                      ],
+                      [
+                        -0.625,
+                        -0.693139922752809
+                      ],
+                      [
+                        -0.609375,
+                        -0.7049075991355674
+                      ],
+                      [
+                        -0.59375,
+                        -0.7143006252467847
+                      ],
+                      [
+                        -0.578125,
+                        -0.7213945819823325
+                      ],
+                      [
+                        -0.5625,
+                        -0.7262647498609051
+                      ],
+                      [
+                        -0.546875,
+                        -0.7289860629874095
+                      ],
+                      [
+                        -0.53125,
+                        -0.7296330611032107
+                      ],
+                      [
+                        -0.515625,
+                        -0.7282798399230899
+                      ],
+                      [
+                        -0.5,
+                        -0.725
+                      ],
+                      [
+                        -0.484375,
+                        -0.7198665944017014
+                      ],
+                      [
+                        -0.46875,
+                        -0.7129520755276096
+                      ],
+                      [
+                        -0.453125,
+                        -0.7043282414390559
+                      ],
+                      [
+                        -0.4375,
+                        -0.6940661821209017
+                      ],
+                      [
+                        -0.421875,
+                        -0.6822362261362026
+                      ],
+                      [
+                        -0.40625,
+                        -0.6689078881774544
+                      ],
+                      [
+                        -0.390625,
+                        -0.6541498180567978
+                      ],
+                      [
+                        -0.375,
+                        -0.6380297517123288
+                      ],
+                      [
+                        -0.359375,
+                        -0.6206144648371517
+                      ],
+                      [
+                        -0.34375,
+                        -0.6019697297608488
+                      ],
+                      [
+                        -0.328125,
+                        -0.5821602762284088
+                      ],
+                      [
+                        -0.3125,
+                        -0.5612497567282029
+                      ],
+                      [
+                        -0.296875,
+                        -0.5393007170172425
+                      ],
+                      [
+                        -0.28125,
+                        -0.5163745724777291
+                      ],
+                      [
+                        -0.265625,
+                        -0.4925315909130136
+                      ],
+                      [
+                        -0.25,
+                        -0.4678308823529412
+                      ],
+                      [
+                        -0.234375,
+                        -0.44233039638781485
+                      ],
+                      [
+                        -0.21875,
+                        -0.4160869274868214
+                      ],
+                      [
+                        -0.203125,
+                        -0.3891561286809995
+                      ],
+                      [
+                        -0.1875,
+                        -0.36159253390330187
+                      ],
+                      [
+                        -0.171875,
+                        -0.33344958917999085
+                      ],
+                      [
+                        -0.15625,
+                        -0.3047796927598457
+                      ],
+                      [
+                        -0.140625,
+                        -0.27563424415213944
+                      ],
+                      [
+                        -0.125,
+                        -0.24606370192307692
+                      ],
+                      [
+                        -0.109375,
+                        -0.2161176499756743
+                      ],
+                      [
+                        -0.09375,
+                        -0.18584487191243648
+                      ],
+                      [
+                        -0.078125,
+                        -0.15529343295635398
+                      ],
+                      [
+                        -0.0625,
+                        -0.1245107687864786
+                      ],
+                      [
+                        -0.046875,
+                        -0.09354378053244662
+                      ],
+                      [
+                        -0.03125,
+                        -0.06243893507050305
+                      ],
+                      [
+                        -0.015625,
+                        -0.031242369674373494
+                      ],
+                      [
+                        0,
+                        0
+                      ],
+                      [
+                        0.015625,
+                        0.031242369674373494
+                      ],
+                      [
+                        0.03125,
+                        0.06243893507050305
+                      ],
+                      [
+                        0.046875,
+                        0.09354378053244662
+                      ],
+                      [
+                        0.0625,
+                        0.1245107687864786
+                      ],
+                      [
+                        0.078125,
+                        0.15529343295635398
+                      ],
+                      [
+                        0.09375,
+                        0.18584487191243648
+                      ],
+                      [
+                        0.109375,
+                        0.2161176499756743
+                      ],
+                      [
+                        0.125,
+                        0.24606370192307692
+                      ],
+                      [
+                        0.140625,
+                        0.27563424415213944
+                      ],
+                      [
+                        0.15625,
+                        0.3047796927598457
+                      ],
+                      [
+                        0.171875,
+                        0.33344958917999085
+                      ],
+                      [
+                        0.1875,
+                        0.36159253390330187
+                      ],
+                      [
+                        0.203125,
+                        0.3891561286809995
+                      ],
+                      [
+                        0.21875,
+                        0.4160869274868214
+                      ],
+                      [
+                        0.234375,
+                        0.44233039638781485
+                      ],
+                      [
+                        0.25,
+                        0.4678308823529412
+                      ],
+                      [
+                        0.265625,
+                        0.4925315909130136
+                      ],
+                      [
+                        0.28125,
+                        0.5163745724777291
+                      ],
+                      [
+                        0.296875,
+                        0.5393007170172425
+                      ],
+                      [
+                        0.3125,
+                        0.5612497567282029
+                      ],
+                      [
+                        0.328125,
+                        0.5821602762284088
+                      ],
+                      [
+                        0.34375,
+                        0.6019697297608488
+                      ],
+                      [
+                        0.359375,
+                        0.6206144648371517
+                      ],
+                      [
+                        0.375,
+                        0.6380297517123288
+                      ],
+                      [
+                        0.390625,
+                        0.6541498180567978
+                      ],
+                      [
+                        0.40625,
+                        0.6689078881774544
+                      ],
+                      [
+                        0.421875,
+                        0.6822362261362026
+                      ],
+                      [
+                        0.4375,
+                        0.6940661821209017
+                      ],
+                      [
+                        0.453125,
+                        0.7043282414390559
+                      ],
+                      [
+                        0.46875,
+                        0.7129520755276096
+                      ],
+                      [
+                        0.484375,
+                        0.7198665944017014
+                      ],
+                      [
+                        0.5,
+                        0.725
+                      ],
+                      [
+                        0.515625,
+                        0.7282798399230899
+                      ],
+                      [
+                        0.53125,
+                        0.7296330611032107
+                      ],
+                      [
+                        0.546875,
+                        0.7289860629874095
+                      ],
+                      [
+                        0.5625,
+                        0.7262647498609051
+                      ],
+                      [
+                        0.578125,
+                        0.7213945819823325
+                      ],
+                      [
+                        0.59375,
+                        0.7143006252467847
+                      ],
+                      [
+                        0.609375,
+                        0.7049075991355674
+                      ],
+                      [
+                        0.625,
+                        0.693139922752809
+                      ],
+                      [
+                        0.640625,
+                        0.6789217587880905
+                      ],
+                      [
+                        0.65625,
+                        0.6621770552807701
+                      ],
+                      [
+                        0.671875,
+                        0.6428295850954304
+                      ],
+                      [
+                        0.6875,
+                        0.62080298304874
+                      ],
+                      [
+                        0.703125,
+                        0.5960207806559019
+                      ],
+                      [
+                        0.71875,
+                        0.5684064384897678
+                      ],
+                      [
+                        0.734375,
+                        0.5378833761676544
+                      ],
+                      [
+                        0.75,
+                        0.504375
+                      ],
+                      [
+                        0.765625,
+                        0.467804728351374
+                      ],
+                      [
+                        0.78125,
+                        0.4280960147781326
+                      ],
+                      [
+                        0.796875,
+                        0.38517236901839064
+                      ],
+                      [
+                        0.8125,
+                        0.3389573759191176
+                      ],
+                      [
+                        0.828125,
+                        0.289374712392267
+                      ],
+                      [
+                        0.84375,
+                        0.2363481624971032
+                      ],
+                      [
+                        0.859375,
+                        0.17980163074949287
+                      ],
+                      [
+                        0.875,
+                        0.11965915376106195
+                      ],
+                      [
+                        0.890625,
+                        0.055844910311974826
+                      ],
+                      [
+                        0.90625,
+                        -0.011716770039167225
+                      ],
+                      [
+                        0.921875,
+                        -0.0831013997060195
+                      ],
+                      [
+                        0.9375,
+                        -0.15838432708549896
+                      ],
+                      [
+                        0.953125,
+                        -0.23764073173149142
+                      ],
+                      [
+                        0.96875,
+                        -0.32094562059685927
+                      ],
+                      [
+                        0.984375,
+                        -0.40837382525297994
+                      ],
+                      [
+                        1,
+                        -0.5
                       ]
-                    },
-                    "expression": "Interval(-1, 1)",
-                    "latex": "\\left[-1, 1\\right]"
-                  },
-                  "left": -1,
-                  "left_closed": true,
-                  "right": 1,
-                  "right_closed": true
-                }
-              ],
-              "label": "最值所在的同一范围",
-              "points": [
-                {
-                  "at": 1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    "expression": "1",
-                    "latex": "1"
-                  },
-                  "label": "1"
-                }
-              ],
-              "ticks": [
-                {
-                  "at": -1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    "expression": "-1",
-                    "latex": "-1"
-                  },
-                  "label": "-1"
-                },
-                {
-                  "at": 0,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "0"
-                    },
-                    "expression": "0",
-                    "latex": "0"
-                  },
-                  "label": "0"
-                },
-                {
-                  "at": 1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    "expression": "1",
-                    "latex": "1"
-                  },
-                  "label": "1"
-                }
-              ],
-              "variable": "x"
-            },
-            {
-              "bounds": [
-                -2,
-                2
-              ],
-              "exact_set": {
-                "exact": {
-                  "$math": "Interval",
-                  "args": [
-                    {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    {
-                      "$math": "BooleanFalse"
-                    },
-                    {
-                      "$math": "BooleanFalse"
-                    }
+                    ]
                   ]
-                },
-                "expression": "Interval(-1, 1)",
-                "latex": "\\left[-1, 1\\right]"
-              },
-              "intervals": [
-                {
-                  "exact": {
-                    "exact": {
-                      "$math": "Interval",
-                      "args": [
-                        {
-                          "$math": "Integer",
-                          "value": "-1"
-                        },
-                        {
-                          "$math": "Integer",
-                          "value": "1"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        },
-                        {
-                          "$math": "BooleanFalse"
-                        }
-                      ]
-                    },
-                    "expression": "Interval(-1, 1)",
-                    "latex": "\\left[-1, 1\\right]"
-                  },
-                  "left": -1,
-                  "left_closed": true,
-                  "right": 1,
-                  "right_closed": true
                 }
               ],
-              "label": "最值所在的同一范围",
-              "points": [
-                {
-                  "at": -1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    "expression": "-1",
-                    "latex": "-1"
-                  },
-                  "label": "-1"
-                }
-              ],
-              "ticks": [
-                {
-                  "at": -1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "-1"
-                    },
-                    "expression": "-1",
-                    "latex": "-1"
-                  },
-                  "label": "-1"
-                },
-                {
-                  "at": 0,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "0"
-                    },
-                    "expression": "0",
-                    "latex": "0"
-                  },
-                  "label": "0"
-                },
-                {
-                  "at": 1,
-                  "exact": {
-                    "exact": {
-                      "$math": "Integer",
-                      "value": "1"
-                    },
-                    "expression": "1",
-                    "latex": "1"
-                  },
-                  "label": "1"
-                }
-              ],
-              "variable": "x"
+              "variable": "x",
+              "xTicks": [
+                [
+                  -1,
+                  "-1"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  1,
+                  "1"
+                ]
+              ]
             }
-          ],
+          },
           "expected_answer": {
             "one_of": [
               "o1"
@@ -727,18 +1023,679 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "f2ce9d7a328b8c062d9bf8c5#1",
+          "graph": {
+            "caption": "示意图：取 $a=-3$ 时 $h(x)$ 的图像。参数取其他值时形状不同，但 $h$ 是奇函数，最高点 $(t,G)$ 与最低点 $(-t,-G)$ 总关于原点对称。",
+            "kind": "sampled_curve",
+            "params": {
+              "bounds": [
+                -1.3,
+                1.3,
+                -0.9120413263790134,
+                0.9120413263790134
+              ],
+              "description": "实线为 h(x) 的图像；最高点 (t, G) 与最低点 (-t, -G) 关于原点对称。",
+              "dividers": [],
+              "interval": [
+                -1,
+                1
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "points": [],
+              "title": "奇函数的最值关于原点对称",
+              "traces": [
+                {
+                  "label": "h(x)",
+                  "markers": [
+                    {
+                      "closed": true,
+                      "label": "(−t, −G)",
+                      "x": -0.53125,
+                      "y": -0.7296330611032107
+                    },
+                    {
+                      "closed": true,
+                      "x": 0,
+                      "y": 0
+                    },
+                    {
+                      "closed": true,
+                      "label": "(t, G)",
+                      "x": 0.53125,
+                      "y": 0.7296330611032107
+                    }
+                  ],
+                  "segments": [
+                    [
+                      [
+                        -1,
+                        0.5
+                      ],
+                      [
+                        -0.984375,
+                        0.40837382525297994
+                      ],
+                      [
+                        -0.96875,
+                        0.32094562059685927
+                      ],
+                      [
+                        -0.953125,
+                        0.23764073173149142
+                      ],
+                      [
+                        -0.9375,
+                        0.15838432708549896
+                      ],
+                      [
+                        -0.921875,
+                        0.0831013997060195
+                      ],
+                      [
+                        -0.90625,
+                        0.011716770039167225
+                      ],
+                      [
+                        -0.890625,
+                        -0.055844910311974826
+                      ],
+                      [
+                        -0.875,
+                        -0.11965915376106195
+                      ],
+                      [
+                        -0.859375,
+                        -0.17980163074949287
+                      ],
+                      [
+                        -0.84375,
+                        -0.2363481624971032
+                      ],
+                      [
+                        -0.828125,
+                        -0.289374712392267
+                      ],
+                      [
+                        -0.8125,
+                        -0.3389573759191176
+                      ],
+                      [
+                        -0.796875,
+                        -0.38517236901839064
+                      ],
+                      [
+                        -0.78125,
+                        -0.4280960147781326
+                      ],
+                      [
+                        -0.765625,
+                        -0.467804728351374
+                      ],
+                      [
+                        -0.75,
+                        -0.504375
+                      ],
+                      [
+                        -0.734375,
+                        -0.5378833761676544
+                      ],
+                      [
+                        -0.71875,
+                        -0.5684064384897678
+                      ],
+                      [
+                        -0.703125,
+                        -0.5960207806559019
+                      ],
+                      [
+                        -0.6875,
+                        -0.62080298304874
+                      ],
+                      [
+                        -0.671875,
+                        -0.6428295850954304
+                      ],
+                      [
+                        -0.65625,
+                        -0.6621770552807701
+                      ],
+                      [
+                        -0.640625,
+                        -0.6789217587880905
+                      ],
+                      [
+                        -0.625,
+                        -0.693139922752809
+                      ],
+                      [
+                        -0.609375,
+                        -0.7049075991355674
+                      ],
+                      [
+                        -0.59375,
+                        -0.7143006252467847
+                      ],
+                      [
+                        -0.578125,
+                        -0.7213945819823325
+                      ],
+                      [
+                        -0.5625,
+                        -0.7262647498609051
+                      ],
+                      [
+                        -0.546875,
+                        -0.7289860629874095
+                      ],
+                      [
+                        -0.53125,
+                        -0.7296330611032107
+                      ],
+                      [
+                        -0.515625,
+                        -0.7282798399230899
+                      ],
+                      [
+                        -0.5,
+                        -0.725
+                      ],
+                      [
+                        -0.484375,
+                        -0.7198665944017014
+                      ],
+                      [
+                        -0.46875,
+                        -0.7129520755276096
+                      ],
+                      [
+                        -0.453125,
+                        -0.7043282414390559
+                      ],
+                      [
+                        -0.4375,
+                        -0.6940661821209017
+                      ],
+                      [
+                        -0.421875,
+                        -0.6822362261362026
+                      ],
+                      [
+                        -0.40625,
+                        -0.6689078881774544
+                      ],
+                      [
+                        -0.390625,
+                        -0.6541498180567978
+                      ],
+                      [
+                        -0.375,
+                        -0.6380297517123288
+                      ],
+                      [
+                        -0.359375,
+                        -0.6206144648371517
+                      ],
+                      [
+                        -0.34375,
+                        -0.6019697297608488
+                      ],
+                      [
+                        -0.328125,
+                        -0.5821602762284088
+                      ],
+                      [
+                        -0.3125,
+                        -0.5612497567282029
+                      ],
+                      [
+                        -0.296875,
+                        -0.5393007170172425
+                      ],
+                      [
+                        -0.28125,
+                        -0.5163745724777291
+                      ],
+                      [
+                        -0.265625,
+                        -0.4925315909130136
+                      ],
+                      [
+                        -0.25,
+                        -0.4678308823529412
+                      ],
+                      [
+                        -0.234375,
+                        -0.44233039638781485
+                      ],
+                      [
+                        -0.21875,
+                        -0.4160869274868214
+                      ],
+                      [
+                        -0.203125,
+                        -0.3891561286809995
+                      ],
+                      [
+                        -0.1875,
+                        -0.36159253390330187
+                      ],
+                      [
+                        -0.171875,
+                        -0.33344958917999085
+                      ],
+                      [
+                        -0.15625,
+                        -0.3047796927598457
+                      ],
+                      [
+                        -0.140625,
+                        -0.27563424415213944
+                      ],
+                      [
+                        -0.125,
+                        -0.24606370192307692
+                      ],
+                      [
+                        -0.109375,
+                        -0.2161176499756743
+                      ],
+                      [
+                        -0.09375,
+                        -0.18584487191243648
+                      ],
+                      [
+                        -0.078125,
+                        -0.15529343295635398
+                      ],
+                      [
+                        -0.0625,
+                        -0.1245107687864786
+                      ],
+                      [
+                        -0.046875,
+                        -0.09354378053244662
+                      ],
+                      [
+                        -0.03125,
+                        -0.06243893507050305
+                      ],
+                      [
+                        -0.015625,
+                        -0.031242369674373494
+                      ],
+                      [
+                        0,
+                        0
+                      ],
+                      [
+                        0.015625,
+                        0.031242369674373494
+                      ],
+                      [
+                        0.03125,
+                        0.06243893507050305
+                      ],
+                      [
+                        0.046875,
+                        0.09354378053244662
+                      ],
+                      [
+                        0.0625,
+                        0.1245107687864786
+                      ],
+                      [
+                        0.078125,
+                        0.15529343295635398
+                      ],
+                      [
+                        0.09375,
+                        0.18584487191243648
+                      ],
+                      [
+                        0.109375,
+                        0.2161176499756743
+                      ],
+                      [
+                        0.125,
+                        0.24606370192307692
+                      ],
+                      [
+                        0.140625,
+                        0.27563424415213944
+                      ],
+                      [
+                        0.15625,
+                        0.3047796927598457
+                      ],
+                      [
+                        0.171875,
+                        0.33344958917999085
+                      ],
+                      [
+                        0.1875,
+                        0.36159253390330187
+                      ],
+                      [
+                        0.203125,
+                        0.3891561286809995
+                      ],
+                      [
+                        0.21875,
+                        0.4160869274868214
+                      ],
+                      [
+                        0.234375,
+                        0.44233039638781485
+                      ],
+                      [
+                        0.25,
+                        0.4678308823529412
+                      ],
+                      [
+                        0.265625,
+                        0.4925315909130136
+                      ],
+                      [
+                        0.28125,
+                        0.5163745724777291
+                      ],
+                      [
+                        0.296875,
+                        0.5393007170172425
+                      ],
+                      [
+                        0.3125,
+                        0.5612497567282029
+                      ],
+                      [
+                        0.328125,
+                        0.5821602762284088
+                      ],
+                      [
+                        0.34375,
+                        0.6019697297608488
+                      ],
+                      [
+                        0.359375,
+                        0.6206144648371517
+                      ],
+                      [
+                        0.375,
+                        0.6380297517123288
+                      ],
+                      [
+                        0.390625,
+                        0.6541498180567978
+                      ],
+                      [
+                        0.40625,
+                        0.6689078881774544
+                      ],
+                      [
+                        0.421875,
+                        0.6822362261362026
+                      ],
+                      [
+                        0.4375,
+                        0.6940661821209017
+                      ],
+                      [
+                        0.453125,
+                        0.7043282414390559
+                      ],
+                      [
+                        0.46875,
+                        0.7129520755276096
+                      ],
+                      [
+                        0.484375,
+                        0.7198665944017014
+                      ],
+                      [
+                        0.5,
+                        0.725
+                      ],
+                      [
+                        0.515625,
+                        0.7282798399230899
+                      ],
+                      [
+                        0.53125,
+                        0.7296330611032107
+                      ],
+                      [
+                        0.546875,
+                        0.7289860629874095
+                      ],
+                      [
+                        0.5625,
+                        0.7262647498609051
+                      ],
+                      [
+                        0.578125,
+                        0.7213945819823325
+                      ],
+                      [
+                        0.59375,
+                        0.7143006252467847
+                      ],
+                      [
+                        0.609375,
+                        0.7049075991355674
+                      ],
+                      [
+                        0.625,
+                        0.693139922752809
+                      ],
+                      [
+                        0.640625,
+                        0.6789217587880905
+                      ],
+                      [
+                        0.65625,
+                        0.6621770552807701
+                      ],
+                      [
+                        0.671875,
+                        0.6428295850954304
+                      ],
+                      [
+                        0.6875,
+                        0.62080298304874
+                      ],
+                      [
+                        0.703125,
+                        0.5960207806559019
+                      ],
+                      [
+                        0.71875,
+                        0.5684064384897678
+                      ],
+                      [
+                        0.734375,
+                        0.5378833761676544
+                      ],
+                      [
+                        0.75,
+                        0.504375
+                      ],
+                      [
+                        0.765625,
+                        0.467804728351374
+                      ],
+                      [
+                        0.78125,
+                        0.4280960147781326
+                      ],
+                      [
+                        0.796875,
+                        0.38517236901839064
+                      ],
+                      [
+                        0.8125,
+                        0.3389573759191176
+                      ],
+                      [
+                        0.828125,
+                        0.289374712392267
+                      ],
+                      [
+                        0.84375,
+                        0.2363481624971032
+                      ],
+                      [
+                        0.859375,
+                        0.17980163074949287
+                      ],
+                      [
+                        0.875,
+                        0.11965915376106195
+                      ],
+                      [
+                        0.890625,
+                        0.055844910311974826
+                      ],
+                      [
+                        0.90625,
+                        -0.011716770039167225
+                      ],
+                      [
+                        0.921875,
+                        -0.0831013997060195
+                      ],
+                      [
+                        0.9375,
+                        -0.15838432708549896
+                      ],
+                      [
+                        0.953125,
+                        -0.23764073173149142
+                      ],
+                      [
+                        0.96875,
+                        -0.32094562059685927
+                      ],
+                      [
+                        0.984375,
+                        -0.40837382525297994
+                      ],
+                      [
+                        1,
+                        -0.5
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "variable": "x",
+              "xTicks": [
+                [
+                  -1,
+                  "-1"
+                ],
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  1,
+                  "1"
+                ]
+              ]
+            }
+          },
+          "id": "30562effc65beb19f3575a9c#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$M+m=1$",
-                "value": "o3"
-              },
-              {
-                "label": "$M+m=-2$",
+                "label": "$h(x)_{\\min}=-2G$",
                 "value": "o4"
               },
+              {
+                "label": "$h(x)_{\\min}=-G$",
+                "value": "o1"
+              },
+              {
+                "label": "$h(x)_{\\min}=G$",
+                "value": "o2"
+              },
+              {
+                "label": "$h(x)_{\\min}=0$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "设 $h(x)$ 在 $x=t$ 处取到最大值 $G$。由 $h$ 是奇函数，$h(x)$ 的最小值是多少？",
+          "stem_board": {
+            "caption": "$h(x)$ 的最值关于原点对称",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知",
+                "math": "\\begin{gathered}h(x)=\\frac{a x^{5}+2 x}{x^{2}+1}\\\\h(-x)=-h(x)\\\\x\\in \\left[-1, 1\\right]\\\\h(x)_{\\max}=G\\end{gathered}"
+              },
+              {
+                "label": "$h(x)$ 的最小值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "$h(x)$ 的最值关于原点对称",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "c05e64656caa452493ff22fd1627bcfec91ba8675bfa3f349cb23545cb43360c",
+              "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "31e7aeb48121d5e489382da6::extrema",
+          "stream_card_group": "extrema",
+          "stream_part_index": 0,
+          "stream_part_count": 2,
+          "stream_group_title": "利用最值对称求 $M+m$",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：$h(x)$ 的最值关于原点对称"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "求 $M+m$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知",
+                "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(x)_{\\max}=G\\\\h(x)_{\\min}=-G\\end{gathered}"
+              },
+              {
+                "label": "结论",
+                "math": "M+m=2"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "30562effc65beb19f3575a9c#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
               {
                 "label": "$M+m=2$",
                 "value": "o1"
@@ -746,18 +1703,26 @@
               {
                 "label": "$M+m=3$",
                 "value": "o2"
+              },
+              {
+                "label": "$M+m=1$",
+                "value": "o3"
+              },
+              {
+                "label": "$M+m=-2$",
+                "value": "o4"
               }
             ],
             "type": "choice"
           },
-          "question": "使用对称和值，检查每项的系数、出现次数及取值范围。",
+          "question": "由 $f(x)=1+h(x)$，$h(x)$ 的最大值为 $G$、最小值为 $-G$，$M+m$ 等于多少？",
           "stem_board": {
-            "caption": "回答原题所求",
+            "caption": "求 $M+m$",
             "connector": "⇒",
             "items": [
               {
-                "label": "已知条件",
-                "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\end{gathered}"
+                "label": "已知",
+                "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(x)_{\\max}=G\\\\h(x)_{\\min}=-G\\end{gathered}"
               },
               {
                 "label": "结论",
@@ -767,25 +1732,26 @@
             "layout": "derivation"
           },
           "submit_label": "确认判断",
-          "title": "回答原题所求",
+          "title": "求 $M+m$",
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "6121ee99b10edc311f89e9ae1da895c3849d7f7a5d19cb0504cf24c1b24bfa85",
+              "math_step_sha256": "c05e64656caa452493ff22fd1627bcfec91ba8675bfa3f349cb23545cb43360c",
               "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "bb024cc430279dd00cc4b04d",
-          "stream_part_index": 0,
-          "stream_part_count": 1,
-          "stream_group_title": "回答原题所求",
+          "stream_interaction_id": "31e7aeb48121d5e489382da6::extrema",
+          "stream_card_group": "extrema",
+          "stream_part_index": 1,
+          "stream_part_count": 2,
+          "stream_group_title": "利用最值对称求 $M+m$",
           "effects": {
             "nodes": [],
             "edges": [],
             "calls": [],
             "results": [],
-            "log": "完成判断：回答原题所求"
+            "log": "完成判断：求 $M+m$"
           }
         }
       ],
@@ -813,25 +1779,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "396b9e607a4d4aa820b8d383759c61fc90b49caa204a2dd2cb6a75d75597439e",
+        "lesson_version": "5ae370101036babce6290f30f2cb1859b61ee7ac30fd7ec6cb74dc119d42de5c",
         "math_steps": [
           {
-            "math_step_sha256": "8242e7df27e4b28cac7fcdcffdaf7e92e87a3cac728e24b7849fd478e8d8e90b",
+            "math_step_sha256": "96cd4a334c73a8547b0e360897a339f41ec8dd74c387a1e2da15d7723b373f10",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "6121ee99b10edc311f89e9ae1da895c3849d7f7a5d19cb0504cf24c1b24bfa85",
+            "math_step_sha256": "c05e64656caa452493ff22fd1627bcfec91ba8675bfa3f349cb23545cb43360c",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "edba8d5ba7bd41f7911253e3ef37a7c5",
+        "run_id": "0abbea7c093d4294b95ea182e16e5914",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "337b95b574a7364a8e73d826b90f463f2a9c2adbb7d134301e7cdb38f22f3d2b",
-        "verified_route_sha256": "3a357ee4ad8e00559b2bcdc458f8f043f12158712687e5813949066ef6d39268"
+        "task_id": "7d0526b77fbfd7acf694829a0318db12ed117261d202db1f6e9ceb4139cf8c45",
+        "verified_route_sha256": "0d6e96a166bfa5e5a84a5008df8dc21f38327b02529f948c206e25fc66839116"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -1083,11 +2049,11 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"74fead3576819cc7de98715d2c20fb59c001fea5dc984888e7f5513fbde036d3\",\"35c2577edc9a1371ae8fdd2dd2b66f94439ca490be5830604919a23e4a06367e\",\"da6a3cf77e6946e6914ee49de82c499b\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"e470070c30bac8b59f8fcf14ce404409d7e5b360aed014dd90c1929548a30893\",\"57b347739db4eb3f421d4cbe011764b1ee8e6f4d0b3e345138efeb417cebcd21\",\"ac2bde96e85c41d09e77b1600dd5d9ae\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "edba8d5ba7bd41f7911253e3ef37a7c5",
-    "lesson_version": "396b9e607a4d4aa820b8d383759c61fc90b49caa204a2dd2cb6a75d75597439e",
-    "stream_id": "edba8d5ba7bd41f7911253e3ef37a7c5",
+    "run_id": "0abbea7c093d4294b95ea182e16e5914",
+    "lesson_version": "5ae370101036babce6290f30f2cb1859b61ee7ac30fd7ec6cb74dc119d42de5c",
+    "stream_id": "0abbea7c093d4294b95ea182e16e5914",
     "target_ref": "/root/goals/0",
     "base_bundle_version": "e470070c30bac8b59f8fcf14ce404409d7e5b360aed014dd90c1929548a30893",
     "d3": {
@@ -1126,37 +2092,37 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_rewrite",
-        "explanation": "$$\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\\\f(x)=\\left(-1 + \\frac{a x^{5} + \\left(x + 1\\right)^{2}}{x^{2} + 1}\\right)+1\\\\f(x)+f(-x)=2\\\\\\frac{f(x)+f(-x)}{2}=1\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}\\because\\ \\left(x+1\\right)^{2}+ax^{5}=\\left(x^{2}+1\\right)+\\left(a x^{5}+2 x\\right)\\\\\\therefore\\ f(x)=1+\\frac{a x^{5}+2 x}{x^{2}+1}\\\\h(-x)=\\frac{a(-x)^{5}+2(-x)}{(-x)^{2}+1}\\\\h(-x)=\\frac{- a x^{5}- 2 x}{x^{2}+1}=-h(x)\\\\\\therefore\\ h(x)\\text{ 是奇函数}\\\\\\therefore\\ f(x)+f(-x)=\\left(1+h(x)\\right)+\\left(1-h(x)\\right)=2\\end{gathered}$$",
         "highlight": {
-          "caption": "求相反输入的函数值之和",
+          "caption": "求 $f(x)+f(-x)$",
           "connector": "⇒",
           "items": [
             {
-              "label": "原式与条件",
-              "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\end{gathered}"
+              "label": "已知",
+              "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(-x)=-h(x)\\end{gathered}"
             },
             {
-              "label": "对称和值",
+              "label": "f(x)+f(-x)",
               "math": "f(x)+f(-x)=2"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "396b9e607a4d4aa820b8d383759c61fc90b49caa204a2dd2cb6a75d75597439e",
+        "lesson_version": "5ae370101036babce6290f30f2cb1859b61ee7ac30fd7ec6cb74dc119d42de5c",
         "local_check": "passed",
-        "math_step_sha256": "8242e7df27e4b28cac7fcdcffdaf7e92e87a3cac728e24b7849fd478e8d8e90b",
+        "math_step_sha256": "96cd4a334c73a8547b0e360897a339f41ec8dd74c387a1e2da15d7723b373f10",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "edba8d5ba7bd41f7911253e3ef37a7c5",
+        "run_id": "0abbea7c093d4294b95ea182e16e5914",
         "source_refs": [
           "/steps/1/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "target_ref": "/root/goals/0",
-        "title": "求相反输入的函数值之和",
+        "title": "求 $f(x)+f(-x)$",
         "used_basis": []
       },
       {
@@ -1165,14 +2131,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_conclude",
-        "explanation": "$$\\begin{gathered}f(x)+f(-x)=2\\\\x\\in D\\Longleftrightarrow -x\\in D\\\\f(t)=M\\\\f(-t)=2-M=m\\\\M+m=2\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}\\text{设 }h(t)=G\\text{ 是 }h(x)\\text{ 的最大值}\\\\\\because\\ h\\text{ 是奇函数}\\\\\\therefore\\ h(-x)=-h(x)\\ge -G\\text{，且 }h(-t)=-G\\\\\\therefore\\ h(x)_{\\min}=-G\\\\\\because\\ f(x)=1+h(x)\\\\\\therefore\\ M=1+G\\text{，}m=1- G\\\\\\therefore\\ M+m=\\left(1+G\\right)+\\left(1- G\\right)=2\\end{gathered}$$",
         "highlight": {
-          "caption": "回答原题所求",
+          "caption": "求 $M+m$",
           "connector": "⇒",
           "items": [
             {
-              "label": "已知条件",
-              "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\end{gathered}"
+              "label": "已知",
+              "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(x)_{\\max}=G\\\\h(x)_{\\min}=-G\\end{gathered}"
             },
             {
               "label": "结论",
@@ -1181,21 +2147,21 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "396b9e607a4d4aa820b8d383759c61fc90b49caa204a2dd2cb6a75d75597439e",
+        "lesson_version": "5ae370101036babce6290f30f2cb1859b61ee7ac30fd7ec6cb74dc119d42de5c",
         "local_check": "passed",
-        "math_step_sha256": "6121ee99b10edc311f89e9ae1da895c3849d7f7a5d19cb0504cf24c1b24bfa85",
+        "math_step_sha256": "c05e64656caa452493ff22fd1627bcfec91ba8675bfa3f349cb23545cb43360c",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "edba8d5ba7bd41f7911253e3ef37a7c5",
+        "run_id": "0abbea7c093d4294b95ea182e16e5914",
         "source_refs": [
           "/steps/3/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "target_ref": "/root/goals/0",
-        "title": "回答原题所求",
+        "title": "求 $M+m$",
         "used_basis": []
       }
     ],
@@ -1226,274 +2192,46 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "8242e7df27e4b28cac7fcdcffdaf7e92e87a3cac728e24b7849fd478e8d8e90b",
+        "math_step_sha256": "96cd4a334c73a8547b0e360897a339f41ec8dd74c387a1e2da15d7723b373f10",
         "status": "interactive",
-        "interaction_id": "f2b18bce9ee737517bdaf524"
+        "interaction_id": "871df13fe2bb3446a2b7939c"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "6121ee99b10edc311f89e9ae1da895c3849d7f7a5d19cb0504cf24c1b24bfa85",
+        "math_step_sha256": "c05e64656caa452493ff22fd1627bcfec91ba8675bfa3f349cb23545cb43360c",
         "status": "interactive",
-        "interaction_id": "bb024cc430279dd00cc4b04d"
+        "interaction_id": "31e7aeb48121d5e489382da6"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "f2b18bce9ee737517bdaf524",
+        "interaction_id": "871df13fe2bb3446a2b7939c",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "27c5d53a77799073b44527e2ace93a65473aab2b9db0b5e92d8e506d2fc7435a",
-        "lesson_version": "396b9e607a4d4aa820b8d383759c61fc90b49caa204a2dd2cb6a75d75597439e",
+        "interaction_sha256": "78cde794b89cb5cb39ad35cd5ecdc4d89d56e84d8d9c98afff394251c521de1b",
+        "lesson_version": "5ae370101036babce6290f30f2cb1859b61ee7ac30fd7ec6cb74dc119d42de5c",
         "parts": [
           {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
             "completion_board": {
-              "caption": "求相反输入的函数值之和",
+              "caption": "拆出常数项",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "原式与条件",
-                  "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\\\\\text{定义域关于原点对称，}x\\text{ 与 }-x\\text{ 都能代入}\\end{gathered}"
                 },
                 {
-                  "label": "对称和值",
-                  "math": "f(x)+f(-x)=2"
+                  "label": "拆分结果",
+                  "math": "f(x)=1+\\frac{a x^{5}+2 x}{x^{2}+1}"
                 }
               ],
               "layout": "derivation"
             },
-            "condition_number_lines": [
-              {
-                "bounds": [
-                  -2,
-                  2
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Interval",
-                    "args": [
-                      {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      }
-                    ]
-                  },
-                  "expression": "Interval(-1, 1)",
-                  "latex": "\\left[-1, 1\\right]"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "-1"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "1"
-                          },
-                          {
-                            "$math": "BooleanFalse"
-                          },
-                          {
-                            "$math": "BooleanFalse"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-1, 1)",
-                      "latex": "\\left[-1, 1\\right]"
-                    },
-                    "left": -1,
-                    "left_closed": true,
-                    "right": 1,
-                    "right_closed": true
-                  }
-                ],
-                "label": "最值所在的同一范围",
-                "points": [
-                  {
-                    "at": 1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  },
-                  {
-                    "at": 0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "variable": "x"
-              },
-              {
-                "bounds": [
-                  -2,
-                  2
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Interval",
-                    "args": [
-                      {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      }
-                    ]
-                  },
-                  "expression": "Interval(-1, 1)",
-                  "latex": "\\left[-1, 1\\right]"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "-1"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "1"
-                          },
-                          {
-                            "$math": "BooleanFalse"
-                          },
-                          {
-                            "$math": "BooleanFalse"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-1, 1)",
-                      "latex": "\\left[-1, 1\\right]"
-                    },
-                    "left": -1,
-                    "left_closed": true,
-                    "right": 1,
-                    "right_closed": true
-                  }
-                ],
-                "label": "最值所在的同一范围",
-                "points": [
-                  {
-                    "at": -1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  },
-                  {
-                    "at": 0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "variable": "x"
-              }
-            ],
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1502,18 +2240,146 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "f2b18bce9ee737517bdaf524#1",
+            "id": "871df13fe2bb3446a2b7939c#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(x)+f(-x)=3$",
+                  "label": "$f(x)=1+\\frac{a x^{5}+x^{2}+2 x+1}{x^{2}+1}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(x)=1+\\frac{a x^{5}+2 x}{x^{2}+1}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(x)=-1+\\frac{a x^{5}+2 x}{x^{2}+1}$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$f(x)=1+\\frac{a x^{5}+x^{2}+2 x}{x^{2}+1}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把分子凑出分母的倍数，将 $f(x)$ 拆成「常数 + 分式」。哪一种拆法正确？",
+            "stem_board": {
+              "caption": "拆出常数项",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\\\\\text{定义域关于原点对称，}x\\text{ 与 }-x\\text{ 都能代入}\\end{gathered}"
+                },
+                {
+                  "label": "拆分结果",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "拆出常数项"
+          },
+          {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
+            "completion_board": {
+              "caption": "判断剩余部分是奇函数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(x)=\\frac{a x^{5}+2 x}{x^{2}+1}\\end{gathered}"
+                },
+                {
+                  "label": "h(-x)",
+                  "math": "h(-x)=\\frac{- a x^{5}- 2 x}{x^{2}+1}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "871df13fe2bb3446a2b7939c#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$h(-x)=\\frac{a x^{5}- 2 x}{x^{2}+1}$",
                   "value": "o2"
                 },
                 {
-                  "label": "$f(x)+f(-x)=2$",
+                  "label": "$h(-x)=\\frac{- a x^{5}- 2 x}{x^{2}+1}$",
                   "value": "o1"
                 },
+                {
+                  "label": "$h(-x)=\\frac{- a x^{5}+2 x}{x^{2}+1}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$h(-x)=\\frac{a x^{5}+2 x}{x^{2}+1}$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "记 $h(x)=\\frac{a x^{5}+2 x}{x^{2}+1}$。把 $x$ 换成 $-x$，$h(-x)$ 等于什么？",
+            "stem_board": {
+              "caption": "判断剩余部分是奇函数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(x)=\\frac{a x^{5}+2 x}{x^{2}+1}\\end{gathered}"
+                },
+                {
+                  "label": "h(-x)",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "判断剩余部分是奇函数"
+          },
+          {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
+            "completion_board": {
+              "caption": "求 $f(x)+f(-x)$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(-x)=-h(x)\\end{gathered}"
+                },
+                {
+                  "label": "f(x)+f(-x)",
+                  "math": "f(x)+f(-x)=2"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "871df13fe2bb3446a2b7939c#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
                 {
                   "label": "$f(x)+f(-x)=1$",
                   "value": "o3"
@@ -1521,36 +2387,44 @@
                 {
                   "label": "$f(x)+f(-x)=-2$",
                   "value": "o4"
+                },
+                {
+                  "label": "$f(x)+f(-x)=3$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x)+f(-x)=2$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
             },
-            "question": "先明确奇函数，再将结论还原到所求的函数。",
+            "question": "由 $f(x)=1+h(x)$，$f(x)+f(-x)$ 等于多少？",
             "stem_board": {
-              "caption": "求相反输入的函数值之和",
+              "caption": "求 $f(x)+f(-x)$",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "原式与条件",
-                  "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(-x)=-h(x)\\end{gathered}"
                 },
                 {
-                  "label": "对称和值",
+                  "label": "f(x)+f(-x)",
                   "math": null
                 }
               ],
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "求相反输入的函数值之和"
+            "title": "求 $f(x)+f(-x)$"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "edba8d5ba7bd41f7911253e3ef37a7c5",
+        "run_id": "0abbea7c093d4294b95ea182e16e5914",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "8242e7df27e4b28cac7fcdcffdaf7e92e87a3cac728e24b7849fd478e8d8e90b",
+            "math_step_sha256": "96cd4a334c73a8547b0e360897a339f41ec8dd74c387a1e2da15d7723b373f10",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -1558,19 +2432,1255 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "bb024cc430279dd00cc4b04d",
+        "interaction_id": "31e7aeb48121d5e489382da6",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "6d9fde31a53ed7be22f7cc6ae0a20fb9dfcf8fb09d55395fa522cfcfc711fe14",
-        "lesson_version": "396b9e607a4d4aa820b8d383759c61fc90b49caa204a2dd2cb6a75d75597439e",
+        "interaction_sha256": "cbcc5f0d1d13cde6783837c8b9ffab8bf5c292368370e507fafed9d1ece9dd79",
+        "lesson_version": "5ae370101036babce6290f30f2cb1859b61ee7ac30fd7ec6cb74dc119d42de5c",
         "parts": [
           {
+            "card_group": "extrema",
+            "card_group_title": "利用最值对称求 $M+m$",
             "completion_board": {
-              "caption": "回答原题所求",
+              "caption": "$h(x)$ 的最值关于原点对称",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}h(x)=\\frac{a x^{5}+2 x}{x^{2}+1}\\\\h(-x)=-h(x)\\\\x\\in \\left[-1, 1\\right]\\\\h(x)_{\\max}=G\\end{gathered}"
+                },
+                {
+                  "label": "$h(x)$ 的最小值",
+                  "math": "h(x)_{\\min}=-G"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "示意图：取 $a=-3$ 时 $h(x)$ 的图像。参数取其他值时形状不同，但 $h$ 是奇函数，最高点 $(t,G)$ 与最低点 $(-t,-G)$ 总关于原点对称。",
+              "kind": "sampled_curve",
+              "params": {
+                "bounds": [
+                  -1.3,
+                  1.3,
+                  -0.9120413263790134,
+                  0.9120413263790134
+                ],
+                "description": "实线为 h(x) 的图像；最高点 (t, G) 与最低点 (-t, -G) 关于原点对称。",
+                "dividers": [],
+                "interval": [
+                  -1,
+                  1
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "title": "奇函数的最值关于原点对称",
+                "traces": [
+                  {
+                    "label": "h(x)",
+                    "markers": [
+                      {
+                        "closed": true,
+                        "label": "(−t, −G)",
+                        "x": -0.53125,
+                        "y": -0.7296330611032107
+                      },
+                      {
+                        "closed": true,
+                        "x": 0,
+                        "y": 0
+                      },
+                      {
+                        "closed": true,
+                        "label": "(t, G)",
+                        "x": 0.53125,
+                        "y": 0.7296330611032107
+                      }
+                    ],
+                    "segments": [
+                      [
+                        [
+                          -1,
+                          0.5
+                        ],
+                        [
+                          -0.984375,
+                          0.40837382525297994
+                        ],
+                        [
+                          -0.96875,
+                          0.32094562059685927
+                        ],
+                        [
+                          -0.953125,
+                          0.23764073173149142
+                        ],
+                        [
+                          -0.9375,
+                          0.15838432708549896
+                        ],
+                        [
+                          -0.921875,
+                          0.0831013997060195
+                        ],
+                        [
+                          -0.90625,
+                          0.011716770039167225
+                        ],
+                        [
+                          -0.890625,
+                          -0.055844910311974826
+                        ],
+                        [
+                          -0.875,
+                          -0.11965915376106195
+                        ],
+                        [
+                          -0.859375,
+                          -0.17980163074949287
+                        ],
+                        [
+                          -0.84375,
+                          -0.2363481624971032
+                        ],
+                        [
+                          -0.828125,
+                          -0.289374712392267
+                        ],
+                        [
+                          -0.8125,
+                          -0.3389573759191176
+                        ],
+                        [
+                          -0.796875,
+                          -0.38517236901839064
+                        ],
+                        [
+                          -0.78125,
+                          -0.4280960147781326
+                        ],
+                        [
+                          -0.765625,
+                          -0.467804728351374
+                        ],
+                        [
+                          -0.75,
+                          -0.504375
+                        ],
+                        [
+                          -0.734375,
+                          -0.5378833761676544
+                        ],
+                        [
+                          -0.71875,
+                          -0.5684064384897678
+                        ],
+                        [
+                          -0.703125,
+                          -0.5960207806559019
+                        ],
+                        [
+                          -0.6875,
+                          -0.62080298304874
+                        ],
+                        [
+                          -0.671875,
+                          -0.6428295850954304
+                        ],
+                        [
+                          -0.65625,
+                          -0.6621770552807701
+                        ],
+                        [
+                          -0.640625,
+                          -0.6789217587880905
+                        ],
+                        [
+                          -0.625,
+                          -0.693139922752809
+                        ],
+                        [
+                          -0.609375,
+                          -0.7049075991355674
+                        ],
+                        [
+                          -0.59375,
+                          -0.7143006252467847
+                        ],
+                        [
+                          -0.578125,
+                          -0.7213945819823325
+                        ],
+                        [
+                          -0.5625,
+                          -0.7262647498609051
+                        ],
+                        [
+                          -0.546875,
+                          -0.7289860629874095
+                        ],
+                        [
+                          -0.53125,
+                          -0.7296330611032107
+                        ],
+                        [
+                          -0.515625,
+                          -0.7282798399230899
+                        ],
+                        [
+                          -0.5,
+                          -0.725
+                        ],
+                        [
+                          -0.484375,
+                          -0.7198665944017014
+                        ],
+                        [
+                          -0.46875,
+                          -0.7129520755276096
+                        ],
+                        [
+                          -0.453125,
+                          -0.7043282414390559
+                        ],
+                        [
+                          -0.4375,
+                          -0.6940661821209017
+                        ],
+                        [
+                          -0.421875,
+                          -0.6822362261362026
+                        ],
+                        [
+                          -0.40625,
+                          -0.6689078881774544
+                        ],
+                        [
+                          -0.390625,
+                          -0.6541498180567978
+                        ],
+                        [
+                          -0.375,
+                          -0.6380297517123288
+                        ],
+                        [
+                          -0.359375,
+                          -0.6206144648371517
+                        ],
+                        [
+                          -0.34375,
+                          -0.6019697297608488
+                        ],
+                        [
+                          -0.328125,
+                          -0.5821602762284088
+                        ],
+                        [
+                          -0.3125,
+                          -0.5612497567282029
+                        ],
+                        [
+                          -0.296875,
+                          -0.5393007170172425
+                        ],
+                        [
+                          -0.28125,
+                          -0.5163745724777291
+                        ],
+                        [
+                          -0.265625,
+                          -0.4925315909130136
+                        ],
+                        [
+                          -0.25,
+                          -0.4678308823529412
+                        ],
+                        [
+                          -0.234375,
+                          -0.44233039638781485
+                        ],
+                        [
+                          -0.21875,
+                          -0.4160869274868214
+                        ],
+                        [
+                          -0.203125,
+                          -0.3891561286809995
+                        ],
+                        [
+                          -0.1875,
+                          -0.36159253390330187
+                        ],
+                        [
+                          -0.171875,
+                          -0.33344958917999085
+                        ],
+                        [
+                          -0.15625,
+                          -0.3047796927598457
+                        ],
+                        [
+                          -0.140625,
+                          -0.27563424415213944
+                        ],
+                        [
+                          -0.125,
+                          -0.24606370192307692
+                        ],
+                        [
+                          -0.109375,
+                          -0.2161176499756743
+                        ],
+                        [
+                          -0.09375,
+                          -0.18584487191243648
+                        ],
+                        [
+                          -0.078125,
+                          -0.15529343295635398
+                        ],
+                        [
+                          -0.0625,
+                          -0.1245107687864786
+                        ],
+                        [
+                          -0.046875,
+                          -0.09354378053244662
+                        ],
+                        [
+                          -0.03125,
+                          -0.06243893507050305
+                        ],
+                        [
+                          -0.015625,
+                          -0.031242369674373494
+                        ],
+                        [
+                          0,
+                          0
+                        ],
+                        [
+                          0.015625,
+                          0.031242369674373494
+                        ],
+                        [
+                          0.03125,
+                          0.06243893507050305
+                        ],
+                        [
+                          0.046875,
+                          0.09354378053244662
+                        ],
+                        [
+                          0.0625,
+                          0.1245107687864786
+                        ],
+                        [
+                          0.078125,
+                          0.15529343295635398
+                        ],
+                        [
+                          0.09375,
+                          0.18584487191243648
+                        ],
+                        [
+                          0.109375,
+                          0.2161176499756743
+                        ],
+                        [
+                          0.125,
+                          0.24606370192307692
+                        ],
+                        [
+                          0.140625,
+                          0.27563424415213944
+                        ],
+                        [
+                          0.15625,
+                          0.3047796927598457
+                        ],
+                        [
+                          0.171875,
+                          0.33344958917999085
+                        ],
+                        [
+                          0.1875,
+                          0.36159253390330187
+                        ],
+                        [
+                          0.203125,
+                          0.3891561286809995
+                        ],
+                        [
+                          0.21875,
+                          0.4160869274868214
+                        ],
+                        [
+                          0.234375,
+                          0.44233039638781485
+                        ],
+                        [
+                          0.25,
+                          0.4678308823529412
+                        ],
+                        [
+                          0.265625,
+                          0.4925315909130136
+                        ],
+                        [
+                          0.28125,
+                          0.5163745724777291
+                        ],
+                        [
+                          0.296875,
+                          0.5393007170172425
+                        ],
+                        [
+                          0.3125,
+                          0.5612497567282029
+                        ],
+                        [
+                          0.328125,
+                          0.5821602762284088
+                        ],
+                        [
+                          0.34375,
+                          0.6019697297608488
+                        ],
+                        [
+                          0.359375,
+                          0.6206144648371517
+                        ],
+                        [
+                          0.375,
+                          0.6380297517123288
+                        ],
+                        [
+                          0.390625,
+                          0.6541498180567978
+                        ],
+                        [
+                          0.40625,
+                          0.6689078881774544
+                        ],
+                        [
+                          0.421875,
+                          0.6822362261362026
+                        ],
+                        [
+                          0.4375,
+                          0.6940661821209017
+                        ],
+                        [
+                          0.453125,
+                          0.7043282414390559
+                        ],
+                        [
+                          0.46875,
+                          0.7129520755276096
+                        ],
+                        [
+                          0.484375,
+                          0.7198665944017014
+                        ],
+                        [
+                          0.5,
+                          0.725
+                        ],
+                        [
+                          0.515625,
+                          0.7282798399230899
+                        ],
+                        [
+                          0.53125,
+                          0.7296330611032107
+                        ],
+                        [
+                          0.546875,
+                          0.7289860629874095
+                        ],
+                        [
+                          0.5625,
+                          0.7262647498609051
+                        ],
+                        [
+                          0.578125,
+                          0.7213945819823325
+                        ],
+                        [
+                          0.59375,
+                          0.7143006252467847
+                        ],
+                        [
+                          0.609375,
+                          0.7049075991355674
+                        ],
+                        [
+                          0.625,
+                          0.693139922752809
+                        ],
+                        [
+                          0.640625,
+                          0.6789217587880905
+                        ],
+                        [
+                          0.65625,
+                          0.6621770552807701
+                        ],
+                        [
+                          0.671875,
+                          0.6428295850954304
+                        ],
+                        [
+                          0.6875,
+                          0.62080298304874
+                        ],
+                        [
+                          0.703125,
+                          0.5960207806559019
+                        ],
+                        [
+                          0.71875,
+                          0.5684064384897678
+                        ],
+                        [
+                          0.734375,
+                          0.5378833761676544
+                        ],
+                        [
+                          0.75,
+                          0.504375
+                        ],
+                        [
+                          0.765625,
+                          0.467804728351374
+                        ],
+                        [
+                          0.78125,
+                          0.4280960147781326
+                        ],
+                        [
+                          0.796875,
+                          0.38517236901839064
+                        ],
+                        [
+                          0.8125,
+                          0.3389573759191176
+                        ],
+                        [
+                          0.828125,
+                          0.289374712392267
+                        ],
+                        [
+                          0.84375,
+                          0.2363481624971032
+                        ],
+                        [
+                          0.859375,
+                          0.17980163074949287
+                        ],
+                        [
+                          0.875,
+                          0.11965915376106195
+                        ],
+                        [
+                          0.890625,
+                          0.055844910311974826
+                        ],
+                        [
+                          0.90625,
+                          -0.011716770039167225
+                        ],
+                        [
+                          0.921875,
+                          -0.0831013997060195
+                        ],
+                        [
+                          0.9375,
+                          -0.15838432708549896
+                        ],
+                        [
+                          0.953125,
+                          -0.23764073173149142
+                        ],
+                        [
+                          0.96875,
+                          -0.32094562059685927
+                        ],
+                        [
+                          0.984375,
+                          -0.40837382525297994
+                        ],
+                        [
+                          1,
+                          -0.5
+                        ]
+                      ]
+                    ]
+                  }
+                ],
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1,
+                    "-1"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    1,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "示意图：取 $a=-3$ 时 $h(x)$ 的图像。参数取其他值时形状不同，但 $h$ 是奇函数，最高点 $(t,G)$ 与最低点 $(-t,-G)$ 总关于原点对称。",
+              "kind": "sampled_curve",
+              "params": {
+                "bounds": [
+                  -1.3,
+                  1.3,
+                  -0.9120413263790134,
+                  0.9120413263790134
+                ],
+                "description": "实线为 h(x) 的图像；最高点 (t, G) 与最低点 (-t, -G) 关于原点对称。",
+                "dividers": [],
+                "interval": [
+                  -1,
+                  1
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [],
+                "title": "奇函数的最值关于原点对称",
+                "traces": [
+                  {
+                    "label": "h(x)",
+                    "markers": [
+                      {
+                        "closed": true,
+                        "label": "(−t, −G)",
+                        "x": -0.53125,
+                        "y": -0.7296330611032107
+                      },
+                      {
+                        "closed": true,
+                        "x": 0,
+                        "y": 0
+                      },
+                      {
+                        "closed": true,
+                        "label": "(t, G)",
+                        "x": 0.53125,
+                        "y": 0.7296330611032107
+                      }
+                    ],
+                    "segments": [
+                      [
+                        [
+                          -1,
+                          0.5
+                        ],
+                        [
+                          -0.984375,
+                          0.40837382525297994
+                        ],
+                        [
+                          -0.96875,
+                          0.32094562059685927
+                        ],
+                        [
+                          -0.953125,
+                          0.23764073173149142
+                        ],
+                        [
+                          -0.9375,
+                          0.15838432708549896
+                        ],
+                        [
+                          -0.921875,
+                          0.0831013997060195
+                        ],
+                        [
+                          -0.90625,
+                          0.011716770039167225
+                        ],
+                        [
+                          -0.890625,
+                          -0.055844910311974826
+                        ],
+                        [
+                          -0.875,
+                          -0.11965915376106195
+                        ],
+                        [
+                          -0.859375,
+                          -0.17980163074949287
+                        ],
+                        [
+                          -0.84375,
+                          -0.2363481624971032
+                        ],
+                        [
+                          -0.828125,
+                          -0.289374712392267
+                        ],
+                        [
+                          -0.8125,
+                          -0.3389573759191176
+                        ],
+                        [
+                          -0.796875,
+                          -0.38517236901839064
+                        ],
+                        [
+                          -0.78125,
+                          -0.4280960147781326
+                        ],
+                        [
+                          -0.765625,
+                          -0.467804728351374
+                        ],
+                        [
+                          -0.75,
+                          -0.504375
+                        ],
+                        [
+                          -0.734375,
+                          -0.5378833761676544
+                        ],
+                        [
+                          -0.71875,
+                          -0.5684064384897678
+                        ],
+                        [
+                          -0.703125,
+                          -0.5960207806559019
+                        ],
+                        [
+                          -0.6875,
+                          -0.62080298304874
+                        ],
+                        [
+                          -0.671875,
+                          -0.6428295850954304
+                        ],
+                        [
+                          -0.65625,
+                          -0.6621770552807701
+                        ],
+                        [
+                          -0.640625,
+                          -0.6789217587880905
+                        ],
+                        [
+                          -0.625,
+                          -0.693139922752809
+                        ],
+                        [
+                          -0.609375,
+                          -0.7049075991355674
+                        ],
+                        [
+                          -0.59375,
+                          -0.7143006252467847
+                        ],
+                        [
+                          -0.578125,
+                          -0.7213945819823325
+                        ],
+                        [
+                          -0.5625,
+                          -0.7262647498609051
+                        ],
+                        [
+                          -0.546875,
+                          -0.7289860629874095
+                        ],
+                        [
+                          -0.53125,
+                          -0.7296330611032107
+                        ],
+                        [
+                          -0.515625,
+                          -0.7282798399230899
+                        ],
+                        [
+                          -0.5,
+                          -0.725
+                        ],
+                        [
+                          -0.484375,
+                          -0.7198665944017014
+                        ],
+                        [
+                          -0.46875,
+                          -0.7129520755276096
+                        ],
+                        [
+                          -0.453125,
+                          -0.7043282414390559
+                        ],
+                        [
+                          -0.4375,
+                          -0.6940661821209017
+                        ],
+                        [
+                          -0.421875,
+                          -0.6822362261362026
+                        ],
+                        [
+                          -0.40625,
+                          -0.6689078881774544
+                        ],
+                        [
+                          -0.390625,
+                          -0.6541498180567978
+                        ],
+                        [
+                          -0.375,
+                          -0.6380297517123288
+                        ],
+                        [
+                          -0.359375,
+                          -0.6206144648371517
+                        ],
+                        [
+                          -0.34375,
+                          -0.6019697297608488
+                        ],
+                        [
+                          -0.328125,
+                          -0.5821602762284088
+                        ],
+                        [
+                          -0.3125,
+                          -0.5612497567282029
+                        ],
+                        [
+                          -0.296875,
+                          -0.5393007170172425
+                        ],
+                        [
+                          -0.28125,
+                          -0.5163745724777291
+                        ],
+                        [
+                          -0.265625,
+                          -0.4925315909130136
+                        ],
+                        [
+                          -0.25,
+                          -0.4678308823529412
+                        ],
+                        [
+                          -0.234375,
+                          -0.44233039638781485
+                        ],
+                        [
+                          -0.21875,
+                          -0.4160869274868214
+                        ],
+                        [
+                          -0.203125,
+                          -0.3891561286809995
+                        ],
+                        [
+                          -0.1875,
+                          -0.36159253390330187
+                        ],
+                        [
+                          -0.171875,
+                          -0.33344958917999085
+                        ],
+                        [
+                          -0.15625,
+                          -0.3047796927598457
+                        ],
+                        [
+                          -0.140625,
+                          -0.27563424415213944
+                        ],
+                        [
+                          -0.125,
+                          -0.24606370192307692
+                        ],
+                        [
+                          -0.109375,
+                          -0.2161176499756743
+                        ],
+                        [
+                          -0.09375,
+                          -0.18584487191243648
+                        ],
+                        [
+                          -0.078125,
+                          -0.15529343295635398
+                        ],
+                        [
+                          -0.0625,
+                          -0.1245107687864786
+                        ],
+                        [
+                          -0.046875,
+                          -0.09354378053244662
+                        ],
+                        [
+                          -0.03125,
+                          -0.06243893507050305
+                        ],
+                        [
+                          -0.015625,
+                          -0.031242369674373494
+                        ],
+                        [
+                          0,
+                          0
+                        ],
+                        [
+                          0.015625,
+                          0.031242369674373494
+                        ],
+                        [
+                          0.03125,
+                          0.06243893507050305
+                        ],
+                        [
+                          0.046875,
+                          0.09354378053244662
+                        ],
+                        [
+                          0.0625,
+                          0.1245107687864786
+                        ],
+                        [
+                          0.078125,
+                          0.15529343295635398
+                        ],
+                        [
+                          0.09375,
+                          0.18584487191243648
+                        ],
+                        [
+                          0.109375,
+                          0.2161176499756743
+                        ],
+                        [
+                          0.125,
+                          0.24606370192307692
+                        ],
+                        [
+                          0.140625,
+                          0.27563424415213944
+                        ],
+                        [
+                          0.15625,
+                          0.3047796927598457
+                        ],
+                        [
+                          0.171875,
+                          0.33344958917999085
+                        ],
+                        [
+                          0.1875,
+                          0.36159253390330187
+                        ],
+                        [
+                          0.203125,
+                          0.3891561286809995
+                        ],
+                        [
+                          0.21875,
+                          0.4160869274868214
+                        ],
+                        [
+                          0.234375,
+                          0.44233039638781485
+                        ],
+                        [
+                          0.25,
+                          0.4678308823529412
+                        ],
+                        [
+                          0.265625,
+                          0.4925315909130136
+                        ],
+                        [
+                          0.28125,
+                          0.5163745724777291
+                        ],
+                        [
+                          0.296875,
+                          0.5393007170172425
+                        ],
+                        [
+                          0.3125,
+                          0.5612497567282029
+                        ],
+                        [
+                          0.328125,
+                          0.5821602762284088
+                        ],
+                        [
+                          0.34375,
+                          0.6019697297608488
+                        ],
+                        [
+                          0.359375,
+                          0.6206144648371517
+                        ],
+                        [
+                          0.375,
+                          0.6380297517123288
+                        ],
+                        [
+                          0.390625,
+                          0.6541498180567978
+                        ],
+                        [
+                          0.40625,
+                          0.6689078881774544
+                        ],
+                        [
+                          0.421875,
+                          0.6822362261362026
+                        ],
+                        [
+                          0.4375,
+                          0.6940661821209017
+                        ],
+                        [
+                          0.453125,
+                          0.7043282414390559
+                        ],
+                        [
+                          0.46875,
+                          0.7129520755276096
+                        ],
+                        [
+                          0.484375,
+                          0.7198665944017014
+                        ],
+                        [
+                          0.5,
+                          0.725
+                        ],
+                        [
+                          0.515625,
+                          0.7282798399230899
+                        ],
+                        [
+                          0.53125,
+                          0.7296330611032107
+                        ],
+                        [
+                          0.546875,
+                          0.7289860629874095
+                        ],
+                        [
+                          0.5625,
+                          0.7262647498609051
+                        ],
+                        [
+                          0.578125,
+                          0.7213945819823325
+                        ],
+                        [
+                          0.59375,
+                          0.7143006252467847
+                        ],
+                        [
+                          0.609375,
+                          0.7049075991355674
+                        ],
+                        [
+                          0.625,
+                          0.693139922752809
+                        ],
+                        [
+                          0.640625,
+                          0.6789217587880905
+                        ],
+                        [
+                          0.65625,
+                          0.6621770552807701
+                        ],
+                        [
+                          0.671875,
+                          0.6428295850954304
+                        ],
+                        [
+                          0.6875,
+                          0.62080298304874
+                        ],
+                        [
+                          0.703125,
+                          0.5960207806559019
+                        ],
+                        [
+                          0.71875,
+                          0.5684064384897678
+                        ],
+                        [
+                          0.734375,
+                          0.5378833761676544
+                        ],
+                        [
+                          0.75,
+                          0.504375
+                        ],
+                        [
+                          0.765625,
+                          0.467804728351374
+                        ],
+                        [
+                          0.78125,
+                          0.4280960147781326
+                        ],
+                        [
+                          0.796875,
+                          0.38517236901839064
+                        ],
+                        [
+                          0.8125,
+                          0.3389573759191176
+                        ],
+                        [
+                          0.828125,
+                          0.289374712392267
+                        ],
+                        [
+                          0.84375,
+                          0.2363481624971032
+                        ],
+                        [
+                          0.859375,
+                          0.17980163074949287
+                        ],
+                        [
+                          0.875,
+                          0.11965915376106195
+                        ],
+                        [
+                          0.890625,
+                          0.055844910311974826
+                        ],
+                        [
+                          0.90625,
+                          -0.011716770039167225
+                        ],
+                        [
+                          0.921875,
+                          -0.0831013997060195
+                        ],
+                        [
+                          0.9375,
+                          -0.15838432708549896
+                        ],
+                        [
+                          0.953125,
+                          -0.23764073173149142
+                        ],
+                        [
+                          0.96875,
+                          -0.32094562059685927
+                        ],
+                        [
+                          0.984375,
+                          -0.40837382525297994
+                        ],
+                        [
+                          1,
+                          -0.5
+                        ]
+                      ]
+                    ]
+                  }
+                ],
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1,
+                    "-1"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    1,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "id": "31e7aeb48121d5e489382da6#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$h(x)_{\\min}=-G$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$h(x)_{\\min}=0$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$h(x)_{\\min}=G$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$h(x)_{\\min}=-2G$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "设 $h(x)$ 在 $x=t$ 处取到最大值 $G$。由 $h$ 是奇函数，$h(x)$ 的最小值是多少？",
+            "stem_board": {
+              "caption": "$h(x)$ 的最值关于原点对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}h(x)=\\frac{a x^{5}+2 x}{x^{2}+1}\\\\h(-x)=-h(x)\\\\x\\in \\left[-1, 1\\right]\\\\h(x)_{\\max}=G\\end{gathered}"
+                },
+                {
+                  "label": "$h(x)$ 的最小值",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "$h(x)$ 的最值关于原点对称"
+          },
+          {
+            "card_group": "extrema",
+            "card_group_title": "利用最值对称求 $M+m$",
+            "completion_board": {
+              "caption": "求 $M+m$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(x)_{\\max}=G\\\\h(x)_{\\min}=-G\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -1579,236 +3689,6 @@
               ],
               "layout": "derivation"
             },
-            "condition_number_lines": [
-              {
-                "bounds": [
-                  -2,
-                  2
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Interval",
-                    "args": [
-                      {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      }
-                    ]
-                  },
-                  "expression": "Interval(-1, 1)",
-                  "latex": "\\left[-1, 1\\right]"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "-1"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "1"
-                          },
-                          {
-                            "$math": "BooleanFalse"
-                          },
-                          {
-                            "$math": "BooleanFalse"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-1, 1)",
-                      "latex": "\\left[-1, 1\\right]"
-                    },
-                    "left": -1,
-                    "left_closed": true,
-                    "right": 1,
-                    "right_closed": true
-                  }
-                ],
-                "label": "最值所在的同一范围",
-                "points": [
-                  {
-                    "at": 1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  },
-                  {
-                    "at": 0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "variable": "x"
-              },
-              {
-                "bounds": [
-                  -2,
-                  2
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Interval",
-                    "args": [
-                      {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      },
-                      {
-                        "$math": "BooleanFalse"
-                      }
-                    ]
-                  },
-                  "expression": "Interval(-1, 1)",
-                  "latex": "\\left[-1, 1\\right]"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "Integer",
-                            "value": "-1"
-                          },
-                          {
-                            "$math": "Integer",
-                            "value": "1"
-                          },
-                          {
-                            "$math": "BooleanFalse"
-                          },
-                          {
-                            "$math": "BooleanFalse"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-1, 1)",
-                      "latex": "\\left[-1, 1\\right]"
-                    },
-                    "left": -1,
-                    "left_closed": true,
-                    "right": 1,
-                    "right_closed": true
-                  }
-                ],
-                "label": "最值所在的同一范围",
-                "points": [
-                  {
-                    "at": -1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  },
-                  {
-                    "at": 0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 1,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "variable": "x"
-              }
-            ],
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1817,37 +3697,37 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "bb024cc430279dd00cc4b04d#1",
+            "id": "31e7aeb48121d5e489382da6#2",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$M+m=3$",
-                  "value": "o2"
-                },
                 {
                   "label": "$M+m=2$",
                   "value": "o1"
                 },
                 {
-                  "label": "$M+m=-2$",
-                  "value": "o4"
-                },
-                {
                   "label": "$M+m=1$",
                   "value": "o3"
+                },
+                {
+                  "label": "$M+m=3$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$M+m=-2$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
             },
-            "question": "使用对称和值，检查每项的系数、出现次数及取值范围。",
+            "question": "由 $f(x)=1+h(x)$，$h(x)$ 的最大值为 $G$、最小值为 $-G$，$M+m$ 等于多少？",
             "stem_board": {
-              "caption": "回答原题所求",
+              "caption": "求 $M+m$",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}f(x)=\\frac{\\left(x+1\\right)^{2}+ax^{5}}{x^{2}+1}\\\\D=\\left[-1, 1\\right]\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)=1+h(x)\\\\h(x)_{\\max}=G\\\\h(x)_{\\min}=-G\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -1857,15 +3737,15 @@
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "回答原题所求"
+            "title": "求 $M+m$"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "edba8d5ba7bd41f7911253e3ef37a7c5",
+        "run_id": "0abbea7c093d4294b95ea182e16e5914",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "6121ee99b10edc311f89e9ae1da895c3849d7f7a5d19cb0504cf24c1b24bfa85",
+            "math_step_sha256": "c05e64656caa452493ff22fd1627bcfec91ba8675bfa3f349cb23545cb43360c",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],

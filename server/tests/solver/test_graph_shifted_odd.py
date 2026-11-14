@@ -7,6 +7,7 @@ import sympy as sp
 
 from shuxueshuo_server.graph_lesson import shifted_odd_math as math
 from shuxueshuo_server.graph_lesson.stage_three.context import build_context
+from shuxueshuo_server.graph_lesson.stage_three.symmetry_presentation import _source_latex
 from shuxueshuo_server.graph_lesson.stage_three.trajectory import (
     decode_value,
     encode_value,
@@ -85,6 +86,162 @@ def test_original_math_and_frozen_verification(p, answer):
         assert m["domain"] is None
     if answer == -4:
         assert m["domain"] == sp.S.Reals - sp.FiniteSet(0)
+
+
+@pytest.mark.parametrize(
+    "p,rewrite,conclude",
+    zip(originals(), [
+        ["代入 $-x$", "由奇函数列出等式", "求 $f(x)+f(-x)$"],
+        ["代入 $-x$", "由奇函数列出等式", "求 $f(x)+f(-x)$"],
+        ["写出 $f(-x)$", "求 $f(x)+f(-x)$"],
+        ["拆出常数项", "判断剩余部分是奇函数", "求 $f(x)+f(-x)$"],
+        ["拆出常数项", "判断剩余部分是奇函数", "求 $f(x)+f(-x)$"],
+    ], [["代入题目中的数"]] * 4 + [["$h(x)$ 的最值关于原点对称", "求 $M+m$"]]),
+    ids=["A16", "B01", "B02", "B03", "B04"],
+)
+def test_cards_substitute_minus_x_then_add(p, rewrite, conclude):
+    from shuxueshuo_server.graph_lesson.stage_three.shifted_odd_presentation import phase_views
+
+    d = describe(p)
+    phases = {ph: phase_views({"description": d, "phase": ph}) for ph in ("rewrite", "conclude")}
+    assert [v["title"] for v in phases["rewrite"]] == rewrite
+    assert [v["title"] for v in phases["conclude"]] == conclude
+    for views in phases.values():
+        for v in views:
+            assert "condition_number_lines" not in v
+            labels = [o["label"] for o in v["interaction"]["options"]]
+            assert len(set(labels)) == len(labels) >= 2
+    assert all(v["card_group_title"] == "代入 $-x$，求 $f(x)+f(-x)$" for v in phases["rewrite"])
+    assert ("graph" in phases["conclude"][0]) == (len(conclude) == 2)
+    for row in d["given_entries"]:
+        if row["ast"][0] == "=" and row["ast"][1][0] == "function_call":
+            value = _source_latex(row["ast"][1], "x") + "=" + _source_latex(row["ast"][2], "x")
+            assert all(value not in v["derivation"]["items"][0]["math"] for v in phases["rewrite"])
+
+
+def test_odd_relation_substitutes_then_equates_then_adds():
+    from shuxueshuo_server.graph_lesson.stage_three.shifted_odd_presentation import phase_views
+
+    first, second, third = phase_views({"description": describe(originals()[0]), "phase": "rewrite"})
+    assert first["derivation"]["items"][1]["math"] == "g(-x)=f(-x)+2=-g(x)"
+    assert "f(1)=9" not in first["derivation"]["items"][0]["math"]
+    assert second["derivation"]["items"][1]["math"] == "f(-x)+2=-f(x)-2"
+    assert third["derivation"]["items"][1]["math"] == "f(x)+f(-x)=-4"
+    first, _, _ = phase_views({"description": describe(originals()[1]), "phase": "rewrite"})
+    assert first["question"].startswith("由 $f(x)=g(x)+1$ 得 $g(x)=f(x)-1$。")
+    assert first["derivation"]["items"][1]["math"] == "g(-x)=f(-x)-1=-g(x)"
+
+
+def test_hidden_constant_is_split_before_oddness():
+    from shuxueshuo_server.graph_lesson.stage_three.shifted_odd_presentation import phase_views
+
+    split, odd, total = phase_views({"description": describe(originals()[3]), "phase": "rewrite"})
+    assert split["derivation"]["items"][1]["math"] == r"f(x)=2+\frac{2024 x^{3}+3 x}{x^{2}+3}"
+    assert odd["derivation"]["items"][1]["math"] == r"h(-x)=\frac{- 2024 x^{3}- 3 x}{x^{2}+3}"
+    assert r"2\left(x^{2}+3\right)" in total["proof"] and "=-h(x)" in total["proof"]
+    conclusion, = phase_views({"description": describe(originals()[3]), "phase": "conclude"})
+    assert conclusion["question"] == "已知$f(a)=14$，求 $f(-a)$ 的值。"
+    assert r"f(- a)=4-14=-10" in conclusion["proof"]
+
+
+def test_extrema_use_reflected_maximum_without_monotonicity():
+    from shuxueshuo_server.graph_lesson.stage_three.shifted_odd_presentation import phase_views
+
+    first, second = phase_views({"description": describe(originals()[4]), "phase": "conclude"})
+    assert "单调" not in first["question"] + first["proof"] + second["proof"]
+    assert first["graph"]["kind"] == "sampled_curve" and first["graph"]["caption"].startswith("示意图")
+    assert first["completion_graph"] == first["graph"]
+    low, center, high = first["graph"]["params"]["traces"][0]["markers"]
+    assert low["x"] == -high["x"] and center == {"x": 0, "y": 0.0, "closed": True}
+    assert abs(low["y"] + high["y"]) < 1e-9
+    assert (low["label"], high["label"]) == ("(−t, −G)", "(t, G)")
+    assert first["graph"]["params"]["traces"][0]["label"] == "h(x)"
+    assert first["interaction"]["options"] and r"h(x)_{\min}=-G" in first["proof"]
+    assert r"M=1+G\text{，}m=1- G" in second["proof"]
+    assert r"M+m=\left(1+G\right)+\left(1- G\right)=2" in second["proof"]
+
+
+@pytest.mark.parametrize("definition", ["f(x)=0", "f(x)=0/x", "f(x)=3*x^2/x^2"])
+def test_zero_substitution_uses_read_card_without_duplicate_choices(definition):
+    from shuxueshuo_server.graph_lesson.stage_three.shifted_odd_presentation import phase_views
+
+    views = phase_views({"description": describe(candidate(definition, [], "f(-1)+f(1)")), "phase": "rewrite"})
+    (read,) = [v for v in views if v["interaction"]["type"] == "read"]
+    assert read["expected_answer"] == {}
+    assert read["derivation"]["items"][1]["math"] in ("f(-x)=0", "h(-x)=0")
+    assert "(-x)=0" in read["proof"]
+    for view in views:
+        if view["interaction"]["type"] == "choice":
+            assert len(view["interaction"]["options"]) >= 2
+
+
+@pytest.mark.parametrize("definition,decomposition", [
+    ("f(x)=(2*x+2)/2", r"2 x+2=\left(2\right)+\left(2 x\right)"),
+    ("f(x)=(x^3+3*x^2)/x^2", r"x^{3}+3 x^{2}=3\left(x^{2}\right)+\left(x^{3}\right)"),
+])
+def test_fraction_split_proof_uses_uncancelled_numerator(definition, decomposition):
+    from shuxueshuo_server.graph_lesson.stage_three.shifted_odd_presentation import phase_views
+
+    views = phase_views({"description": describe(candidate(definition, [], "f(-1)+f(1)")), "phase": "rewrite"})
+    assert decomposition.replace(" ", "") in views[0]["proof"].replace(" ", "")
+    assert decomposition.replace(" ", "") in views[-1]["proof"].replace(" ", "")
+
+
+@pytest.mark.parametrize("constant", [0, 3, -2])
+def test_constant_extrema_have_distinct_numerical_answers(constant):
+    from shuxueshuo_server.graph_lesson.stage_three.shifted_odd_presentation import phase_views
+
+    p = candidate(f"f(x)={constant}", ["Dom(f)=[-1,1]", "M=max(f(x))", "m=min(f(x))"], "M+m")
+    (view,) = phase_views({"description": describe(p), "phase": "conclude"})
+    assert f"M=m={constant}" in view["proof"]
+    assert "G" not in view["proof"] and "graph" not in view
+    options = view["interaction"]["options"]
+    values = [sp.Rational(o["label"].strip("$").split("=")[1].replace(" ", "")) for o in options]
+    assert len(set(values)) == len(values) >= 2
+    correct = [o["value"] for o, value in zip(options, values) if value == 2 * constant]
+    assert view["expected_answer"]["one_of"] == correct
+
+
+def test_fixed_extrema_graph_does_not_describe_unspecified_parameters():
+    from shuxueshuo_server.graph_lesson.stage_three.shifted_odd_presentation import phase_views
+
+    p = candidate("f(x)=x+3", ["Dom(f)=[-1,1]", "M=max(f(x))", "m=min(f(x))"], "M+m")
+    first, _ = phase_views({"description": describe(p), "phase": "conclude"})
+    assert "$$" not in first["graph"]["caption"]
+    assert "参数" not in first["graph"]["caption"]
+
+
+@pytest.mark.stage_three_db
+@pytest.mark.parametrize("p,answer", [
+    (candidate("f(x)=0", [], "f(-1)+f(1)", r"已知函数 $f(x)=0$，求 $f(-1)+f(1)$ 的值。"), "0"),
+    (candidate("f(x)=3*x^2/x^2", [], "f(-1)+f(1)",
+               r"已知函数 $f(x)=\frac{3x^2}{x^2}$，求 $f(-1)+f(1)$ 的值。"), "6"),
+    (candidate("f(x)=3", ["Dom(f)=[-1,1]", "M=max(f(x))", "m=min(f(x))"], "M+m",
+               r"当 $x\in[-1,1]$ 时，函数 $f(x)=3$ 的最大值为 $M$，最小值为 $m$，求 $M+m$ 的值。"), "6"),
+], ids=["zero", "cancelled-constant", "constant-extrema"])
+def test_degenerate_courses_export_grade_and_replay(p, answer, tmp_path):
+    import json
+    import subprocess
+
+    from shuxueshuo_server.graph_lesson.stage_three import runner
+    from shuxueshuo_server.graph_lesson.stage_three.contracts import ROOT
+    from tests.solver.test_graph_function_parity_recognition import recognize
+    from tools.export_graph_walk_course import export_course
+
+    _, recognized = recognize(p, tmp_path)
+    assert recognized["goals"][0]["primary"] == TYPE
+    output = tmp_path / "execution"
+    (goal,) = runner.run_sample(tmp_path / "stage-two/stage-two-result.json", output)["goals"]
+    assert goal["status"] == "solved", goal
+    assert goal["answer"]["value"]["expression"] == answer
+    assert runner.resume_sample(output)["goals"][0]["answer"] == goal["answer"]
+    evidence = tmp_path / "evidence.json"
+    evidence.write_text(json.dumps(export_course(output, "test-t6-degenerate"), ensure_ascii=False))
+    checked = subprocess.run([
+        "node", str(ROOT / "tools/tests/fixtures/parity-parameter-course-check.mjs"), str(evidence),
+        str(ROOT / "site/data/graph-walk/function-parity-a16.source.json"), "function-symmetry",
+    ], capture_output=True, text=True)
+    assert checked.returncode == 0, checked.stdout + checked.stderr
 
 
 @pytest.mark.parametrize(

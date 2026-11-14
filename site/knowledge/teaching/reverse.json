@@ -29154,35 +29154,98 @@
       "topic": "function-parity",
       "problem": "function-parity-a16",
       "route": "function-symmetry",
-      "step": "75477f7bdff05d115768251c#1",
+      "step": "b1e395235674489b89ff68a1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a16",
+      "route": "function-symmetry",
+      "step": "b1e395235674489b89ff68a1#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a16",
+      "route": "function-symmetry",
+      "step": "b1e395235674489b89ff68a1#3",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b01",
       "route": "function-symmetry",
-      "step": "3a11dd04866ee83836e9966c#1",
+      "step": "1eea8b00158f4322881ed1a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b01",
+      "route": "function-symmetry",
+      "step": "1eea8b00158f4322881ed1a9#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b01",
+      "route": "function-symmetry",
+      "step": "1eea8b00158f4322881ed1a9#3",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b02",
       "route": "function-symmetry",
-      "step": "5cba67c64c0452fe3f71462a#1",
+      "step": "0d2afada699b34ccee0ebbda#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b02",
+      "route": "function-symmetry",
+      "step": "0d2afada699b34ccee0ebbda#2",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b03",
       "route": "function-symmetry",
-      "step": "9584f865addeee7f6b31590f#1",
+      "step": "6d76b4bb9e35fcf06e802bfa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b03",
+      "route": "function-symmetry",
+      "step": "6d76b4bb9e35fcf06e802bfa#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b03",
+      "route": "function-symmetry",
+      "step": "6d76b4bb9e35fcf06e802bfa#3",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b04",
       "route": "function-symmetry",
-      "step": "976b2e0d17baab8548e413c7#1",
+      "step": "fceaeeb24b80e9ff2abcf5c6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b04",
+      "route": "function-symmetry",
+      "step": "fceaeeb24b80e9ff2abcf5c6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b04",
+      "route": "function-symmetry",
+      "step": "fceaeeb24b80e9ff2abcf5c6#3",
       "conditions": {}
     }
   ],
@@ -29591,35 +29654,98 @@
       "topic": "function-parity",
       "problem": "function-parity-a16",
       "route": "function-symmetry",
-      "step": "75477f7bdff05d115768251c#1",
+      "step": "b1e395235674489b89ff68a1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a16",
+      "route": "function-symmetry",
+      "step": "b1e395235674489b89ff68a1#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a16",
+      "route": "function-symmetry",
+      "step": "b1e395235674489b89ff68a1#3",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b01",
       "route": "function-symmetry",
-      "step": "3a11dd04866ee83836e9966c#1",
+      "step": "1eea8b00158f4322881ed1a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b01",
+      "route": "function-symmetry",
+      "step": "1eea8b00158f4322881ed1a9#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b01",
+      "route": "function-symmetry",
+      "step": "1eea8b00158f4322881ed1a9#3",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b02",
       "route": "function-symmetry",
-      "step": "5cba67c64c0452fe3f71462a#1",
+      "step": "0d2afada699b34ccee0ebbda#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b02",
+      "route": "function-symmetry",
+      "step": "0d2afada699b34ccee0ebbda#2",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b03",
       "route": "function-symmetry",
-      "step": "9584f865addeee7f6b31590f#1",
+      "step": "6d76b4bb9e35fcf06e802bfa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b03",
+      "route": "function-symmetry",
+      "step": "6d76b4bb9e35fcf06e802bfa#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b03",
+      "route": "function-symmetry",
+      "step": "6d76b4bb9e35fcf06e802bfa#3",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b04",
       "route": "function-symmetry",
-      "step": "976b2e0d17baab8548e413c7#1",
+      "step": "fceaeeb24b80e9ff2abcf5c6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b04",
+      "route": "function-symmetry",
+      "step": "fceaeeb24b80e9ff2abcf5c6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b04",
+      "route": "function-symmetry",
+      "step": "fceaeeb24b80e9ff2abcf5c6#3",
       "conditions": {}
     }
   ],
@@ -29698,35 +29824,42 @@
       "topic": "function-parity",
       "problem": "function-parity-a16",
       "route": "function-symmetry",
-      "step": "9e35167000748de2fdbfe8e6#1",
+      "step": "3362c6b9f18484c699a96c81#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b01",
       "route": "function-symmetry",
-      "step": "10690727413f9e50bc4e5365#1",
+      "step": "bccc0f9f952e3ae9387f522b#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b02",
       "route": "function-symmetry",
-      "step": "5f4105118bf1b2730d9ae102#1",
+      "step": "56fe0044d703f8939effd103#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b03",
       "route": "function-symmetry",
-      "step": "5576c40ecd04f467ef7c6bb2#1",
+      "step": "9d6d88917328a2e8240270db#1",
       "conditions": {}
     },
     {
       "topic": "function-parity",
       "problem": "function-parity-b04",
       "route": "function-symmetry",
-      "step": "f2ce9d7a328b8c062d9bf8c5#1",
+      "step": "30562effc65beb19f3575a9c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-b04",
+      "route": "function-symmetry",
+      "step": "30562effc65beb19f3575a9c#2",
       "conditions": {}
     }
   ],

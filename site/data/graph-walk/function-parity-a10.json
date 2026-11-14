@@ -427,12 +427,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
+              "math_step_sha256": "7a553ead83226f05a22a43e953b0da663a6e1becbf2c447a0e6b3d3b1e17d9c0",
               "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "7284ddfe06ac9bd478b85c4a::known-0",
+          "stream_interaction_id": "de390fd6b1058767e9b4bd3d::known-0",
           "stream_card_group": "known-0",
           "stream_part_index": 0,
           "stream_part_count": 1,
@@ -750,12 +750,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
+              "math_step_sha256": "7a553ead83226f05a22a43e953b0da663a6e1becbf2c447a0e6b3d3b1e17d9c0",
               "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "7284ddfe06ac9bd478b85c4a::walk-0",
+          "stream_interaction_id": "de390fd6b1058767e9b4bd3d::walk-0",
           "stream_card_group": "walk-0",
           "stream_part_index": 0,
           "stream_part_count": 1,
@@ -1058,12 +1058,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
+              "math_step_sha256": "7a553ead83226f05a22a43e953b0da663a6e1becbf2c447a0e6b3d3b1e17d9c0",
               "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "7284ddfe06ac9bd478b85c4a::walk-1",
+          "stream_interaction_id": "de390fd6b1058767e9b4bd3d::walk-1",
           "stream_card_group": "walk-1",
           "stream_part_index": 0,
           "stream_part_count": 2,
@@ -1393,12 +1393,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
+              "math_step_sha256": "7a553ead83226f05a22a43e953b0da663a6e1becbf2c447a0e6b3d3b1e17d9c0",
               "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "7284ddfe06ac9bd478b85c4a::walk-1",
+          "stream_interaction_id": "de390fd6b1058767e9b4bd3d::walk-1",
           "stream_card_group": "walk-1",
           "stream_part_index": 1,
           "stream_part_count": 2,
@@ -1713,12 +1713,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
+              "math_step_sha256": "7a553ead83226f05a22a43e953b0da663a6e1becbf2c447a0e6b3d3b1e17d9c0",
               "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "7284ddfe06ac9bd478b85c4a::walk-2",
+          "stream_interaction_id": "de390fd6b1058767e9b4bd3d::walk-2",
           "stream_card_group": "walk-2",
           "stream_part_index": 0,
           "stream_part_count": 2,
@@ -2059,12 +2059,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
+              "math_step_sha256": "7a553ead83226f05a22a43e953b0da663a6e1becbf2c447a0e6b3d3b1e17d9c0",
               "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "7284ddfe06ac9bd478b85c4a::walk-2",
+          "stream_interaction_id": "de390fd6b1058767e9b4bd3d::walk-2",
           "stream_card_group": "walk-2",
           "stream_part_index": 1,
           "stream_part_count": 2,
@@ -2146,12 +2146,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "c89dee301b3b3763762a2b4c98d0d108abf5d607cb4009f8265a69634f858889",
+              "math_step_sha256": "7210ee752b803d6290bd74fb77e7bfb43d0927d02b38f8353955032eefc41d08",
               "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "960b7c587eec68eac10f715c",
+          "stream_interaction_id": "493e342d6e14473887886b39",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "求出所求的值",
@@ -2559,12 +2559,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
+              "math_step_sha256": "6259e1f3e4a9ff9d2f5d9161fb26b7815388ff96476dcf756049cfe6a335f381",
               "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "bf4c61e1d49fb843591fc420::period",
+          "stream_interaction_id": "af9902ad49858a709191b894::period",
           "stream_card_group": "period",
           "stream_part_index": 0,
           "stream_part_count": 5,
@@ -2941,12 +2941,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
+              "math_step_sha256": "6259e1f3e4a9ff9d2f5d9161fb26b7815388ff96476dcf756049cfe6a335f381",
               "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "bf4c61e1d49fb843591fc420::period",
+          "stream_interaction_id": "af9902ad49858a709191b894::period",
           "stream_card_group": "period",
           "stream_part_index": 1,
           "stream_part_count": 5,
@@ -3315,12 +3315,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
+              "math_step_sha256": "6259e1f3e4a9ff9d2f5d9161fb26b7815388ff96476dcf756049cfe6a335f381",
               "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "bf4c61e1d49fb843591fc420::period",
+          "stream_interaction_id": "af9902ad49858a709191b894::period",
           "stream_card_group": "period",
           "stream_part_index": 2,
           "stream_part_count": 5,
@@ -3709,12 +3709,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
+              "math_step_sha256": "6259e1f3e4a9ff9d2f5d9161fb26b7815388ff96476dcf756049cfe6a335f381",
               "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "bf4c61e1d49fb843591fc420::period",
+          "stream_interaction_id": "af9902ad49858a709191b894::period",
           "stream_card_group": "period",
           "stream_part_index": 3,
           "stream_part_count": 5,
@@ -4082,12 +4082,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
+              "math_step_sha256": "6259e1f3e4a9ff9d2f5d9161fb26b7815388ff96476dcf756049cfe6a335f381",
               "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "bf4c61e1d49fb843591fc420::period",
+          "stream_interaction_id": "af9902ad49858a709191b894::period",
           "stream_card_group": "period",
           "stream_part_index": 4,
           "stream_part_count": 5,
@@ -4261,12 +4261,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
+              "math_step_sha256": "6259e1f3e4a9ff9d2f5d9161fb26b7815388ff96476dcf756049cfe6a335f381",
               "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "bf4c61e1d49fb843591fc420::values",
+          "stream_interaction_id": "af9902ad49858a709191b894::values",
           "stream_card_group": "values",
           "stream_part_index": 0,
           "stream_part_count": 1,
@@ -4531,12 +4531,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "93c24d448f1f29c08dcc14a4a96ac46d09fe982557407a6ed0e967435faf2315",
+              "math_step_sha256": "12c8156bdd75f8d4c0e432b743be2ad138f7812d909de2fab2d7fcaae2aa2e17",
               "step_id": "cbd98ea750-function-symmetry-002-function_symmetry_conclude"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "88ebc0e9a330596b195edecf",
+          "stream_interaction_id": "e0994fb65770daf25c49e1fa",
           "stream_part_index": 0,
           "stream_part_count": 2,
           "stream_group_title": "求出函数值之和",
@@ -4617,12 +4617,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "93c24d448f1f29c08dcc14a4a96ac46d09fe982557407a6ed0e967435faf2315",
+              "math_step_sha256": "12c8156bdd75f8d4c0e432b743be2ad138f7812d909de2fab2d7fcaae2aa2e17",
               "step_id": "cbd98ea750-function-symmetry-002-function_symmetry_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "88ebc0e9a330596b195edecf",
+          "stream_interaction_id": "e0994fb65770daf25c49e1fa",
           "stream_part_index": 1,
           "stream_part_count": 2,
           "stream_group_title": "求出函数值之和",
@@ -4644,8 +4644,8 @@
         "status": "verified",
         "available": true,
         "composition": "sequential_goals",
-        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
-        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+        "run_id": "84eeea92456b4dea881afe90e2f0335e",
+        "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
         "target_ref": "/root/goals/0",
         "target_refs": [
           "/root/goals/0",
@@ -4722,25 +4722,25 @@
           "available": true,
           "contract": "graph-stage-four-handoff/v1",
           "feasible_set": null,
-          "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+          "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
           "math_steps": [
             {
-              "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
+              "math_step_sha256": "7a553ead83226f05a22a43e953b0da663a6e1becbf2c447a0e6b3d3b1e17d9c0",
               "ordinal": 1,
               "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
             },
             {
-              "math_step_sha256": "c89dee301b3b3763762a2b4c98d0d108abf5d607cb4009f8265a69634f858889",
+              "math_step_sha256": "7210ee752b803d6290bd74fb77e7bfb43d0927d02b38f8353955032eefc41d08",
               "ordinal": 2,
               "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
             }
           ],
           "route_id": "function-symmetry",
-          "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+          "run_id": "84eeea92456b4dea881afe90e2f0335e",
           "status": "verified",
           "target_ref": "/root/goals/0",
-          "task_id": "1dd62ee5cfe8f1e723cc68b9db1daa9546b96b80d083401da1ed899efeb94e5d",
-          "verified_route_sha256": "9eb04a812e21c12bb7bf6ae5eaace4463b35a08787dbadbb5549f5c70536dfd3",
+          "task_id": "534fea9a3d62fe67bb28fc65ab5f4879e106563b6dbf991b4afd4b81b59dc908",
+          "verified_route_sha256": "6a42feded340629038ea45ce1cdcc57bcbd9be76344b93e29ee182428ccb2153",
           "title": "求四项之和"
         },
         {
@@ -4763,25 +4763,25 @@
           "available": true,
           "contract": "graph-stage-four-handoff/v1",
           "feasible_set": null,
-          "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+          "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
           "math_steps": [
             {
-              "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
+              "math_step_sha256": "6259e1f3e4a9ff9d2f5d9161fb26b7815388ff96476dcf756049cfe6a335f381",
               "ordinal": 1,
               "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite"
             },
             {
-              "math_step_sha256": "93c24d448f1f29c08dcc14a4a96ac46d09fe982557407a6ed0e967435faf2315",
+              "math_step_sha256": "12c8156bdd75f8d4c0e432b743be2ad138f7812d909de2fab2d7fcaae2aa2e17",
               "ordinal": 2,
               "step_id": "cbd98ea750-function-symmetry-002-function_symmetry_conclude"
             }
           ],
           "route_id": "function-symmetry",
-          "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+          "run_id": "84eeea92456b4dea881afe90e2f0335e",
           "status": "verified",
           "target_ref": "/root/goals/1",
-          "task_id": "d99a544fa67e2de3be71c142c921259032a143e548d80a2061c7e08b69b348ce",
-          "verified_route_sha256": "fe96365616a36de39ea8e4d9f1b8e1532f36e35542c977df5b4a39ba36cc58bc",
+          "task_id": "1d26352f55594bf708b09aec958b3c313e27314da6ff48b19bfcdb21ca908337",
+          "verified_route_sha256": "a7e70e1349d141f0955d0f9fe817359dcfb447cd2c6d1a1b9bc50f3b39b7357b",
           "title": "求前 54 项之和"
         }
       ]
@@ -4966,9 +4966,9 @@
   },
   "bundleVersion": "c4a89822fa17759d36d2bf7ada3ab4946115c983bc0c29f8780a5ae92903a981",
   "stream": {
-    "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
-    "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
-    "stream_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+    "run_id": "84eeea92456b4dea881afe90e2f0335e",
+    "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
+    "stream_id": "84eeea92456b4dea881afe90e2f0335e",
     "target_ref": "/root/goals/0",
     "base_bundle_version": "0baf5a2eacb5dfcfa8d1be3075a5d4691c10659c659299d8d4ac561a747208f3",
     "d3": {
@@ -5023,15 +5023,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+        "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
         "local_check": "passed",
-        "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
+        "math_step_sha256": "7a553ead83226f05a22a43e953b0da663a6e1becbf2c447a0e6b3d3b1e17d9c0",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+        "run_id": "84eeea92456b4dea881afe90e2f0335e",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -5062,15 +5062,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+        "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
         "local_check": "passed",
-        "math_step_sha256": "c89dee301b3b3763762a2b4c98d0d108abf5d607cb4009f8265a69634f858889",
+        "math_step_sha256": "7210ee752b803d6290bd74fb77e7bfb43d0927d02b38f8353955032eefc41d08",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+        "run_id": "84eeea92456b4dea881afe90e2f0335e",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -5101,15 +5101,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+        "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
         "local_check": "passed",
-        "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
+        "math_step_sha256": "6259e1f3e4a9ff9d2f5d9161fb26b7815388ff96476dcf756049cfe6a335f381",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+        "run_id": "84eeea92456b4dea881afe90e2f0335e",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -5140,15 +5140,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+        "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
         "local_check": "passed",
-        "math_step_sha256": "93c24d448f1f29c08dcc14a4a96ac46d09fe982557407a6ed0e967435faf2315",
+        "math_step_sha256": "12c8156bdd75f8d4c0e432b743be2ad138f7812d909de2fab2d7fcaae2aa2e17",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+        "run_id": "84eeea92456b4dea881afe90e2f0335e",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -5203,45 +5203,45 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
+        "math_step_sha256": "7a553ead83226f05a22a43e953b0da663a6e1becbf2c447a0e6b3d3b1e17d9c0",
         "status": "interactive",
-        "interaction_id": "7284ddfe06ac9bd478b85c4a"
+        "interaction_id": "de390fd6b1058767e9b4bd3d"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "c89dee301b3b3763762a2b4c98d0d108abf5d607cb4009f8265a69634f858889",
+        "math_step_sha256": "7210ee752b803d6290bd74fb77e7bfb43d0927d02b38f8353955032eefc41d08",
         "status": "interactive",
-        "interaction_id": "960b7c587eec68eac10f715c"
+        "interaction_id": "493e342d6e14473887886b39"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "function-symmetry",
         "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
+        "math_step_sha256": "6259e1f3e4a9ff9d2f5d9161fb26b7815388ff96476dcf756049cfe6a335f381",
         "status": "interactive",
-        "interaction_id": "bf4c61e1d49fb843591fc420"
+        "interaction_id": "af9902ad49858a709191b894"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "function-symmetry",
         "step_id": "cbd98ea750-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "93c24d448f1f29c08dcc14a4a96ac46d09fe982557407a6ed0e967435faf2315",
+        "math_step_sha256": "12c8156bdd75f8d4c0e432b743be2ad138f7812d909de2fab2d7fcaae2aa2e17",
         "status": "interactive",
-        "interaction_id": "88ebc0e9a330596b195edecf"
+        "interaction_id": "e0994fb65770daf25c49e1fa"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "7284ddfe06ac9bd478b85c4a",
+        "interaction_id": "de390fd6b1058767e9b4bd3d",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "57654a7690aacb1890b7370d8d5bca907a682c16a43fd2e1f2689c246fe68982",
-        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+        "interaction_sha256": "7e77492d50fe2e6145fe8850ae7853340c34cb8359bdcb30e1fd2aba95353777",
+        "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
         "parts": [
           {
             "card_group": "known-0",
@@ -5471,10 +5471,18 @@
                 ]
               }
             },
-            "id": "7284ddfe06ac9bd478b85c4a#1",
+            "id": "de390fd6b1058767e9b4bd3d#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$f(0)=1$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(0)=-1$",
+                  "value": "o3"
+                },
                 {
                   "label": "$f(0)\\text{ 不能确定}$",
                   "value": "o4"
@@ -5482,14 +5490,6 @@
                 {
                   "label": "$f(0)=0$",
                   "value": "o1"
-                },
-                {
-                  "label": "$f(0)=-1$",
-                  "value": "o3"
-                },
-                {
-                  "label": "$f(0)=1$",
-                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -5775,7 +5775,7 @@
                 ]
               }
             },
-            "id": "7284ddfe06ac9bd478b85c4a#2",
+            "id": "de390fd6b1058767e9b4bd3d#2",
             "interaction": {
               "field": "answer",
               "options": [
@@ -5784,16 +5784,16 @@
                   "value": "o4"
                 },
                 {
-                  "label": "$(2,1)$",
-                  "value": "o3"
+                  "label": "$(2,0)$",
+                  "value": "o1"
                 },
                 {
                   "label": "$(0,0)$",
                   "value": "o2"
                 },
                 {
-                  "label": "$(2,0)$",
-                  "value": "o1"
+                  "label": "$(2,1)$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -6064,25 +6064,25 @@
                 ]
               }
             },
-            "id": "7284ddfe06ac9bd478b85c4a#3",
+            "id": "de390fd6b1058767e9b4bd3d#3",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$(-1,1)$",
-                  "value": "o2"
-                },
                 {
                   "label": "$(-1,0)$",
                   "value": "o4"
                 },
                 {
-                  "label": "$(-1,-1)$",
-                  "value": "o1"
+                  "label": "$(-1,1)$",
+                  "value": "o2"
                 },
                 {
                   "label": "$(1,-1)$",
                   "value": "o3"
+                },
+                {
+                  "label": "$(-1,-1)$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -6380,18 +6380,10 @@
                 ]
               }
             },
-            "id": "7284ddfe06ac9bd478b85c4a#4",
+            "id": "de390fd6b1058767e9b4bd3d#4",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$(3,-1)$",
-                  "value": "o1"
-                },
-                {
-                  "label": "$(1,-1)$",
-                  "value": "o3"
-                },
                 {
                   "label": "$(-1,-1)$",
                   "value": "o4"
@@ -6399,6 +6391,14 @@
                 {
                   "label": "$(3,1)$",
                   "value": "o2"
+                },
+                {
+                  "label": "$(3,-1)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$(1,-1)$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -6681,10 +6681,14 @@
                 ]
               }
             },
-            "id": "7284ddfe06ac9bd478b85c4a#5",
+            "id": "de390fd6b1058767e9b4bd3d#5",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$(-2,0)$",
+                  "value": "o1"
+                },
                 {
                   "label": "$(-2,1)$",
                   "value": "o3"
@@ -6692,10 +6696,6 @@
                 {
                   "label": "$(2,0)$",
                   "value": "o2"
-                },
-                {
-                  "label": "$(-2,0)$",
-                  "value": "o1"
                 },
                 {
                   "label": "$(-2,-1)$",
@@ -7008,25 +7008,25 @@
                 ]
               }
             },
-            "id": "7284ddfe06ac9bd478b85c4a#6",
+            "id": "de390fd6b1058767e9b4bd3d#6",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$(2,0)$",
-                  "value": "o2"
-                },
                 {
                   "label": "$(-2,0)$",
                   "value": "o3"
                 },
                 {
-                  "label": "$(4,1)$",
-                  "value": "o4"
-                },
-                {
                   "label": "$(4,0)$",
                   "value": "o1"
+                },
+                {
+                  "label": "$(2,0)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$(4,1)$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -7052,11 +7052,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+        "run_id": "84eeea92456b4dea881afe90e2f0335e",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "7946376de16f8b55c6fee97f67c7b09c88d97e137e5c8a15dd753ecdb67a1a51",
+            "math_step_sha256": "7a553ead83226f05a22a43e953b0da663a6e1becbf2c447a0e6b3d3b1e17d9c0",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -7064,10 +7064,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "960b7c587eec68eac10f715c",
+        "interaction_id": "493e342d6e14473887886b39",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "1b50a3d391597a814b391a96079b135901543383c138654e95d89123cf5e9068",
-        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+        "interaction_sha256": "525e5171261e48077ef6b9df68b26a46024cf36cc513f35c19ba60d8535606cd",
+        "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
         "parts": [
           {
             "completion_board": {
@@ -7093,14 +7093,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "960b7c587eec68eac10f715c#1",
+            "id": "493e342d6e14473887886b39#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$f(1)+f(2)+f(3)+f(4)=0$",
-                  "value": "o1"
-                },
                 {
                   "label": "$f(1)+f(2)+f(3)+f(4)=2$",
                   "value": "o4"
@@ -7112,6 +7108,10 @@
                 {
                   "label": "$f(1)+f(2)+f(3)+f(4)=1$",
                   "value": "o2"
+                },
+                {
+                  "label": "$f(1)+f(2)+f(3)+f(4)=0$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -7137,11 +7137,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+        "run_id": "84eeea92456b4dea881afe90e2f0335e",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "c89dee301b3b3763762a2b4c98d0d108abf5d607cb4009f8265a69634f858889",
+            "math_step_sha256": "7210ee752b803d6290bd74fb77e7bfb43d0927d02b38f8353955032eefc41d08",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
@@ -7149,10 +7149,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "bf4c61e1d49fb843591fc420",
+        "interaction_id": "af9902ad49858a709191b894",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "51eaedc1a6a744666782a77fedca79767a45979800b948d4de627cf1098ae623",
-        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+        "interaction_sha256": "256e5d30e0c83af1edbc95538ec04f31b96b485b424b868c73c061509e1827aa",
+        "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
         "parts": [
           {
             "card_group": "period",
@@ -7455,25 +7455,25 @@
                 ]
               }
             },
-            "id": "bf4c61e1d49fb843591fc420#1",
+            "id": "af9902ad49858a709191b894#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$(-x,1-m)$",
-                  "value": "o4"
-                },
                 {
                   "label": "$(-x,-m)$",
                   "value": "o1"
                 },
                 {
-                  "label": "$(x,-m)$",
-                  "value": "o3"
-                },
-                {
                   "label": "$(-x,m)$",
                   "value": "o2"
+                },
+                {
+                  "label": "$(-x,1-m)$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$(x,-m)$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -7818,18 +7818,10 @@
                 ]
               }
             },
-            "id": "bf4c61e1d49fb843591fc420#2",
+            "id": "af9902ad49858a709191b894#2",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$(x+2,m)$",
-                  "value": "o2"
-                },
-                {
-                  "label": "$(x,-m)$",
-                  "value": "o3"
-                },
                 {
                   "label": "$(x+2,-m)$",
                   "value": "o1"
@@ -7837,6 +7829,14 @@
                 {
                   "label": "$(-x,-m)$",
                   "value": "o4"
+                },
+                {
+                  "label": "$(x,-m)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(x+2,m)$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -8173,25 +8173,25 @@
                 ]
               }
             },
-            "id": "bf4c61e1d49fb843591fc420#3",
+            "id": "af9902ad49858a709191b894#3",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$(-x-2,m)$",
-                  "value": "o1"
+                  "label": "$(-x-2,m+1)$",
+                  "value": "o4"
                 },
                 {
-                  "label": "$(x+2,m)$",
-                  "value": "o3"
+                  "label": "$(-x-2,m)$",
+                  "value": "o1"
                 },
                 {
                   "label": "$(-x-2,-m)$",
                   "value": "o2"
                 },
                 {
-                  "label": "$(-x-2,m+1)$",
-                  "value": "o4"
+                  "label": "$(x+2,m)$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -8548,25 +8548,25 @@
                 ]
               }
             },
-            "id": "bf4c61e1d49fb843591fc420#4",
+            "id": "af9902ad49858a709191b894#4",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$(-x-2,m)$",
-                  "value": "o4"
+                  "label": "$(x+4,-m)$",
+                  "value": "o2"
                 },
                 {
                   "label": "$(x+4,m)$",
                   "value": "o1"
                 },
                 {
-                  "label": "$(x+4,-m)$",
-                  "value": "o2"
-                },
-                {
                   "label": "$(x+2,m)$",
                   "value": "o3"
+                },
+                {
+                  "label": "$(-x-2,m)$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -8902,25 +8902,25 @@
                 ]
               }
             },
-            "id": "bf4c61e1d49fb843591fc420#5",
+            "id": "af9902ad49858a709191b894#5",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$f(x+2)=f(x)\\text{，周期为 }2$",
-                  "value": "o2"
-                },
                 {
                   "label": "$f(x+8)=-f(x)$",
                   "value": "o4"
                 },
                 {
-                  "label": "$f(x+4)=f(x)\\text{，周期为 }4$",
-                  "value": "o1"
-                },
-                {
                   "label": "$f(x+4)=-f(x)$",
                   "value": "o3"
+                },
+                {
+                  "label": "$f(x+2)=f(x)\\text{，周期为 }2$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x+4)=f(x)\\text{，周期为 }4$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -9088,7 +9088,7 @@
                 ]
               }
             },
-            "id": "bf4c61e1d49fb843591fc420#6",
+            "id": "af9902ad49858a709191b894#6",
             "interaction": {
               "type": "read"
             },
@@ -9106,11 +9106,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+        "run_id": "84eeea92456b4dea881afe90e2f0335e",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "2d3aa3a4386d3f9260eb7e62992c6475ee236351531fe9b2a6fb515b9471781e",
+            "math_step_sha256": "6259e1f3e4a9ff9d2f5d9161fb26b7815388ff96476dcf756049cfe6a335f381",
             "step_id": "cbd98ea750-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -9118,10 +9118,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "88ebc0e9a330596b195edecf",
+        "interaction_id": "e0994fb65770daf25c49e1fa",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "f6cf38d47e8c28f0a75c795af6fa3beb0bd04a17a94491f6df3a9a597d3dcb2e",
-        "lesson_version": "617f26ffd206f836d5fedf788a83b8808e23112d9b503027987dde7ed7376f5a",
+        "interaction_sha256": "26b0a8318c6f5d381bac00685fd58579150b28941c6cb52f6080437709dc3e5a",
+        "lesson_version": "cb191d484e79fbb990072a2586cc213c299600b5fc12f00021cf8433b0fde07f",
         "parts": [
           {
             "completion_board": {
@@ -9357,7 +9357,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "88ebc0e9a330596b195edecf#1",
+            "id": "e0994fb65770daf25c49e1fa#1",
             "interaction": {
               "type": "read"
             },
@@ -9396,25 +9396,25 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "88ebc0e9a330596b195edecf#2",
+            "id": "e0994fb65770daf25c49e1fa#2",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$\\sum_{k=1}^{54}f(k)=0$",
-                  "value": "o3"
-                },
                 {
                   "label": "$\\sum_{k=1}^{54}f(k)=1$",
                   "value": "o1"
                 },
                 {
-                  "label": "$\\sum_{k=1}^{54}f(k)=-1$",
-                  "value": "o4"
+                  "label": "$\\sum_{k=1}^{54}f(k)=0$",
+                  "value": "o3"
                 },
                 {
                   "label": "$\\sum_{k=1}^{54}f(k)=2$",
                   "value": "o2"
+                },
+                {
+                  "label": "$\\sum_{k=1}^{54}f(k)=-1$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -9440,11 +9440,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "4a35724fbdd94bc5b19a5fd061f73c33",
+        "run_id": "84eeea92456b4dea881afe90e2f0335e",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "93c24d448f1f29c08dcc14a4a96ac46d09fe982557407a6ed0e967435faf2315",
+            "math_step_sha256": "12c8156bdd75f8d4c0e432b743be2ad138f7812d909de2fab2d7fcaae2aa2e17",
             "step_id": "cbd98ea750-function-symmetry-002-function_symmetry_conclude"
           }
         ],

@@ -217,12 +217,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "44d687f6ff897224b26c283cc6cdefbb9657ae981e04938abfcaab2a514f8ad8",
+              "math_step_sha256": "c6b830486a186fdc58fd244d68e2967a9595bd75fecdafc8fbd005d81851ad8c",
               "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "da01a95787ee25d8a2dc58ec",
+          "stream_interaction_id": "0a87098a75180d774ff7bb49",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "把输入换成相反数",
@@ -298,12 +298,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "0539e03a6e800ad23480c4b22fda45b3d43b063ae4592e4821fecbd6662f1ea7",
+              "math_step_sha256": "7cf497c95b62addde4b128b84faa78253b9bca320ec22936292b13b4a3ceec6d",
               "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "dcabcc679d90c97b38d37d93",
+          "stream_interaction_id": "e41cd88f04b041218c7fd201",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "求出所求的值",
@@ -340,25 +340,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
+        "lesson_version": "7e3eff3b0379e559286a47552bb48e811bcbd3c7836d6ad7000caf921fc8e2dd",
         "math_steps": [
           {
-            "math_step_sha256": "44d687f6ff897224b26c283cc6cdefbb9657ae981e04938abfcaab2a514f8ad8",
+            "math_step_sha256": "c6b830486a186fdc58fd244d68e2967a9595bd75fecdafc8fbd005d81851ad8c",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "0539e03a6e800ad23480c4b22fda45b3d43b063ae4592e4821fecbd6662f1ea7",
+            "math_step_sha256": "7cf497c95b62addde4b128b84faa78253b9bca320ec22936292b13b4a3ceec6d",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "a8ffa41db0b14d7795a6828f9018b161",
+        "run_id": "c459d600af7e41e68ad0ac02c1a78317",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "6d265b7c60d88613d0b548345d33128e01937fe2411622512caa5009ccab73ac",
-        "verified_route_sha256": "87bb4982d8c17fa8e5b6eef705eedca4b4f515612b87513957c0f062246c866f"
+        "task_id": "50a63c23433413293b23bf8f729def8e377baa9633ef30f3e02fc07a35df9434",
+        "verified_route_sha256": "1d1e88050ae1f6625dc9f8f7daa362b518db76ba7c1ca7c2e3ac6a006e316715"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -675,9 +675,9 @@
   },
   "bundleVersion": "[\"stream\",\"18f56724bc119e01803341b3b6b195c70bf55ddb950be4de60051c8f498c5493\",\"39c82dd574d771a9ce29e136c0649e910ceb455410e8fa370e3bec8e617fad47\",\"582973beafb44479aa6d00dbbcdc2ab5\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "a8ffa41db0b14d7795a6828f9018b161",
-    "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
-    "stream_id": "a8ffa41db0b14d7795a6828f9018b161",
+    "run_id": "c459d600af7e41e68ad0ac02c1a78317",
+    "lesson_version": "7e3eff3b0379e559286a47552bb48e811bcbd3c7836d6ad7000caf921fc8e2dd",
+    "stream_id": "c459d600af7e41e68ad0ac02c1a78317",
     "target_ref": "/root/goals/0",
     "base_bundle_version": "4af66717ae5f96aabfd5188f1669d2b32faa3eda03db53b99d66b6a78ce1bea9",
     "d3": {
@@ -732,15 +732,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
+        "lesson_version": "7e3eff3b0379e559286a47552bb48e811bcbd3c7836d6ad7000caf921fc8e2dd",
         "local_check": "passed",
-        "math_step_sha256": "44d687f6ff897224b26c283cc6cdefbb9657ae981e04938abfcaab2a514f8ad8",
+        "math_step_sha256": "c6b830486a186fdc58fd244d68e2967a9595bd75fecdafc8fbd005d81851ad8c",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "a8ffa41db0b14d7795a6828f9018b161",
+        "run_id": "c459d600af7e41e68ad0ac02c1a78317",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -771,15 +771,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
+        "lesson_version": "7e3eff3b0379e559286a47552bb48e811bcbd3c7836d6ad7000caf921fc8e2dd",
         "local_check": "passed",
-        "math_step_sha256": "0539e03a6e800ad23480c4b22fda45b3d43b063ae4592e4821fecbd6662f1ea7",
+        "math_step_sha256": "7cf497c95b62addde4b128b84faa78253b9bca320ec22936292b13b4a3ceec6d",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "a8ffa41db0b14d7795a6828f9018b161",
+        "run_id": "c459d600af7e41e68ad0ac02c1a78317",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -816,27 +816,27 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "44d687f6ff897224b26c283cc6cdefbb9657ae981e04938abfcaab2a514f8ad8",
+        "math_step_sha256": "c6b830486a186fdc58fd244d68e2967a9595bd75fecdafc8fbd005d81851ad8c",
         "status": "interactive",
-        "interaction_id": "da01a95787ee25d8a2dc58ec"
+        "interaction_id": "0a87098a75180d774ff7bb49"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "0539e03a6e800ad23480c4b22fda45b3d43b063ae4592e4821fecbd6662f1ea7",
+        "math_step_sha256": "7cf497c95b62addde4b128b84faa78253b9bca320ec22936292b13b4a3ceec6d",
         "status": "interactive",
-        "interaction_id": "dcabcc679d90c97b38d37d93"
+        "interaction_id": "e41cd88f04b041218c7fd201"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "da01a95787ee25d8a2dc58ec",
+        "interaction_id": "0a87098a75180d774ff7bb49",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "ef1d764c6fccbcf6c073d41c02e917071f2d641ee75c4bea0b7b9e6a540b744b",
-        "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
+        "interaction_sha256": "f4d5218f683f2a0ab691482d2d5423d22ccab71df0b7d88113b867a7c3f858b1",
+        "lesson_version": "7e3eff3b0379e559286a47552bb48e811bcbd3c7836d6ad7000caf921fc8e2dd",
         "parts": [
           {
             "completion_board": {
@@ -862,7 +862,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "da01a95787ee25d8a2dc58ec#1",
+            "id": "0a87098a75180d774ff7bb49#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -898,11 +898,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "a8ffa41db0b14d7795a6828f9018b161",
+        "run_id": "c459d600af7e41e68ad0ac02c1a78317",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "44d687f6ff897224b26c283cc6cdefbb9657ae981e04938abfcaab2a514f8ad8",
+            "math_step_sha256": "c6b830486a186fdc58fd244d68e2967a9595bd75fecdafc8fbd005d81851ad8c",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -910,10 +910,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "dcabcc679d90c97b38d37d93",
+        "interaction_id": "e41cd88f04b041218c7fd201",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "690a7207cba881b4deb6845e42e9899b0925ed15d67c96a6008816de9016097e",
-        "lesson_version": "3b7c1a1db1255238975137912ba16ed2d98dfff74b6df7e8fdc21eb00619f4d3",
+        "interaction_sha256": "461634291287b0f629f68cc63f9b38a4a7a9b477fd18ce5625f5c6a627e5944f",
+        "lesson_version": "7e3eff3b0379e559286a47552bb48e811bcbd3c7836d6ad7000caf921fc8e2dd",
         "parts": [
           {
             "completion_board": {
@@ -939,21 +939,21 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "dcabcc679d90c97b38d37d93#1",
+            "id": "e41cd88f04b041218c7fd201#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(1)+f(-2)=-3$",
-                  "value": "o1"
+                  "label": "$f(1)+f(-2)=3$",
+                  "value": "o2"
                 },
                 {
                   "label": "$f(1)+f(-2)\\text{ 不能唯一确定}$",
                   "value": "o3"
                 },
                 {
-                  "label": "$f(1)+f(-2)=3$",
-                  "value": "o2"
+                  "label": "$f(1)+f(-2)=-3$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -979,11 +979,11 @@
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "a8ffa41db0b14d7795a6828f9018b161",
+        "run_id": "c459d600af7e41e68ad0ac02c1a78317",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "0539e03a6e800ad23480c4b22fda45b3d43b063ae4592e4821fecbd6662f1ea7",
+            "math_step_sha256": "7cf497c95b62addde4b128b84faa78253b9bca320ec22936292b13b4a3ceec6d",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],

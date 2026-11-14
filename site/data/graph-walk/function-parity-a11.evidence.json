@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "d857e95cf5014827a24b35ff8410bb02",
-    "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
-    "input_sha256": "ea720901f4df13de04d121d615daf871ec8b0254e6da220c56f79b2547534893",
-    "checkpoint_sha256": "9a09cbe93400728283a6f6922a3b13f76aedc59110da47a3b6f0138ffea62526",
-    "result_sha256": "d12b7a3bfabcf7493d59d0286857d434876b98f81f337810d9fadb4ef1961574",
+    "run_id": "73df8409de0e4e85bc4737a6564d24ba",
+    "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
+    "input_sha256": "3766634aa85a439d9d21a5346b80f4949ddd6182144287770da63910f6159dbe",
+    "checkpoint_sha256": "f87086b593fdbc8a0e2737ab9ad5be1be6e739f1ee6b40e7738e48ff249ce226",
+    "result_sha256": "37070a53f03efde117f2da431534d4a4fe411396eaef9b79aa503a3663a90377",
     "stage_one_sha256": "65efeb913905be53ac1f8395972caeecc217526575323d3bfd636183ce977bf0",
-    "stage_two_sha256": "b56a5b52d7ef54259c8b05b2ea18dc2204dd72a88d47fb70f599f372669e96a3",
+    "stage_two_sha256": "548ca198f13fe0bcdde4ef8a21c6aeb2000a1e76401150d141063e502e755e79",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "855be6bdcc659ba0968c4ed8e7e254c5cf506eefd9f313b30918748228f23f5f",
-    "teaching_revision": "28fb1792d0dd882ebc72c98e33da34eece2c810e0dbe232b02e9102d89c16045"
+    "teaching_revision": "e3878d59fec81712ccdc3362084345c5e3efee4a6b5687b85b97aa8809f498a3"
   },
   "lesson": {
     "status": "completed",
@@ -966,10 +966,10 @@
     ]
   },
   "stream": {
-    "run_id": "d857e95cf5014827a24b35ff8410bb02",
-    "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
-    "input_sha256": "ea720901f4df13de04d121d615daf871ec8b0254e6da220c56f79b2547534893",
-    "stream_id": "d857e95cf5014827a24b35ff8410bb02",
+    "run_id": "73df8409de0e4e85bc4737a6564d24ba",
+    "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
+    "input_sha256": "3766634aa85a439d9d21a5346b80f4949ddd6182144287770da63910f6159dbe",
+    "stream_id": "73df8409de0e4e85bc4737a6564d24ba",
     "last_seq": 43,
     "minimum_seq": 1,
     "math_steps": [
@@ -995,15 +995,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "local_check": "passed",
-        "math_step_sha256": "8727acc6e8bb4f49bc2880dbfff6c12e50d8ccc3ba2d5d2a46c0e96b33493d17",
+        "math_step_sha256": "765182f0b14155a9acc4c1f6c3aabc270766bb4ad8014fe616a19d12e7fd809b",
         "method_ref": "method-parity-extension#map",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-extension",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -1034,15 +1034,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "local_check": "passed",
-        "math_step_sha256": "08c4c1a248ee575c14f00853c507a3c20a59b28b82fa90f1154aeff804ab6b7b",
+        "math_step_sha256": "0d80447e05e2ff041213113f56dc41f9bfb821436584b2e056316ccccb09a843",
         "method_ref": "method-parity-extension#substitute",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-extension",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -1075,15 +1075,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "local_check": "passed",
-        "math_step_sha256": "683cf6de6548a86aaa409d00ad0ea992acb6decc163faf64198e242e5adf4eb5",
+        "math_step_sha256": "1a284dfd90a20a992198d1028a0793eba90efc8b75994d4bb687d44ec55ce455",
         "method_ref": "method-parity-extension#write-back",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-extension",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1114,15 +1114,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "local_check": "passed",
-        "math_step_sha256": "e1711848a809ad98f20442a6268195db59f8975c85bc50086d2db3db4d6690f1",
+        "math_step_sha256": "0452efc470bacd9b2619e85858f09a37d4f956bb6f10513809992a4dd2f6b1eb",
         "method_ref": "method-parity-extension#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-extension",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -1153,15 +1153,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "local_check": "passed",
-        "math_step_sha256": "d99ceb481ec66c7aa95c3914dda501ff125e529214e17d9be9244680f231e5ba",
+        "math_step_sha256": "1c3e1e714529f6590eddaac5f017fdd93d6e47a20c6eb625e0a72d1d56109d59",
         "method_ref": "method-parity-inequality#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-inequality",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1194,15 +1194,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "local_check": "passed",
-        "math_step_sha256": "ffce0b5a40bb2e919dd84cb1ed6d19633e39881719b0062eeeb4b4040231ce60",
+        "math_step_sha256": "92e79e8d1fc45a12a3d190f4508417be98b1a29abc12b709cfa6251ad1ded4ad",
         "method_ref": "method-parity-inequality#direction",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-inequality",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -1239,15 +1239,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "local_check": "passed",
-        "math_step_sha256": "9c8f1a9cd9b9137d5a6871ee38563621dff13a2b49aaa4119a2914e03583ba65",
+        "math_step_sha256": "822a5a5fda98ca9a78e488adb7f6711534c9e129d43944d6ccc03485867710e3",
         "method_ref": "method-parity-inequality#compare",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-inequality",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "source_refs": [
           "/steps/5/calls/0"
         ],
@@ -1283,15 +1283,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "local_check": "passed",
-        "math_step_sha256": "e27c108137b5b93fccb93b0becc91f80e6c63459922e4cb0b33351f7d4ecc2d0",
+        "math_step_sha256": "f293ed008bc07c35369aade26a7360288935b5f0de7439085fd404bdadffddb9",
         "method_ref": "method-parity-inequality#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-inequality",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "source_refs": [
           "/steps/9/calls/0",
           "/steps/9/skipped_calls/0",
@@ -1578,35 +1578,35 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "math_steps": [
           {
-            "math_step_sha256": "8727acc6e8bb4f49bc2880dbfff6c12e50d8ccc3ba2d5d2a46c0e96b33493d17",
+            "math_step_sha256": "765182f0b14155a9acc4c1f6c3aabc270766bb4ad8014fe616a19d12e7fd809b",
             "ordinal": 1,
             "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
           },
           {
-            "math_step_sha256": "08c4c1a248ee575c14f00853c507a3c20a59b28b82fa90f1154aeff804ab6b7b",
+            "math_step_sha256": "0d80447e05e2ff041213113f56dc41f9bfb821436584b2e056316ccccb09a843",
             "ordinal": 2,
             "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
           },
           {
-            "math_step_sha256": "683cf6de6548a86aaa409d00ad0ea992acb6decc163faf64198e242e5adf4eb5",
+            "math_step_sha256": "1a284dfd90a20a992198d1028a0793eba90efc8b75994d4bb687d44ec55ce455",
             "ordinal": 3,
             "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
           },
           {
-            "math_step_sha256": "e1711848a809ad98f20442a6268195db59f8975c85bc50086d2db3db4d6690f1",
+            "math_step_sha256": "0452efc470bacd9b2619e85858f09a37d4f956bb6f10513809992a4dd2f6b1eb",
             "ordinal": 4,
             "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "ccb1074263820bd437d09affd4829108e757d12fa6bfcb98c6eaec9009d673fc",
-        "verified_route_sha256": "8f7424096f6873efc961073b04a763857c723b58352d52ebe47e70b3f33d7288"
+        "task_id": "3aa5ddddb812cd4354062d9eed3e53dff81d092fe76cbd02f26a13946ae493a4",
+        "verified_route_sha256": "e0ff465446795206f1ffc5cbc1befadd366891bf25feda1be7c42936298e1d58"
       },
       {
         "answer": {
@@ -1641,35 +1641,35 @@
           "expression": "Interval.open(2, oo)",
           "latex": "\\left(2, \\infty\\right)"
         },
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "math_steps": [
           {
-            "math_step_sha256": "d99ceb481ec66c7aa95c3914dda501ff125e529214e17d9be9244680f231e5ba",
+            "math_step_sha256": "1c3e1e714529f6590eddaac5f017fdd93d6e47a20c6eb625e0a72d1d56109d59",
             "ordinal": 1,
             "step_id": "cbd98ea750-parity-inequality-001-parity_inequality_rewrite"
           },
           {
-            "math_step_sha256": "ffce0b5a40bb2e919dd84cb1ed6d19633e39881719b0062eeeb4b4040231ce60",
+            "math_step_sha256": "92e79e8d1fc45a12a3d190f4508417be98b1a29abc12b709cfa6251ad1ded4ad",
             "ordinal": 2,
             "step_id": "cbd98ea750-parity-inequality-002-parity_inequality_direction"
           },
           {
-            "math_step_sha256": "9c8f1a9cd9b9137d5a6871ee38563621dff13a2b49aaa4119a2914e03583ba65",
+            "math_step_sha256": "822a5a5fda98ca9a78e488adb7f6711534c9e129d43944d6ccc03485867710e3",
             "ordinal": 3,
             "step_id": "cbd98ea750-parity-inequality-003-parity_inequality_compare"
           },
           {
-            "math_step_sha256": "e27c108137b5b93fccb93b0becc91f80e6c63459922e4cb0b33351f7d4ecc2d0",
+            "math_step_sha256": "f293ed008bc07c35369aade26a7360288935b5f0de7439085fd404bdadffddb9",
             "ordinal": 4,
             "step_id": "cbd98ea750-parity-inequality-004-parity_inequality_conclude"
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "status": "pending",
         "target_ref": "/root/goals/1",
-        "task_id": "0adbf8342933bb814065e581309f3f457b53fee29040804cfb070b0311980265",
-        "verified_route_sha256": "ec205c313d4a5624fcd3579adddee16df87b1469e52d021a408f6233a9484c5d"
+        "task_id": "e3cf719408dc314f795ce023211087252c02a2665ad40042225704f7134110c3",
+        "verified_route_sha256": "93ba6a845781bb1e46b358020215e87171da1556718d4e91e8a76c1802ed6fb3"
       }
     ],
     "qa": [],
@@ -1756,76 +1756,76 @@
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-001-parity_extension_map",
         "ordinal": 1,
-        "math_step_sha256": "8727acc6e8bb4f49bc2880dbfff6c12e50d8ccc3ba2d5d2a46c0e96b33493d17",
+        "math_step_sha256": "765182f0b14155a9acc4c1f6c3aabc270766bb4ad8014fe616a19d12e7fd809b",
         "status": "interactive",
-        "interaction_id": "f445fd05fecb0297130a5498"
+        "interaction_id": "eace4ceff11ffe862497096d"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute",
         "ordinal": 2,
-        "math_step_sha256": "08c4c1a248ee575c14f00853c507a3c20a59b28b82fa90f1154aeff804ab6b7b",
+        "math_step_sha256": "0d80447e05e2ff041213113f56dc41f9bfb821436584b2e056316ccccb09a843",
         "status": "interactive",
-        "interaction_id": "3ee9979f4f119aa22dc2fc05"
+        "interaction_id": "38cb3150aaf8e13511cac420"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back",
         "ordinal": 3,
-        "math_step_sha256": "683cf6de6548a86aaa409d00ad0ea992acb6decc163faf64198e242e5adf4eb5",
+        "math_step_sha256": "1a284dfd90a20a992198d1028a0793eba90efc8b75994d4bb687d44ec55ce455",
         "status": "interactive",
-        "interaction_id": "ecfd560a8838dc967bee9f50"
+        "interaction_id": "ce67c52a093385fb3ee0e55d"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-extension",
         "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude",
         "ordinal": 4,
-        "math_step_sha256": "e1711848a809ad98f20442a6268195db59f8975c85bc50086d2db3db4d6690f1",
+        "math_step_sha256": "0452efc470bacd9b2619e85858f09a37d4f956bb6f10513809992a4dd2f6b1eb",
         "status": "interactive",
-        "interaction_id": "856a36eebf7dbf80d50bff22"
+        "interaction_id": "ae99a770e5849f97c9bd0e74"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-inequality",
         "step_id": "cbd98ea750-parity-inequality-001-parity_inequality_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "d99ceb481ec66c7aa95c3914dda501ff125e529214e17d9be9244680f231e5ba",
+        "math_step_sha256": "1c3e1e714529f6590eddaac5f017fdd93d6e47a20c6eb625e0a72d1d56109d59",
         "status": "interactive",
-        "interaction_id": "442904e1571c9fe6f78293d5"
+        "interaction_id": "4f8cf42f39491a5f36ea952b"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-inequality",
         "step_id": "cbd98ea750-parity-inequality-002-parity_inequality_direction",
         "ordinal": 2,
-        "math_step_sha256": "ffce0b5a40bb2e919dd84cb1ed6d19633e39881719b0062eeeb4b4040231ce60",
+        "math_step_sha256": "92e79e8d1fc45a12a3d190f4508417be98b1a29abc12b709cfa6251ad1ded4ad",
         "status": "interactive",
-        "interaction_id": "a59a07f5ef228867df08c12a"
+        "interaction_id": "8a93a5051f6fa8ec607529e8"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-inequality",
         "step_id": "cbd98ea750-parity-inequality-003-parity_inequality_compare",
         "ordinal": 3,
-        "math_step_sha256": "9c8f1a9cd9b9137d5a6871ee38563621dff13a2b49aaa4119a2914e03583ba65",
+        "math_step_sha256": "822a5a5fda98ca9a78e488adb7f6711534c9e129d43944d6ccc03485867710e3",
         "status": "interactive",
-        "interaction_id": "7ea7368f6401ab1c026f24a8"
+        "interaction_id": "37cf05fdb3fce56d5fc8e487"
       },
       {
         "target_ref": "/root/goals/1",
         "route_id": "parity-inequality",
         "step_id": "cbd98ea750-parity-inequality-004-parity_inequality_conclude",
         "ordinal": 4,
-        "math_step_sha256": "e27c108137b5b93fccb93b0becc91f80e6c63459922e4cb0b33351f7d4ecc2d0",
+        "math_step_sha256": "f293ed008bc07c35369aade26a7360288935b5f0de7439085fd404bdadffddb9",
         "status": "interactive",
-        "interaction_id": "1bc0ce1b41927c1f591c85a0"
+        "interaction_id": "fbb353ca6c995a98bf070d5a"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+    "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -2093,10 +2093,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "f445fd05fecb0297130a5498",
+        "interaction_id": "eace4ceff11ffe862497096d",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "5be46ea265cb3d6ec295fae4adcb5a92f310853d013fa53e1cfce70e7dd28660",
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "interaction_sha256": "79adae87172bd1f84d4886086048aaf197a5e035a97e1438ff2f483edac65125",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "parts": [
           {
             "completion_board": {
@@ -2349,10 +2349,14 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "f445fd05fecb0297130a5498#1",
+            "id": "eace4ceff11ffe862497096d#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$x<0\\text{ 时，}-x>0$",
+                  "value": "o1"
+                },
                 {
                   "label": "$x<0\\text{ 时，}-x\\le 0$",
                   "value": "o3"
@@ -2360,10 +2364,6 @@
                 {
                   "label": "$x<0\\text{ 时，}-x<0$",
                   "value": "o2"
-                },
-                {
-                  "label": "$x<0\\text{ 时，}-x>0$",
-                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -2389,11 +2389,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "8727acc6e8bb4f49bc2880dbfff6c12e50d8ccc3ba2d5d2a46c0e96b33493d17",
+            "math_step_sha256": "765182f0b14155a9acc4c1f6c3aabc270766bb4ad8014fe616a19d12e7fd809b",
             "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
           }
         ],
@@ -2401,10 +2401,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "3ee9979f4f119aa22dc2fc05",
+        "interaction_id": "38cb3150aaf8e13511cac420",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "e7db7f87297073c2b8a7dfae855ab8db05ada28134e8b0b5de33d4bf804c65ff",
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "interaction_sha256": "f1e72c4621fd0d3b365ca514abf577c15a0974aea87032f398cb073c294d374f",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "parts": [
           {
             "completion_board": {
@@ -2430,25 +2430,25 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "3ee9979f4f119aa22dc2fc05#1",
+            "id": "38cb3150aaf8e13511cac420#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$x<0\\text{ 时，}f(-x)=- x^{2} + x$",
-                  "value": "o3"
-                },
-                {
                   "label": "$x<0\\text{ 时，}f(-x)=- x^{2} - x$",
                   "value": "o4"
+                },
+                {
+                  "label": "$x<0\\text{ 时，}f(-x)=x^{2} - x$",
+                  "value": "o1"
                 },
                 {
                   "label": "$x<0\\text{ 时，}f(-x)=x^{2} + x$",
                   "value": "o2"
                 },
                 {
-                  "label": "$x<0\\text{ 时，}f(-x)=x^{2} - x$",
-                  "value": "o1"
+                  "label": "$x<0\\text{ 时，}f(-x)=- x^{2} + x$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -2474,11 +2474,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "08c4c1a248ee575c14f00853c507a3c20a59b28b82fa90f1154aeff804ab6b7b",
+            "math_step_sha256": "0d80447e05e2ff041213113f56dc41f9bfb821436584b2e056316ccccb09a843",
             "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
           }
         ],
@@ -2486,10 +2486,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "ecfd560a8838dc967bee9f50",
+        "interaction_id": "ce67c52a093385fb3ee0e55d",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "a5d6c9a576d5ea88a0cc5264ff5279c7b3658fcb96e39e53d285972fc1c81a6a",
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "interaction_sha256": "39a1d5219c892c4e7fa1bab34975f66960e86c5bd60eb4889db7e6930049e59e",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "parts": [
           {
             "completion_board": {
@@ -2624,13 +2624,13 @@
                 ]
               }
             },
-            "id": "ecfd560a8838dc967bee9f50#1",
+            "id": "ce67c52a093385fb3ee0e55d#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$x<0\\text{ 时，}f(x)=- x^{2} - x$",
-                  "value": "o3"
+                  "label": "$x<0\\text{ 时，}f(x)=x^{2} + x$",
+                  "value": "o4"
                 },
                 {
                   "label": "$x<0\\text{ 时，}f(x)=- x^{2} + x$",
@@ -2641,8 +2641,8 @@
                   "value": "o2"
                 },
                 {
-                  "label": "$x<0\\text{ 时，}f(x)=x^{2} + x$",
-                  "value": "o4"
+                  "label": "$x<0\\text{ 时，}f(x)=- x^{2} - x$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -2668,11 +2668,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "683cf6de6548a86aaa409d00ad0ea992acb6decc163faf64198e242e5adf4eb5",
+            "math_step_sha256": "1a284dfd90a20a992198d1028a0793eba90efc8b75994d4bb687d44ec55ce455",
             "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
           }
         ],
@@ -2680,10 +2680,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "856a36eebf7dbf80d50bff22",
+        "interaction_id": "ae99a770e5849f97c9bd0e74",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "b8fecce0e1a37be4016847c14d37b87722b0294532a281988b85203f8bf483dc",
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "interaction_sha256": "13b272de2e67a6a16d948845c5d77e038e8f064e450ced0945dcfd4c32905fdd",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "parts": [
           {
             "completion_board": {
@@ -2829,7 +2829,7 @@
                 ]
               }
             },
-            "id": "856a36eebf7dbf80d50bff22#1",
+            "id": "ae99a770e5849f97c9bd0e74#1",
             "interaction": {
               "type": "read"
             },
@@ -2848,11 +2848,11 @@
           }
         ],
         "route_id": "parity-extension",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "e1711848a809ad98f20442a6268195db59f8975c85bc50086d2db3db4d6690f1",
+            "math_step_sha256": "0452efc470bacd9b2619e85858f09a37d4f956bb6f10513809992a4dd2f6b1eb",
             "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
           }
         ],
@@ -2860,10 +2860,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "442904e1571c9fe6f78293d5",
+        "interaction_id": "4f8cf42f39491a5f36ea952b",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "0e8c30a15a0eb193d6ccbae1f7f641c2389ff0023330f704756449709b5b9998",
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "interaction_sha256": "eb54e7dcaa238d70a3b241e9d07736ff9f73b0266189e7ce808519f3b0a4f0e2",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "parts": [
           {
             "completion_board": {
@@ -3037,25 +3037,25 @@
                 ]
               }
             },
-            "id": "442904e1571c9fe6f78293d5#1",
+            "id": "4f8cf42f39491a5f36ea952b#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(- 2 x - 1)>f(5)$",
-                  "value": "o4"
+                  "label": "$f(2 x + 1)>f(-5)$",
+                  "value": "o2"
                 },
                 {
                   "label": "$f(2 x + 1)<f(5)$",
                   "value": "o3"
                 },
                 {
-                  "label": "$f(2 x + 1)>f(-5)$",
-                  "value": "o2"
-                },
-                {
                   "label": "$f(2 x + 1)>f(5)$",
                   "value": "o1"
+                },
+                {
+                  "label": "$f(- 2 x - 1)>f(5)$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -3081,11 +3081,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d99ceb481ec66c7aa95c3914dda501ff125e529214e17d9be9244680f231e5ba",
+            "math_step_sha256": "1c3e1e714529f6590eddaac5f017fdd93d6e47a20c6eb625e0a72d1d56109d59",
             "step_id": "cbd98ea750-parity-inequality-001-parity_inequality_rewrite"
           }
         ],
@@ -3093,10 +3093,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "a59a07f5ef228867df08c12a",
+        "interaction_id": "8a93a5051f6fa8ec607529e8",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "99317c2094d6492ddd79bde356863346b6f0ecfeb7984923da8dab0687ed861f",
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "interaction_sha256": "d6db96f53fb4f40368659d0ea4739678b85cc0782aed34c30ac05481cf7a4853",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "parts": [
           {
             "completion_board": {
@@ -3282,7 +3282,7 @@
                 ]
               }
             },
-            "id": "a59a07f5ef228867df08c12a#1",
+            "id": "8a93a5051f6fa8ec607529e8#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -3322,11 +3322,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "ffce0b5a40bb2e919dd84cb1ed6d19633e39881719b0062eeeb4b4040231ce60",
+            "math_step_sha256": "92e79e8d1fc45a12a3d190f4508417be98b1a29abc12b709cfa6251ad1ded4ad",
             "step_id": "cbd98ea750-parity-inequality-002-parity_inequality_direction"
           }
         ],
@@ -3334,10 +3334,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "7ea7368f6401ab1c026f24a8",
+        "interaction_id": "37cf05fdb3fce56d5fc8e487",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "94726e7037c42df1af43981b965c2df11988293603f79ef6d8ae5c202478c50a",
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "interaction_sha256": "609bb983c85465efb2b8d9e1958de49eb0a0fa84ab391b7bfa915dce5f10001d",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "parts": [
           {
             "completion_board": {
@@ -3487,10 +3487,14 @@
                 ]
               }
             },
-            "id": "7ea7368f6401ab1c026f24a8#1",
+            "id": "37cf05fdb3fce56d5fc8e487#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$2 x + 1>-5$",
+                  "value": "o3"
+                },
                 {
                   "label": "$2 x + 1>5$",
                   "value": "o1"
@@ -3498,10 +3502,6 @@
                 {
                   "label": "$2 x + 1<5$",
                   "value": "o2"
-                },
-                {
-                  "label": "$2 x + 1>-5$",
-                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -3527,11 +3527,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "9c8f1a9cd9b9137d5a6871ee38563621dff13a2b49aaa4119a2914e03583ba65",
+            "math_step_sha256": "822a5a5fda98ca9a78e488adb7f6711534c9e129d43944d6ccc03485867710e3",
             "step_id": "cbd98ea750-parity-inequality-003-parity_inequality_compare"
           }
         ],
@@ -3539,10 +3539,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "1bc0ce1b41927c1f591c85a0",
+        "interaction_id": "fbb353ca6c995a98bf070d5a",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "630b325c580d5504dd961f0e668edca4aef9b12a3efd322b84f98196431ca2fe",
-        "lesson_version": "e6349bf5a0d24b5234ad944b5d6fe774d81688ea2924f0f7d96ebf42dde644a2",
+        "interaction_sha256": "8d5afe9ab7d34de28ccf71601fcea49a6ca6acf920d5ce6cd82e44f1f8463cf3",
+        "lesson_version": "990786b0d95acfa12c20847d0e90aa31a65624d55a753f4dd2e976c8e0884a7e",
         "parts": [
           {
             "completion_board": {
@@ -3568,7 +3568,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "1bc0ce1b41927c1f591c85a0#1",
+            "id": "fbb353ca6c995a98bf070d5a#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -3577,12 +3577,12 @@
                   "value": "o1"
                 },
                 {
-                  "label": "$x\\le 2$",
-                  "value": "o4"
-                },
-                {
                   "label": "$x<2$",
                   "value": "o3"
+                },
+                {
+                  "label": "$x\\le 2$",
+                  "value": "o4"
                 },
                 {
                   "label": "$x\\in\\mathbb R$",
@@ -3612,11 +3612,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "d857e95cf5014827a24b35ff8410bb02",
+        "run_id": "73df8409de0e4e85bc4737a6564d24ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "e27c108137b5b93fccb93b0becc91f80e6c63459922e4cb0b33351f7d4ecc2d0",
+            "math_step_sha256": "f293ed008bc07c35369aade26a7360288935b5f0de7439085fd404bdadffddb9",
             "step_id": "cbd98ea750-parity-inequality-004-parity_inequality_conclude"
           }
         ],

@@ -36,17 +36,33 @@
             "method-function-symmetry"
           ]
         },
-        "75477f7bdff05d115768251c#1": {
-          "title": "求相反输入的函数值之和",
+        "b1e395235674489b89ff68a1#1": {
+          "title": "代入 $-x$",
           "position": 4,
           "refs": [
             "method-function-symmetry#rewrite",
             "skill-function-symmetry-transform"
           ]
         },
-        "9e35167000748de2fdbfe8e6#1": {
-          "title": "回答原题所求",
+        "b1e395235674489b89ff68a1#2": {
+          "title": "由奇函数列出等式",
           "position": 5,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "b1e395235674489b89ff68a1#3": {
+          "title": "求 $f(x)+f(-x)$",
+          "position": 6,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "3362c6b9f18484c699a96c81#1": {
+          "title": "代入题目中的数",
+          "position": 7,
           "refs": [
             "method-function-symmetry#conclude"
           ]
@@ -54,6 +70,6 @@
       }
     }
   },
-  "page_contract_hash": "8495b4c52386ae9338a54d33e3a03f12cdc393db4f6f24bf49b1f0cf4170eab8",
-  "practice_version": "dd07dca354995aab320c668185329775fd806e36d88d32fcb11b1eff525f8153"
+  "page_contract_hash": "1f4d74a32225fe43b0f45570e3c506071469e9493a436c541348514eb4d88843",
+  "practice_version": "098ae7cf21ba3423a85a74a941665cb4cb5cd4d2d18a1e5d63aff97877840184"
 }

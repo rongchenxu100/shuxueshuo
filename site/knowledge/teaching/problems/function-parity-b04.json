@@ -36,17 +36,40 @@
             "method-function-symmetry"
           ]
         },
-        "976b2e0d17baab8548e413c7#1": {
-          "title": "求相反输入的函数值之和",
+        "fceaeeb24b80e9ff2abcf5c6#1": {
+          "title": "拆出常数项",
           "position": 4,
           "refs": [
             "method-function-symmetry#rewrite",
             "skill-function-symmetry-transform"
           ]
         },
-        "f2ce9d7a328b8c062d9bf8c5#1": {
-          "title": "回答原题所求",
+        "fceaeeb24b80e9ff2abcf5c6#2": {
+          "title": "判断剩余部分是奇函数",
           "position": 5,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "fceaeeb24b80e9ff2abcf5c6#3": {
+          "title": "求 $f(x)+f(-x)$",
+          "position": 6,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "30562effc65beb19f3575a9c#1": {
+          "title": "$h(x)$ 的最值关于原点对称",
+          "position": 7,
+          "refs": [
+            "method-function-symmetry#conclude"
+          ]
+        },
+        "30562effc65beb19f3575a9c#2": {
+          "title": "求 $M+m$",
+          "position": 8,
           "refs": [
             "method-function-symmetry#conclude"
           ]
@@ -54,6 +77,6 @@
       }
     }
   },
-  "page_contract_hash": "7771118112e5a74738b4b84b9085099165ff38ff6b2add0932ef192caf94977b",
-  "practice_version": "b0e4c96fb2765b83c4e0be78c5fa77e7da7cc0b941d240bcec73a278b624cc79"
+  "page_contract_hash": "bf8c39de9544ab1dfc4e573305a45b494b061da31b0318035bb9d51c9c981780",
+  "practice_version": "91c6a01001936a040a5c1ef672b3de7a8e8ad5767e3eb7435a0863e2797f0a10"
 }

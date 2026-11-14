@@ -147,7 +147,8 @@ def test_real_transcription_executes_grades_and_resumes(key, attempt, tmp_path, 
     assert source['targetRef'] == '/root/goals/0'
     (tmp_path / 'source.json').write_text(json.dumps(source, ensure_ascii=False))
     checked = subprocess.run(['node', str(ROOT / 'tools/tests/fixtures/parity-parameter-course-check.mjs'),
-                              str(tmp_path / 'evidence.json'), str(tmp_path / 'source.json'), 'function-symmetry', 'number-lines'],
+                              str(tmp_path / 'evidence.json'), str(tmp_path / 'source.json'), 'function-symmetry',
+                              *(['number-lines'] if key == 'b04' else [])],
                              capture_output=True, text=True, check=False)
     assert checked.returncode == 0, checked.stdout + checked.stderr
     assert json.loads(checked.stdout)['targets'] == ['/root/goals/0']

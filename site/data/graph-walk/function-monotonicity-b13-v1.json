@@ -287,12 +287,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "0ff6c9d6d50376e9c093cf7cf5e3e6f57a2d9b5df690935d27401f1c12e11297",
+              "math_step_sha256": "182cf188630883ff2ace38c86245940b606a06acaf314506db89580d52e382bf",
               "step_id": "39e5646dcb-monotonicity-inequality-001-prepare"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "76137b2c5309830aaf978173",
+          "stream_interaction_id": "f24a6939e47bfdfb83a176ec",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "核对比较对象与单调性",
@@ -372,12 +372,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "2a28c6dd4626069bd96d14201b2192704e5c3160257ece6a27daf5d99c3bd98a",
+              "math_step_sha256": "9fa835791abe8578285a8b97b094d596a050bf28e2786eaecbdf55d5c5138fce",
               "step_id": "39e5646dcb-monotonicity-inequality-002-inputs"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "a5514c5ae0f1d3ba30d9e54e",
+          "stream_interaction_id": "a0a9d982cfe8aefbcb35e354",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "两个输入的合法条件",
@@ -457,12 +457,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "dc1e53910215febb31743c568ee2d40538a492deec79a3dc8f12a0f1190966b7",
+              "math_step_sha256": "315b9f1ea96bd6c02e8df2cdc7fb712840ea57fbfff8e201a8005640d05323c0",
               "step_id": "39e5646dcb-monotonicity-inequality-003-order"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "7f7fcf67331b5c6850fd9762",
+          "stream_interaction_id": "9ed2cf21c674d9fd60e3af08",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "利用单调性转化比较",
@@ -542,12 +542,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "f14260ede68b78ed726b65171e7700603490ec86e039cdcb24e9f1af9b526299",
+              "math_step_sha256": "ce5a71c14dbf1f63c2211230e22766b137e6087cd400c8d19788f782f3bae45c",
               "step_id": "39e5646dcb-monotonicity-inequality-004-conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "52bf0c9180729699d41f95ff",
+          "stream_interaction_id": "ccecb4cbbbc6bf2ba4f8ae78",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "回到原目标",
@@ -600,35 +600,35 @@
           "expression": "Interval.Ropen(1/2, 2/3)",
           "latex": "\\left[\\frac{1}{2}, \\frac{2}{3}\\right)"
         },
-        "lesson_version": "c46c8b5d719d74689f64c7409fa209f273b6ca067429bd65b8e9b641196c274f",
+        "lesson_version": "4bb10970436cb692e34e4f60b008f71c81023973d630c6b9a070cb2633f18149",
         "math_steps": [
           {
-            "math_step_sha256": "0ff6c9d6d50376e9c093cf7cf5e3e6f57a2d9b5df690935d27401f1c12e11297",
+            "math_step_sha256": "182cf188630883ff2ace38c86245940b606a06acaf314506db89580d52e382bf",
             "ordinal": 1,
             "step_id": "39e5646dcb-monotonicity-inequality-001-prepare"
           },
           {
-            "math_step_sha256": "2a28c6dd4626069bd96d14201b2192704e5c3160257ece6a27daf5d99c3bd98a",
+            "math_step_sha256": "9fa835791abe8578285a8b97b094d596a050bf28e2786eaecbdf55d5c5138fce",
             "ordinal": 2,
             "step_id": "39e5646dcb-monotonicity-inequality-002-inputs"
           },
           {
-            "math_step_sha256": "dc1e53910215febb31743c568ee2d40538a492deec79a3dc8f12a0f1190966b7",
+            "math_step_sha256": "315b9f1ea96bd6c02e8df2cdc7fb712840ea57fbfff8e201a8005640d05323c0",
             "ordinal": 3,
             "step_id": "39e5646dcb-monotonicity-inequality-003-order"
           },
           {
-            "math_step_sha256": "f14260ede68b78ed726b65171e7700603490ec86e039cdcb24e9f1af9b526299",
+            "math_step_sha256": "ce5a71c14dbf1f63c2211230e22766b137e6087cd400c8d19788f782f3bae45c",
             "ordinal": 4,
             "step_id": "39e5646dcb-monotonicity-inequality-004-conclude"
           }
         ],
         "route_id": "monotonicity-inequality",
-        "run_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
+        "run_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "301da419f59e3ab6b59670cf50af92f33bea08778737bb81959eda7966b61203",
-        "verified_route_sha256": "a4de36866a22fbfdd07a30e80d69415bfce920a8e367d112e0d53a6ebe3fff0e"
+        "task_id": "0dc10c9bfa37203c30cadee669bd67d97c8d3d4843a95913a7b249ad7e21d276",
+        "verified_route_sha256": "5af2cb0eba352b53194ed370a0085a29618efc942a543c8e8009d8514bcb9268"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -904,9 +904,9 @@
   },
   "bundleVersion": "[\"stream\",\"9abd3298996af9cb26cfe967f7ca322f78752a36a3890c673fc681a8fc6eb3e1\",\"52f184838a343608ae9fe29baa9599e4017eea58249d66a8844d8d47dab0e40a\",\"f666ae77926d45ebb7c8daefc025a82a\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
-    "lesson_version": "c46c8b5d719d74689f64c7409fa209f273b6ca067429bd65b8e9b641196c274f",
-    "stream_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
+    "run_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
+    "lesson_version": "4bb10970436cb692e34e4f60b008f71c81023973d630c6b9a070cb2633f18149",
+    "stream_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
     "target_ref": "/root/goals/0",
     "base_bundle_version": "85bb986bf1e88e71dc72cee8b8611d1e53f0a502c2a5fe6941b5969e0fd889ae",
     "d3": {
@@ -1023,15 +1023,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c46c8b5d719d74689f64c7409fa209f273b6ca067429bd65b8e9b641196c274f",
+        "lesson_version": "4bb10970436cb692e34e4f60b008f71c81023973d630c6b9a070cb2633f18149",
         "local_check": "passed",
-        "math_step_sha256": "0ff6c9d6d50376e9c093cf7cf5e3e6f57a2d9b5df690935d27401f1c12e11297",
+        "math_step_sha256": "182cf188630883ff2ace38c86245940b606a06acaf314506db89580d52e382bf",
         "method_ref": "method-monotonicity-inequality#prepare",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "monotonicity-inequality",
-        "run_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
+        "run_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
         "source_refs": [
           "/steps/0/calls/0",
           "/steps/0/calls/1"
@@ -1066,15 +1066,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c46c8b5d719d74689f64c7409fa209f273b6ca067429bd65b8e9b641196c274f",
+        "lesson_version": "4bb10970436cb692e34e4f60b008f71c81023973d630c6b9a070cb2633f18149",
         "local_check": "passed",
-        "math_step_sha256": "2a28c6dd4626069bd96d14201b2192704e5c3160257ece6a27daf5d99c3bd98a",
+        "math_step_sha256": "9fa835791abe8578285a8b97b094d596a050bf28e2786eaecbdf55d5c5138fce",
         "method_ref": "method-monotonicity-inequality#inputs",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "monotonicity-inequality",
-        "run_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
+        "run_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1107,15 +1107,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c46c8b5d719d74689f64c7409fa209f273b6ca067429bd65b8e9b641196c274f",
+        "lesson_version": "4bb10970436cb692e34e4f60b008f71c81023973d630c6b9a070cb2633f18149",
         "local_check": "passed",
-        "math_step_sha256": "dc1e53910215febb31743c568ee2d40538a492deec79a3dc8f12a0f1190966b7",
+        "math_step_sha256": "315b9f1ea96bd6c02e8df2cdc7fb712840ea57fbfff8e201a8005640d05323c0",
         "method_ref": "method-monotonicity-inequality#order",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "monotonicity-inequality",
-        "run_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
+        "run_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -1149,15 +1149,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c46c8b5d719d74689f64c7409fa209f273b6ca067429bd65b8e9b641196c274f",
+        "lesson_version": "4bb10970436cb692e34e4f60b008f71c81023973d630c6b9a070cb2633f18149",
         "local_check": "passed",
-        "math_step_sha256": "f14260ede68b78ed726b65171e7700603490ec86e039cdcb24e9f1af9b526299",
+        "math_step_sha256": "ce5a71c14dbf1f63c2211230e22766b137e6087cd400c8d19788f782f3bae45c",
         "method_ref": "method-monotonicity-inequality#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "monotonicity-inequality",
-        "run_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
+        "run_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
         "source_refs": [
           "/steps/5/calls/0"
         ],
@@ -1233,45 +1233,45 @@
         "route_id": "monotonicity-inequality",
         "step_id": "39e5646dcb-monotonicity-inequality-001-prepare",
         "ordinal": 1,
-        "math_step_sha256": "0ff6c9d6d50376e9c093cf7cf5e3e6f57a2d9b5df690935d27401f1c12e11297",
+        "math_step_sha256": "182cf188630883ff2ace38c86245940b606a06acaf314506db89580d52e382bf",
         "status": "interactive",
-        "interaction_id": "76137b2c5309830aaf978173"
+        "interaction_id": "f24a6939e47bfdfb83a176ec"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "monotonicity-inequality",
         "step_id": "39e5646dcb-monotonicity-inequality-002-inputs",
         "ordinal": 2,
-        "math_step_sha256": "2a28c6dd4626069bd96d14201b2192704e5c3160257ece6a27daf5d99c3bd98a",
+        "math_step_sha256": "9fa835791abe8578285a8b97b094d596a050bf28e2786eaecbdf55d5c5138fce",
         "status": "interactive",
-        "interaction_id": "a5514c5ae0f1d3ba30d9e54e"
+        "interaction_id": "a0a9d982cfe8aefbcb35e354"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "monotonicity-inequality",
         "step_id": "39e5646dcb-monotonicity-inequality-003-order",
         "ordinal": 3,
-        "math_step_sha256": "dc1e53910215febb31743c568ee2d40538a492deec79a3dc8f12a0f1190966b7",
+        "math_step_sha256": "315b9f1ea96bd6c02e8df2cdc7fb712840ea57fbfff8e201a8005640d05323c0",
         "status": "interactive",
-        "interaction_id": "7f7fcf67331b5c6850fd9762"
+        "interaction_id": "9ed2cf21c674d9fd60e3af08"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "monotonicity-inequality",
         "step_id": "39e5646dcb-monotonicity-inequality-004-conclude",
         "ordinal": 4,
-        "math_step_sha256": "f14260ede68b78ed726b65171e7700603490ec86e039cdcb24e9f1af9b526299",
+        "math_step_sha256": "ce5a71c14dbf1f63c2211230e22766b137e6087cd400c8d19788f782f3bae45c",
         "status": "interactive",
-        "interaction_id": "52bf0c9180729699d41f95ff"
+        "interaction_id": "ccecb4cbbbc6bf2ba4f8ae78"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "76137b2c5309830aaf978173",
+        "interaction_id": "f24a6939e47bfdfb83a176ec",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "88ea228122b85560cacacf5c8d159b49fdf7347fe05fffc7d6f37d5503b722ff",
-        "lesson_version": "c46c8b5d719d74689f64c7409fa209f273b6ca067429bd65b8e9b641196c274f",
+        "interaction_sha256": "371c35c67f26f2119731731540385fd003aeb8ed5693abc0594c423ccf0a10fe",
+        "lesson_version": "4bb10970436cb692e34e4f60b008f71c81023973d630c6b9a070cb2633f18149",
         "parts": [
           {
             "completion_board": {
@@ -1297,10 +1297,14 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "76137b2c5309830aaf978173#1",
+            "id": "f24a6939e47bfdfb83a176ec#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$\\downarrow$",
+                  "value": "o2"
+                },
                 {
                   "label": "$f\\text{ 在 }\\left[0, +\\infty\\right)\\text{ 上 }\\uparrow$",
                   "value": "o1"
@@ -1308,10 +1312,6 @@
                 {
                   "label": "$\\text{非严格}$",
                   "value": "o3"
-                },
-                {
-                  "label": "$\\downarrow$",
-                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1337,11 +1337,11 @@
           }
         ],
         "route_id": "monotonicity-inequality",
-        "run_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
+        "run_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "0ff6c9d6d50376e9c093cf7cf5e3e6f57a2d9b5df690935d27401f1c12e11297",
+            "math_step_sha256": "182cf188630883ff2ace38c86245940b606a06acaf314506db89580d52e382bf",
             "step_id": "39e5646dcb-monotonicity-inequality-001-prepare"
           }
         ],
@@ -1349,10 +1349,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "a5514c5ae0f1d3ba30d9e54e",
+        "interaction_id": "a0a9d982cfe8aefbcb35e354",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "82479c35070ab63ce37c09aec6b4bdf441d8e76138c897f90152a78e0f6a621a",
-        "lesson_version": "c46c8b5d719d74689f64c7409fa209f273b6ca067429bd65b8e9b641196c274f",
+        "interaction_sha256": "5662dbbc9504670f611e433db20abacbc64fbecc0ff284816de8d9b01cec2a80",
+        "lesson_version": "4bb10970436cb692e34e4f60b008f71c81023973d630c6b9a070cb2633f18149",
         "parts": [
           {
             "completion_board": {
@@ -1378,10 +1378,14 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "a5514c5ae0f1d3ba30d9e54e#1",
+            "id": "a0a9d982cfe8aefbcb35e354#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "$x\\in \\left(\\frac{1}{2}, +\\infty\\right)$",
+                  "value": "o4"
+                },
                 {
                   "label": "$x\\in \\mathbb{R}$",
                   "value": "o3"
@@ -1389,10 +1393,6 @@
                 {
                   "label": "$x\\in \\left[\\frac{1}{2}, +\\infty\\right)$",
                   "value": "o1"
-                },
-                {
-                  "label": "$x\\in \\left(\\frac{1}{2}, +\\infty\\right)$",
-                  "value": "o4"
                 },
                 {
                   "label": "$x\\in \\varnothing$",
@@ -1422,11 +1422,11 @@
           }
         ],
         "route_id": "monotonicity-inequality",
-        "run_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
+        "run_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "2a28c6dd4626069bd96d14201b2192704e5c3160257ece6a27daf5d99c3bd98a",
+            "math_step_sha256": "9fa835791abe8578285a8b97b094d596a050bf28e2786eaecbdf55d5c5138fce",
             "step_id": "39e5646dcb-monotonicity-inequality-002-inputs"
           }
         ],
@@ -1434,10 +1434,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "7f7fcf67331b5c6850fd9762",
+        "interaction_id": "9ed2cf21c674d9fd60e3af08",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "c4f5e7acac8a36f4c62d1d1f4e96d5def098b71298fa74f8791147182ff097fb",
-        "lesson_version": "c46c8b5d719d74689f64c7409fa209f273b6ca067429bd65b8e9b641196c274f",
+        "interaction_sha256": "6dc25c3c88eb6387131047bb63643627a04a821d2710650b387b38f685cadfac",
+        "lesson_version": "4bb10970436cb692e34e4f60b008f71c81023973d630c6b9a070cb2633f18149",
         "parts": [
           {
             "completion_board": {
@@ -1463,25 +1463,25 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "7f7fcf67331b5c6850fd9762#1",
+            "id": "9ed2cf21c674d9fd60e3af08#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$2 x - 1\\,<\\,\\frac{1}{3}$",
-                  "value": "o1"
-                },
                 {
                   "label": "$2 x - 1\\,\\le\\,\\frac{1}{3}$",
                   "value": "o2"
                 },
                 {
-                  "label": "$2 x - 1\\,\\ge\\,\\frac{1}{3}$",
-                  "value": "o4"
+                  "label": "$2 x - 1\\,<\\,\\frac{1}{3}$",
+                  "value": "o1"
                 },
                 {
                   "label": "$2 x - 1\\,>\\,\\frac{1}{3}$",
                   "value": "o3"
+                },
+                {
+                  "label": "$2 x - 1\\,\\ge\\,\\frac{1}{3}$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -1507,11 +1507,11 @@
           }
         ],
         "route_id": "monotonicity-inequality",
-        "run_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
+        "run_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "dc1e53910215febb31743c568ee2d40538a492deec79a3dc8f12a0f1190966b7",
+            "math_step_sha256": "315b9f1ea96bd6c02e8df2cdc7fb712840ea57fbfff8e201a8005640d05323c0",
             "step_id": "39e5646dcb-monotonicity-inequality-003-order"
           }
         ],
@@ -1519,10 +1519,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "52bf0c9180729699d41f95ff",
+        "interaction_id": "ccecb4cbbbc6bf2ba4f8ae78",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "71c2fce8f93be69a0ed0be59b0da324c77e8d26c3bb094a05c55773430d3709b",
-        "lesson_version": "c46c8b5d719d74689f64c7409fa209f273b6ca067429bd65b8e9b641196c274f",
+        "interaction_sha256": "ba0105fa014bd2262dc264036e558eb351c9cbbde0be71dcf4b4e2faec9bbd87",
+        "lesson_version": "4bb10970436cb692e34e4f60b008f71c81023973d630c6b9a070cb2633f18149",
         "parts": [
           {
             "completion_board": {
@@ -1548,25 +1548,25 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "52bf0c9180729699d41f95ff#1",
+            "id": "ccecb4cbbbc6bf2ba4f8ae78#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$x\\in \\mathbb{R}$",
-                  "value": "o3"
-                },
-                {
-                  "label": "$x\\in \\varnothing$",
-                  "value": "o2"
+                  "label": "$x\\in \\left[\\frac{1}{2}, \\frac{2}{3}\\right)$",
+                  "value": "o1"
                 },
                 {
                   "label": "$x\\in \\left(\\frac{1}{2}, \\frac{2}{3}\\right)$",
                   "value": "o4"
                 },
                 {
-                  "label": "$x\\in \\left[\\frac{1}{2}, \\frac{2}{3}\\right)$",
-                  "value": "o1"
+                  "label": "$x\\in \\varnothing$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$x\\in \\mathbb{R}$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -1592,11 +1592,11 @@
           }
         ],
         "route_id": "monotonicity-inequality",
-        "run_id": "71cb2bfb39eb4ea8b4da3dbb6d4067e2",
+        "run_id": "b0ea60d40c1f48ffa34d7ddbeea4607e",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "f14260ede68b78ed726b65171e7700603490ec86e039cdcb24e9f1af9b526299",
+            "math_step_sha256": "ce5a71c14dbf1f63c2211230e22766b137e6087cd400c8d19788f782f3bae45c",
             "step_id": "39e5646dcb-monotonicity-inequality-004-conclude"
           }
         ],

@@ -823,8 +823,11 @@
     const colors = ['#087f79', '#a04c36'];
     const line = (trace, index) => `<g class="sampled-trace" aria-label="${escape(trace.label)}">
       ${trace.segments.map(points => `<polyline fill="none" stroke="${colors[index]}" stroke-width="${index ? 2 : 3}" ${index ? 'stroke-dasharray="5 4"' : ''} points="${points.map(([a, b]) => `${x(a)},${y(b)}`).join(' ')}"/>`).join('')}
+      ${trace.markers.filter(p => p.label).map(p => `<path class="sampled-guide" d="M${x(p.x)} ${y(p.y)}V${y(0)}" fill="none" stroke="${colors[index]}" stroke-width="1.2" stroke-dasharray="3 3"/>`).join('')}
       ${trace.markers.map(p => `<circle class="sampled-endpoint" cx="${x(p.x)}" cy="${y(p.y)}" r="${index ? 3 : 4.5}" fill="${p.closed ? colors[index] : '#fff'}" stroke="${colors[index]}" stroke-width="1.5"/>`).join('')}
     </g>`;
+    const labels = traces.flatMap(t => t.markers.filter(p => p.label)).map(p =>
+      `<text x="${x(p.x)}" y="${p.y >= 0 ? y(p.y) - 10 : y(p.y) + 19}" text-anchor="middle" fill="#a36920">${escape(p.label)}</text>`).join('');
     return `<svg viewBox="0 0 360 270" role="img" aria-labelledby="${id}-title ${id}-desc">
       <title id="${id}-title">${escape(title)}</title><desc id="${id}-desc">${escape(description)}</desc>
       <defs><clipPath id="${id}-clip"><rect x="48" y="48" width="270" height="174"/></clipPath></defs>
@@ -836,7 +839,7 @@
       </g>
       <g fill="#526e64" font-family="Georgia,serif" font-size="12">
         ${xTicks.map(([v, label]) => `<text x="${x(v)}" y="${y(0)+17}" text-anchor="middle">${escape(label)}</text>`).join('')}
-        <text x="335" y="${y(0)+5}">${escape(variable)}</text><text x="${x(0)-8}" y="28">y</text>
+        <text x="335" y="${y(0)+5}">${escape(variable)}</text><text x="${x(0)-8}" y="28">y</text>${labels}
         ${traces.map((t, i) => `<path d="M${48+i*140} 252h20" stroke="${colors[i]}" stroke-width="2" ${i ? 'stroke-dasharray="5 4"' : ''}/><text x="${74+i*140}" y="256">${escape(t.label)}</text>`).join('')}
       </g>
     </svg>`;
@@ -880,7 +883,8 @@
       array(p.dividers, Number.isFinite) && p.dividers.length <= 97 &&
       array(p.traces, t => object(t) && string(t.label) && t.label.length > 0 &&
         array(t.segments, s => array(s, v => tuple(v, 2, Number.isFinite)) && s.length >= 2 && s.length <= 129) && t.segments.length <= 96 &&
-        array(t.markers, m => object(m) && Number.isFinite(m.x) && Number.isFinite(m.y) && boolean(m.closed)) && t.markers.length <= 192) &&
+        array(t.markers, m => object(m) && Number.isFinite(m.x) && Number.isFinite(m.y) && boolean(m.closed) &&
+          optional(m, 'label', v => string(v) && v.length > 0 && v.length <= 24)) && t.markers.length <= 192) &&
       p.traces.length >= 1 && p.traces.length <= 2;
     if (spec.kind === 'piecewise_curve') {
       const rationalDomain = v => {

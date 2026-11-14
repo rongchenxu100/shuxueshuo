@@ -346,12 +346,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "c0853a5e83db12ab6963c89f9d31c9d04b922275529e103309a32ea5772a623c",
+              "math_step_sha256": "6e6fd7d3a0fe823c6f2d56104e87490c067873fb39408456392d41477e8655c5",
               "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_known"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "519edf5899780ec88faa9e29",
+          "stream_interaction_id": "3dab844fd224c1ab18e48c48",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "先在已知范围内解不等式",
@@ -607,12 +607,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "56c3e65cf161ff398a51c618a1e378c2f50f1166b64dad0abd5b94b2f9ef95b9",
+              "math_step_sha256": "3511751c4484574507a716e913973c0cb4e8601f0d5e2b7db652413d06e5cf87",
               "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_mirror"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "7717f642e2d2c9e43de981e2",
+          "stream_interaction_id": "83a7493cdc41b3f84a51ac39",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "用奇偶性得到另一侧的解",
@@ -789,12 +789,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "a003a984f283911e56cd3b16c440eabc285729de56f373bf4f8dedb0ac4fa984",
+              "math_step_sha256": "339f6372e371b5e7c03b12427e8dcb77f7c4a54a45c4963e551205e64f6d3cce",
               "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "7eadfa35cddec799c618dc0c",
+          "stream_interaction_id": "18160bb2ef82394c49ebd53f",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "合并各部分，写出解集",
@@ -845,30 +845,30 @@
           "expression": "Interval(-3, 3)",
           "latex": "\\left[-3, 3\\right]"
         },
-        "lesson_version": "66be16291d698afc9fc11e3917e1e0907a5be3dfc2d61ed7d7eb2e44124d2b1e",
+        "lesson_version": "c17fe004a81e0e6a4409681fa9047b201dabb47f7cc5a63a36301783245c0860",
         "math_steps": [
           {
-            "math_step_sha256": "c0853a5e83db12ab6963c89f9d31c9d04b922275529e103309a32ea5772a623c",
+            "math_step_sha256": "6e6fd7d3a0fe823c6f2d56104e87490c067873fb39408456392d41477e8655c5",
             "ordinal": 1,
             "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_known"
           },
           {
-            "math_step_sha256": "56c3e65cf161ff398a51c618a1e378c2f50f1166b64dad0abd5b94b2f9ef95b9",
+            "math_step_sha256": "3511751c4484574507a716e913973c0cb4e8601f0d5e2b7db652413d06e5cf87",
             "ordinal": 2,
             "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_mirror"
           },
           {
-            "math_step_sha256": "a003a984f283911e56cd3b16c440eabc285729de56f373bf4f8dedb0ac4fa984",
+            "math_step_sha256": "339f6372e371b5e7c03b12427e8dcb77f7c4a54a45c4963e551205e64f6d3cce",
             "ordinal": 3,
             "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_conclude"
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "d2592d31b63d4831ba96696d2ccfec49",
+        "run_id": "c5d6cc2f29ec482e854c2762b4a18a26",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "8cc1d0d9f4a52519cce9200a54c53934fa335bdb6bd53ccc09a06f3d9687470e",
-        "verified_route_sha256": "427b88147c323b028eb148c8a771824907f4bd537d8141b81c3bf47a43a90419"
+        "task_id": "e33257332fc585289af2c392ed5f95890baa94378e1c62cd09f676ccb5cc9c38",
+        "verified_route_sha256": "62b610874d03b11f97b00396577e2baad8b8f114b387859a86d41b1c93e7743e"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -1226,9 +1226,9 @@
   },
   "bundleVersion": "[\"stream\",\"41ca112bc8dd2b4f2014838df68dd889e7a1889c80d2d23a7ecf460036c2b9f7\",\"c54344081ad29d10b04f5529e049f0d7b6db8052a5ccecc5800c84914da3b18e\",\"15f1374d2c384abbad0ed06d6c44fad6\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "d2592d31b63d4831ba96696d2ccfec49",
-    "lesson_version": "66be16291d698afc9fc11e3917e1e0907a5be3dfc2d61ed7d7eb2e44124d2b1e",
-    "stream_id": "d2592d31b63d4831ba96696d2ccfec49",
+    "run_id": "c5d6cc2f29ec482e854c2762b4a18a26",
+    "lesson_version": "c17fe004a81e0e6a4409681fa9047b201dabb47f7cc5a63a36301783245c0860",
+    "stream_id": "c5d6cc2f29ec482e854c2762b4a18a26",
     "target_ref": "/root/goals/0",
     "base_bundle_version": "41ca112bc8dd2b4f2014838df68dd889e7a1889c80d2d23a7ecf460036c2b9f7",
     "d3": {
@@ -1283,15 +1283,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "66be16291d698afc9fc11e3917e1e0907a5be3dfc2d61ed7d7eb2e44124d2b1e",
+        "lesson_version": "c17fe004a81e0e6a4409681fa9047b201dabb47f7cc5a63a36301783245c0860",
         "local_check": "passed",
-        "math_step_sha256": "c0853a5e83db12ab6963c89f9d31c9d04b922275529e103309a32ea5772a623c",
+        "math_step_sha256": "6e6fd7d3a0fe823c6f2d56104e87490c067873fb39408456392d41477e8655c5",
         "method_ref": "method-parity-inequality#given-side",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-inequality",
-        "run_id": "d2592d31b63d4831ba96696d2ccfec49",
+        "run_id": "c5d6cc2f29ec482e854c2762b4a18a26",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -1326,15 +1326,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "66be16291d698afc9fc11e3917e1e0907a5be3dfc2d61ed7d7eb2e44124d2b1e",
+        "lesson_version": "c17fe004a81e0e6a4409681fa9047b201dabb47f7cc5a63a36301783245c0860",
         "local_check": "passed",
-        "math_step_sha256": "56c3e65cf161ff398a51c618a1e378c2f50f1166b64dad0abd5b94b2f9ef95b9",
+        "math_step_sha256": "3511751c4484574507a716e913973c0cb4e8601f0d5e2b7db652413d06e5cf87",
         "method_ref": "method-parity-inequality#mirror",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-inequality",
-        "run_id": "d2592d31b63d4831ba96696d2ccfec49",
+        "run_id": "c5d6cc2f29ec482e854c2762b4a18a26",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -1369,15 +1369,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "66be16291d698afc9fc11e3917e1e0907a5be3dfc2d61ed7d7eb2e44124d2b1e",
+        "lesson_version": "c17fe004a81e0e6a4409681fa9047b201dabb47f7cc5a63a36301783245c0860",
         "local_check": "passed",
-        "math_step_sha256": "a003a984f283911e56cd3b16c440eabc285729de56f373bf4f8dedb0ac4fa984",
+        "math_step_sha256": "339f6372e371b5e7c03b12427e8dcb77f7c4a54a45c4963e551205e64f6d3cce",
         "method_ref": "method-parity-inequality#conclude",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "parity-inequality",
-        "run_id": "d2592d31b63d4831ba96696d2ccfec49",
+        "run_id": "c5d6cc2f29ec482e854c2762b4a18a26",
         "source_refs": [
           "/steps/9/calls/0",
           "/steps/9/skipped_calls/0",
@@ -1434,36 +1434,36 @@
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_known",
         "ordinal": 1,
-        "math_step_sha256": "c0853a5e83db12ab6963c89f9d31c9d04b922275529e103309a32ea5772a623c",
+        "math_step_sha256": "6e6fd7d3a0fe823c6f2d56104e87490c067873fb39408456392d41477e8655c5",
         "status": "interactive",
-        "interaction_id": "519edf5899780ec88faa9e29"
+        "interaction_id": "3dab844fd224c1ab18e48c48"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_mirror",
         "ordinal": 2,
-        "math_step_sha256": "56c3e65cf161ff398a51c618a1e378c2f50f1166b64dad0abd5b94b2f9ef95b9",
+        "math_step_sha256": "3511751c4484574507a716e913973c0cb4e8601f0d5e2b7db652413d06e5cf87",
         "status": "interactive",
-        "interaction_id": "7717f642e2d2c9e43de981e2"
+        "interaction_id": "83a7493cdc41b3f84a51ac39"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "parity-inequality",
         "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_conclude",
         "ordinal": 3,
-        "math_step_sha256": "a003a984f283911e56cd3b16c440eabc285729de56f373bf4f8dedb0ac4fa984",
+        "math_step_sha256": "339f6372e371b5e7c03b12427e8dcb77f7c4a54a45c4963e551205e64f6d3cce",
         "status": "interactive",
-        "interaction_id": "7eadfa35cddec799c618dc0c"
+        "interaction_id": "18160bb2ef82394c49ebd53f"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "519edf5899780ec88faa9e29",
+        "interaction_id": "3dab844fd224c1ab18e48c48",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "df3d8c8bff47363ea74f64e5a63b6041110a59d81959650617a5f04425bcf9e6",
-        "lesson_version": "66be16291d698afc9fc11e3917e1e0907a5be3dfc2d61ed7d7eb2e44124d2b1e",
+        "interaction_sha256": "5aed6cbe6cc0fcdd8a878b084cc0f324ea2f66f26f895ffbdc07f2f289d8d14d",
+        "lesson_version": "c17fe004a81e0e6a4409681fa9047b201dabb47f7cc5a63a36301783245c0860",
         "parts": [
           {
             "completion_board": {
@@ -1613,7 +1613,7 @@
                 ]
               }
             },
-            "id": "519edf5899780ec88faa9e29#1",
+            "id": "3dab844fd224c1ab18e48c48#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1622,12 +1622,12 @@
                   "value": "o1"
                 },
                 {
-                  "label": "$x\\ge 0\\text{ 时，}x\\in \\left\\{0\\right\\} \\cup \\left[3, \\infty\\right)$",
-                  "value": "o2"
-                },
-                {
                   "label": "$x\\ge 0\\text{ 时，}x>3$",
                   "value": "o3"
+                },
+                {
+                  "label": "$x\\ge 0\\text{ 时，}x\\in \\left\\{0\\right\\} \\cup \\left[3, \\infty\\right)$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1653,11 +1653,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "d2592d31b63d4831ba96696d2ccfec49",
+        "run_id": "c5d6cc2f29ec482e854c2762b4a18a26",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "c0853a5e83db12ab6963c89f9d31c9d04b922275529e103309a32ea5772a623c",
+            "math_step_sha256": "6e6fd7d3a0fe823c6f2d56104e87490c067873fb39408456392d41477e8655c5",
             "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_known"
           }
         ],
@@ -1665,10 +1665,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "7717f642e2d2c9e43de981e2",
+        "interaction_id": "83a7493cdc41b3f84a51ac39",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "0372690361ac127a3ecdddb6164ac3dc82a40928937573bdd1ae1d7f97382b1f",
-        "lesson_version": "66be16291d698afc9fc11e3917e1e0907a5be3dfc2d61ed7d7eb2e44124d2b1e",
+        "interaction_sha256": "ede7b005db391ee0a1a2ba68472bddade8b4267f04f747b90c3a79e60f79e042",
+        "lesson_version": "c17fe004a81e0e6a4409681fa9047b201dabb47f7cc5a63a36301783245c0860",
         "parts": [
           {
             "completion_board": {
@@ -1870,25 +1870,25 @@
                 ]
               }
             },
-            "id": "7717f642e2d2c9e43de981e2#1",
+            "id": "83a7493cdc41b3f84a51ac39#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$x<0\\text{ 时，}x\\in\\varnothing$",
-                  "value": "o2"
+                  "label": "$x<0\\text{ 时，}x<-3$",
+                  "value": "o4"
                 },
                 {
-                  "label": "$x<0\\text{ 时，}-3\\le x<0$",
-                  "value": "o1"
+                  "label": "$x<0\\text{ 时，}x\\in\\varnothing$",
+                  "value": "o2"
                 },
                 {
                   "label": "$x<0\\text{ 时，}x\\le -3$",
                   "value": "o3"
                 },
                 {
-                  "label": "$x<0\\text{ 时，}x<-3$",
-                  "value": "o4"
+                  "label": "$x<0\\text{ 时，}-3\\le x<0$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1914,11 +1914,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "d2592d31b63d4831ba96696d2ccfec49",
+        "run_id": "c5d6cc2f29ec482e854c2762b4a18a26",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "56c3e65cf161ff398a51c618a1e378c2f50f1166b64dad0abd5b94b2f9ef95b9",
+            "math_step_sha256": "3511751c4484574507a716e913973c0cb4e8601f0d5e2b7db652413d06e5cf87",
             "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_mirror"
           }
         ],
@@ -1926,10 +1926,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "7eadfa35cddec799c618dc0c",
+        "interaction_id": "18160bb2ef82394c49ebd53f",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "9b42dcca0e38cdc6c7175af6f98d6f691aa14bc80c0cf57838542b2024c24ae9",
-        "lesson_version": "66be16291d698afc9fc11e3917e1e0907a5be3dfc2d61ed7d7eb2e44124d2b1e",
+        "interaction_sha256": "716b31bab0302841a6917cb1896c043abd18ad30caceb96248f0fa20adedd4ef",
+        "lesson_version": "c17fe004a81e0e6a4409681fa9047b201dabb47f7cc5a63a36301783245c0860",
         "parts": [
           {
             "completion_board": {
@@ -2056,17 +2056,17 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "7eadfa35cddec799c618dc0c#1",
+            "id": "18160bb2ef82394c49ebd53f#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$0\\le x\\le 3$",
-                  "value": "o2"
-                },
-                {
                   "label": "$-3\\le x<0$",
                   "value": "o3"
+                },
+                {
+                  "label": "$0\\le x\\le 3$",
+                  "value": "o2"
                 },
                 {
                   "label": "$-3\\le x\\le 3$",
@@ -2096,11 +2096,11 @@
           }
         ],
         "route_id": "parity-inequality",
-        "run_id": "d2592d31b63d4831ba96696d2ccfec49",
+        "run_id": "c5d6cc2f29ec482e854c2762b4a18a26",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "a003a984f283911e56cd3b16c440eabc285729de56f373bf4f8dedb0ac4fa984",
+            "math_step_sha256": "339f6372e371b5e7c03b12427e8dcb77f7c4a54a45c4963e551205e64f6d3cce",
             "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_conclude"
           }
         ],

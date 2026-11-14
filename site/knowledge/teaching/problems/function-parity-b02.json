@@ -36,17 +36,25 @@
             "method-function-symmetry"
           ]
         },
-        "5cba67c64c0452fe3f71462a#1": {
-          "title": "求相反输入的函数值之和",
+        "0d2afada699b34ccee0ebbda#1": {
+          "title": "写出 $f(-x)$",
           "position": 4,
           "refs": [
             "method-function-symmetry#rewrite",
             "skill-function-symmetry-transform"
           ]
         },
-        "5f4105118bf1b2730d9ae102#1": {
-          "title": "回答原题所求",
+        "0d2afada699b34ccee0ebbda#2": {
+          "title": "求 $f(x)+f(-x)$",
           "position": 5,
+          "refs": [
+            "method-function-symmetry#rewrite",
+            "skill-function-symmetry-transform"
+          ]
+        },
+        "56fe0044d703f8939effd103#1": {
+          "title": "代入题目中的数",
+          "position": 6,
           "refs": [
             "method-function-symmetry#conclude"
           ]
@@ -54,6 +62,6 @@
       }
     }
   },
-  "page_contract_hash": "bb6567d773474f69bc29392f7816f273478c33da882e984104fa9bb3016856b5",
-  "practice_version": "e996f2d006878c92ce87594fa684185a068937c0dc53014e22c43b9f301ecfdb"
+  "page_contract_hash": "37a2afc6639009985341d5795e2034eb591c4216c9a3d6e9a20c5288465b14e5",
+  "practice_version": "c06be7a97a67993e8c0be727f2dcab282bfc3dff04509a0a201ae4971c9b7a08"
 }

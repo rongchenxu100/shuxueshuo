@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "7ea48555bef44d288d869fe4dc302580",
-    "lesson_version": "c8e34bfb1799581aa1d7660e0316a37c0d672aacd6e99f52d5bd55eb2461828c",
-    "input_sha256": "7cf38a1caa99c5f2e3f3ca70cb4d115a3e9c356370b5d516d29b9eadb1f32ad6",
-    "checkpoint_sha256": "542bb639edb96ce81c7f22623cc3ace4be4c3d3c90407031e7735c51593c682b",
-    "result_sha256": "29407babc573e007b8e25124129d4b2e411643e61edc09af1320070bfc1d325d",
+    "run_id": "d4bf73560aa64ea69d8af0ab4950c109",
+    "lesson_version": "b98c01e2d3c1cdcb19f20cd568988876159d3c428819f2b57254ee56e5f36d4f",
+    "input_sha256": "9985550706577bb5111756a903b6855db78c445749ba0959d2d022a69797544b",
+    "checkpoint_sha256": "026c4a7c5c53d47951ec8f7d7775e7e602f82c753e88f2c6ce28cd97efbae4a2",
+    "result_sha256": "e2ba0d807d1b33c1eff30312b4a079d2ffce370656df6f49417c8030d997970b",
     "stage_one_sha256": "98ecdeeb4c53bf862b354f94f5d12b4665132e20d53aee9fb3432e2fc775aa68",
-    "stage_two_sha256": "98d20839b688d8a2d90fa55b66ab4e66ea547a0eaeb701fb32c6f133ae38b510",
+    "stage_two_sha256": "aec6ca21d035cac6721f1f1e818246c9cc0c0d30586d3db07ab1d8ebac724fda",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "d8a63b42e670c337c4868d4c6e483d65c7233330602f81bfa7b1611e4081c009",
-    "teaching_revision": "28fb1792d0dd882ebc72c98e33da34eece2c810e0dbe232b02e9102d89c16045"
+    "teaching_revision": "e3878d59fec81712ccdc3362084345c5e3efee4a6b5687b85b97aa8809f498a3"
   },
   "lesson": {
     "status": "completed",
@@ -471,10 +471,10 @@
     ]
   },
   "stream": {
-    "run_id": "7ea48555bef44d288d869fe4dc302580",
-    "lesson_version": "c8e34bfb1799581aa1d7660e0316a37c0d672aacd6e99f52d5bd55eb2461828c",
-    "input_sha256": "7cf38a1caa99c5f2e3f3ca70cb4d115a3e9c356370b5d516d29b9eadb1f32ad6",
-    "stream_id": "7ea48555bef44d288d869fe4dc302580",
+    "run_id": "d4bf73560aa64ea69d8af0ab4950c109",
+    "lesson_version": "b98c01e2d3c1cdcb19f20cd568988876159d3c428819f2b57254ee56e5f36d4f",
+    "input_sha256": "9985550706577bb5111756a903b6855db78c445749ba0959d2d022a69797544b",
+    "stream_id": "d4bf73560aa64ea69d8af0ab4950c109",
     "last_seq": 18,
     "minimum_seq": 1,
     "math_steps": [
@@ -484,37 +484,37 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_rewrite",
-        "explanation": "$$\\begin{gathered}g(x)=f(x)+2\\\\g\\text{ 是奇函数}\\\\f(1)=9\\\\D=\\mathbb{R}\\\\g(x)+g(-x)=0\\\\f(x)+f(-x)=-4\\\\\\frac{f(x)+f(-x)}{2}=-2\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}\\because\\ g(x)=f(x)+2\\\\\\therefore\\ g(-x)=f(-x)+2\\\\\\because\\ g\\text{ 是奇函数}\\\\\\therefore\\ g(-x)=f(-x)+2=-g(x)\\\\\\therefore\\ f(-x)+2=-\\left(f(x)+2\\right)\\\\\\therefore\\ f(-x)+2=-f(x)-2\\\\\\therefore\\ f(x)+f(-x)=-4\\end{gathered}$$",
         "highlight": {
-          "caption": "求相反输入的函数值之和",
+          "caption": "求 $f(x)+f(-x)$",
           "connector": "⇒",
           "items": [
             {
-              "label": "原式与条件",
-              "math": "\\begin{gathered}g(x)=f(x)+2\\\\g\\text{ 是奇函数}\\\\f(1)=9\\\\D=\\mathbb{R}\\end{gathered}"
+              "label": "已知",
+              "math": "f(-x)+2=-f(x)-2"
             },
             {
-              "label": "对称和值",
+              "label": "f(x)+f(-x)",
               "math": "f(x)+f(-x)=-4"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c8e34bfb1799581aa1d7660e0316a37c0d672aacd6e99f52d5bd55eb2461828c",
+        "lesson_version": "b98c01e2d3c1cdcb19f20cd568988876159d3c428819f2b57254ee56e5f36d4f",
         "local_check": "passed",
-        "math_step_sha256": "58cdc1c5bb29176c2b8dfe7905257618714549cd11e58f392f57293aef7f72e7",
+        "math_step_sha256": "a2c0408873a38b2ef08518bb187d914acf2ae5bae3ca1b2dc8eae795046f51ea",
         "method_ref": "method-function-symmetry#rewrite",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "7ea48555bef44d288d869fe4dc302580",
+        "run_id": "d4bf73560aa64ea69d8af0ab4950c109",
         "source_refs": [
           "/steps/1/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "target_ref": "/root/goals/0",
-        "title": "求相反输入的函数值之和",
+        "title": "求 $f(x)+f(-x)$",
         "used_basis": []
       },
       {
@@ -523,14 +523,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "function_symmetry_conclude",
-        "explanation": "$$\\begin{gathered}f(x)+f(-x)=-4\\\\f(-1)=-13\\end{gathered}$$",
+        "explanation": "$$\\begin{gathered}\\text{取 }x=-1\\text{，得 }f(-1)+f(1)=-4\\\\\\because\\ f(1)=9\\\\\\therefore\\ f(-1)=-4-9=-13\\end{gathered}$$",
         "highlight": {
-          "caption": "回答原题所求",
+          "caption": "代入题目中的数",
           "connector": "⇒",
           "items": [
             {
-              "label": "已知条件",
-              "math": "\\begin{gathered}g(x)=f(x)+2\\\\g\\text{ 是奇函数}\\\\f(1)=9\\\\D=\\mathbb{R}\\end{gathered}"
+              "label": "已知",
+              "math": "\\begin{gathered}f(x)+f(-x)=-4\\\\f(1)=9\\end{gathered}"
             },
             {
               "label": "结论",
@@ -539,21 +539,21 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "c8e34bfb1799581aa1d7660e0316a37c0d672aacd6e99f52d5bd55eb2461828c",
+        "lesson_version": "b98c01e2d3c1cdcb19f20cd568988876159d3c428819f2b57254ee56e5f36d4f",
         "local_check": "passed",
-        "math_step_sha256": "571a9ddda7ef0abf196b86681ff2bfe6c96a1f21838e89996dcf71852b4306c9",
+        "math_step_sha256": "9762b0eb233c84abf232d257cf952d2958e67cae3c6eac2984a03a37f2832cd7",
         "method_ref": "method-function-symmetry#conclude",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+        "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
         "route_id": "function-symmetry",
-        "run_id": "7ea48555bef44d288d869fe4dc302580",
+        "run_id": "d4bf73560aa64ea69d8af0ab4950c109",
         "source_refs": [
           "/steps/3/calls/0"
         ],
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "target_ref": "/root/goals/0",
-        "title": "回答原题所求",
+        "title": "代入题目中的数",
         "used_basis": []
       }
     ],
@@ -601,25 +601,25 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "c8e34bfb1799581aa1d7660e0316a37c0d672aacd6e99f52d5bd55eb2461828c",
+        "lesson_version": "b98c01e2d3c1cdcb19f20cd568988876159d3c428819f2b57254ee56e5f36d4f",
         "math_steps": [
           {
-            "math_step_sha256": "58cdc1c5bb29176c2b8dfe7905257618714549cd11e58f392f57293aef7f72e7",
+            "math_step_sha256": "a2c0408873a38b2ef08518bb187d914acf2ae5bae3ca1b2dc8eae795046f51ea",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           },
           {
-            "math_step_sha256": "571a9ddda7ef0abf196b86681ff2bfe6c96a1f21838e89996dcf71852b4306c9",
+            "math_step_sha256": "9762b0eb233c84abf232d257cf952d2958e67cae3c6eac2984a03a37f2832cd7",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "7ea48555bef44d288d869fe4dc302580",
+        "run_id": "d4bf73560aa64ea69d8af0ab4950c109",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "d80a229a5c1d3f0aec9736a20707fafb20fb552f2ee7e43f66172f2a7db0a3a8",
-        "verified_route_sha256": "001c21f15c4d18b152dae9983321ee39b7efe48c33de7a7b4add37fe8c7e8f86"
+        "task_id": "e795534dd6676683e2b6e1910e6f51c271e35b93251b7a182ccfd66265c67479",
+        "verified_route_sha256": "aaa22d2d32ce3e51ff615d2c42a8d0e226947ed4c030bc293b8bc79007360b65"
       }
     ],
     "qa": [],
@@ -669,22 +669,22 @@
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
         "ordinal": 1,
-        "math_step_sha256": "58cdc1c5bb29176c2b8dfe7905257618714549cd11e58f392f57293aef7f72e7",
+        "math_step_sha256": "a2c0408873a38b2ef08518bb187d914acf2ae5bae3ca1b2dc8eae795046f51ea",
         "status": "interactive",
-        "interaction_id": "372ac7d15713793f41a77293"
+        "interaction_id": "a3e928301ac653918deea4a4"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-symmetry",
         "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
         "ordinal": 2,
-        "math_step_sha256": "571a9ddda7ef0abf196b86681ff2bfe6c96a1f21838e89996dcf71852b4306c9",
+        "math_step_sha256": "9762b0eb233c84abf232d257cf952d2958e67cae3c6eac2984a03a37f2832cd7",
         "status": "interactive",
-        "interaction_id": "dd5a2c6f7039451b2d9f2e2d"
+        "interaction_id": "a88087e61ad3a105aa7ca9f0"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "17cf36627f8637fdfb8d8273b75008e2dcb4aa0f846bccf2ac8b83b2f7d0e5b2",
+    "revisions_ref": "ff556b3ce640bc6a09bb0f8511a672b347cebe7723d6a8ec9131a5298bd445b0",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -789,221 +789,29 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "372ac7d15713793f41a77293",
+        "interaction_id": "a3e928301ac653918deea4a4",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "5640639ccec2b878b72ca2b1f1666f33e677dc07bb59b502b14b97d86b3cd944",
-        "lesson_version": "c8e34bfb1799581aa1d7660e0316a37c0d672aacd6e99f52d5bd55eb2461828c",
+        "interaction_sha256": "824bda508340750295f34bf9484108acf801f7c14fdb9c32dc17489506160b65",
+        "lesson_version": "b98c01e2d3c1cdcb19f20cd568988876159d3c428819f2b57254ee56e5f36d4f",
         "parts": [
           {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
             "completion_board": {
-              "caption": "求相反输入的函数值之和",
+              "caption": "代入 $-x$",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "原式与条件",
-                  "math": "\\begin{gathered}g(x)=f(x)+2\\\\g\\text{ 是奇函数}\\\\f(1)=9\\\\D=\\mathbb{R}\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}g(x)=f(x)+2\\\\g\\text{ 是奇函数}\\\\D=\\mathbb{R}\\end{gathered}"
                 },
                 {
-                  "label": "对称和值",
-                  "math": "f(x)+f(-x)=-4"
+                  "label": "g(-x)",
+                  "math": "g(-x)=f(-x)+2=-g(x)"
                 }
               ],
               "layout": "derivation"
             },
-            "condition_number_lines": [
-              {
-                "bounds": [
-                  -2.0,
-                  2.0
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Reals"
-                  },
-                  "expression": "Reals",
-                  "latex": "\\mathbb{R}"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-oo, oo)",
-                      "latex": "\\left(-\\infty, \\infty\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "原输入范围\\quad x=-1",
-                "points": [
-                  {
-                    "at": -1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  },
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "variable": "x"
-              },
-              {
-                "bounds": [
-                  -2.0,
-                  2.0
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Reals"
-                  },
-                  "expression": "Reals",
-                  "latex": "\\mathbb{R}"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-oo, oo)",
-                      "latex": "\\left(-\\infty, \\infty\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "配对后的范围\\quad x=1",
-                "points": [
-                  {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  },
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "variable": "x"
-              }
-            ],
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1012,55 +820,191 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "372ac7d15713793f41a77293#1",
+            "id": "a3e928301ac653918deea4a4#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(x)+f(-x)=4$",
+                  "label": "$g(-x)=-f(x)+2=-g(x)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$g(-x)=-f(-x)+2=-g(x)$",
                   "value": "o4"
                 },
                 {
-                  "label": "$f(x)+f(-x)=-5$",
+                  "label": "$g(-x)=f(x)+2=-g(x)$",
                   "value": "o3"
                 },
                 {
-                  "label": "$f(x)+f(-x)=-4$",
+                  "label": "$g(-x)=f(-x)+2=-g(x)$",
                   "value": "o1"
-                },
-                {
-                  "label": "$f(x)+f(-x)=-3$",
-                  "value": "o2"
                 }
               ],
               "type": "choice"
             },
-            "question": "先明确奇函数，再将结论还原到所求的函数。",
+            "question": "把 $x$ 换成 $-x$，再由 $g$ 是奇函数，$g(-x)$ 等于什么？",
             "stem_board": {
-              "caption": "求相反输入的函数值之和",
+              "caption": "代入 $-x$",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "原式与条件",
-                  "math": "\\begin{gathered}g(x)=f(x)+2\\\\g\\text{ 是奇函数}\\\\f(1)=9\\\\D=\\mathbb{R}\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}g(x)=f(x)+2\\\\g\\text{ 是奇函数}\\\\D=\\mathbb{R}\\end{gathered}"
                 },
                 {
-                  "label": "对称和值",
+                  "label": "g(-x)",
                   "math": null
                 }
               ],
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "求相反输入的函数值之和"
+            "title": "代入 $-x$"
+          },
+          {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
+            "completion_board": {
+              "caption": "由奇函数列出等式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}g(-x)=f(-x)+2\\\\-g(x)=-f(x)-2\\end{gathered}"
+                },
+                {
+                  "label": "等式",
+                  "math": "f(-x)+2=-f(x)-2"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "a3e928301ac653918deea4a4#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(-x)+2=-f(x)$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$f(-x)+2=f(x)+2$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(-x)+2=-f(x)+2$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(-x)+2=-f(x)-2$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由 $g(-x)=-g(x)$，把等号两边都用 $f$ 表示，得到哪个等式？",
+            "stem_board": {
+              "caption": "由奇函数列出等式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "\\begin{gathered}g(-x)=f(-x)+2\\\\-g(x)=-f(x)-2\\end{gathered}"
+                },
+                {
+                  "label": "等式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "由奇函数列出等式"
+          },
+          {
+            "card_group": "opposite-sum",
+            "card_group_title": "代入 $-x$，求 $f(x)+f(-x)$",
+            "completion_board": {
+              "caption": "求 $f(x)+f(-x)$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "f(-x)+2=-f(x)-2"
+                },
+                {
+                  "label": "f(x)+f(-x)",
+                  "math": "f(x)+f(-x)=-4"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "a3e928301ac653918deea4a4#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x)+f(-x)=-5$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(x)+f(-x)=-3$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x)+f(-x)=4$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$f(x)+f(-x)=-4$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "移项整理，$f(x)+f(-x)$ 等于多少？",
+            "stem_board": {
+              "caption": "求 $f(x)+f(-x)$",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知",
+                  "math": "f(-x)+2=-f(x)-2"
+                },
+                {
+                  "label": "f(x)+f(-x)",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求 $f(x)+f(-x)$"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "7ea48555bef44d288d869fe4dc302580",
+        "run_id": "d4bf73560aa64ea69d8af0ab4950c109",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "58cdc1c5bb29176c2b8dfe7905257618714549cd11e58f392f57293aef7f72e7",
+            "math_step_sha256": "a2c0408873a38b2ef08518bb187d914acf2ae5bae3ca1b2dc8eae795046f51ea",
             "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
           }
         ],
@@ -1068,19 +1012,19 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "dd5a2c6f7039451b2d9f2e2d",
+        "interaction_id": "a88087e61ad3a105aa7ca9f0",
         "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
-        "interaction_sha256": "577c59db9cb0747590e8d729620d1cb453011a4fd25e80e7ce66a37c9c34a74b",
-        "lesson_version": "c8e34bfb1799581aa1d7660e0316a37c0d672aacd6e99f52d5bd55eb2461828c",
+        "interaction_sha256": "316540b6d87fead01d88a298b3c63f058b3aa0d392c010b2e5ce193bcf1d6684",
+        "lesson_version": "b98c01e2d3c1cdcb19f20cd568988876159d3c428819f2b57254ee56e5f36d4f",
         "parts": [
           {
             "completion_board": {
-              "caption": "回答原题所求",
+              "caption": "代入题目中的数",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}g(x)=f(x)+2\\\\g\\text{ 是奇函数}\\\\f(1)=9\\\\D=\\mathbb{R}\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)+f(-x)=-4\\\\f(1)=9\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -1089,200 +1033,6 @@
               ],
               "layout": "derivation"
             },
-            "condition_number_lines": [
-              {
-                "bounds": [
-                  -2.0,
-                  2.0
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Reals"
-                  },
-                  "expression": "Reals",
-                  "latex": "\\mathbb{R}"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-oo, oo)",
-                      "latex": "\\left(-\\infty, \\infty\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "原输入范围\\quad x=-1",
-                "points": [
-                  {
-                    "at": -1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  },
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "variable": "x"
-              },
-              {
-                "bounds": [
-                  -2.0,
-                  2.0
-                ],
-                "exact_set": {
-                  "exact": {
-                    "$math": "Reals"
-                  },
-                  "expression": "Reals",
-                  "latex": "\\mathbb{R}"
-                },
-                "intervals": [
-                  {
-                    "exact": {
-                      "exact": {
-                        "$math": "Interval",
-                        "args": [
-                          {
-                            "$math": "NegativeInfinity"
-                          },
-                          {
-                            "$math": "Infinity"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          },
-                          {
-                            "$math": "BooleanTrue"
-                          }
-                        ]
-                      },
-                      "expression": "Interval(-oo, oo)",
-                      "latex": "\\left(-\\infty, \\infty\\right)"
-                    },
-                    "left": null,
-                    "left_closed": false,
-                    "right": null,
-                    "right_closed": false
-                  }
-                ],
-                "label": "配对后的范围\\quad x=1",
-                "points": [
-                  {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "ticks": [
-                  {
-                    "at": -1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "-1"
-                      },
-                      "expression": "-1",
-                      "latex": "-1"
-                    },
-                    "label": "-1"
-                  },
-                  {
-                    "at": 0.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "0"
-                      },
-                      "expression": "0",
-                      "latex": "0"
-                    },
-                    "label": "0"
-                  },
-                  {
-                    "at": 1.0,
-                    "exact": {
-                      "exact": {
-                        "$math": "Integer",
-                        "value": "1"
-                      },
-                      "expression": "1",
-                      "latex": "1"
-                    },
-                    "label": "1"
-                  }
-                ],
-                "variable": "x"
-              }
-            ],
             "expected_answer": {
               "one_of": [
                 "o1"
@@ -1291,7 +1041,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "dd5a2c6f7039451b2d9f2e2d#1",
+            "id": "a88087e61ad3a105aa7ca9f0#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1304,24 +1054,24 @@
                   "value": "o4"
                 },
                 {
-                  "label": "$f(-1)=-14$",
-                  "value": "o3"
-                },
-                {
                   "label": "$f(-1)=-12$",
                   "value": "o2"
+                },
+                {
+                  "label": "$f(-1)=-14$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
             },
-            "question": "使用对称和值，检查每项的系数、出现次数及取值范围。",
+            "question": "已知$f(1)=9$，求 $f(-1)$ 的值。",
             "stem_board": {
-              "caption": "回答原题所求",
+              "caption": "代入题目中的数",
               "connector": "⇒",
               "items": [
                 {
-                  "label": "已知条件",
-                  "math": "\\begin{gathered}g(x)=f(x)+2\\\\g\\text{ 是奇函数}\\\\f(1)=9\\\\D=\\mathbb{R}\\end{gathered}"
+                  "label": "已知",
+                  "math": "\\begin{gathered}f(x)+f(-x)=-4\\\\f(1)=9\\end{gathered}"
                 },
                 {
                   "label": "结论",
@@ -1331,15 +1081,15 @@
               "layout": "derivation"
             },
             "submit_label": "确认判断",
-            "title": "回答原题所求"
+            "title": "代入题目中的数"
           }
         ],
         "route_id": "function-symmetry",
-        "run_id": "7ea48555bef44d288d869fe4dc302580",
+        "run_id": "d4bf73560aa64ea69d8af0ab4950c109",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "571a9ddda7ef0abf196b86681ff2bfe6c96a1f21838e89996dcf71852b4306c9",
+            "math_step_sha256": "9762b0eb233c84abf232d257cf952d2958e67cae3c6eac2984a03a37f2832cd7",
             "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
           }
         ],
